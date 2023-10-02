@@ -1,0 +1,2 @@
+parameter_name;parameter_description;value;unit;format;source
+percentage_pm2.5_in_pm10;% of PM10 that is PM2.5;72.858617131063;%;value;STE-2010

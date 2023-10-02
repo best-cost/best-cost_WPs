@@ -1,0 +1,135 @@
+hra;pollutant;outcome_metric;outcome_disease;outcome_group;term;crf_mean;crf_lowci;crf_highci;crf_per;concentration_unit;crf_geolevel;crf_model;crf_adjusted;crf_source;type;geluft_pair;geluft_crf
+;PM2.5;premature deaths;all causes;adults;long-term;1.06;0.977;1.15;5;ug/m3;Europe;multi-pollutant;NO2;Beelen et al. (2014);meta-analysis;;
+;PM2.5;premature deaths;all causes;adults;long-term;1.07;1.016;1.127;5;ug/m3;Europe;single-pollutant;;Beelen et al. (2014);meta-analysis;;
+;PM2.5;premature deaths;all causes;adults;long-term;1.12;1.06;1.19;10;ug/m3;Europe;;;Pope et al. (2020);meta-analysis;;
+;PM2.5;premature deaths;all causes;adults;long-term;1.07;1.03;1.11;10;ug/m3;Europe;multi- and single-pollutant;;Chen and Hoek (2020);meta-analysis;;
+STE_2010;PM2.5;premature deaths;all causes;adults;long-term;1.062;1.04;1.083;10;ug/m3;World;single-pollutant;;Hoek et al. (2013);meta-analysis;main;sensitivity
+;PM2.5;premature deaths;all causes;adults;long-term;1.13;1.106;1.155;5;ug/m3;Europe;single-pollutant;;Strak et al. (2021);cohort;;
+;PM2.5;premature deaths;all causes;adults;long-term;1.083;1.054;1.113;5;ug/m3;Europe;multi-pollutant;NO2;Strak et al. (2021);cohort;;
+;PM2.5;premature deaths;all causes;adults;long-term;1.053;1.021;1.085;5;ug/m3;Europe;single-pollutant;;Stafoggia et al. (2022);meta-analysis;;
+;PM2.5;premature deaths;all causes;adults;long-term;1.003;0.982;1.025;5;ug/m3;Europe;multi-pollutant;NO2;Stafoggia et al. (2022);meta-analysis;;
+;NO2;premature deaths;all causes;adults;long-term;1.055;1.031;1.08;10;ug/m3;World;single-pollutant;;Hoek et al. (2013);meta-analysis;appendix;sensitivity
+;NO2;premature deaths;all causes;adults;long-term;1.007;0.967;1.049;10;ug/m3;Europe;multi-pollutant;PM2.5;Beelen et al. (2014);meta-analysis;;
+;NO2;premature deaths;all causes;adults;long-term;1.015;0.993;1.036;10;ug/m3;Europe;single-pollutant;;Beelen et al. (2014);meta-analysis;;
+;NO2;premature deaths;all causes;adults;long-term;1.086;1.07;1.102;10;ug/m3;Europe;single-pollutant;;Strak et al. (2021);cohort;;
+;NO2;premature deaths;all causes;adults;long-term;1.05;1.031;1.07;10;ug/m3;Europe;multi-pollutant;PM2.5;Strak et al. (2021);cohort;;
+;NO2;premature deaths;all causes;adults;long-term;1.044;1.019;1.069;10;ug/m3;Europe;single-pollutant;;Stafoggia et al. (2022);meta-analysis;;
+;NO2;premature deaths;all causes;adults;long-term;1.042;1.02;1.065;10;ug/m3;Europe;multi-pollutant;PM2.5;Stafoggia et al. (2022);meta-analysis;;
+;PM2.5;premature deaths;cardio-vascular diseases;adults;long-term;1.135;1.095;1.176;5;ug/m3;Europe;single-pollutant;;Strak et al. (2021);cohort;;
+;PM2.5;premature deaths;ihd;adults;long-term;1.111;1.056;1.169;5;ug/m3;Europe;single-pollutant;;Strak et al. (2021);cohort;;
+;PM2.5;premature deaths;cerebrovascular diseases;adults;long-term;1.128;1.048;1.214;5;ug/m3;Europe;single-pollutant;;Strak et al. (2021);cohort;;
+;PM2.5;premature deaths;respiratory diseases;adults;long-term;1.054;0.961;1.156;5;ug/m3;Europe;single-pollutant;;Strak et al. (2021);cohort;;
+;PM2.5;premature deaths;copd;adults;long-term;1.131;1.002;1.278;5;ug/m3;Europe;single-pollutant;;Strak et al. (2021);cohort;;
+;PM2.5;premature deaths;diabetes;adults;long-term;1.316;1.144;1.514;5;ug/m3;Europe;single-pollutant;;Strak et al. (2021);cohort;;
+;PM2.5;premature deaths;cardiometabolic diseases;adults;long-term;1.146;1.107;1.186;5;ug/m3;Europe;single-pollutant;;Strak et al. (2021);cohort;;
+;PM2.5;premature deaths;cardio-vascular diseases;adults;long-term;1.041;1.01;1.072;5;ug/m3;Europe;single-pollutant;;Stafoggia et al. (2022);meta-analysis;;
+;PM2.5;premature deaths;respiratory diseases;adults;long-term;1.064;1.013;1.118;5;ug/m3;Europe;single-pollutant;;Stafoggia et al. (2022);meta-analysis;;
+;PM2.5;premature deaths;lung cancer;adults;long-term;1.102;1.036;1.172;5;ug/m3;Europe;single-pollutant;;Stafoggia et al. (2022);meta-analysis;;
+;PM2.5;premature deaths;all causes;adults;long-term;1.023;1.011;1.035;5;ug/m3;Belgium;single-pollutant;;Stafoggia et al. (2022);cohort;;
+;PM2.5;premature deaths;all causes;adults;long-term;1.141;1.118;1.164;5;ug/m3;Denmark;single-pollutant;;Stafoggia et al. (2022);cohort;;
+;PM2.5;premature deaths;all causes;adults;long-term;1.021;0.999;1.044;5;ug/m3;The Netherlands;single-pollutant;;Stafoggia et al. (2022);cohort;;
+;PM2.5;premature deaths;all causes;adults;long-term;1.023;1.001;1.045;5;ug/m3;England;single-pollutant;;Stafoggia et al. (2022);cohort;;
+;PM2.5;premature deaths;all causes;adults;long-term;1.076;1.066;1.086;5;ug/m3;Norway;single-pollutant;;Stafoggia et al. (2022);cohort;;
+;PM2.5;premature deaths;all causes;adults;long-term;1.066;1.033;1.099;5;ug/m3;Rome;single-pollutant;;Stafoggia et al. (2022);cohort;;
+;PM2.5;premature deaths;all causes;adults;long-term;1.026;1.015;1.038;5;ug/m3;Switzerland;single-pollutant;;Stafoggia et al. (2022);cohort;;
+;NO2;premature deaths;all causes;adults;long-term;1.001;0.995;1.007;10;ug/m3;Belgium;single-pollutant;;Stafoggia et al. (2022);cohort;;
+;NO2;premature deaths;all causes;adults;long-term;1.107;1.096;1.118;10;ug/m3;Denmark;single-pollutant;;Stafoggia et al. (2022);cohort;;
+;NO2;premature deaths;all causes;adults;long-term;1.03;1.019;1.041;10;ug/m3;The Netherlands;single-pollutant;;Stafoggia et al. (2022);cohort;;
+;NO2;premature deaths;all causes;adults;long-term;1.031;1.021;1.041;10;ug/m3;England;single-pollutant;;Stafoggia et al. (2022);cohort;;
+;NO2;premature deaths;all causes;adults;long-term;1.062;1.055;1.07;10;ug/m3;Norway;single-pollutant;;Stafoggia et al. (2022);cohort;;
+;NO2;premature deaths;all causes;adults;long-term;1.028;1.018;1.038;10;ug/m3;Rome;single-pollutant;;Stafoggia et al. (2022);cohort;;
+;NO2;premature deaths;all causes;adults;long-term;1.05;1.041;1.059;10;ug/m3;Switzerland;single-pollutant;;Stafoggia et al. (2022);cohort;;
+;PM2.5;premature deaths;all causes;adults;long-term;1.028;1.014;1.043;5;ug/m3;Belgium;multi-pollutant;NO2;Stafoggia et al. (2022);cohort;;
+;PM2.5;premature deaths;all causes;adults;long-term;1.035;1.01;1.061;5;ug/m3;Denmark;multi-pollutant;NO2;Stafoggia et al. (2022);cohort;;
+;PM2.5;premature deaths;all causes;adults;long-term;0.972;0.944;1;5;ug/m3;The Netherlands;multi-pollutant;NO2;Stafoggia et al. (2022);cohort;;
+;PM2.5;premature deaths;all causes;adults;long-term;0.964;0.937;0.991;5;ug/m3;England;multi-pollutant;NO2;Stafoggia et al. (2022);cohort;;
+;PM2.5;premature deaths;all causes;adults;long-term;1.025;1.009;1.041;5;ug/m3;Norway;multi-pollutant;NO2;Stafoggia et al. (2022);cohort;;
+;PM2.5;premature deaths;all causes;adults;long-term;1;0.955;1.046;5;ug/m3;Rome;multi-pollutant;NO2;Stafoggia et al. (2022);cohort;;
+;PM2.5;premature deaths;all causes;adults;long-term;0.992;0.978;1.005;5;ug/m3;Switzerland;multi-pollutant;NO2;Stafoggia et al. (2022);cohort;;
+;NO2;premature deaths;all causes;adults;long-term;0.995;0.987;1.002;10;ug/m3;Belgium;multi-pollutant;PM2.5;Stafoggia et al. (2022);cohort;;
+;NO2;premature deaths;all causes;adults;long-term;1.095;1.082;1.108;10;ug/m3;Denmark;multi-pollutant;PM2.5;Stafoggia et al. (2022);cohort;;
+;NO2;premature deaths;all causes;adults;long-term;1.039;1.025;1.054;10;ug/m3;The Netherlands;multi-pollutant;PM2.5;Stafoggia et al. (2022);cohort;;
+;NO2;premature deaths;all causes;adults;long-term;1.043;1.029;1.056;10;ug/m3;England;multi-pollutant;PM2.5;Stafoggia et al. (2022);cohort;;
+;NO2;premature deaths;all causes;adults;long-term;1.047;1.034;1.059;10;ug/m3;Norway;multi-pollutant;PM2.5;Stafoggia et al. (2022);cohort;;
+;NO2;premature deaths;all causes;adults;long-term;1.028;1.013;1.043;10;ug/m3;Rome;multi-pollutant;PM2.5;Stafoggia et al. (2022);cohort;;
+;NO2;premature deaths;all causes;adults;long-term;1.053;1.043;1.063;10;ug/m3;Switzerland;multi-pollutant;PM2.5;Stafoggia et al. (2022);cohort;;
+;PM2.5;premature deaths;all causes;adults;long-term;1.118;1.06;1.179;10;ug/m3;Europe;single-pollutant;;ERS-ISEE (2022);meta-analysis;main;selected
+;NO2;premature deaths;all causes;adults;long-term;1.045;1.026;1.065;10;ug/m3;Europe;single-pollutant;;ERS-ISEE (2022);meta-analysis;appendix;selected
+;BC;premature deaths;all causes;adults;long-term;1.081;1.065;1.098;0.44;ug/m3;Europe;single-pollutant;;Strak et al. (2021);cohort;;
+;BC;premature deaths;all causes;adults;long-term;1.039;1.019;1.06;0.44;ug/m3;Europe;multi-pollutant;PM2.5;Strak et al. (2021);cohort;;
+;PM2.5;premature deaths;all causes;adults;long-term;1.092;1.062;1.123;5;ug/m3;Europe;multi-pollutant;BC;Strak et al. (2021);cohort;;
+;BC;premature deaths;all causes;adults;long-term;1.039;1.018;1.059;0.44;ug/m3;Europe;single-pollutant;;Stafoggia et al. (2022);meta-analysis;;
+;BC;premature deaths;all causes;adults;long-term;1.03;1.012;1.049;0.44;ug/m3;Europe;multi-pollutant;PM2.5;Stafoggia et al. (2022);meta-analysis;;
+;PM2.5;premature deaths;all causes;adults;long-term;1.021;0.997;1.046;5;ug/m3;Europe;multi-pollutant;BC;Stafoggia et al. (2022);;;
+;PM2.5;premature deaths;all causes;adults;long-term;1.029;1.015;1.044;5;ug/m3;Belgium;multi-pollutant;BC;Stafoggia et al. (2022);cohort;;
+;PM2.5;premature deaths;all causes;adults;long-term;1.07;1.045;1.096;5;ug/m3;Denmark;multi-pollutant;BC;Stafoggia et al. (2022);cohort;;
+;PM2.5;premature deaths;all causes;adults;long-term;0.988;0.963;1.015;5;ug/m3;The Netherlands;multi-pollutant;BC;Stafoggia et al. (2022);cohort;;
+;PM2.5;premature deaths;all causes;adults;long-term;1.003;0.977;1.029;5;ug/m3;England;multi-pollutant;BC;Stafoggia et al. (2022);cohort;;
+;PM2.5;premature deaths;all causes;adults;long-term;1.058;1.042;1.073;5;ug/m3;Norway;multi-pollutant;BC;Stafoggia et al. (2022);cohort;;
+;PM2.5;premature deaths;all causes;adults;long-term;1.011;0.971;1.053;5;ug/m3;Rome;multi-pollutant;BC;Stafoggia et al. (2022);cohort;;
+;PM2.5;premature deaths;all causes;adults;long-term;0.989;0.976;1.002;5;ug/m3;Switzerland;multi-pollutant;BC;Stafoggia et al. (2022);cohort;;
+;BC;premature deaths;all causes;adults;long-term;0.993;0.985;1.001;0.44;ug/m3;Belgium;multi-pollutant;PM2.5;Stafoggia et al. (2022);cohort;;
+;BC;premature deaths;all causes;adults;long-term;1.062;1.049;1.074;0.44;ug/m3;Denmark;multi-pollutant;PM2.5;Stafoggia et al. (2022);cohort;;
+;BC;premature deaths;all causes;adults;long-term;1.033;1.02;1.047;0.44;ug/m3;The Netherlands;multi-pollutant;PM2.5;Stafoggia et al. (2022);cohort;;
+;BC;premature deaths;all causes;adults;long-term;1.016;1.004;1.029;0.44;ug/m3;England;multi-pollutant;PM2.5;Stafoggia et al. (2022);cohort;;
+;BC;premature deaths;all causes;adults;long-term;1.017;1.005;1.03;0.44;ug/m3;Norway;multi-pollutant;PM2.5;Stafoggia et al. (2022);cohort;;
+;BC;premature deaths;all causes;adults;long-term;1.029;1.017;1.042;0.44;ug/m3;Rome;multi-pollutant;PM2.5;Stafoggia et al. (2022);cohort;;
+;BC;premature deaths;all causes;adults;long-term;1.062;1.051;1.072;0.44;ug/m3;Switzerland;multi-pollutant;PM2.5;Stafoggia et al. (2022);cohort;;
+;BC;premature deaths;all causes;adults;long-term;1.002;0.995;1.008;0.44;ug/m3;Belgium;single-pollutant;;Stafoggia et al. (2022);cohort;;
+;BC;premature deaths;all causes;adults;long-term;1.084;1.073;1.095;0.44;ug/m3;Denmark;single-pollutant;;Stafoggia et al. (2022);cohort;;
+;BC;premature deaths;all causes;adults;long-term;1.03;1.019;1.041;0.44;ug/m3;The Netherlands;single-pollutant;;Stafoggia et al. (2022);cohort;;
+;BC;premature deaths;all causes;adults;long-term;1.017;1.007;1.028;0.44;ug/m3;England;single-pollutant;;Stafoggia et al. (2022);cohort;;
+;BC;premature deaths;all causes;adults;long-term;1.051;1.043;1.059;0.44;ug/m3;Norway;single-pollutant;;Stafoggia et al. (2022);cohort;;
+;BC;premature deaths;all causes;adults;long-term;1.031;1.022;1.041;0.44;ug/m3;Rome;single-pollutant;;Stafoggia et al. (2022);cohort;;
+;BC;premature deaths;all causes;adults;long-term;1.057;1.048;1.067;0.44;ug/m3;Switzerland;single-pollutant;;Stafoggia et al. (2022);cohort;;
+;PM2.5;premature deaths;all causes;infants;long-term;1.04;0.98;1.11;7;ug/m3;USA;single-pollutant;;Woodruff et al. (2008) ;cohort;main;selected
+STE_2010;PM10;premature deaths;all causes;infants;long-term;1.04;1.02;1.07;10;ug/m3;USA;single-pollutant;;Woodruff et al. (1997);cohort;main;sensitivity
+;PM10;premature deaths;all causes;infants;long-term;1.013;1.002;1.025;10;ug/m3;World;single-pollutant;;Kihal-Talantikite et al. (2020);meta-analysis;main;sensitivity
+STE_2010;PM10;incidence;chronic bronchitis;adults;long-term;1.117;1.04;1.189;10;ug/m3;World;single-pollutant;;WHO (2013);meta-analysis;appendix;selected
+STE_2010;PM10;prevalence;acute bronchitis;children;long-term;1.08;0.98;1.19;10;ug/m3;Europe;single-pollutant;;Hoek et al. (2012);meta-analysis;appendix;selected
+STE_2010;PM10;attacks;asthma;adults;short-term;1.029;1.013;1.045;10;ug/m3;Europe;single-pollutant;;ARE (2014);meta-analysis;rejected;selected
+STE_2010;PM10;attacks;asthma;children;short-term;1.028;1.006;1.051;10;ug/m3;World;single-pollutant;;Weinmayr et al. (2010);meta-analysis;appendix;selected
+STE_2010;PM2.5;hospital admissions;cardiovascular diseases;all;short-term;1.009;1.001;1.017;10;ug/m3;World;single-pollutant;;WHO (2013);meta-analysis;main;selected
+STE_2010;PM2.5;hospital admissions;respiratory diseases;all;short-term;1.019;0.998;1.04;10;ug/m3;World;single-pollutant;;WHO (2013);meta-analysis;main;selected
+;PM2.5;restricted activity days;all causes;adults;short-term;1.0493;1.042;1.053;10;ug/m3;USA;single-pollutant;;Orellano et al. (2023) ;meta-analysis;main;selected
+;PM10;restricted activity days;all causes;adults;short-term;1.0175;1.004;1.0311;10;ug/m3;World;single-pollutant;;Orellano et al. (2023);meta-analysis;main;sensitivity
+STE_2010;PM2.5;restricted activity days;all causes;adults;short-term;1.047;1.042;1.053;10;ug/m3;USA;single-pollutant;;Ostro (1987);cohort;main;sensitivity
+;PM2.5;work loss days;all causes;workers;short-term;1.0699;1.039;1.053;10;ug/m3;USA;single-pollutant;;Orellano et al. (2023);meta-analysis;main;selected
+STE_2010;PM2.5;work loss days;all causes;workers;short-term;1.046;1.039;1.053;10;ug/m3;USA;single-pollutant;;Ostro (1987);cohort;main;sensitivity
+;PM2.5;incidence;asthma;adults;long-term;1.22;1.04;1.43;5;ug/m3;Europe;single-pollutant;;Liu et al. (2021);meta-analysis;rejected;selected
+;PM2.5;incidence;asthma;children;long-term;1.25;0.94;1.66;5;ug/m3;Europe;single-pollutant;;Gehring et al. (2015);meta-analysis;appendix;selected
+;PM2.5;incidence;asthma;children;long-term;1.33;0.9;1.98;5;ug/m3;World;single-pollutant;;HEI (2022);meta-analysis;appendix;sensitivity
+;PM2.5;incidence;copd;adults;long-term;1.17;1.06;1.29;5;ug/m3;Europe;single-pollutant;;Liu et al. (2021);meta-analysis;main;selected
+;PM2.5;incidence;copd;adults;long-term;1.18;1.13;1.23;10;ug/m3;World;single-pollutant;;Park et al. (2021);meta-analysis;main;sensitivity
+;PM2.5;incidence;alri;children;long-term;1.12;1.03;1.3;10;ug/m3;World;single-pollutant;;Mehta et al. (2013);meta-analysis;main;selected
+;PM2.5;incidence;lung cancer;adults;long-term;1.13;1.05;1.23;5;ug/m3;Europe;single-pollutant;;Hvidtfeldt et al. (2021);meta-analysis;main;selected
+;PM2.5;incidence;lung cancer;adults;long-term;1.18;0.96;1.46;5;ug/m3;Europe;single-pollutant;;Raaschou-Nielsen et al. (2013);meta-analysis;main;sensitivity
+;PM2.5;incidence;lung cancer;adults;long-term;1.09;0.72;1.46;10;ug/m3;Europe;single-pollutant;;Ciabattini et al. (2021);meta-analysis;main;sensitivity
+;PM2.5;incidence;ischemic heart disease ;adults;long-term;1.13;0.98;1.3;5;ug/m3;Europe;single-pollutant;;Cesaroni et al. (2014);meta-analysis;main;selected
+;PM2.5;incidence;ischemic heart disease ;adults;long-term;1.09;0.86;1.39;5;ug/m3;World;single-pollutant;;HEI (2022);meta-analysis;main;sensitivity
+;PM2.5;incidence;ischemic heart disease ;adults;long-term;1.08;0.99;1.18;10;ug/m3;World;single-pollutant;;Alexeeff et al. (2021);meta-analysis;main;sensitivity
+;PM2.5;incidence;stroke;adults;long-term;1.1;1.01;1.21;5;ug/m3;Europe;single-pollutant;;Wolf et al. (2021);meta-analysis;main;selected
+;PM2.5;incidence;stroke;adults;long-term;1.19;0.88;1.62;5;ug/m3;Europe;single-pollutant;;Stafoggia et al. (2014);meta-analysis;main;sensitivity
+;PM2.5;incidence;stroke;adults;long-term;1.08;0.89;1.32;5;ug/m3;World;single-pollutant;;HEI (2022);meta-analysis;main;sensitivity
+;PM2.5;incidence;stroke;adults;long-term;1.13;1.11;1.15;10;ug/m3;Word;single-pollutant;;Alexeeff et al. (2021);meta-analysis;main;sensitivity
+;PM2.5;incidence;stroke;adults;long-term;1.048;1.02;1.076;10;ug/m3;World;single-pollutant;;Niu et al. (2021)[15];meta-analysis;main;sensitivity
+;PM2.5;incidence;diabetes (type 2);adults;long-term;1.05;0.96;1.15;5;ug/m3;World;single-pollutant;;Yang et al. (2020);meta-analysis;main;selected
+;PM2.5;incidence;diabetes (type 2);adults;long-term;1.1;1.04;1.17;10;ug/m3;World;single-pollutant;;HEI (2022);meta-analysis;main;sensitivity
+;PM2.5;incidence;low term birth weight;infants;long-term;1.18;1.06;1.33;5;ug/m3;Europe;single-pollutant;;Pedersen et al. (2013);meta-analysis;main;selected
+;PM2.5;incidence;low term birth weight;infants;long-term;1.11;1.03;1.2;5;ug/m3;World;single-pollutant;;HEI (2022);meta-analysis;main;sensitivity
+;PM2.5;incidence;low term birth weight;infants;long-term;1.11;1.07;1.16;10;ug/m3;World;single-pollutant;;Ghosh et al. (2021);meta-analysis;main;sensitivity
+;PM2.5;incidence;premature births;infants;long-term;1.029;0.807;1.251;10;ug/m3;Europe;single-pollutant;;Yu et al. (2022);meta-analysis;rejected;selected
+;PM2.5;incidence;premature births;infants;long-term;1.084;1.055;1.113;10;ug/m3;World;single-pollutant;;Yu et al. (2022);meta-analysis;rejected;sensitivity
+;PM2.5;incidence;premature births;infants;long-term;1.12;1.06;1.19;10;ug/m3;World;single-pollutant;;Ghosh et al. (2021);meta-analysis;rejected;sensitivity
+;PM2.5;incidence;dementia;seniors;long-term;1.21;0.9;1.63;2;ug/m3;Europe;single-pollutant;;Wilker et al. (2023);meta-analysis;main;selected
+;PM2.5;incidence;dementia;seniors;long-term;1.04;0.99;1.09;2;ug/m3;World;single-pollutant;;Wilker et al. (2023);meta-analysis;main;sensitivity
+;PM2.5;incidence;dementia;seniors;long-term;1.13;1.05;1.21;1;ug/m3;Europe;single-pollutant;;Abolhasani et al. (2023);meta-analysis;main;sensitivity
+;PM2.5;incidence;dementia;seniors;long-term;1.03;1.02;1.05;1;ug/m3;World;single-pollutant;;Abolhasani et al. (2023);meta-analysis;main;sensitivity
+;NO2;incidence;asthma;adults;long-term;1.1;0.99;1.21;10;ug/m3;Europe;single-pollutant;;Pedersen et al. (2013);meta-analysis;main;selected
+;NO2;incidence;asthma;adults;long-term;1.1;1.01;1.21;10;ug/m3;World;single-pollutant;;HEI (2022);meta-analysis;main;sensitivity
+;NO2;incidence;asthma;children;long-term;1.05;0.99;1.12;10;ug/m3;World;single-pollutant;;HEI (2022);meta-analysis;main;selected
+;NO2;incidence;asthma;children;long-term;1.05;1.02;1.07;4;ug/m3;World;single-pollutant;;Khreis et al. (2017);meta-analysis;main;sensitivity
+;NO2;incidence;alri;children;long-term;1.09;1.03;1.16;10;ug/m3;World;single-pollutant;;HEI (2022);meta-analysis;appendix;selected
+;NO2;incidence;leukemia;children;long-term;1.19;1.07;1.32;10;ug/m3;World;single-pollutant;;Wei et al. (2021);meta-analysis;rejected;selected
+;NO2;hospital admissions;respiratory diseases;all;short-term;1.018;1.012;1.025;10;ug/m3;World;single-pollutant;;WHO (2013);meta-analysis;appendix;selected
+AirQ+;PM2.5;premature deaths;all causes;adults;long-term;1.08;1.06;1.09;10;ug/m3;;single-pollutant;;AirQ+;;;

@@ -1,0 +1,1022 @@
+---
+title: "Testing of BEST-COST R package"
+author: "Alberto Castro & Axel Luyten"
+output: html_document
+---
+
+# Preparation
+
+The R script required the loading of certain R packages. 
+```{r R script}
+# Clear R environment
+rm(list = ls())
+
+# Load required packages
+library(readxl)
+library(dplyr)
+library(tidyr)
+
+library(ggplot2)
+library(purrr)
+library(stringr)
+library(tibble)
+
+
+library(zoo)
+library(meta)
+
+## To export tables in excel format
+library(openxlsx)
+
+## To load own packages
+library(credentials)
+library(gitcreds)
+library(devtools)
+
+```
+
+
+
+```{r own packages}
+# Install own package from github as suggested here
+# https://stackoverflow.com/a/71846333/6104907
+if(!"healthiar" %in% installed.packages()[, "Package"]){
+  #gitcreds::gitcreds_set()
+  credentials::set_github_pat()
+  devtools::install_github(repo = "SwissTPH/eeh_r_packages/healthiar" ,
+                           force =TRUE)
+}
+
+library(healthiar)
+```
+
+
+
+
+```{r Useful variables}
+
+#Decide 
+# the target increment (increase of concentration) of the pm CRFs 
+# and PM fraction
+
+per_target_pm <- 10 # ug/m3
+
+
+#Existing PM fractions
+
+pm_fractions <- c("PM2.5", "PM10")
+
+# Prioritized fraction
+pm_target <- "PM2.5"
+
+# Non prioritized fraction
+pm_no_target <- pm_fractions[!pm_fractions%in% pm_target]
+
+
+# Pollutants to be considered in the hra based on available exposure data
+pollutants_hra <- c(pm_target, "NO2")
+
+
+# Sex
+sex <-  c("male", "female")
+
+# Values in the confidence interval (ci)
+ci <- c("mean", "lowci", "highci")
+
+# Outcome groups
+
+groups <-
+  data.frame(
+    agegroup = c("below1", "from30"),
+    outcome_group = c("infants", "adults")
+  )
+
+outcomeGroups <- groups$outcome_group
+
+#IMPORTANT: Year to be run in the analysis air pollution HRA (health risk assessment)
+# This should be one (or more than one) from the years_withData
+# Change it as needed
+year_hra <- "2019"
+
+  
+
+```
+
+
+```{r Useful small functions}
+
+# Create function to join mean CRF with the lower and upper bound
+paste_CI <- 
+  function(mean, low, high, decimals){
+     paste0(sprintf(paste0("%.", decimals, "f"), round(mean, digits = decimals))," [",  
+            sprintf(paste0("%.", decimals, "f"), round(low, digits = decimals)), "; ", 
+            sprintf(paste0("%.", decimals, "f"), round(high, digits = decimals)), "]")
+  }
+
+# The same without rounding
+paste_CI_woRounding <- 
+  function(mean, low, high){
+     paste0(mean," [",  
+            low, "; ", 
+            high, "]")
+  }
+
+```
+
+
+# Input data
+
+
+## Generic data
+```{r Other generic data}
+
+# Read single-value generic data
+generic_data <- 
+  read.csv("input/generic_data.csv",
+           sep = ";")
+
+# Extract the value of the conversion factor from the generic_data csv file
+percentage_pm2.5_in_pm10 <- 
+  generic_data %>%
+  dplyr::filter(parameter_name %in% "percentage_pm2.5_in_pm10") %>%
+  dplyr::select(value)%>%
+  dplyr::pull()
+
+
+```
+
+
+## CRFs data
+```{r crf_rawdata}
+
+# Read CRF data inserted manually in the csv table 
+crf_rawdata <- 
+  read.csv("input/crf.csv",
+           sep = ";",
+           na.strings=c("NA", ""))
+
+
+
+```
+
+
+
+Concentration response functions (CRFs) had to be re-scaled in some cases so that all CRFs had the same unit, i.e. same PM fraction and same concentration increase (increment)
+
+
+```{r pm_rescale} 
+# Define function to re-scale the CRF regarding the considered increment
+rescale_crf_increment <- 
+  function(crf, per_original, per_target){
+    rescaled_increment <- 
+      exp(log(crf) * per_target / per_original)
+  }
+
+# Conversion factor for PM fraction
+conversionFactor_pmFraction <-
+  function(pm_original, pm_target){
+    
+    # Divide the percentage (%) by 100 to get the ratio (0.) 
+    # And depending on the pm selected choose the default or the inverse form
+    conversionfactor_ch <- 
+      ifelse(pm_original %in% "PM2.5" &
+               pm_target %in% "PM10",
+             1/(percentage_pm2.5_in_pm10/100),
+             ifelse(pm_original %in% "PM10" & 
+                      pm_target %in% "PM2.5",
+                    percentage_pm2.5_in_pm10/100,
+                    1))
+  }
+
+
+
+```
+
+
+
+```{r rescale concentration}
+
+# Define function to re-scale the CRF regarding the considered PM fraction
+rescale_conc_pmFraction <- 
+  function(conc, pm_original, pm_target){
+    
+    # Divide the percentage (%) by 100 to get the ratio (0.) 
+    # And depending on the pm selected choose the default or the inverse form
+    conversionfactor_ch <- 
+      conversionFactor_pmFraction(pm_original, pm_target)
+    
+    rescaled_fraction <- 
+      conc * conversionfactor_ch
+    
+    return(rescaled_fraction)
+  }
+```
+
+
+
+```{r crf_data rescaling crf}
+crf_data <- 
+  crf_rawdata%>%
+  # Select only CRFs that are relevant for the project GeLuft
+  dplyr::filter(!is.na(geluft_pair))%>%
+  # Reshape from wide to long 
+  tidyr::pivot_longer(c(crf_mean, crf_lowci, crf_highci),
+                      names_to = "ci",
+                      names_prefix = "crf_", 
+                      values_to = "crf")%>%
+  # Add columns with the original values (before re-scaling)
+  dplyr::mutate(
+    crf_pollutant_original = pollutant,
+    crf_original = crf,
+    crf_per_original = crf_per,
+  # Add the CRF increment (increase of concentration) for each pollutant
+    crf_per_target =
+      ifelse(pollutant %in% c(pm_fractions, "NO2"), 10, NA),
+      # ifelse(pollutant %in% "BC", 0.44, NA)))%>%
+      # ifelse(pollutant %in% "O3", , NA))))%>% 
+      # If O3 is included, the O3 increment is to be decided
+  # Re-scale PM fractions in CRFs
+    crf_per_rescaled = 
+      rescale_conc_pmFraction(
+        conc = crf_per_original,
+        pm_original = crf_pollutant_original,
+        pm_target = pm_target),
+    crf_rescaled = 
+      rescale_crf_increment(
+        crf = crf,
+        per_original = crf_per_rescaled,
+        per_target = crf_per_target),
+    crf = crf_rescaled)%>%
+  
+  # Modify columns based on target
+  dplyr::mutate(
+    pollutant = 
+      ifelse(pollutant %in% pm_no_target, 
+             pm_target, 
+             crf_pollutant_original),
+    crf_per = 
+      ifelse(!crf_per %in% crf_per_target, 
+             crf_per_target, 
+             crf_per))%>%
+  # Assume that if NA in multipollutant, it means single pollutant model
+  dplyr::mutate(
+    crf_model = 
+      ifelse(crf_model %in% "multi-pollutant", 
+             crf_model, 
+             "single-pollutant"))%>%
+
+
+
+  # Change format of source
+  # Remove brackets and spaces
+  dplyr::mutate(
+    crf_source_rFormat = 
+      paste(
+        # First word
+        stringr::word(crf_source, 1),
+        # Year between brackets
+        stringr::str_extract(crf_source, "(?<=\\().*(?=\\))"),
+        sep = "_"))%>%
+  
+  # Add id for outcome as single variable
+  tidyr::unite("outcome_id",
+               outcome_metric, outcome_disease, outcome_group,
+               na.rm = TRUE,
+               remove = FALSE) %>%
+  # Add id for outcome as single variable
+  tidyr::unite("pair_id",
+               pollutant, outcome_id, geluft_pair,
+               na.rm = TRUE,
+               remove = FALSE)%>% 
+  # Add id for crf
+  tidyr::unite("crf_id",
+               pair_id, crf_source_rFormat, geluft_crf,
+               sep = "_", 
+               na.rm =TRUE,
+               remove = FALSE)%>%
+  # Keep only unique values
+  dplyr::distinct(., crf_id, outcome_disease, 
+                  crf, ci, 
+                  .keep_all = TRUE)%>%
+  # Change position of per columns
+  dplyr::relocate(c(crf_per, concentration_unit), .after=crf)%>%
+# pivot wider to have ci in columns
+  tidyr::pivot_wider(values_from = c(crf, crf_original, crf_rescaled), 
+                     names_from = ci)
+
+
+```
+
+
+
+```{r values based on crf table}
+# Store the pollutant-outcomes pairs 
+# that are considered in the main report or in the appendix of GeLuft
+geluft_pairs_main <- 
+  crf_data %>% dplyr::filter(geluft_pair %in% "main") %>% select(pair_id) %>% unique() %>% pull()
+geluft_pairs_appendix <- 
+  crf_data %>% dplyr::filter(geluft_pair %in% "appendix") %>% select(pair_id) %>% unique() %>% pull()
+
+geluft_crf_all <- c(geluft_pairs_main, geluft_pairs_appendix)
+
+geluft_crf_main_selected <- 
+  crf_data %>% 
+  dplyr::filter(pair_id %in% geluft_pairs_main & 
+                  geluft_crf %in% "selected") %>% 
+  select(crf_id) %>% unique() %>% pull()
+
+geluft_crf_main_sensitivity <- 
+  crf_data %>% 
+  dplyr::filter(pair_id %in% geluft_pairs_main & 
+                  geluft_crf %in% "sensitivity") %>% 
+  select(crf_id) %>% unique() %>% pull()
+
+
+geluftt_pairs <- c("main", "appendix")
+geluft_crfs <- c("selected", "sensitivity")
+
+
+```
+
+
+
+```{r Subsets of crf data}
+
+# Data in list form to be prepared for loops
+crf_data_forLoop <-
+  # Split (make list) by main/appendix, pollutant, oucome_id and selected/sensitivity
+  split(crf_data, crf_data$geluft_pair)%>%
+  purrr::map(function(x) split(x, x$pollutant))%>%
+  purrr::map(map, function(x) split(x, x$outcome_id))%>%
+  purrr::map(map, map, function(x) split(x, x$geluft_crf))  
+
+# CRF data for all-cause mortality (removing disease specific)
+crf_data_allCauseMortality <-
+  dplyr::filter(crf_data,
+    outcome_metric %in% "premature deaths" &
+    outcome_disease %in% "all causes")
+
+# CRF data for all-cause mortality (removing disease specific)
+crf_data_allCauseMortality_adults <-
+  dplyr::filter(crf_data_allCauseMortality,
+    outcome_group %in% "adults")
+
+crf_data_allCauseMortality_infants <-
+  dplyr::filter(crf_data_allCauseMortality,
+    outcome_disease %in% "infants")
+
+crf_data_morbidities<- 
+   dplyr::filter(crf_data,
+    !outcome_metric %in% "premature deaths")
+
+
+
+```
+
+
+
+
+
+
+## Baseline health (morbidity) data
+```{r bhd_data}
+
+# Baseline health data 
+bhd_rawdata <- 
+  read.csv("input/bhd.csv",
+           sep = ";")
+
+# Adapt the rawdata as needed
+bhd_data <- 
+  bhd_rawdata %>%
+  # Remove the column hra
+  dplyr::select(-hra) %>%
+                  
+  dplyr::mutate(
+    # change format of year
+    bhd_year = as.character(bhd_year),
+    # Calculate the rate based on the absolute value
+    # Already available in the csv but to be overwritten just in case that 
+    # we forgot to update it there.
+    bhd_rate = round(bhd_absolute / 86.06, 2))%>%
+  #Add bhd_id
+  tidyr::unite("outcome_id",
+               outcome_metric, outcome_disease, outcome_group,
+               sep = "_", 
+               na.rm =TRUE,
+               remove = FALSE)%>%
+  #Filter the data to remove "all ages" in some of the GBD data
+  dplyr::filter(!(source %in% "IHME (2020)" & 
+                    outcome_disease %in% c("lung cancer",
+                                           "ischemic heart disease",
+                                           "stroke",
+                                           "diabetes (type 2)",
+                                           "dementia")&
+                    age %in% "all"))
+
+```
+
+
+```{r subsets}
+bhd_data_forLoop <- 
+  bhd_data %>%
+  # Split (make list) by id
+  split(.$outcome_id)
+
+bhd_data_morbidity <- bhd_data %>%
+  # Keep only those rows that are relevant for GeLuft 
+  # (only morbidity because mortality is to be done with life tables)
+  dplyr::filter(!outcome_metric %in% "premature deaths")
+```
+
+
+
+
+## Population data 
+
+
+```{r Population data by age for life table}
+# Population data by age
+# To be used in the life table approach
+population_byAge_rawdata <-
+  read.csv2("input/population/population_byAge_bySex_CH_2018_2019.csv")%>%
+  # Rename columns
+  dplyr::rename("age" = "Alter",
+                "male_end2018" = "Mann.2018",
+                "female_end2018" = "Frau.2018",
+                "male_end2019" = "Mann.2019",
+                "female_end2019" = "Frau.2019")%>%
+  # Remove "Jahre" 
+    dplyr::mutate(
+      age = gsub(" Jahre| Jahr","", age ))
+
+
+
+
+# Create a list with two elements to split male and female data 
+# (each of them requires a separate life table calculation)
+population_byAge <- 
+  list()
+
+for (s in sex){
+  population_byAge[[s]] <- 
+    population_byAge_rawdata %>%
+    # Select relevant columns
+    dplyr::select(age, starts_with(s))%>%
+    # Estimate the population at the middle of 2019 by 
+    # calculating the average between the population at the end of 2018 and 2019
+    dplyr::mutate(
+      population = rowMeans(across(contains(s)), na.rm = TRUE))%>%
+    # Remove male and female columns used to calculate the mean
+    dplyr::select(-contains(s))%>%
+    # Remove "und mehr" (and more)
+    dplyr::mutate(
+      age = gsub(" und mehr","", age ))
+  
+}
+
+
+
+
+
+```
+
+
+
+## Life table
+
+```{r Probability of dying}
+
+lifetable <- list()
+
+# Read raw data
+for(s in sex){
+  # Life table for 2019
+  # Average of the period 2016-2020
+  lifetable[[s]] <- 
+    read.csv2(
+      # The raw data are for the period 2013-2020 but we focused on 2015-2019 (five years period)
+      paste0("input/life_tables/life_table_2013_2020_",
+             s,
+             ".csv"))%>%
+    # Rename columns
+    dplyr::rename("age" = "AGE..X." ,
+                  "indicator" = "INDICATOR",
+                  "year"  = "PERIOD",
+                  "value" = "VALUE")%>%
+    # Convert value to numeric
+    dplyr::mutate(value = as.numeric(value))%>%
+    # Filter only columns for years within the period 2015 - 2019
+    dplyr::filter(year %in% c(2015:2019))%>%
+    # Obtain mean of the period 2016-2020 as value for 2019
+    dplyr::group_by(indicator, age)%>%
+    dplyr::summarize(mean= mean(value), .groups = "drop")%>%
+    # Wider form
+    tidyr::pivot_wider(names_from = indicator, values_from = mean)%>%
+    # Rename column probability of dying
+    dplyr::rename("death_probability" = "Q(X)")%>%
+    # Select columns probabilyt of dying (drop the other indicators)
+    dplyr::select(age, death_probability)
+    
+  
+}
+
+
+for (s in sex){
+  
+    # Convert column age in lifetable to character 
+    # to have the same type as in population data
+    lifetable[[s]]$age <- 
+      as.character(lifetable[[s]]$age)
+  
+}
+```
+
+
+
+
+```{r Mortality data}
+
+nonNatural_mortality_rawdata <- list()
+total_mortality_rawdata <- list()
+
+nonNatural_mortality <-list()
+total_mortality <- list()
+# Create list joining non-natural and total mortality data
+  mortality_data_beforeCorrecting <- list()
+  mortality_data <- list()
+
+
+
+# Read non-natural mortality raw data for 2019 (average of the period 2009-2019)
+nonNatural_mortality_rawdata<- 
+   list(
+     male = read.csv2("input/mortality/nonNatural_mortality_byAge_2009_2019_male.csv",
+                      na.strings =".", 
+                      check.names = FALSE),
+     female = read.csv2("input/mortality/nonNatural_mortality_byAge_2009_2019_female.csv",
+                        na.strings =".", 
+                      check.names = FALSE))
+
+# Read total mortality raw data for 2019 (average of the period 2009-2019)
+total_mortality_rawdata <- 
+  list(
+    male = read.csv2("input/mortality/total_mortality_byAge_2009_2019_male.csv",
+                     na.strings =".", 
+                      check.names = FALSE),
+    female = read.csv2("input/mortality/total_mortality_byAge_2009_2019_female.csv",
+                       na.strings =".", 
+                      check.names = FALSE))
+
+#Create a copy of rawdata to edit them
+nonNatural_mortality <- 
+      nonNatural_mortality_rawdata 
+total_mortality <- 
+      total_mortality_rawdata 
+  
+# Calculate average by age in non-natural and total mortality
+for(s in sex){
+    # Non-natural mortality
+    nonNatural_mortality[[s]] <- 
+      nonNatural_mortality[[s]] %>%
+      # Select columns keeping only those 10 year before (2010-2019)
+      dplyr::select(all_of(c("Age", as.character(2010:2019))))%>%
+      # Calculate average by age
+      dplyr::mutate(mean_nonNatural = 
+                      rowMeans(subset(nonNatural_mortality[[s]], 
+                                      select = -Age), 
+                               na.rm = TRUE))
+    
+    # Total mortality
+    total_mortality[[s]] <- 
+      total_mortality[[s]] %>%
+      # Select columns keeping only those 10 year before (2010-2019)
+      dplyr::select(all_of(c("Age", as.character(2010:2019))))%>%
+      # Calculate average by age
+      dplyr::mutate(mean_total = 
+                      rowMeans(subset(total_mortality[[s]], 
+                                      select = -Age), 
+                               na.rm = TRUE))
+ 
+  mortality_data_beforeCorrecting[[s]] <-
+    # Add row from non-natural mortality
+    dplyr::left_join(total_mortality[[s]][, c("Age", "mean_total")],
+                     nonNatural_mortality[[s]][, c("Age", "mean_nonNatural")],
+                     by = "Age") %>%
+    # Rename column Age to age %>%
+    dplyr::rename("age" = "Age")%>%
+    # Calculate percentage of deaths from non-natural mortality
+    dplyr::mutate(percent_nonNatural_raw = mean_nonNatural / mean_total)
+    
+    
+    
+    # Calculate the moving average (mean of 5 ages) to correct yearly deviations
+  mortality_data[[s]] <-
+    mortality_data_beforeCorrecting[[s]]%>%
+    dplyr::mutate(percent_nonNatural_movingAverage = 
+                    zoo::rollmean(percent_nonNatural_raw, 
+                                  k = 5, 
+                                  fill = NA))%>%
+    # The three first lines of the moving average are special cases
+    # Edit them manually
+    dplyr::mutate(percent_nonNatural = 
+                    ifelse(age == 0, percent_nonNatural_raw,
+                           ifelse(age == 1, mean(percent_nonNatural_raw[2:4], 
+                                                 na.rm =TRUE),
+                                  ifelse(age == 2, mean(percent_nonNatural_raw[2:5],
+                                                        na.rm =TRUE),
+                                         percent_nonNatural_movingAverage))))%>%
+    # Keep only age and percentage of non-natural deaths, which the only data needed.
+    dplyr::select(age, percent_nonNatural)
+    
+  
+}
+
+```
+
+
+
+
+```{r get_lifetable_withPopulation}
+
+get_lifetable_withPopulation <-
+  function(lifetable, population, firstYear_lifetable){
+        
+    
+    # Life table for 
+    lifetable_withPopulation <- 
+      # Join lifetable and population by age 
+      dplyr::right_join(lifetable,
+                        population,
+                        by = "age")%>%
+      # We close the last row assigning a 1 for probability to die and 
+      # a 0 to probability to survive
+      dplyr::mutate(death_probability = replace(death_probability, n(), 1))%>%
+      # Add year to population column
+      dplyr::rename("population_{firstYear_lifetable}" := population)
+      
+  }
+```
+
+
+
+```{r lifetable_withPopulation}
+
+lifetable_withPopulation <- list()
+
+for(s in sex){
+  lifetable_withPopulation[[s]] <-
+    get_lifetable_withPopulation(
+      lifetable = lifetable[[s]],
+      population = population_byAge[[s]],
+      firstYear_lifetable = 2019)
+
+}
+
+
+```
+
+
+
+
+
+## Concentration data
+
+
+```{r exposure}
+
+# Select relevant columns
+exp_rawdata <- 
+  read.csv("input/exp.csv",
+           sep = ";",
+           na.strings=c("NA", ""))
+
+
+# This data set will include other data beyond those from HRAs
+exp_data <- 
+  exp_rawdata%>%
+  # Remove url colum
+  dplyr::select(-url, -hra, -estimation)%>%
+  # Remove the columns for lower and upper bound of the concentration 
+  # (not relevant for the project GeLuft)
+  dplyr::select(-concentration_exp_lowci, -concentration_exp_highci)%>%
+  # Rename concentration column
+  dplyr::rename(exp = concentration_exp_mean)%>%
+  # Filter keeping only relevant rows for the project GeLuft
+  dplyr::filter(concentration_year %in% c("2019", "lrv", "whoaqg21"))%>%
+  # Add columns with the original values (before re-scaling)
+  dplyr::mutate(
+    pollutant_original = pollutant,
+    exp_original = exp,
+    # Modify columns pollutant
+    pollutant = 
+      ifelse(pollutant %in% pm_no_target, 
+             pm_target, 
+             pollutant_original))%>%
+  # Convert the exposure
+  dplyr::mutate(
+    exp = 
+      rescale_conc_pmFraction(
+        conc = exp_original,
+        pm_original = pollutant_original,
+        pm_target = pm_target))
+
+
+  
+```
+
+
+```{r Subsets}
+# Exposure data in a list form
+exp_data_forLoop <- 
+  exp_data %>%
+  # Split (make list) by pollutant and year
+  split(.$pollutant)%>%
+  purrr::map(function(x) split(x, x$concentration_year))
+  
+
+
+```
+
+
+```{r table to export}
+
+exp_data_swiss_xls<- 
+  exp_data %>%
+  dplyr::arrange(desc(pollutant), exp) %>%
+  dplyr::mutate(exp = round(exp, 3))
+
+
+
+```
+
+
+```{r Counterfactual scenario}
+
+cf_data <-
+  exp_data %>%
+  # Take the WHO-AQG 2021 
+  dplyr::filter(concentration_year %in% "whoaqg21") %>%
+  dplyr::select(pollutant, exp)%>%
+  # Rename the column
+  dplyr::rename(cf =exp)
+
+```
+
+
+
+# Calculating health impacts
+
+```{r Codebook}
+
+# Do not forget yll
+codebook <- unique(bhd_data[, c("outcome_id", "outcome_label_de", "mort_morb")]) %>%
+  # Add label for crf
+  # replacing premature deaths / yll by mortality
+  mutate(crf_label_de = ifelse(outcome_id %in% c("premature deaths_all causes_adults", "yll_all causes_adults"),
+                               "Krankheitsbedingte Sterblichkeit bei Erwachsenen",
+                               ifelse(outcome_id %in% c("premature deaths_all causes_infants", "yll_all causes_infants"),
+                                      "Säuglingssterblichkeit",
+                                      outcome_label_de)))
+
+```
+
+
+
+```{r input data}
+input_data <-
+  
+  # Join data sets of input data
+  dplyr::left_join(exp_data, crf_data, by="pollutant", 
+                   suffix =c("_exp", "_crf"),
+                   relationship = "many-to-many")%>%
+  dplyr::left_join(., bhd_data, by="outcome_id",
+                   suffix = c("", "_bhd"),
+                   relationship = "many-to-many")%>%
+  # Add counterfactual
+  dplyr::left_join(., cf_data, by="pollutant",
+                   relationship = "many-to-one")
+
+input_data_morbidities <- 
+  input_data %>%
+  dplyr::filter(crf_id %in% crf_data_morbidities$crf_id)
+
+input_data_mortality <- 
+  input_data %>%
+  dplyr::filter(crf_id %in% crf_data_allCauseMortality$crf_id)
+```
+
+
+```{r morbidities}
+impact_morbidities_raw <- list()
+
+for(i in 1:nrow(input_data_morbidities)){
+  impact_morbidities_raw[[input_data_morbidities$concentration_year[i]]][[input_data_morbidities$crf_id[[i]]]] <-
+  healthiar::calculate_healthImpacts(
+    exp = input_data_morbidities$exp[i],
+    cf = input_data_morbidities$cf[i],
+    bhd = input_data_morbidities$bhd_absolute[i],
+    crf = unlist(input_data_morbidities[i, 
+                            c("crf_mean", "crf_lowci", "crf_highci")]) ,
+    crf_per = 10, 
+    crf_rescale_method = "loglinear", 
+    pollutant = input_data_morbidities$pollutant[i], 
+    outcome_metric = input_data_morbidities$outcome_metric[i], 
+    age_group = input_data_morbidities$outcome_group[i])
+      
+}
+
+impact_morbidities_edited <- 
+  # Bind rows within the nested lists
+  impact_morbidities_raw %>%
+  purrr::map(., ~ dplyr::bind_rows(., .id = "crf_id")) 
+
+impact_morbidities_comparative <- list()
+for (r in c("2019", "lrv")){
+  
+  # Substract the impacts for the scenarios
+  impact_morbidities_comparative[[paste0(r, "_whoaqg21")]] <- 
+    dplyr::left_join(impact_morbidities_edited[[r]],
+                     impact_morbidities_edited[["whoaqg21"]][c("crf_id", "ci", "crf", "exp", "impact")], 
+                     by = c("crf_id", "ci", "crf"), 
+                     suffix = c("_ref", "_whoaqg21"))%>%
+    dplyr::mutate(ref = r,
+                  impact_diff = impact_ref - impact_whoaqg21)
+  }
+
+impact_morbidities <- 
+  impact_morbidities_comparative %>%
+  dplyr::bind_rows(.)%>%
+  # Remove column crf_ci
+  dplyr::select(-crf_ci, -crfConc, -af)%>%
+  
+  # Pivot wider the ci
+  tidyr::pivot_wider(
+    values_from = c(crf,
+                    impact_ref, impact_whoaqg21, impact_diff), 
+    names_from = ci)%>%
+  # Paste the CIs
+  dplyr::mutate(
+    crf_meanCI = paste_CI(crf_mean, crf_lowci, crf_highci, 3),
+    impact_ref_meanCI = paste_CI(impact_ref_mean, impact_ref_lowci, impact_ref_highci, 3),
+    impact_whoaqg21_meanCI = paste_CI(impact_whoaqg21_mean, impact_whoaqg21_lowci, impact_whoaqg21_highci, 0),
+    impact_diff_meanCI = paste_CI(impact_diff_mean, impact_diff_lowci, impact_diff_highci, 0))%>%
+  
+      # Pivot wider the impacts
+  tidyr::pivot_wider(
+    values_from = 
+      c(contains("_ref"),contains("_diff")),
+    names_from = ref)%>%
+  
+    # Left join to add further information on crf
+  dplyr::left_join(., crf_data, 
+                   by = c("pollutant", "crf_id", 
+                          paste0("crf_", c("mean", "lowci", "highci"))),
+                   relationship = "many-to-one")%>%
+     # Left join to add further information on bhd
+  dplyr::left_join(., unique(input_data_morbidities [, c("outcome_id", "bhd_absolute", "source_bhd", "geluft_bhd")]), 
+                   by = c("outcome_id", "bhd" = "bhd_absolute"),
+                   relationship = "many-to-one")%>%
+  # Left join to add label in German of outcomes
+  dplyr::left_join(., codebook, 
+                   by = "outcome_id",
+                   relationship = "many-to-one")%>%
+  
+  # Order columns 
+  dplyr::select(pollutant, term, outcome_label_de,
+                bhd,
+                crf_meanCI, 
+                contains("impact_diff_meanCI"),
+                contains("impact_ref_meanCI"), 
+                impact_whoaqg21_meanCI,
+                everything())%>%
+  # Order rows by label
+  dplyr::arrange(outcome_label_de)
+  # Split (convert to list) by mean/appendix, selected_sensitivity 
+  #%>%(., .$geluft_pair)%>%
+  #purrr::map(function(x) split(x, x$pollutant))%>%
+  #purrr::map(map, function(x) split(x, x$geluft_crf)) 
+
+
+```
+
+
+
+```{r mortality}
+impact_mortality_raw <- list()
+
+# Calculate using healthiar
+
+for(i in 1:nrow(input_data_mortality)){
+  impact_mortality_raw[[input_data_mortality$concentration_year[i]]][[input_data_mortality$crf_id[[i]]]] <-
+  healthiar::calculate_mortality_usingLifetable(
+    exp = input_data_mortality$exp[i],
+    cf = input_data_morbidities$cf[i],
+    crf = unlist(input_data_mortality[i, 
+                            c("crf_mean", "crf_lowci", "crf_highci")]) ,
+    crf_per = 10, 
+    crf_rescale_method = "loglinear", 
+    lifetable_withPop_male = lifetable_withPopulation[["male"]],
+    lifetable_withPop_female = lifetable_withPopulation[["female"]],
+    firstYear_lifetable = 2019, 
+    nonNatural_death_male = mortality_data[["male"]],
+    nonNatural_death_female = mortality_data[["female"]], 
+    pollutant = input_data_mortality$pollutant[i], 
+    age_group = input_data_mortality$outcome_group[i],
+    min_age = 20,
+    max_age = 0,
+    corrected_discount_rate = 0)
+
+}
+
+impact_mortality_edited <- list()
+
+impact_mortality_edited[["deaths"]] <- 
+  # Extract only nested  lists with the name "deaths"  
+  purrr::map_depth(impact_mortality_raw, 2, "deaths")
+# Same with "yll"  
+impact_mortality_edited[["yll"]] <- 
+  purrr::map_depth(impact_mortality_raw, 2, "yll")
+
+impact_mortality_edited <- impact_mortality_edited %>%
+  # Unlist assigning id
+  purrr::map(., map,  ~ dplyr::bind_rows(., .id = "crf_id"))%>%
+  purrr::map(.,  ~ dplyr::bind_rows(., .id = "case"))%>%
+  dplyr::bind_rows(., .id = "outcome_metric_short")%>%
+  # Now list only scenario
+  split(., .$case)
+
+# Put together the different scenarios
+impact_mortality_comparative <- list()
+for (r in c("2019", "lrv")){
+  # Substract the impacts for the scenarios
+  impact_mortality_comparative[[paste0(r, "_whoaqg21")]] <- 
+    dplyr::left_join(impact_mortality_edited[[r]],
+                     impact_mortality_edited[["whoaqg21"]][c("crf_id", "ci", "impact", "outcome_metric_short", "exp")], 
+                     by = c("outcome_metric_short", "crf_id", "ci"), 
+                     suffix = c("_ref", "_whoaqg21"))%>%
+    dplyr::mutate(ref = r,
+                  impact_diff = impact_ref - impact_whoaqg21)
+  }
+
+
+impact_mortality <- 
+  impact_mortality_comparative %>%
+  dplyr::bind_rows(.)%>%
+  # Remove non relevant columns
+  dplyr::select(-impact_per_unit, -case)%>%
+  
+  # Pivot wider CI
+  tidyr::pivot_wider(
+    values_from = c(crf, 
+                    impact_ref, impact_whoaqg21, impact_diff), 
+    names_from = ci)%>%
+  # Paste the CIs
+  dplyr::mutate(
+    crf_meanCI = paste_CI(crf_mean, crf_lowci, crf_highci, 3),
+    impact_ref_meanCI = paste_CI(impact_ref_mean, impact_ref_lowci, impact_ref_highci, 3),
+    impact_whoaqg21_meanCI = paste_CI(impact_whoaqg21_mean, impact_whoaqg21_lowci, impact_whoaqg21_highci, 0),
+    impact_diff_meanCI = paste_CI(impact_diff_mean, impact_diff_lowci, impact_diff_highci, 0),
+    # bhd as NA just to match with structure of morbidities
+    bhd = NA)%>%
+  
+  # Pivot wider the impacts
+  tidyr::pivot_wider(
+    values_from = 
+      c(contains("_ref"),contains("_diff")),
+    names_from = ref)%>%
+    
+  # Left join to add further information on crf
+  dplyr::left_join(., crf_data, 
+                   by = c("pollutant", "crf_id", "outcome_group",
+                          paste0("crf_", c("mean", "lowci", "highci"))),
+                   relationship = "many-to-one")%>%
+     # Left join to add further information on geluft_bhd
+  # Since there is a life table and no alternative 
+  # the information has to be added manually
+  dplyr::mutate(geluft_bhd = "selected") %>%
+  
+  # Change outcome_id to ensure match with codebook
+  dplyr::mutate(
+    outcome_id = ifelse(outcome_metric_short %in% "yll",
+                        gsub("premature deaths", "yll", outcome_id),
+                        outcome_id))%>%
+  # Left join to add label in German of outcomes
+  dplyr::left_join(., codebook, 
+                   by = "outcome_id",
+                   relationship = "many-to-one")%>%
+  # Order columns 
+  dplyr::select(pollutant, term,
+                outcome_label_de,
+                bhd,
+                crf_meanCI, 
+                contains("impact_diff_meanCI"),
+                contains("impact_ref_meanCI"), 
+                impact_whoaqg21_meanCI,
+                everything())%>%
+  # Order rows by label
+  dplyr::arrange(outcome_group)
+
+
+```
+

@@ -1,0 +1,24 @@
+Source: BFS (based on interactive table)
+URL: https://www.pxweb.bfs.admin.ch/pxweb/de/px-x-0102020206_103/px-x-0102020206_103/px-x-0102020206_103.px/table/tableViewLayout2/
+Further metainformation: 
+
+Fussnoten
+
+    Metainformation:
+    Letzte Änderungen: Datensatz 2021
+    Stand der Datenbank: April 2022
+    Raumbezug: Schweiz
+    Referenzperiode: 1. Januar - 31. Dezember
+    Datenquelle: Statistik der natürlichen Bevölkerungsbewegung BEVNAT 
+
+
+
+Information
+
+Kontakt
+    Sektion Demografie und Migration, +41 58 463 67 11, E-Mail: info.dem@bfs.admin.ch 
+Einheit
+    Ereignis 
+Link
+    https://www.bfs.admin.ch/asset/de/px-x-0102020206_103 
+

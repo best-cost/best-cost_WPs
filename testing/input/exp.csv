@@ -1,0 +1,17 @@
+hra;estimation;pollutant;concentration_year;concentration_exp_mean;concentration_exp_lowci;concentration_exp_highci;concentration_metric;concentration_unit;source;url
+;;PM2.5;2015;9.7;9.5;9.8;annual mean;ug/m3;INFRAS-METEOTEST (2020);https://www.bafu.admin.ch/dam/bafu/de/dokumente/luft/externe-studien-berichte/immissionen-schweiz-und-liechtenstein-modellresultate-no2-pm10-pm2-5-2015-2020-2030.pdf.download.pdf/PolluMap-Resultate-Bericht.pdf
+;;PM10;2015;13.7;13.5;14;annual mean;ug/m3;INFRAS-METEOTEST (2020);https://www.bafu.admin.ch/dam/bafu/de/dokumente/luft/externe-studien-berichte/immissionen-schweiz-und-liechtenstein-modellresultate-no2-pm10-pm2-5-2015-2020-2030.pdf.download.pdf/PolluMap-Resultate-Bericht.pdf
+;;NO2;2015;19.8;18.8;21.5;annual mean;ug/m3;INFRAS-METEOTEST (2020);https://www.bafu.admin.ch/dam/bafu/de/dokumente/luft/externe-studien-berichte/immissionen-schweiz-und-liechtenstein-modellresultate-no2-pm10-pm2-5-2015-2020-2030.pdf.download.pdf/PolluMap-Resultate-Bericht.pdf
+;;NO2;2010;20.8;;;annual mean;ug/m3;FOEN (2011);https://www.bafu.admin.ch/bafu/en/home/topics/air/publications-studies/publications/no2-ambient-concentrations-in-switzerland.html
+;;NO2;2005;23.2;;;annual mean;ug/m3;FOEN (2011);
+;;PM10;2010;19.4;;;annual mean;ug/m3;FOEN (2013);https://www.bafu.admin.ch/bafu/en/home/topics/air/publications-studies/publications/pm10-and-pm2-5-ambient-concentrations-in-switzerland.html
+;;PM10;2005;21.6;;;annual mean;ug/m3;FOEN (2013);https://www.bafu.admin.ch/bafu/en/home/topics/air/publications-studies/publications/pm10-and-pm2-5-ambient-concentrations-in-switzerland.html
+;;BC;2010;1.19;;;annual mean;ug/m3;FOEN (2014);https://docplayer.org/112727756-Bc-immissionen-schweiz.html
+;;PM2.5;2018;9.98;;;annual mean;ug/m3;METEOTEST (2022);E-Mail from Regina Ducret
+;;NO2;2018;17.21;;;annual mean;ug/m3;METEOTEST (2022);E-Mail from Regina Ducret
+;;PM2.5;2019;8.3;;;annual mean;ug/m3;METEOTEST (2022);E-Mail from Regina Ducret
+;;NO2;2019;16.32;;;annual mean;ug/m3;METEOTEST (2022);E-Mail from Regina Ducret
+;;PM2.5;lrv;10;;;annual mean;ug/m3;WHO AQG (2005);
+;;NO2;lrv;30;;;annual mean;ug/m3;WHO AQG (2005);
+;;PM2.5;whoaqg21;5;;;annual mean;ug/m3;WHO AQG (2021);
+;;NO2;whoaqg21;10;;;annual mean;ug/m3;WHO AQG (2021);

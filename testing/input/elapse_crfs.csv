@@ -1,0 +1,9 @@
+cohort;crf_mean;crf_lowci;crf_highci
+belgian_2001_census;1.1;1.073;1.128
+danish_cohort;1.25;1.199;1.302
+duels;1.03;0.984;1.078
+norcohort;1.113;1.092;1.134
+rome_longitudinal_study;1.234;1.161;1.312
+swiss_national_cohort;1.03;1.006;1.055
+english_cprd;1.046;1.001;1.094
+elapse_pooled_cohort;1.177;1.126;1.231
