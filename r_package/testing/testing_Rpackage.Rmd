@@ -40,14 +40,15 @@ library(devtools)
 ```{r own packages}
 # Install own package from github as suggested here
 # https://stackoverflow.com/a/71846333/6104907
-if(!"healthiar" %in% installed.packages()[, "Package"]){
+if(!"bestcost" %in% installed.packages()[, "Package"]){
   #gitcreds::gitcreds_set()
   credentials::set_github_pat()
-  devtools::install_github(repo = "SwissTPH/eeh_r_packages/healthiar" ,
+  devtools::install_github(repo = "best-cost/best-cost_WPs",
+                           subdir = "/r_package/bestcost",
                            force =TRUE)
 }
 
-library(healthiar)
+library(bestcost)
 ```
 
 
@@ -58,33 +59,27 @@ library(healthiar)
 #Decide 
 # the target increment (increase of concentration) of the pm CRFs 
 # and PM fraction
-
 per_target_pm <- 10 # ug/m3
 
-
-#Existing PM fractions
-
+# Define existing PM fractions
 pm_fractions <- c("PM2.5", "PM10")
 
-# Prioritized fraction
+# Set targeted PM fraction
 pm_target <- "PM2.5"
 
-# Non prioritized fraction
+# PM fraction that is not targeted
 pm_no_target <- pm_fractions[!pm_fractions%in% pm_target]
-
 
 # Pollutants to be considered in the hra based on available exposure data
 pollutants_hra <- c(pm_target, "NO2")
 
-
-# Sex
+# Define sex
 sex <-  c("male", "female")
 
-# Values in the confidence interval (ci)
+# Define values in the confidence interval (ci)
 ci <- c("mean", "lowci", "highci")
 
-# Outcome groups
-
+# Define Outcome groups
 groups <-
   data.frame(
     agegroup = c("below1", "from30"),
@@ -107,18 +102,24 @@ year_hra <- "2019"
 
 # Create function to join mean CRF with the lower and upper bound
 paste_CI <- 
-  function(mean, low, high, decimals){
-     paste0(sprintf(paste0("%.", decimals, "f"), round(mean, digits = decimals))," [",  
-            sprintf(paste0("%.", decimals, "f"), round(low, digits = decimals)), "; ", 
-            sprintf(paste0("%.", decimals, "f"), round(high, digits = decimals)), "]")
+  function(mean, low, high){
+     paste0(mean," [", low, "; ", high, "]")
   }
 
-# The same without rounding
-paste_CI_woRounding <- 
-  function(mean, low, high){
-     paste0(mean," [",  
-            low, "; ", 
-            high, "]")
+# Create function to round keeping zeros in decimals (e.g. 2.0 instea of 2)
+# We use sprintf() instead of round() because 
+# the former keep the zeros unlike the latter
+round_keeping0 <- 
+  function(value, decimals){
+    sprintf(paste0("%.", decimals, "f"), value)
+  }
+  
+# Create function to round the values of the CRF and then paste
+paste_round_CI <- 
+  function(mean, low, high, decimals){
+    paste0(round_keeping0(mean, decimals)," [",  
+           round_keeping0(low, decimals), "; ", 
+           round_keeping0(high, decimals), "]")
   }
 
 ```
@@ -132,7 +133,7 @@ paste_CI_woRounding <-
 
 # Read single-value generic data
 generic_data <- 
-  read.csv("input/generic_data.csv",
+  read.csv("r_package/testing/input/generic_data.csv",
            sep = ";")
 
 # Extract the value of the conversion factor from the generic_data csv file
@@ -151,7 +152,7 @@ percentage_pm2.5_in_pm10 <-
 
 # Read CRF data inserted manually in the csv table 
 crf_rawdata <- 
-  read.csv("input/crf.csv",
+  read.csv("r_package/testing/input/crf.csv",
            sep = ";",
            na.strings=c("NA", ""))
 
@@ -383,8 +384,7 @@ crf_data_morbidities<-
 
 # Baseline health data 
 bhd_rawdata <- 
-  read.csv("input/bhd.csv",
-           sep = ";")
+  read.csv("r_package/testing/input/bhd.csv", sep = ";")
 
 # Adapt the rawdata as needed
 bhd_data <- 
@@ -439,7 +439,7 @@ bhd_data_morbidity <- bhd_data %>%
 # Population data by age
 # To be used in the life table approach
 population_byAge_rawdata <-
-  read.csv2("input/population/population_byAge_bySex_CH_2018_2019.csv")%>%
+  read.csv2("r_package/testing/input/population/population_byAge_bySex_CH_2018_2019.csv")%>%
   # Rename columns
   dplyr::rename("age" = "Alter",
                 "male_end2018" = "Mann.2018",
@@ -496,7 +496,7 @@ for(s in sex){
   lifetable[[s]] <- 
     read.csv2(
       # The raw data are for the period 2013-2020 but we focused on 2015-2019 (five years period)
-      paste0("input/life_tables/life_table_2013_2020_",
+      paste0("r_package/testing/input/life_tables/life_table_2013_2020_",
              s,
              ".csv"))%>%
     # Rename columns
@@ -551,20 +551,20 @@ total_mortality <- list()
 # Read non-natural mortality raw data for 2019 (average of the period 2009-2019)
 nonNatural_mortality_rawdata<- 
    list(
-     male = read.csv2("input/mortality/nonNatural_mortality_byAge_2009_2019_male.csv",
+     male = read.csv2("r_package/testing/input/mortality/nonNatural_mortality_byAge_2009_2019_male.csv",
                       na.strings =".", 
                       check.names = FALSE),
-     female = read.csv2("input/mortality/nonNatural_mortality_byAge_2009_2019_female.csv",
+     female = read.csv2("r_package/testing/input/mortality/nonNatural_mortality_byAge_2009_2019_female.csv",
                         na.strings =".", 
                       check.names = FALSE))
 
 # Read total mortality raw data for 2019 (average of the period 2009-2019)
 total_mortality_rawdata <- 
   list(
-    male = read.csv2("input/mortality/total_mortality_byAge_2009_2019_male.csv",
+    male = read.csv2("r_package/testing/input/mortality/total_mortality_byAge_2009_2019_male.csv",
                      na.strings =".", 
                       check.names = FALSE),
-    female = read.csv2("input/mortality/total_mortality_byAge_2009_2019_female.csv",
+    female = read.csv2("r_package/testing/input/mortality/total_mortality_byAge_2009_2019_female.csv",
                        na.strings =".", 
                       check.names = FALSE))
 
@@ -687,7 +687,7 @@ for(s in sex){
 
 # Select relevant columns
 exp_rawdata <- 
-  read.csv("input/exp.csv",
+  read.csv("r_package/testing/input/exp.csv",
            sep = ";",
            na.strings=c("NA", ""))
 
@@ -857,10 +857,10 @@ impact_morbidities <-
     names_from = ci)%>%
   # Paste the CIs
   dplyr::mutate(
-    crf_meanCI = paste_CI(crf_mean, crf_lowci, crf_highci, 3),
-    impact_ref_meanCI = paste_CI(impact_ref_mean, impact_ref_lowci, impact_ref_highci, 3),
-    impact_whoaqg21_meanCI = paste_CI(impact_whoaqg21_mean, impact_whoaqg21_lowci, impact_whoaqg21_highci, 0),
-    impact_diff_meanCI = paste_CI(impact_diff_mean, impact_diff_lowci, impact_diff_highci, 0))%>%
+    crf_meanCI = paste_round_CI(crf_mean, crf_lowci, crf_highci, 3),
+    impact_ref_meanCI = paste_round_CI(impact_ref_mean, impact_ref_lowci, impact_ref_highci, 0),
+    impact_whoaqg21_meanCI = paste_round_CI(impact_whoaqg21_mean, impact_whoaqg21_lowci, impact_whoaqg21_highci, 0),
+    impact_diff_meanCI = paste_round_CI(impact_diff_mean, impact_diff_lowci, impact_diff_highci, 0))%>%
   
       # Pivot wider the impacts
   tidyr::pivot_wider(
@@ -892,10 +892,7 @@ impact_morbidities <-
                 everything())%>%
   # Order rows by label
   dplyr::arrange(outcome_label_de)
-  # Split (convert to list) by mean/appendix, selected_sensitivity 
-  #%>%(., .$geluft_pair)%>%
-  #purrr::map(function(x) split(x, x$pollutant))%>%
-  #purrr::map(map, function(x) split(x, x$geluft_crf)) 
+
 
 
 ```
@@ -973,10 +970,10 @@ impact_mortality <-
     names_from = ci)%>%
   # Paste the CIs
   dplyr::mutate(
-    crf_meanCI = paste_CI(crf_mean, crf_lowci, crf_highci, 3),
-    impact_ref_meanCI = paste_CI(impact_ref_mean, impact_ref_lowci, impact_ref_highci, 3),
-    impact_whoaqg21_meanCI = paste_CI(impact_whoaqg21_mean, impact_whoaqg21_lowci, impact_whoaqg21_highci, 0),
-    impact_diff_meanCI = paste_CI(impact_diff_mean, impact_diff_lowci, impact_diff_highci, 0),
+    crf_meanCI = paste_round_CI(crf_mean, crf_lowci, crf_highci, 3),
+    impact_ref_meanCI = paste_round_CI(impact_ref_mean, impact_ref_lowci, impact_ref_highci, 3),
+    impact_whoaqg21_meanCI = paste_round_CI(impact_whoaqg21_mean, impact_whoaqg21_lowci, impact_whoaqg21_highci, 0),
+    impact_diff_meanCI = paste_round_CI(impact_diff_mean, impact_diff_lowci, impact_diff_highci, 0),
     # bhd as NA just to match with structure of morbidities
     bhd = NA)%>%
   
