@@ -219,7 +219,7 @@ rescale_conc_pmFraction <-
 crf_data <- 
   crf_rawdata%>%
   # Select only CRFs that are relevant for the project GeLuft
-  dplyr::filter(!is.na(geluft_pair))%>%
+  dplyr::filter(!is.na(choice_pair))%>%
   # Reshape from wide to long 
   tidyr::pivot_longer(c(crf_mean, crf_lowci, crf_highci),
                       names_to = "ci",
@@ -286,12 +286,12 @@ crf_data <-
                remove = FALSE) %>%
   # Add id for outcome as single variable
   tidyr::unite("pair_id",
-               pollutant, outcome_id, geluft_pair,
+               pollutant, outcome_id, choice_pair,
                na.rm = TRUE,
                remove = FALSE)%>% 
   # Add id for crf
   tidyr::unite("crf_id",
-               pair_id, crf_source_rFormat, geluft_crf,
+               pair_id, crf_source_rFormat, choice_crf,
                sep = "_", 
                na.rm =TRUE,
                remove = FALSE)%>%
@@ -313,28 +313,28 @@ crf_data <-
 ```{r values based on crf table}
 # Store the pollutant-outcomes pairs 
 # that are considered in the main report or in the appendix of GeLuft
-geluft_pairs_main <- 
-  crf_data %>% dplyr::filter(geluft_pair %in% "main") %>% select(pair_id) %>% unique() %>% pull()
-geluft_pairs_appendix <- 
-  crf_data %>% dplyr::filter(geluft_pair %in% "appendix") %>% select(pair_id) %>% unique() %>% pull()
+choice_pairs_main <- 
+  crf_data %>% dplyr::filter(choice_pair %in% "main") %>% select(pair_id) %>% unique() %>% pull()
+choice_pairs_appendix <- 
+  crf_data %>% dplyr::filter(choice_pair %in% "appendix") %>% select(pair_id) %>% unique() %>% pull()
 
-geluft_crf_all <- c(geluft_pairs_main, geluft_pairs_appendix)
+choice_crf_all <- c(choice_pairs_main, choice_pairs_appendix)
 
-geluft_crf_main_selected <- 
+choice_crf_main_selected <- 
   crf_data %>% 
-  dplyr::filter(pair_id %in% geluft_pairs_main & 
-                  geluft_crf %in% "selected") %>% 
+  dplyr::filter(pair_id %in% choice_pairs_main & 
+                  choice_crf %in% "selected") %>% 
   select(crf_id) %>% unique() %>% pull()
 
-geluft_crf_main_sensitivity <- 
+choice_crf_main_sensitivity <- 
   crf_data %>% 
-  dplyr::filter(pair_id %in% geluft_pairs_main & 
-                  geluft_crf %in% "sensitivity") %>% 
+  dplyr::filter(pair_id %in% choice_pairs_main & 
+                  choice_crf %in% "sensitivity") %>% 
   select(crf_id) %>% unique() %>% pull()
 
 
 geluftt_pairs <- c("main", "appendix")
-geluft_crfs <- c("selected", "sensitivity")
+choice_crfs <- c("selected", "sensitivity")
 
 
 ```
@@ -346,10 +346,10 @@ geluft_crfs <- c("selected", "sensitivity")
 # Data in list form to be prepared for loops
 crf_data_forLoop <-
   # Split (make list) by main/appendix, pollutant, oucome_id and selected/sensitivity
-  split(crf_data, crf_data$geluft_pair)%>%
+  split(crf_data, crf_data$choice_pair)%>%
   purrr::map(function(x) split(x, x$pollutant))%>%
   purrr::map(map, function(x) split(x, x$outcome_id))%>%
-  purrr::map(map, map, function(x) split(x, x$geluft_crf))  
+  purrr::map(map, map, function(x) split(x, x$choice_crf))  
 
 # CRF data for all-cause mortality (removing disease specific)
 crf_data_allCauseMortality <-
@@ -874,7 +874,7 @@ impact_morbidities <-
                           paste0("crf_", c("mean", "lowci", "highci"))),
                    relationship = "many-to-one")%>%
      # Left join to add further information on bhd
-  dplyr::left_join(., unique(input_data_morbidities [, c("outcome_id", "bhd_absolute", "source_bhd", "geluft_bhd")]), 
+  dplyr::left_join(., unique(input_data_morbidities [, c("outcome_id", "bhd_absolute", "source_bhd", "choice_bhd")]), 
                    by = c("outcome_id", "bhd" = "bhd_absolute"),
                    relationship = "many-to-one")%>%
   # Left join to add label in German of outcomes
@@ -988,10 +988,10 @@ impact_mortality <-
                    by = c("pollutant", "crf_id", "outcome_group",
                           paste0("crf_", c("mean", "lowci", "highci"))),
                    relationship = "many-to-one")%>%
-     # Left join to add further information on geluft_bhd
+     # Left join to add further information on choice_bhd
   # Since there is a life table and no alternative 
   # the information has to be added manually
-  dplyr::mutate(geluft_bhd = "selected") %>%
+  dplyr::mutate(choice_bhd = "selected") %>%
   
   # Change outcome_id to ensure match with codebook
   dplyr::mutate(
