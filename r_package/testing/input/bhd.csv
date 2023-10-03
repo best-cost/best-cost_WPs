@@ -1,27 +1,27 @@
-hra;mort_morb;outcome_metric;outcome_disease;outcome_group;age;bhd_absolute;bhd_rate;bhd_year;source;choice_bhd
-;mortality;premature deaths;all causes;adults;;64003;;2019;;selected
-;mortality;premature deaths;all causes;infants;;;;;;selected
-;mortality;yll;all causes;adults;;;;;;selected
-;mortality;yll;all causes;infants;;;;;;selected
-;morbidity;incidence;chronic bronchitis;adults;18+;27546;320.08;2019;Schindler et al. (2009);selected
-;morbidity;prevalence;acute bronchitis;children;"""6-18""";204724;2378.85;2019;Hoek et al. (2012);selected
-;morbidity;attacks;asthma;adults;18+;1211305;14075.12;2019;Schindler et al. (2009);selected
-;morbidity;attacks;asthma;children;;3356657;39003.68;2019;WHO (2013);selected
-;morbidity;hospital admissions;cardiovascular diseases;all;all;159211;1850;2019;BFS (2022);selected
-;morbidity;hospital admissions;respiratory diseases;all;all;90363;1050;2019;BFS (2022);selected
-;morbidity;incidence;asthma;adults;20+;19604;227.79;2019;IHME (2020);selected
-;morbidity;incidence;asthma;children;"""5-19""";10580;122.94;2019;IHME (2020);selected
-;morbidity;incidence;copd;adults;20+;30747;357.27;2019;IHME (2020);selected
-;morbidity;incidence;alri;children;"""5-19""";9413;109.38;2019;IHME (2020);selected
-;morbidity;incidence;lung cancer;all;all;4369;50.77;2019;IHME (2020);
-;morbidity;incidence;lung cancer;adults;20+;4368;50.76;2019;IHME (2020);selected
-;morbidity;incidence;ischemic heart disease ;all;all;29752;345.71;2019;IHME (2020);
-;morbidity;incidence;ischemic heart disease ;adults;20+;29730;345.46;2019;IHME (2020);selected
-;morbidity;incidence;stroke;all;all;9792;113.78;2019;IHME (2020);
-;morbidity;incidence;stroke;adults;20+;9665;112.31;2019;IHME (2020);selected
-;morbidity;incidence;diabetes (type 2);all;all;28821;334.89;2019;IHME (2020);
-;morbidity;incidence;diabetes (type 2);adults;20+;28542;331.65;2019;IHME (2020);selected
-;morbidity;incidence;premature births;infants;0;6605;76.75;2019;IHME (2020);selected
-;morbidity;incidence;dementia;all;all;18704;217.34;2019;IHME (2020);
-;morbidity;incidence;dementia;seniors;55+;18361;213.35;2019;IHME (2020);selected
-;morbidity;incidence;leukemia;children;0-14;80;0.93;2019;IHME (2020);selected
+mort_morb;outcome_metric;outcome_disease;outcome_group;age;bhd_absolute;bhd_rate;bhd_year;source;choice_bhd
+mortality;premature deaths;all causes;adults;;64003;;2019;;selected
+mortality;premature deaths;all causes;infants;;;;;;selected
+mortality;yll;all causes;adults;;;;;;selected
+mortality;yll;all causes;infants;;;;;;selected
+morbidity;incidence;chronic bronchitis;adults;18+;27546;320.08;2019;Schindler et al. (2009);selected
+morbidity;prevalence;acute bronchitis;children;"""6-18""";204724;2378.85;2019;Hoek et al. (2012);selected
+morbidity;attacks;asthma;adults;18+;1211305;14075.12;2019;Schindler et al. (2009);selected
+morbidity;attacks;asthma;children;;3356657;39003.68;2019;WHO (2013);selected
+morbidity;hospital admissions;cardiovascular diseases;all;all;159211;1850;2019;BFS (2022);selected
+morbidity;hospital admissions;respiratory diseases;all;all;90363;1050;2019;BFS (2022);selected
+morbidity;incidence;asthma;adults;20+;19604;227.79;2019;IHME (2020);selected
+morbidity;incidence;asthma;children;"""5-19""";10580;122.94;2019;IHME (2020);selected
+morbidity;incidence;copd;adults;20+;30747;357.27;2019;IHME (2020);selected
+morbidity;incidence;alri;children;"""5-19""";9413;109.38;2019;IHME (2020);selected
+morbidity;incidence;lung cancer;all;all;4369;50.77;2019;IHME (2020);
+morbidity;incidence;lung cancer;adults;20+;4368;50.76;2019;IHME (2020);selected
+morbidity;incidence;ischemic heart disease ;all;all;29752;345.71;2019;IHME (2020);
+morbidity;incidence;ischemic heart disease ;adults;20+;29730;345.46;2019;IHME (2020);selected
+morbidity;incidence;stroke;all;all;9792;113.78;2019;IHME (2020);
+morbidity;incidence;stroke;adults;20+;9665;112.31;2019;IHME (2020);selected
+morbidity;incidence;diabetes (type 2);all;all;28821;334.89;2019;IHME (2020);
+morbidity;incidence;diabetes (type 2);adults;20+;28542;331.65;2019;IHME (2020);selected
+morbidity;incidence;premature births;infants;0;6605;76.75;2019;IHME (2020);selected
+morbidity;incidence;dementia;all;all;18704;217.34;2019;IHME (2020);
+morbidity;incidence;dementia;seniors;55+;18361;213.35;2019;IHME (2020);selected
+morbidity;incidence;leukemia;children;0-14;80;0.93;2019;IHME (2020);selected

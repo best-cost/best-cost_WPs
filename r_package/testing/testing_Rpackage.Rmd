@@ -106,7 +106,7 @@ paste_CI <-
      paste0(mean," [", low, "; ", high, "]")
   }
 
-# Create function to round keeping zeros in decimals (e.g. 2.0 instea of 2)
+# Create function to round keeping zeros in decimals (e.g. 2.0 instead of 2)
 # We use sprintf() instead of round() because 
 # the former keep the zeros unlike the latter
 round_keeping0 <- 
@@ -161,11 +161,7 @@ crf_rawdata <-
 ```
 
 
-
-Concentration response functions (CRFs) had to be re-scaled in some cases so that all CRFs had the same unit, i.e. same PM fraction and same concentration increase (increment)
-
-
-```{r pm_rescale} 
+```{r Functions to rescale crf} 
 # Define function to re-scale the CRF regarding the considered increment
 rescale_crf_increment <- 
   function(crf, per_original, per_target){
@@ -174,81 +170,71 @@ rescale_crf_increment <-
   }
 
 # Conversion factor for PM fraction
-conversionFactor_pmFraction <-
+get_conversionFactor_pmFraction <-
   function(pm_original, pm_target){
     
     # Divide the percentage (%) by 100 to get the ratio (0.) 
     # And depending on the pm selected choose the default or the inverse form
-    conversionfactor_ch <- 
-      ifelse(pm_original %in% "PM2.5" &
-               pm_target %in% "PM10",
+    conversionFactor <- 
+      ifelse(pm_original %in% "PM2.5" & pm_target %in% "PM10",
              1/(percentage_pm2.5_in_pm10/100),
-             ifelse(pm_original %in% "PM10" & 
-                      pm_target %in% "PM2.5",
+             ifelse(pm_original %in% "PM10" & pm_target %in% "PM2.5",
                     percentage_pm2.5_in_pm10/100,
                     1))
   }
 
-
-
-```
-
-
-
-```{r rescale concentration}
-
 # Define function to re-scale the CRF regarding the considered PM fraction
 rescale_conc_pmFraction <- 
   function(conc, pm_original, pm_target){
-    
-    # Divide the percentage (%) by 100 to get the ratio (0.) 
-    # And depending on the pm selected choose the default or the inverse form
-    conversionfactor_ch <- 
-      conversionFactor_pmFraction(pm_original, pm_target)
-    
+  # Get conversion factor for the PM fraction
+    conversionFactor <- 
+      get_conversionFactor_pmFraction(pm_original, pm_target)
+    # Apply the conversion factor to get the concentration in the right fraction
     rescaled_fraction <- 
-      conc * conversionfactor_ch
-    
-    return(rescaled_fraction)
+      conc * conversionFactor
   }
+
 ```
 
 
 
-```{r crf_data rescaling crf}
+
+```{r Editing crf (rescale inclusive)}
 crf_data <- 
   crf_rawdata%>%
-  # Select only CRFs that are relevant for the project GeLuft
+  # Select only CRFs that are relevant 
   dplyr::filter(!is.na(choice_pair))%>%
-  # Reshape from wide to long 
+  # Reshape CRFs from wide to long 
+  # to enable editing CRFs by row
   tidyr::pivot_longer(c(crf_mean, crf_lowci, crf_highci),
                       names_to = "ci",
                       names_prefix = "crf_", 
                       values_to = "crf")%>%
-  # Add columns with the original values (before re-scaling)
+  # Add a copy of columns with the original values (before re-scaling)
   dplyr::mutate(
     crf_pollutant_original = pollutant,
     crf_original = crf,
     crf_per_original = crf_per,
-  # Add the CRF increment (increase of concentration) for each pollutant
+  # Add the target CRF increment (default increase of concentration) 
+  # for each pollutant
     crf_per_target =
       ifelse(pollutant %in% c(pm_fractions, "NO2"), 10, NA),
       # ifelse(pollutant %in% "BC", 0.44, NA)))%>%
       # ifelse(pollutant %in% "O3", , NA))))%>% 
       # If O3 is included, the O3 increment is to be decided
-  # Re-scale PM fractions in CRFs
+  # Re-scale concentration of PM fractions in CRFs
     crf_per_rescaled = 
       rescale_conc_pmFraction(
         conc = crf_per_original,
         pm_original = crf_pollutant_original,
         pm_target = pm_target),
+  # Re-scale to the target increment
     crf_rescaled = 
       rescale_crf_increment(
         crf = crf,
         per_original = crf_per_rescaled,
         per_target = crf_per_target),
     crf = crf_rescaled)%>%
-  
   # Modify columns based on target
   dplyr::mutate(
     pollutant = 
@@ -259,14 +245,6 @@ crf_data <-
       ifelse(!crf_per %in% crf_per_target, 
              crf_per_target, 
              crf_per))%>%
-  # Assume that if NA in multipollutant, it means single pollutant model
-  dplyr::mutate(
-    crf_model = 
-      ifelse(crf_model %in% "multi-pollutant", 
-             crf_model, 
-             "single-pollutant"))%>%
-
-
 
   # Change format of source
   # Remove brackets and spaces
@@ -295,13 +273,12 @@ crf_data <-
                sep = "_", 
                na.rm =TRUE,
                remove = FALSE)%>%
-  # Keep only unique values
-  dplyr::distinct(., crf_id, outcome_disease, 
-                  crf, ci, 
+  # Keep only unique CRFs (id, value and CI category) to avoid duplicates
+  dplyr::distinct(., crf_id, crf, ci, 
                   .keep_all = TRUE)%>%
-  # Change position of per columns
+  # Change position of some columns
   dplyr::relocate(c(crf_per, concentration_unit), .after=crf)%>%
-# pivot wider to have ci in columns
+# Pivot wider to have ci in columns
   tidyr::pivot_wider(values_from = c(crf, crf_original, crf_rescaled), 
                      names_from = ci)
 
@@ -310,22 +287,24 @@ crf_data <-
 
 
 
-```{r values based on crf table}
+```{r Store relevant values from crf_data}
 # Store the pollutant-outcomes pairs 
-# that are considered in the main report or in the appendix of GeLuft
+
+# Pollutant-outocome pairs to be considered in the main analysis or in the appendix
 choice_pairs_main <- 
-  crf_data %>% dplyr::filter(choice_pair %in% "main") %>% select(pair_id) %>% unique() %>% pull()
+  crf_data %>% dplyr::filter(choice_pair %in% "main") %>% 
+  select(pair_id) %>% unique() %>% pull()
 choice_pairs_appendix <- 
-  crf_data %>% dplyr::filter(choice_pair %in% "appendix") %>% select(pair_id) %>% unique() %>% pull()
+  crf_data %>% dplyr::filter(choice_pair %in% "appendix") %>%
+  select(pair_id) %>% unique() %>% pull()
+choice_pairs_all <- c(choice_pairs_main, choice_pairs_appendix)
 
-choice_crf_all <- c(choice_pairs_main, choice_pairs_appendix)
-
+# CRFs to be considered in the main analysis or only as sensitivity analysis
 choice_crf_main_selected <- 
   crf_data %>% 
   dplyr::filter(pair_id %in% choice_pairs_main & 
                   choice_crf %in% "selected") %>% 
   select(crf_id) %>% unique() %>% pull()
-
 choice_crf_main_sensitivity <- 
   crf_data %>% 
   dplyr::filter(pair_id %in% choice_pairs_main & 
@@ -333,7 +312,7 @@ choice_crf_main_sensitivity <-
   select(crf_id) %>% unique() %>% pull()
 
 
-geluftt_pairs <- c("main", "appendix")
+choice_pairs <- c("main", "appendix")
 choice_crfs <- c("selected", "sensitivity")
 
 
@@ -343,28 +322,11 @@ choice_crfs <- c("selected", "sensitivity")
 
 ```{r Subsets of crf data}
 
-# Data in list form to be prepared for loops
-crf_data_forLoop <-
-  # Split (make list) by main/appendix, pollutant, oucome_id and selected/sensitivity
-  split(crf_data, crf_data$choice_pair)%>%
-  purrr::map(function(x) split(x, x$pollutant))%>%
-  purrr::map(map, function(x) split(x, x$outcome_id))%>%
-  purrr::map(map, map, function(x) split(x, x$choice_crf))  
-
 # CRF data for all-cause mortality (removing disease specific)
 crf_data_allCauseMortality <-
   dplyr::filter(crf_data,
     outcome_metric %in% "premature deaths" &
     outcome_disease %in% "all causes")
-
-# CRF data for all-cause mortality (removing disease specific)
-crf_data_allCauseMortality_adults <-
-  dplyr::filter(crf_data_allCauseMortality,
-    outcome_group %in% "adults")
-
-crf_data_allCauseMortality_infants <-
-  dplyr::filter(crf_data_allCauseMortality,
-    outcome_disease %in% "infants")
 
 crf_data_morbidities<- 
    dplyr::filter(crf_data,
@@ -373,63 +335,6 @@ crf_data_morbidities<-
 
 
 ```
-
-
-
-
-
-
-## Baseline health (morbidity) data
-```{r bhd_data}
-
-# Baseline health data 
-bhd_rawdata <- 
-  read.csv("r_package/testing/input/bhd.csv", sep = ";")
-
-# Adapt the rawdata as needed
-bhd_data <- 
-  bhd_rawdata %>%
-  # Remove the column hra
-  dplyr::select(-hra) %>%
-                  
-  dplyr::mutate(
-    # change format of year
-    bhd_year = as.character(bhd_year),
-    # Calculate the rate based on the absolute value
-    # Already available in the csv but to be overwritten just in case that 
-    # we forgot to update it there.
-    bhd_rate = round(bhd_absolute / 86.06, 2))%>%
-  #Add bhd_id
-  tidyr::unite("outcome_id",
-               outcome_metric, outcome_disease, outcome_group,
-               sep = "_", 
-               na.rm =TRUE,
-               remove = FALSE)%>%
-  #Filter the data to remove "all ages" in some of the GBD data
-  dplyr::filter(!(source %in% "IHME (2020)" & 
-                    outcome_disease %in% c("lung cancer",
-                                           "ischemic heart disease",
-                                           "stroke",
-                                           "diabetes (type 2)",
-                                           "dementia")&
-                    age %in% "all"))
-
-```
-
-
-```{r subsets}
-bhd_data_forLoop <- 
-  bhd_data %>%
-  # Split (make list) by id
-  split(.$outcome_id)
-
-bhd_data_morbidity <- bhd_data %>%
-  # Keep only those rows that are relevant for GeLuft 
-  # (only morbidity because mortality is to be done with life tables)
-  dplyr::filter(!outcome_metric %in% "premature deaths")
-```
-
-
 
 
 ## Population data 
@@ -475,11 +380,65 @@ for (s in sex){
   
 }
 
+total_population <- 
+  sum(
+    sum(population_byAge[["male"]]$population),
+    sum(population_byAge[["female"]]$population))
 
 
 
 
 ```
+
+
+
+
+
+## Baseline health (morbidity) data
+```{r bhd_data}
+
+# Baseline health data 
+bhd_rawdata <- 
+  read.csv("r_package/testing/input/bhd.csv", sep = ";")
+
+# Adapt the rawdata as needed
+bhd_data <- 
+  bhd_rawdata %>%
+  dplyr::mutate(
+    # change format of year
+    bhd_year = as.character(bhd_year),
+    # Calculate the rate based on the absolute value
+    # Already available in the csv file but to be overwritten  
+    # to update the information.
+    bhd_rate = round((bhd_absolute/total_population)*1E5, 2))%>%
+  #Add bhd_id
+  tidyr::unite("outcome_id",
+               outcome_metric, outcome_disease, outcome_group,
+               sep = "_", 
+               na.rm =TRUE,
+               remove = FALSE)%>%
+  #Filter the data to remove "all ages" in some of the GBD data
+  dplyr::filter(!(source %in% "IHME (2020)" & 
+                    outcome_disease %in% c("lung cancer",
+                                           "ischemic heart disease",
+                                           "stroke",
+                                           "diabetes (type 2)",
+                                           "dementia")&
+                    age %in% "all"))
+
+```
+
+
+```{r subsets}
+# Keep only morbidity (mortality is in life tables)
+bhd_data_morbidity <- bhd_data %>%
+  # Keep only those rows that are relevant 
+  # (only morbidity because mortality is to be done with life tables)
+  dplyr::filter(!outcome_metric %in% "premature deaths")
+```
+
+
+
 
 
 
@@ -698,11 +657,11 @@ exp_data <-
   # Remove url colum
   dplyr::select(-url, -hra, -estimation)%>%
   # Remove the columns for lower and upper bound of the concentration 
-  # (not relevant for the project GeLuft)
+  # (not relevant)
   dplyr::select(-concentration_exp_lowci, -concentration_exp_highci)%>%
   # Rename concentration column
   dplyr::rename(exp = concentration_exp_mean)%>%
-  # Filter keeping only relevant rows for the project GeLuft
+  # Filter keeping only relevant rows 
   dplyr::filter(concentration_year %in% c("2019", "lrv", "whoaqg21"))%>%
   # Add columns with the original values (before re-scaling)
   dplyr::mutate(
@@ -812,7 +771,7 @@ impact_morbidities_raw <- list()
 
 for(i in 1:nrow(input_data_morbidities)){
   impact_morbidities_raw[[input_data_morbidities$concentration_year[i]]][[input_data_morbidities$crf_id[[i]]]] <-
-  healthiar::calculate_healthImpacts(
+  bestcost::calculate_healthImpacts(
     exp = input_data_morbidities$exp[i],
     cf = input_data_morbidities$cf[i],
     bhd = input_data_morbidities$bhd_absolute[i],
@@ -902,11 +861,11 @@ impact_morbidities <-
 ```{r mortality}
 impact_mortality_raw <- list()
 
-# Calculate using healthiar
+# Calculate using bestcost
 
 for(i in 1:nrow(input_data_mortality)){
   impact_mortality_raw[[input_data_mortality$concentration_year[i]]][[input_data_mortality$crf_id[[i]]]] <-
-  healthiar::calculate_mortality_usingLifetable(
+  bestcost::calculate_mortality_usingLifetable(
     exp = input_data_mortality$exp[i],
     cf = input_data_morbidities$cf[i],
     crf = unlist(input_data_mortality[i, 
