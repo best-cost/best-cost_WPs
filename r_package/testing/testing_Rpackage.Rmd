@@ -287,7 +287,7 @@ crf_data <-
 
 
 
-```{r Store relevant values from crf_data}
+```{r Storing relevant values from crf_data}
 # Store the pollutant-outcomes pairs 
 
 # Pollutant-outocome pairs to be considered in the main analysis or in the appendix
@@ -385,16 +385,11 @@ total_population <-
     sum(population_byAge[["male"]]$population),
     sum(population_byAge[["female"]]$population))
 
-
-
-
 ```
 
 
 
-
-
-## Baseline health (morbidity) data
+## Baseline morbidity data
 ```{r bhd_data}
 
 # Baseline health data 
@@ -405,19 +400,19 @@ bhd_rawdata <-
 bhd_data <- 
   bhd_rawdata %>%
   dplyr::mutate(
-    # change format of year
+    # Change format of year
     bhd_year = as.character(bhd_year),
     # Calculate the rate based on the absolute value
     # Already available in the csv file but to be overwritten  
     # to update the information.
     bhd_rate = round((bhd_absolute/total_population)*1E5, 2))%>%
-  #Add bhd_id
+  # Add bhd_id
   tidyr::unite("outcome_id",
                outcome_metric, outcome_disease, outcome_group,
                sep = "_", 
                na.rm =TRUE,
                remove = FALSE)%>%
-  #Filter the data to remove "all ages" in some of the GBD data
+  # Filter the data to remove "all ages" in some of the GBD data
   dplyr::filter(!(source %in% "IHME (2020)" & 
                     outcome_disease %in% c("lung cancer",
                                            "ischemic heart disease",
@@ -438,13 +433,13 @@ bhd_data_morbidity <- bhd_data %>%
 ```
 
 
+## Baseline mortality data
 
-
-
-
-## Life table
-
-```{r Probability of dying}
+```{r Life table}
+#TODO: AirQ+ require the death rate by age to derive probability of survings
+# instead of using the probability of dying as here. 
+# The AirQ+ method has to be accomodated here. 
+# See  formulas here: https://www.who.int/europe/publications/i/item/WHO-EURO-2020-1559-41310-56212
 
 lifetable <- list()
 
@@ -474,27 +469,23 @@ for(s in sex){
     tidyr::pivot_wider(names_from = indicator, values_from = mean)%>%
     # Rename column probability of dying
     dplyr::rename("death_probability" = "Q(X)")%>%
-    # Select columns probabilyt of dying (drop the other indicators)
+    # Select columns probability of dying (drop the other indicators)
     dplyr::select(age, death_probability)
-    
-  
-}
+    }
 
 
 for (s in sex){
-  
     # Convert column age in lifetable to character 
     # to have the same type as in population data
     lifetable[[s]]$age <- 
       as.character(lifetable[[s]]$age)
-  
-}
+  }
 ```
 
 
 
 
-```{r Mortality data}
+```{r Non-natural mortality}
 
 nonNatural_mortality_rawdata <- list()
 total_mortality_rawdata <- list()
@@ -556,7 +547,7 @@ for(s in sex){
                       rowMeans(subset(total_mortality[[s]], 
                                       select = -Age), 
                                na.rm = TRUE))
- 
+ # Joined data set with total and natural mortality together
   mortality_data_beforeCorrecting[[s]] <-
     # Add row from non-natural mortality
     dplyr::left_join(total_mortality[[s]][, c("Age", "mean_total")],
@@ -566,7 +557,6 @@ for(s in sex){
     dplyr::rename("age" = "Age")%>%
     # Calculate percentage of deaths from non-natural mortality
     dplyr::mutate(percent_nonNatural_raw = mean_nonNatural / mean_total)
-    
     
     
     # Calculate the moving average (mean of 5 ages) to correct yearly deviations
@@ -596,7 +586,7 @@ for(s in sex){
 
 
 
-```{r get_lifetable_withPopulation}
+```{r Create function to get lifetable with population}
 
 get_lifetable_withPopulation <-
   function(lifetable, population, firstYear_lifetable){
@@ -619,7 +609,7 @@ get_lifetable_withPopulation <-
 
 
 
-```{r lifetable_withPopulation}
+```{r Apply function to get lifetable with population}
 
 lifetable_withPopulation <- list()
 
@@ -636,6 +626,67 @@ for(s in sex){
 ```
 
 
+```{r Lifetable as in Airq+}
+
+                
+#Create list to derive natural deaths
+natural_mortality <- list()
+
+for(s in sex){
+  natural_mortality[[s]] <- 
+
+    # Join total and non natural deaths
+    dplyr::left_join(
+      dplyr::select(total_mortality[[s]], Age,  mean_total),
+      dplyr::select(nonNatural_mortality[[s]], Age,  mean_nonNatural),
+      by="Age")%>%
+    # Rename age
+    dplyr::rename(age = Age)%>%
+    # Delete total row
+    dplyr::filter(!age %in% "Total")%>%
+    # Replace NA with 0
+    dplyr::mutate(mean_nonNatural = 
+                    ifelse(is.na(mean_nonNatural), 0, mean_nonNatural))%>%
+    # Calculate difference between total and non natural
+    dplyr::mutate(natural_deaths = round(mean_total-mean_nonNatural, 0))%>%
+    # Select only relevant columns
+    dplyr::select(age, natural_deaths)
+  
+}
+
+natural_mortality <- 
+  dplyr::left_join(natural_mortality[["male"]],
+                   natural_mortality[["female"]],
+                   by = "age",
+                   suffix = c("_male", "_female"))
+
+
+lifetable_airqplus <-
+  dplyr::left_join(lifetable_airqplus,
+                   natural_mortality,
+                   by = "age")
+
+# Population data in life table  
+lifetable_airqplus <- 
+  # Convert list into data frame
+  dplyr::left_join(population_byAge[["male"]], 
+                   population_byAge[["female"]],
+                   by = "age",
+                   suffix = c("_male", "_female"))%>%
+  # Round population values
+  dplyr::mutate(population_male =round(population_male, 0),
+                population_female = round(population_female, 0))%>%
+  # Add mortality data
+  dplyr::left_join(.,
+                   natural_mortality,
+                   by = "age")%>%
+  # Convert age to numeric (previously character)
+  dplyr::mutate(age = as.numeric(age)) %>%
+  # Duplicate column for age as in AirQ+
+  dplyr::mutate(age_end = age, .after = age)
+
+
+```
 
 
 
@@ -974,5 +1025,13 @@ impact_mortality <-
   dplyr::arrange(outcome_group)
 
 
+```
+
+# Export
+
+```{r}
+write.csv2(lifetable_airqplus,
+            "r_package/testing/output/lifetable_airqplus_2019_ch.csv", 
+            row.names = FALSE)
 ```
 

@@ -1,0 +1,64 @@
+sep=;
+ANALYSIS PROPERTIES
+
+Analysis Name:;Impact Assessment - Switzerland (PM2.5)
+Type:;Impact Assessment - Long-term Effects (Ambient)
+Pollutant:;PM2.5
+Location:;Switzerland
+Total Population;8605778
+Year:;2019
+Area Size;41285
+Latitude:;
+Longitude:;
+Analyis Comment:;Source of measured air pollution data: Number of stations used: Location: Type of stations: Responsible agency/unit:
+
+
+POLLUTION CONCENTRATION
+
+Mean Concentration;8.3
+
+
+EVALUATION PARAMETERS
+
+Evaluation Name:;ALRI_2019
+Evaluation Type:;Impact Evaluation
+Health Endpoint:;
+Incidents (per 100 000 per year);109.38
+Population at risk;8605778
+Calculation Method:;log-linear
+Relative Risk:;1.12
+Relative Risk Lower:;1.03
+Relative Risk Upper:;1.3
+Beta:;0.011332868530700327
+Beta Lower:;0.002955880224154443
+Beta Upper:;0.026236426446749107
+Cut-off value;5
+Evaluation Comment:;
+
+
+EVALUATION RESULTS
+
+Result Table:;
+ ;Central;Lower;Upper
+Estimated Attributable Proportion;3.67%;0.97%;8.29%;
+Estimated number of Attributable Cases;346;91;781;
+Estimated number of Attributable Cases per 100 000 Population at Risk;4;1;9;
+
+
+
+DETAILED EVALUATION RESULTS
+
+Detailed Result Table:;
+Concentration Mean;number of Days;%Person*Days;RR;RR*p;(RR-1)*p;Number of attrib. cases * 100,000 population at risk;estimated number of cases attrib. to exposure
+8.3;365;100%;1.038107;1.0381065887733525;0.03810658877335249;4.02;345.53;
+
+Detailed Result TableLower:;
+Concentration Mean;number of Days;%Person*Days;RR;RR*p;(RR-1)*p;Number of attrib. cases * 100,000 population at risk;estimated number of cases attrib. to exposure
+8.3;365;100%;1.009802;1.0098021340095973;0.009802134009597285;1.06;91.37;
+
+Detailed Result TableUpper:;
+Concentration Mean;number of Days;%Person*Days;RR;RR*p;(RR-1)*p;Number of attrib. cases * 100,000 population at risk;estimated number of cases attrib. to exposure
+8.3;365;100%;1.090439;1.0904388253363047;0.09043882533630465;9.07;780.70;
+
+
+
