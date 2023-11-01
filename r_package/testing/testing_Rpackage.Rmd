@@ -3,6 +3,9 @@ title: "Testing of BEST-COST R package"
 author: "Alberto Castro & Axel Luyten"
 output: html_document
 ---
+# Pending
+- Create table comparing the AirQ+ and bestcost results to always control that we do not deviate.
+- Compare morbidity (not only mortality)
 
 # Preparation
 
@@ -683,7 +686,7 @@ lifetable_airqplus <-
   # Convert age to numeric (previously character)
   dplyr::mutate(age = as.numeric(age)) %>%
   # Duplicate column for age as in AirQ+
-  dplyr::mutate(age_end = age, .after = age)
+  dplyr::mutate(age_end = age, .after = age)f
 
 
 ```
