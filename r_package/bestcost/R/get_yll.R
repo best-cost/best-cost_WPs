@@ -1,4 +1,4 @@
-# Title and description TEST Illustration Alberto
+# Title and description
 
 #' Get years of life lost
 #'
