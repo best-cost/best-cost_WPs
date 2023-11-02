@@ -2,7 +2,7 @@ Package: bestcost
 Title: What the Package Does (Title Case)
 Version: 0.0.0.1
 Author: Alberto Castro [aut, cre], Axel Luyten [aut, cre]
-Maintainer: TBD
+Maintainer: Alberto Castro <alberto.castrofernandez@swisstph.ch>
 Description: R package developed withing the framework of the EU project BEST-COST to quantify and monetize health impacts of environmental stressors
 License: GPL
 Encoding: UTF-8
