@@ -49,7 +49,7 @@ get_yll <-
 
         # Life years by year
         lifeyears_byYear[[s]][[v]][["noDiscount"]] <-
-          healthiar:::get_lifeyears(
+          :get_lifeyears(
             spot = shifted_popOverTime[["shifted_popOverTime"]][[s]][[v]],
             age_group = age_group,
             min_age = min_age,

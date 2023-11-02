@@ -110,7 +110,7 @@ calculate_healthImpacts <-
 
       # Calculate attributable fraction (AF) and impact
       dplyr::mutate(approach_id = paste0("singleValue_", crf_rescale_method),
-                    af =  healthiar::get_paf(crfConc = crfConc),
+                    af =  bestcost::get_paf(crfConc = crfConc),
                     impact = round(af * bhd, 0),
                     impact_metric = {{outcome_metric}},
                     age_group = {{age_group}},
