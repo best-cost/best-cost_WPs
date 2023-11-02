@@ -31,7 +31,7 @@ get_popOverTime <-
 
     # Calculate population for the next years
     popOverTime_noAP <-
-      :get_popOverTime_noAP(
+      get_popOverTime_noAP(
         lifetable_wPop = lifetab_withPop,
         firstYear_lifetable = firstYear_lifetable,
         year_loopStart = firstYear_lifetable + 1)
