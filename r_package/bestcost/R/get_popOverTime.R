@@ -31,7 +31,7 @@ get_popOverTime <-
 
     # Calculate population for the next years
     popOverTime_noAP <-
-      get_popOverTime_noAP(
+      bestcost::get_popOverTime_noAP(
         lifetable_wPop = lifetab_withPop,
         firstYear_lifetable = firstYear_lifetable,
         year_loopStart = firstYear_lifetable + 1)
@@ -97,7 +97,7 @@ get_popOverTime <-
     # Now calculate population over time (for the rest of years)
     # without considering air pollution
     popOverTime_AP <-
-      :get_popOverTime_noAP(
+      bestcost::get_popOverTime_noAP(
         lifetable_wPop = popOverTime_AP,
         firstYear_lifetable = firstYear_lifetable,
         year_loopStart = firstYear_lifetable + 2)
