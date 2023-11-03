@@ -7,6 +7,7 @@ output: html_document
 - Create table comparing the AirQ+ and bestcost results to always control that we do not deviate.
 - Compare morbidity (not only mortality)
 - healthiar vs. geluft in the package
+- test
 
 # Preparation
 
