@@ -93,7 +93,7 @@ outcomeGroups <- groups$outcome_group
 year_hra <- "2019"
 ```
 
-```{r Useful small functions}
+```{r Functions}
 
 # Create function to join mean CRF with the lower and upper bound
 paste_CI <- 
@@ -117,6 +117,7 @@ paste_round_CI <-
            round_keeping0(high, decimals), "]")
   }
 
+
 ```
 
 
@@ -137,18 +138,18 @@ percentage_pm2.5_in_pm10 <-
 ## CRFs data
 ```{r crf_rawdata}
 
-# Read CRF data inserted manually in the csv table 
+# Read CRF data inserted manually in the csv table
 crf_rawdata <- 
   read.csv("r_package/testing/input/crf.csv",
            sep = ";",
            na.strings=c("NA", ""))
-
-
-
 ```
 
 
 ```{r Functions to rescale crf} 
+# LUYTAX: IDEA ####
+# Idea: possibly combine functions and save in {bestcost} in "R" folder. This might also apply for other functions defined in this script?
+
 # Define function to re-scale the CRF regarding the considered increment
 rescale_crf_increment <- 
   function(crf, per_original, per_target){
@@ -180,19 +181,14 @@ rescale_conc_pmFraction <-
     rescaled_fraction <- 
       conc * conversionFactor
   }
-
 ```
-
-
-
 
 ```{r Editing crf (rescale inclusive)}
 crf_data <- 
   crf_rawdata%>%
   # Select only CRFs that are relevant 
   dplyr::filter(!is.na(choice_pair))%>%
-  # Reshape CRFs from wide to long 
-  # to enable editing CRFs by row
+  # Reshape CRFs from wide to long (to enable editing CRFs by row)
   tidyr::pivot_longer(c(crf_mean, crf_lowci, crf_highci),
                       names_to = "ci",
                       names_prefix = "crf_", 
@@ -249,22 +245,22 @@ crf_data <-
                outcome_metric, outcome_disease, outcome_group,
                na.rm = TRUE,
                remove = FALSE) %>%
-  # Add id for outcome as single variable
+  # Add id for pair as single variable
   tidyr::unite("pair_id",
                pollutant, outcome_id, choice_pair,
                na.rm = TRUE,
-               remove = FALSE)%>% 
+               remove = FALSE) %>% 
   # Add id for crf
   tidyr::unite("crf_id",
                pair_id, crf_source_rFormat, choice_crf,
                sep = "_", 
                na.rm =TRUE,
-               remove = FALSE)%>%
+               remove = FALSE) %>%
   # Keep only unique CRFs (id, value and CI category) to avoid duplicates
   dplyr::distinct(., crf_id, crf, ci, 
-                  .keep_all = TRUE)%>%
+                  .keep_all = TRUE) %>%
   # Change position of some columns
-  dplyr::relocate(c(crf_per, concentration_unit), .after=crf)%>%
+  dplyr::relocate(c(crf_per, concentration_unit), .after=crf) %>%
 # Pivot wider to have ci in columns
   tidyr::pivot_wider(values_from = c(crf, crf_original, crf_rescaled), 
                      names_from = ci)
@@ -272,18 +268,22 @@ crf_data <-
 
 ```
 
-
-
 ```{r Storing relevant values from crf_data}
 # Store the pollutant-outcomes pairs 
 
-# Pollutant-outocome pairs to be considered in the main analysis or in the appendix
-choice_pairs_main <- 
-  crf_data %>% dplyr::filter(choice_pair %in% "main") %>% 
-  select(pair_id) %>% unique() %>% pull()
-choice_pairs_appendix <- 
-  crf_data %>% dplyr::filter(choice_pair %in% "appendix") %>%
-  select(pair_id) %>% unique() %>% pull()
+# Pollutant-outcome pairs to be considered in the main analysis or in the appendix
+choice_pairs_main <- crf_data %>% 
+  dplyr::filter(choice_pair %in% "main") %>% 
+  select(pair_id) %>% 
+  unique() %>% 
+  pull()
+
+choice_pairs_appendix <- crf_data %>% 
+  dplyr::filter(choice_pair %in% "appendix") %>%
+  select(pair_id) %>% 
+  unique() %>% 
+  pull()
+
 choice_pairs_all <- c(choice_pairs_main, choice_pairs_appendix)
 
 # CRFs to be considered in the main analysis or only as sensitivity analysis
@@ -301,11 +301,7 @@ choice_crf_main_sensitivity <-
 
 choice_pairs <- c("main", "appendix")
 choice_crfs <- c("selected", "sensitivity")
-
-
 ```
-
-
 
 ```{r Subsets of crf data}
 
@@ -318,31 +314,25 @@ crf_data_allCauseMortality <-
 crf_data_morbidities<- 
    dplyr::filter(crf_data,
     !outcome_metric %in% "premature deaths")
-
-
-
 ```
 
 
 ## Population data 
 
-
 ```{r Population data by age for life table}
 # Population data by age
 # To be used in the life table approach
 population_byAge_rawdata <-
-  read.csv2("r_package/testing/input/population/population_byAge_bySex_CH_2018_2019.csv")%>%
+  read.csv2("r_package/testing/input/population/population_byAge_bySex_CH_2018_2019.csv") %>%
   # Rename columns
   dplyr::rename("age" = "Alter",
                 "male_end2018" = "Mann.2018",
                 "female_end2018" = "Frau.2018",
                 "male_end2019" = "Mann.2019",
-                "female_end2019" = "Frau.2019")%>%
+                "female_end2019" = "Frau.2019") %>%
   # Remove "Jahre" 
     dplyr::mutate(
-      age = gsub(" Jahre| Jahr","", age ))
-
-
+      age = gsub(" Jahre| Jahr","", age )) #gsub() for pattern replacement
 
 
 # Create a list with two elements to split male and female data 
@@ -364,19 +354,16 @@ for (s in sex){
     # Remove "und mehr" (and more)
     dplyr::mutate(
       age = gsub(" und mehr","", age ))
-  
 }
 
 total_population <- 
   sum(
     sum(population_byAge[["male"]]$population),
     sum(population_byAge[["female"]]$population))
-
 ```
 
-
-
 ## Baseline morbidity data
+
 ```{r bhd_data}
 
 # Baseline health data 
@@ -405,9 +392,8 @@ bhd_data <-
                                            "ischemic heart disease",
                                            "stroke",
                                            "diabetes (type 2)",
-                                           "dementia")&
-                    age %in% "all"))
-
+                                           "dementia")
+                  &  age %in% "all"))
 ```
 
 
@@ -439,23 +425,23 @@ for(s in sex){
       # The raw data are for the period 2013-2020 but we focused on 2015-2019 (five years period)
       paste0("r_package/testing/input/life_tables/life_table_2013_2020_",
              s,
-             ".csv"))%>%
+             ".csv")) %>%
     # Rename columns
     dplyr::rename("age" = "AGE..X." ,
                   "indicator" = "INDICATOR",
                   "year"  = "PERIOD",
-                  "value" = "VALUE")%>%
+                  "value" = "VALUE") %>%
     # Convert value to numeric
-    dplyr::mutate(value = as.numeric(value))%>%
+    dplyr::mutate(value = as.numeric(value)) %>%
     # Filter only columns for years within the period 2015 - 2019
-    dplyr::filter(year %in% c(2015:2019))%>%
+    dplyr::filter(year %in% c(2015:2019)) %>%
     # Obtain mean of the period 2016-2020 as value for 2019
-    dplyr::group_by(indicator, age)%>%
-    dplyr::summarize(mean= mean(value), .groups = "drop")%>%
+    dplyr::group_by(indicator, age) %>%
+    dplyr::summarize(mean= mean(value), .groups = "drop") %>%
     # Wider form
-    tidyr::pivot_wider(names_from = indicator, values_from = mean)%>%
+    tidyr::pivot_wider(names_from = indicator, values_from = mean) %>%
     # Rename column probability of dying
-    dplyr::rename("death_probability" = "Q(X)")%>%
+    dplyr::rename("death_probability" = "Q(X)") %>%
     # Select columns probability of dying (drop the other indicators)
     dplyr::select(age, death_probability)
     }
@@ -469,21 +455,15 @@ for (s in sex){
   }
 ```
 
-
-
-
 ```{r Non-natural mortality}
 
 nonNatural_mortality_rawdata <- list()
 total_mortality_rawdata <- list()
-
 nonNatural_mortality <-list()
 total_mortality <- list()
 # Create list joining non-natural and total mortality data
-  mortality_data_beforeCorrecting <- list()
-  mortality_data <- list()
-
-
+mortality_data_beforeCorrecting <- list()
+mortality_data <- list()
 
 # Read non-natural mortality raw data for 2019 (average of the period 2009-2019)
 nonNatural_mortality_rawdata<- 
@@ -517,7 +497,7 @@ for(s in sex){
     nonNatural_mortality[[s]] <- 
       nonNatural_mortality[[s]] %>%
       # Select columns keeping only those 10 year before (2010-2019)
-      dplyr::select(all_of(c("Age", as.character(2010:2019))))%>%
+      dplyr::select(all_of(c("Age", as.character(2010:2019)))) %>%
       # Calculate average by age
       dplyr::mutate(mean_nonNatural = 
                       rowMeans(subset(nonNatural_mortality[[s]], 
@@ -564,21 +544,14 @@ for(s in sex){
                                          percent_nonNatural_movingAverage))))%>%
     # Keep only age and percentage of non-natural deaths, which the only data needed.
     dplyr::select(age, percent_nonNatural)
-    
-  
 }
-
 ```
-
-
-
 
 ```{r Create function to get lifetable with population}
 
 get_lifetable_withPopulation <-
   function(lifetable, population, firstYear_lifetable){
         
-    
     # Life table for 
     lifetable_withPopulation <- 
       # Join lifetable and population by age 
@@ -590,11 +563,8 @@ get_lifetable_withPopulation <-
       dplyr::mutate(death_probability = replace(death_probability, n(), 1))%>%
       # Add year to population column
       dplyr::rename("population_{firstYear_lifetable}" := population)
-      
   }
 ```
-
-
 
 ```{r Apply function to get lifetable with population}
 
@@ -608,14 +578,10 @@ for(s in sex){
       firstYear_lifetable = 2019)
 
 }
-
-
 ```
-
 
 ```{r Lifetable as in Airq+}
 
-                
 #Create list to derive natural deaths
 natural_mortality <- list()
 
@@ -647,11 +613,12 @@ natural_mortality <-
                    by = "age",
                    suffix = c("_male", "_female"))
 
-
-lifetable_airqplus <-
-  dplyr::left_join(lifetable_airqplus,
-                   natural_mortality,
-                   by = "age")
+# LUYTAX: ERROR ####
+# Error: "object 'lifetable_airqplus' not found" -> duplicate code that was not deleted? cfr. next code, which is almost identical
+#lifetable_airqplus <- 
+#  dplyr::left_join(lifetable_airqplus, 
+#                   natural_mortality,
+#                   by = "age")
 
 # Population data in life table  
 lifetable_airqplus <- 
@@ -670,15 +637,10 @@ lifetable_airqplus <-
   # Convert age to numeric (previously character)
   dplyr::mutate(age = as.numeric(age)) %>%
   # Duplicate column for age as in AirQ+
-  dplyr::mutate(age_end = age, .after = age)f
-
-
+  dplyr::mutate(age_end = age, .after = age)
 ```
 
-
-
 ## Concentration data
-
 
 ```{r exposure}
 
@@ -691,16 +653,16 @@ exp_rawdata <-
 
 # This data set will include other data beyond those from HRAs
 exp_data <- 
-  exp_rawdata%>%
+  exp_rawdata %>%
   # Remove url colum
-  dplyr::select(-url, -hra, -estimation)%>%
+  dplyr::select(-url, -hra, -estimation) %>%
   # Remove the columns for lower and upper bound of the concentration 
   # (not relevant)
-  dplyr::select(-concentration_exp_lowci, -concentration_exp_highci)%>%
+  dplyr::select(-concentration_exp_lowci, -concentration_exp_highci) %>%
   # Rename concentration column
-  dplyr::rename(exp = concentration_exp_mean)%>%
+  dplyr::rename(exp = concentration_exp_mean) %>%
   # Filter keeping only relevant rows 
-  dplyr::filter(concentration_year %in% c("2019", "lrv", "whoaqg21"))%>%
+  dplyr::filter(concentration_year %in% c("2019", "lrv", "whoaqg21")) %>%
   # Add columns with the original values (before re-scaling)
   dplyr::mutate(
     pollutant_original = pollutant,
@@ -709,7 +671,7 @@ exp_data <-
     pollutant = 
       ifelse(pollutant %in% pm_no_target, 
              pm_target, 
-             pollutant_original))%>%
+             pollutant_original)) %>%
   # Convert the exposure
   dplyr::mutate(
     exp = 
@@ -717,24 +679,17 @@ exp_data <-
         conc = exp_original,
         pm_original = pollutant_original,
         pm_target = pm_target))
-
-
-  
 ```
 
-
 ```{r Subsets}
+
 # Exposure data in a list form
 exp_data_forLoop <- 
   exp_data %>%
   # Split (make list) by pollutant and year
   split(.$pollutant)%>%
   purrr::map(function(x) split(x, x$concentration_year))
-  
-
-
 ```
-
 
 ```{r table to export}
 
@@ -742,11 +697,7 @@ exp_data_swiss_xls<-
   exp_data %>%
   dplyr::arrange(desc(pollutant), exp) %>%
   dplyr::mutate(exp = round(exp, 3))
-
-
-
 ```
-
 
 ```{r Counterfactual scenario}
 
@@ -757,39 +708,33 @@ cf_data <-
   dplyr::select(pollutant, exp)%>%
   # Rename the column
   dplyr::rename(cf =exp)
-
 ```
-
-
 
 # Calculating health impacts
 
 ```{r Codebook}
-
+# LUYTAX: ERROR ####
 # Do not forget yll
-codebook <- unique(bhd_data[, c("outcome_id", "outcome_label_de", "mort_morb")]) %>%
+codebook <- unique(bhd_data[, c("outcome_id", "outcome_label_de", "mort_morb")]) %>%  "outcome_label_de"; # ERROR: there doesn't seem to be a column "outcome_label_de". Should "outcome_label_de" be removed from the statement? 
   # Add label for crf
   # replacing premature deaths / yll by mortality
   mutate(crf_label_de = ifelse(outcome_id %in% c("premature deaths_all causes_adults", "yll_all causes_adults"),
                                "Krankheitsbedingte Sterblichkeit bei Erwachsenen",
-                               ifelse(outcome_id %in% c("premature deaths_all causes_infants", "yll_all causes_infants"),
+                               ifelse(outcome_id %in% c("premature deaths_all causes_infants",
+                                                        "yll_all causes_infants"),
                                       "Säuglingssterblichkeit",
                                       outcome_label_de)))
-
 ```
-
-
 
 ```{r input data}
 input_data <-
-  
   # Join data sets of input data
   dplyr::left_join(exp_data, crf_data, by="pollutant", 
                    suffix =c("_exp", "_crf"),
-                   relationship = "many-to-many")%>%
+                   relationship = "many-to-many") %>%
   dplyr::left_join(., bhd_data, by="outcome_id",
                    suffix = c("", "_bhd"),
-                   relationship = "many-to-many")%>%
+                   relationship = "many-to-many") %>%
   # Add counterfactual
   dplyr::left_join(., cf_data, by="pollutant",
                    relationship = "many-to-one")
@@ -802,7 +747,6 @@ input_data_mortality <-
   input_data %>%
   dplyr::filter(crf_id %in% crf_data_allCauseMortality$crf_id)
 ```
-
 
 ```{r morbidities}
 impact_morbidities_raw <- list()
@@ -830,17 +774,19 @@ impact_morbidities_edited <-
 
 impact_morbidities_comparative <- list()
 for (r in c("2019", "lrv")){
-  
   # Substract the impacts for the scenarios
   impact_morbidities_comparative[[paste0(r, "_whoaqg21")]] <- 
-    dplyr::left_join(impact_morbidities_edited[[r]],
+    dplyr::left_join(impact_morbidities_edited[[r]], # LUYTAX: ERROR #### 
                      impact_morbidities_edited[["whoaqg21"]][c("crf_id", "ci", "crf", "exp", "impact")], 
                      by = c("crf_id", "ci", "crf"), 
-                     suffix = c("_ref", "_whoaqg21"))%>%
+                     suffix = c("_ref", "_whoaqg21")) %>%
     dplyr::mutate(ref = r,
                   impact_diff = impact_ref - impact_whoaqg21)
-  }
+}
+#ERROR: Error in UseMethod("left_join") : no applicable method for 'left_join' applied to an object of class "NULL"
 
+
+# Next code refers to dataframe "codebook" -> it doesn't run because of the earlier error in chunk 23 "Codebook" 
 impact_morbidities <- 
   impact_morbidities_comparative %>%
   dplyr::bind_rows(.)%>%
@@ -875,7 +821,7 @@ impact_morbidities <-
                    by = c("outcome_id", "bhd" = "bhd_absolute"),
                    relationship = "many-to-one")%>%
   # Left join to add label in German of outcomes
-  dplyr::left_join(., codebook, 
+  dplyr::left_join(., codebook, # LUYTAX: ERROR ####
                    by = "outcome_id",
                    relationship = "many-to-one")%>%
   
@@ -889,9 +835,6 @@ impact_morbidities <-
                 everything())%>%
   # Order rows by label
   dplyr::arrange(outcome_label_de)
-
-
-
 ```
 
 
@@ -901,9 +844,13 @@ impact_mortality_raw <- list()
 
 # Calculate using bestcost
 
+# ERROR: Error in loadNamespace(x) : there is no package called ‘healthiar’
+# checked .libPaths()
+# [1] "C:/Users/luytax/Documents/R/win-library/4.1" "C:/Program Files/R/library"
+# In second path there is no folder "bestcost"
 for(i in 1:nrow(input_data_mortality)){
   impact_mortality_raw[[input_data_mortality$concentration_year[i]]][[input_data_mortality$crf_id[[i]]]] <-
-  bestcost::calculate_mortality_usingLifetable(
+  bestcost::calculate_mortality_usingLifetable( # LUYTAX: ERROR ####
     exp = input_data_mortality$exp[i],
     cf = input_data_morbidities$cf[i],
     crf = unlist(input_data_mortality[i, 
@@ -920,7 +867,6 @@ for(i in 1:nrow(input_data_mortality)){
     min_age = 20,
     max_age = 0,
     corrected_discount_rate = 0)
-
 }
 
 impact_mortality_edited <- list()
@@ -932,16 +878,20 @@ impact_mortality_edited[["deaths"]] <-
 impact_mortality_edited[["yll"]] <- 
   purrr::map_depth(impact_mortality_raw, 2, "yll")
 
+# LUYTAX: WARNING
+# Warning: Unknown or uninitialised column: `case`.
 impact_mortality_edited <- impact_mortality_edited %>%
   # Unlist assigning id
   purrr::map(., map,  ~ dplyr::bind_rows(., .id = "crf_id"))%>%
   purrr::map(.,  ~ dplyr::bind_rows(., .id = "case"))%>%
   dplyr::bind_rows(., .id = "outcome_metric_short")%>%
   # Now list only scenario
-  split(., .$case)
+  split(., .$case) 
 
 # Put together the different scenarios
 impact_mortality_comparative <- list()
+# LUYTAX: ERROR
+# Error in UseMethod("left_join") : no applicable method for 'left_join' applied to an object of class "NULL"
 for (r in c("2019", "lrv")){
   # Substract the impacts for the scenarios
   impact_mortality_comparative[[paste0(r, "_whoaqg21")]] <- 
@@ -953,12 +903,12 @@ for (r in c("2019", "lrv")){
                   impact_diff = impact_ref - impact_whoaqg21)
   }
 
-
+# Error in `dplyr::select()`: Column `impact_per_unit` doesn't exist.
 impact_mortality <- 
   impact_mortality_comparative %>%
-  dplyr::bind_rows(.)%>%
+  dplyr::bind_rows(.) %>%
   # Remove non relevant columns
-  dplyr::select(-impact_per_unit, -case)%>%
+  dplyr::select(-impact_per_unit, -case) %>% # LUYTAX: ERROR
   
   # Pivot wider CI
   tidyr::pivot_wider(
@@ -1010,8 +960,6 @@ impact_mortality <-
                 everything())%>%
   # Order rows by label
   dplyr::arrange(outcome_group)
-
-
 ```
 
 # Export
@@ -1021,4 +969,3 @@ write.csv2(lifetable_airqplus,
             "r_package/testing/output/lifetable_airqplus_2019_ch.csv", 
             row.names = FALSE)
 ```
-
