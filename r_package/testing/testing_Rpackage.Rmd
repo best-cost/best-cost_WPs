@@ -3,7 +3,7 @@ title: "Testing of BEST-COST R package"
 author: "Alberto Castro & Axel Luyten"
 output: html_document
 ---
-# Pending
+#Pending
 - Create table comparing the AirQ+ and bestcost results to always control that we do not deviate.
 - Compare morbidity (not only mortality)
 - healthiar vs. geluft in the package
@@ -11,7 +11,8 @@ output: html_document
 # Preparation
 
 The R script required the loading of certain R packages. 
-```{r R script}
+```{r R script, include=FALSE}
+
 # Clear R environment
 rm(list = ls())
 
@@ -36,12 +37,9 @@ library(openxlsx)
 library(credentials)
 library(gitcreds)
 library(devtools)
-
 ```
 
-
-
-```{r own packages}
+```{r own packages, include=FALSE}
 # Install own package from github as suggested here
 # https://stackoverflow.com/a/71846333/6104907
 if(!"bestcost" %in% installed.packages()[, "Package"]){
@@ -54,9 +52,6 @@ if(!"bestcost" %in% installed.packages()[, "Package"]){
 
 library(bestcost)
 ```
-
-
-
 
 ```{r Useful variables}
 
@@ -96,11 +91,7 @@ outcomeGroups <- groups$outcome_group
 # This should be one (or more than one) from the years_withData
 # Change it as needed
 year_hra <- "2019"
-
-  
-
 ```
-
 
 ```{r Useful small functions}
 
@@ -131,23 +122,15 @@ paste_round_CI <-
 
 # Input data
 
-
 ## Generic data
 ```{r Other generic data}
 
-# Read single-value generic data
-generic_data <- 
-  read.csv("r_package/testing/input/generic_data.csv",
-           sep = ";")
-
 # Extract the value of the conversion factor from the generic_data csv file
 percentage_pm2.5_in_pm10 <- 
-  generic_data %>%
+  read.csv("r_package/testing/input/generic_data.csv", sep = ";") %>% 
   dplyr::filter(parameter_name %in% "percentage_pm2.5_in_pm10") %>%
-  dplyr::select(value)%>%
+  dplyr::select(value) %>%
   dplyr::pull()
-
-
 ```
 
 
