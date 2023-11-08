@@ -3,15 +3,22 @@ title: "Testing of BEST-COST R package"
 author: "Alberto Castro & Axel Luyten"
 output: html_document
 ---
-#Pending
+# Goal
+Recreate calculation of AirQ+ with {bestcost}. For this, all necessary input data is loaded and manipulated to fit the required formats of {bestcost}. Then, the health impacts are calculated.
+
+Pending
 - Create table comparing the AirQ+ and bestcost results to always control that we do not deviate.
 - Compare morbidity (not only mortality)
 - healthiar vs. geluft in the package
 
+Suggestions
+- Put all lines where data is loaded from excels together in one chunk at the start of the script
+- When variables are not used anymore in the script, remove them with the rm(variable_name) command
+
 # Preparation
 
 The R script required the loading of certain R packages. 
-```{r R script, include=FALSE}
+```{r Load packages, include=FALSE}
 
 # Clear R environment
 rm(list = ls())
@@ -26,7 +33,6 @@ library(purrr)
 library(stringr)
 library(tibble)
 
-
 library(zoo)
 library(meta)
 
@@ -37,9 +43,7 @@ library(openxlsx)
 library(credentials)
 library(gitcreds)
 library(devtools)
-```
 
-```{r own packages, include=FALSE}
 # Install own package from github as suggested here
 # https://stackoverflow.com/a/71846333/6104907
 if(!"bestcost" %in% installed.packages()[, "Package"]){
@@ -117,38 +121,9 @@ paste_round_CI <-
            round_keeping0(high, decimals), "]")
   }
 
-
-```
-
-
-# Input data
-
-## Generic data
-```{r Other generic data}
-
-# Extract the value of the conversion factor from the generic_data csv file
-percentage_pm2.5_in_pm10 <- 
-  read.csv("r_package/testing/input/generic_data.csv", sep = ";") %>% 
-  dplyr::filter(parameter_name %in% "percentage_pm2.5_in_pm10") %>%
-  dplyr::select(value) %>%
-  dplyr::pull()
-```
-
-
-## CRFs data
-```{r crf_rawdata}
-
-# Read CRF data inserted manually in the csv table
-crf_rawdata <- 
-  read.csv("r_package/testing/input/crf.csv",
-           sep = ";",
-           na.strings=c("NA", ""))
-```
-
-
-```{r Functions to rescale crf} 
+# r Functions to rescale crf 
 # LUYTAX: IDEA ####
-# Idea: possibly combine functions and save in {bestcost} in "R" folder. This might also apply for other functions defined in this script?
+# Idea: possibly combine these functions and save in {bestcost} in "R" folder. This might also apply for other functions defined in this script?
 
 # Define function to re-scale the CRF regarding the considered increment
 rescale_crf_increment <- 
@@ -181,6 +156,31 @@ rescale_conc_pmFraction <-
     rescaled_fraction <- 
       conc * conversionFactor
   }
+```
+
+
+# Load input data
+
+## Generic data
+```{r Other generic data}
+
+# Extract the value of the conversion factor from the generic_data csv file
+percentage_pm2.5_in_pm10 <- 
+  read.csv("r_package/testing/input/generic_data.csv", sep = ";") %>% 
+  dplyr::filter(parameter_name %in% "percentage_pm2.5_in_pm10") %>%
+  dplyr::select(value) %>%
+  dplyr::pull()
+```
+
+
+## CRFs data
+```{r crf_rawdata}
+
+# Read CRF data inserted manually in the csv table
+crf_rawdata <- 
+  read.csv("r_package/testing/input/crf.csv",
+           sep = ";",
+           na.strings=c("NA", ""))
 ```
 
 ```{r Editing crf (rescale inclusive)}
@@ -264,8 +264,6 @@ crf_data <-
 # Pivot wider to have ci in columns
   tidyr::pivot_wider(values_from = c(crf, crf_original, crf_rescaled), 
                      names_from = ci)
-
-
 ```
 
 ```{r Storing relevant values from crf_data}
@@ -710,12 +708,13 @@ cf_data <-
   dplyr::rename(cf =exp)
 ```
 
-# Calculating health impacts
+# Calculate health impacts
 
 ```{r Codebook}
 # LUYTAX: ERROR ####
+# ERROR: there doesn't seem to be a column "outcome_label_de". Should "outcome_label_de" be removed from the statement?
 # Do not forget yll
-codebook <- unique(bhd_data[, c("outcome_id", "outcome_label_de", "mort_morb")]) %>%  "outcome_label_de"; # ERROR: there doesn't seem to be a column "outcome_label_de". Should "outcome_label_de" be removed from the statement? 
+codebook <- unique(bhd_data[, c("outcome_id", "outcome_label_de", "mort_morb")]) %>%  "outcome_label_de";  
   # Add label for crf
   # replacing premature deaths / yll by mortality
   mutate(crf_label_de = ifelse(outcome_id %in% c("premature deaths_all causes_adults", "yll_all causes_adults"),
@@ -962,9 +961,11 @@ impact_mortality <-
   dplyr::arrange(outcome_group)
 ```
 
-# Export
+# Export 
 
 ```{r}
+# LUYTAX: QUESTION
+# This code seems like it belongs in the chunk "Lifetable as in Airq+" ?
 write.csv2(lifetable_airqplus,
             "r_package/testing/output/lifetable_airqplus_2019_ch.csv", 
             row.names = FALSE)
