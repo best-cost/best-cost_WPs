@@ -842,14 +842,9 @@ impact_morbidities <-
 impact_mortality_raw <- list()
 
 # Calculate using bestcost
-
-# ERROR: Error in loadNamespace(x) : there is no package called ‘healthiar’
-# checked .libPaths()
-# [1] "C:/Users/luytax/Documents/R/win-library/4.1" "C:/Program Files/R/library"
-# In second path there is no folder "bestcost"
 for(i in 1:nrow(input_data_mortality)){
   impact_mortality_raw[[input_data_mortality$concentration_year[i]]][[input_data_mortality$crf_id[[i]]]] <-
-  bestcost::calculate_mortality_usingLifetable( # LUYTAX: ERROR ####
+  bestcost:::calculate_mortality_usingLifetable( # LUYTAX: ERROR ####
     exp = input_data_mortality$exp[i],
     cf = input_data_morbidities$cf[i],
     crf = unlist(input_data_mortality[i, 
@@ -877,8 +872,6 @@ impact_mortality_edited[["deaths"]] <-
 impact_mortality_edited[["yll"]] <- 
   purrr::map_depth(impact_mortality_raw, 2, "yll")
 
-# LUYTAX: WARNING
-# Warning: Unknown or uninitialised column: `case`.
 impact_mortality_edited <- impact_mortality_edited %>%
   # Unlist assigning id
   purrr::map(., map,  ~ dplyr::bind_rows(., .id = "crf_id"))%>%
