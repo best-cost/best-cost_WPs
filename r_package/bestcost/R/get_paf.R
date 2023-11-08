@@ -20,3 +20,7 @@ get_paf <-
 
     return(paf)
   }
+
+# Proposals for renaming parameters ####
+# "crfConc" might be renamed to ...
+# "pep" might be renamed to "prop_exp_pop" (other ideas welcome!)

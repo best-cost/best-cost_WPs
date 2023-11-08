@@ -4,7 +4,7 @@
 #'
 #' Re-scale the concentration-response function from the increment value in the epidemiological study (e.g. for PM2.5 10 or 5 ug/m3) to the actual population exposure)
 #' @param crf
-#' Data frame containing the concentration response function as in the epidemiological study, i.e. per the usual concentration increase. The data frame must contain the mean, lower and upper bound of the concentration-response function.
+#' Data frame containing the concentration-response function as in the epidemiological study, i.e. per the usual concentration increase. The data frame must contain the mean, lower and upper bound of the concentration-response function.
 #' @param exp
 #' Population exposure to the stressor (e.g. annual population-weighted mean).
 #' @param cf
@@ -41,3 +41,8 @@ rescale_crf <-
     return(crf_conc)
     
   }
+
+# Comment line 5 ####
+# from "Re-scale the concentration-response function" it is not clear to me what the output is: RR or OR?
+# Comment line 13 ####
+# the term "Increment of the concentration-response function" is unclear to me. Is the SIZE of the increment meant (e.g. 5 or 10 ug/m3) or the RR CHANGE per air pollution increment?
