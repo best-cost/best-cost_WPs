@@ -611,8 +611,8 @@ natural_mortality <-
                    by = "age",
                    suffix = c("_male", "_female"))
 
-# LUYTAX: ERROR ####
-# Error: "object 'lifetable_airqplus' not found" -> duplicate code that was not deleted? cfr. next code, which is almost identical
+# SHOW ACF ####
+# Error: "object 'lifetable_airqplus' not found" -> duplicate code that was not deleted? cf. next code, which is almost identical
 #lifetable_airqplus <- 
 #  dplyr::left_join(lifetable_airqplus, 
 #                   natural_mortality,
@@ -711,18 +711,19 @@ cf_data <-
 # Calculate health impacts
 
 ```{r Codebook}
-# LUYTAX: ERROR ####
-# ERROR: there doesn't seem to be a column "outcome_label_de". Should "outcome_label_de" be removed from the statement?
+# SHOW ACF ####
+# ERROR (FIXED NOW): there doesn't seem to be a column "outcome_label_de"
 # Do not forget yll
-codebook <- unique(bhd_data[, c("outcome_id", "outcome_label_de", "mort_morb")]) %>%  "outcome_label_de";  
+codebook <- unique(bhd_data[, c("outcome_id", "mort_morb")]) #%>%  removed "outcome_label_de" from the column selection;  
+  # Removed the next lines
   # Add label for crf
   # replacing premature deaths / yll by mortality
-  mutate(crf_label_de = ifelse(outcome_id %in% c("premature deaths_all causes_adults", "yll_all causes_adults"),
-                               "Krankheitsbedingte Sterblichkeit bei Erwachsenen",
-                               ifelse(outcome_id %in% c("premature deaths_all causes_infants",
-                                                        "yll_all causes_infants"),
-                                      "Säuglingssterblichkeit",
-                                      outcome_label_de)))
+  #mutate(crf_label_de = ifelse(outcome_id %in% c("premature deaths_all causes_adults", "yll_all causes_adults"),
+  #                             "Krankheitsbedingte Sterblichkeit bei Erwachsenen",
+  #                             ifelse(outcome_id %in% c("premature deaths_all causes_infants",
+  #                                                      "yll_all causes_infants"),
+  #                                    "Säuglingssterblichkeit",
+  #                                    outcome_label_de)))
 ```
 
 ```{r input data}
@@ -771,21 +772,20 @@ impact_morbidities_edited <-
   impact_morbidities_raw %>%
   purrr::map(., ~ dplyr::bind_rows(., .id = "crf_id")) 
 
+# SHOW ACF ####
 impact_morbidities_comparative <- list()
-for (r in c("2019", "lrv")){
+for (r in c("2019", "whoaqg21")){ # LUYTAX: replaced "lrv" (which doesn't exist in impact_morbidities_edited) by "whoaqg21" 
   # Substract the impacts for the scenarios
   impact_morbidities_comparative[[paste0(r, "_whoaqg21")]] <- 
-    dplyr::left_join(impact_morbidities_edited[[r]], # LUYTAX: ERROR #### 
+    dplyr::left_join(impact_morbidities_edited[[r]], # LUYTAX: ERROR (now fixed) 
                      impact_morbidities_edited[["whoaqg21"]][c("crf_id", "ci", "crf", "exp", "impact")], 
                      by = c("crf_id", "ci", "crf"), 
                      suffix = c("_ref", "_whoaqg21")) %>%
     dplyr::mutate(ref = r,
                   impact_diff = impact_ref - impact_whoaqg21)
 }
-#ERROR: Error in UseMethod("left_join") : no applicable method for 'left_join' applied to an object of class "NULL"
+#ERROR (before "lrv" replaced by "whoaqg21"): Error in UseMethod("left_join") : no applicable method for 'left_join' applied to an object of class "NULL"
 
-
-# Next code refers to dataframe "codebook" -> it doesn't run because of the earlier error in chunk 23 "Codebook" 
 impact_morbidities <- 
   impact_morbidities_comparative %>%
   dplyr::bind_rows(.)%>%
@@ -820,20 +820,20 @@ impact_morbidities <-
                    by = c("outcome_id", "bhd" = "bhd_absolute"),
                    relationship = "many-to-one")%>%
   # Left join to add label in German of outcomes
-  dplyr::left_join(., codebook, # LUYTAX: ERROR ####
+  dplyr::left_join(., codebook,
                    by = "outcome_id",
                    relationship = "many-to-one")%>%
   
   # Order columns 
-  dplyr::select(pollutant, term, outcome_label_de,
+  dplyr::select(pollutant, term, #outcome_label_de, # removed selection of this column because german labels removed in chunk "Codebook"
                 bhd,
                 crf_meanCI, 
                 contains("impact_diff_meanCI"),
                 contains("impact_ref_meanCI"), 
                 impact_whoaqg21_meanCI,
-                everything())%>%
+                everything()) #%>%
   # Order rows by label
-  dplyr::arrange(outcome_label_de)
+  #dplyr::arrange(outcome_label_de) # removed this line because german labels removed in chunk "Codebook"
 ```
 
 
@@ -843,13 +843,9 @@ impact_mortality_raw <- list()
 
 # Calculate using bestcost
 
-# ERROR: Error in loadNamespace(x) : there is no package called ‘healthiar’
-# checked .libPaths()
-# [1] "C:/Users/luytax/Documents/R/win-library/4.1" "C:/Program Files/R/library"
-# In second path there is no folder "bestcost"
 for(i in 1:nrow(input_data_mortality)){
   impact_mortality_raw[[input_data_mortality$concentration_year[i]]][[input_data_mortality$crf_id[[i]]]] <-
-  bestcost::calculate_mortality_usingLifetable( # LUYTAX: ERROR ####
+  bestcost::calculate_mortality_usingLifetable(
     exp = input_data_mortality$exp[i],
     cf = input_data_morbidities$cf[i],
     crf = unlist(input_data_mortality[i, 
@@ -877,8 +873,6 @@ impact_mortality_edited[["deaths"]] <-
 impact_mortality_edited[["yll"]] <- 
   purrr::map_depth(impact_mortality_raw, 2, "yll")
 
-# LUYTAX: WARNING
-# Warning: Unknown or uninitialised column: `case`.
 impact_mortality_edited <- impact_mortality_edited %>%
   # Unlist assigning id
   purrr::map(., map,  ~ dplyr::bind_rows(., .id = "crf_id"))%>%
@@ -887,11 +881,12 @@ impact_mortality_edited <- impact_mortality_edited %>%
   # Now list only scenario
   split(., .$case) 
 
+# SHOW ACF ####
 # Put together the different scenarios
 impact_mortality_comparative <- list()
 # LUYTAX: ERROR
 # Error in UseMethod("left_join") : no applicable method for 'left_join' applied to an object of class "NULL"
-for (r in c("2019", "lrv")){
+for (r in c("2019", "whoaqg21")){ # replaced "lrv" with "whoaqg21"
   # Substract the impacts for the scenarios
   impact_mortality_comparative[[paste0(r, "_whoaqg21")]] <- 
     dplyr::left_join(impact_mortality_edited[[r]],
@@ -902,12 +897,11 @@ for (r in c("2019", "lrv")){
                   impact_diff = impact_ref - impact_whoaqg21)
   }
 
-# Error in `dplyr::select()`: Column `impact_per_unit` doesn't exist.
 impact_mortality <- 
   impact_mortality_comparative %>%
   dplyr::bind_rows(.) %>%
   # Remove non relevant columns
-  dplyr::select(-impact_per_unit, -case) %>% # LUYTAX: ERROR
+  dplyr::select(-impact_per_unit, -case) %>%
   
   # Pivot wider CI
   tidyr::pivot_wider(
@@ -950,7 +944,7 @@ impact_mortality <-
                    relationship = "many-to-one")%>%
   # Order columns 
   dplyr::select(pollutant, term,
-                outcome_label_de,
+                #outcome_label_de, # LUYTAX: removed
                 bhd,
                 crf_meanCI, 
                 contains("impact_diff_meanCI"),
@@ -964,8 +958,6 @@ impact_mortality <-
 # Export 
 
 ```{r}
-# LUYTAX: QUESTION
-# This code seems like it belongs in the chunk "Lifetable as in Airq+" ?
 write.csv2(lifetable_airqplus,
             "r_package/testing/output/lifetable_airqplus_2019_ch.csv", 
             row.names = FALSE)
