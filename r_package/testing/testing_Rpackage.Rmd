@@ -123,8 +123,6 @@ paste_round_CI <-
   }
 
 # r Functions to rescale crf 
-# LUYTAX: IDEA ####
-# Idea: possibly combine these functions and save in {bestcost} in "R" folder. This might also apply for other functions defined in this script?
 
 # Define function to re-scale the CRF regarding the considered increment
 rescale_crf_increment <- 
