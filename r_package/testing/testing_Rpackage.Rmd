@@ -612,13 +612,6 @@ natural_mortality <-
                    by = "age",
                    suffix = c("_male", "_female"))
 
-# SHOW ACF ####
-# Error: "object 'lifetable_airqplus' not found" -> duplicate code that was not deleted? cf. next code, which is almost identical
-#lifetable_airqplus <- 
-#  dplyr::left_join(lifetable_airqplus, 
-#                   natural_mortality,
-#                   by = "age")
-
 # Population data in life table  
 lifetable_airqplus <- 
   # Convert list into data frame
