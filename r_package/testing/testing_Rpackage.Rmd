@@ -654,7 +654,7 @@ exp_data <-
   # Rename concentration column
   dplyr::rename(exp = concentration_exp_mean) %>%
   # Filter keeping only relevant rows 
-  dplyr::filter(concentration_year %in% c("2019", "lrv", "whoaqg21")) %>%
+  dplyr::filter(concentration_year %in% c("2019", "whoaqg21")) %>%
   # Add columns with the original values (before re-scaling)
   dplyr::mutate(
     pollutant_original = pollutant,
@@ -760,9 +760,8 @@ impact_morbidities_edited <-
   impact_morbidities_raw %>%
   purrr::map(., ~ dplyr::bind_rows(., .id = "crf_id")) 
 
-# SHOW ACF ####
 impact_morbidities_comparative <- list()
-for (r in c("2019", "whoaqg21")){ # LUYTAX: replaced "lrv" (which doesn't exist in impact_morbidities_edited) by "whoaqg21" 
+for (r in c("2019", "whoaqg21")){ 
   # Substract the impacts for the scenarios
   impact_morbidities_comparative[[paste0(r, "_whoaqg21")]] <- 
     dplyr::left_join(impact_morbidities_edited[[r]], # LUYTAX: ERROR (now fixed) 
@@ -772,7 +771,6 @@ for (r in c("2019", "whoaqg21")){ # LUYTAX: replaced "lrv" (which doesn't exist 
     dplyr::mutate(ref = r,
                   impact_diff = impact_ref - impact_whoaqg21)
 }
-#ERROR (before "lrv" replaced by "whoaqg21"): Error in UseMethod("left_join") : no applicable method for 'left_join' applied to an object of class "NULL"
 
 impact_morbidities <- 
   impact_morbidities_comparative %>%
@@ -870,12 +868,11 @@ impact_mortality_edited <- impact_mortality_edited %>%
   # Now list only scenario
   split(., .$case) 
 
-# SHOW ACF ####
+
 # Put together the different scenarios
 impact_mortality_comparative <- list()
-# LUYTAX: ERROR
-# Error in UseMethod("left_join") : no applicable method for 'left_join' applied to an object of class "NULL"
-for (r in c("2019", "whoaqg21")){ # replaced "lrv" with "whoaqg21"
+
+for (r in c("2019", "whoaqg21")){ 
   # Substract the impacts for the scenarios
   impact_mortality_comparative[[paste0(r, "_whoaqg21")]] <- 
     dplyr::left_join(impact_mortality_edited[[r]],
