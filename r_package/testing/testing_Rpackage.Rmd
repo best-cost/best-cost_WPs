@@ -259,7 +259,7 @@ crf_data <-
   dplyr::distinct(., crf_id, crf, ci, 
                   .keep_all = TRUE) %>%
   # Change position of some columns
-  dplyr::relocate(c(crf_per, concentration_unit), .after=crf) %>%
+  dplyr::relocate(c(crf_per, unit), .after=crf) %>%
 # Pivot wider to have ci in columns
   tidyr::pivot_wider(values_from = c(crf, crf_original, crf_rescaled), 
                      names_from = ci)
@@ -648,11 +648,9 @@ exp_data <-
   dplyr::select(-url, -hra, -estimation) %>%
   # Remove the columns for lower and upper bound of the concentration 
   # (not relevant)
-  dplyr::select(-concentration_exp_lowci, -concentration_exp_highci) %>%
+  dplyr::select(-exp_lowci, -exp_highci) %>%
   # Rename concentration column
-  dplyr::rename(exp = concentration_exp_mean) %>%
-  # Filter keeping only relevant rows 
-  dplyr::filter(concentration_year %in% c("2019", "whoaqg21")) %>%
+  #dplyr::rename(exp = exp_mean) %>%
   # Add columns with the original values (before re-scaling)
   dplyr::mutate(
     pollutant_original = pollutant,
@@ -678,7 +676,7 @@ exp_data_forLoop <-
   exp_data %>%
   # Split (make list) by pollutant and year
   split(.$pollutant)%>%
-  purrr::map(function(x) split(x, x$concentration_year))
+  purrr::map(function(x) split(x, x$year))
 ```
 
 ```{r table to export}
@@ -694,7 +692,7 @@ exp_data_swiss_xls<-
 cf_data <-
   exp_data %>%
   # Take the WHO-AQG 2021 
-  dplyr::filter(concentration_year %in% "whoaqg21") %>%
+  dplyr::filter(year %in% "whoaqg21") %>%
   dplyr::select(pollutant, exp)%>%
   # Rename the column
   dplyr::rename(cf =exp)
@@ -738,7 +736,7 @@ input_data_mortality <-
 impact_morbidities_raw <- list()
 
 for(i in 1:nrow(input_data_morbidities)){
-  impact_morbidities_raw[[input_data_morbidities$concentration_year[i]]][[input_data_morbidities$crf_id[[i]]]] <-
+  impact_morbidities_raw[[input_data_morbidities$year[i]]][[input_data_morbidities$crf_id[[i]]]] <-
   bestcost::calculate_healthImpacts(
     exp = input_data_morbidities$exp[i],
     cf = input_data_morbidities$cf[i],
@@ -809,15 +807,14 @@ impact_morbidities <-
                    relationship = "many-to-one")%>%
   
   # Order columns 
-  dplyr::select(pollutant, term, #outcome_label_de, # removed selection of this column because german labels removed in chunk "Codebook"
+  dplyr::select(pollutant, term, 
                 bhd,
                 crf_meanCI, 
                 contains("impact_diff_meanCI"),
                 contains("impact_ref_meanCI"), 
                 impact_whoaqg21_meanCI,
                 everything()) #%>%
-  # Order rows by label
-  #dplyr::arrange(outcome_label_de) # removed this line because german labels removed in chunk "Codebook"
+
 ```
 
 
@@ -828,7 +825,7 @@ impact_mortality_raw <- list()
 # Calculate using bestcost
 
 for(i in 1:nrow(input_data_mortality)){
-  impact_mortality_raw[[input_data_mortality$concentration_year[i]]][[input_data_mortality$crf_id[[i]]]] <-
+  impact_mortality_raw[[input_data_mortality$year[i]]][[input_data_mortality$crf_id[[i]]]] <-
   bestcost:::calculate_mortality_usingLifetable(
 
     exp = input_data_mortality$exp[i],

@@ -1,7 +1,5 @@
-hra;estimation;pollutant;concentration_cf_mean;concentration_cf_lowci;concentration_cf_highci;concentration_metric;concentration_unit;source
-;;PM2.5;10;;;annual mean;ug/m3;WHO AQG (2005)
-;;NO2;40;;;annual mean;ug/m3;WHO AQG (2005)
+hra;estimation;pollutant;cf_mean;cf_lowci;cf_highci;metric;unit;source
 ;;PM2.5;5;;;annual mean;ug/m3;WHO AQG (2021)
 ;;NO2;10;;;annual mean;ug/m3;WHO AQG (2021)
 ;;PM10;15;;;annual mean;ug/m3;WHO AQG (2021)
-;;BC;1.115;;;annual mean;ug/m3;WHO AQG (2021)
+;;O3;100;;;8 hours mean;ug/m3;WHO AQG (2021)
