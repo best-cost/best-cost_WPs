@@ -259,7 +259,7 @@ crf_data <-
   dplyr::distinct(., crf_id, crf, ci, 
                   .keep_all = TRUE) %>%
   # Change position of some columns
-  dplyr::relocate(c(crf_per, unit), .after=crf) %>%
+  dplyr::relocate(c(crf_per, crf_unit), .after=crf) %>%
 # Pivot wider to have ci in columns
   tidyr::pivot_wider(values_from = c(crf, crf_original, crf_rescaled), 
                      names_from = ci)
@@ -644,17 +644,17 @@ exp_rawdata <-
 # This data set will include other data beyond those from HRAs
 exp_data <- 
   exp_rawdata %>%
-  # Remove url colum
+  # Remove not relevant columns
   dplyr::select(-url, -hra, -estimation) %>%
   # Remove the columns for lower and upper bound of the concentration 
-  # (not relevant)
+  # (not relevant but maybe later)
   dplyr::select(-exp_lowci, -exp_highci) %>%
   # Rename concentration column
   #dplyr::rename(exp = exp_mean) %>%
   # Add columns with the original values (before re-scaling)
   dplyr::mutate(
     pollutant_original = pollutant,
-    exp_original = exp,
+    exp_original = exp_mean,
     # Modify columns pollutant
     pollutant = 
       ifelse(pollutant %in% pm_no_target, 
@@ -687,15 +687,25 @@ exp_data_swiss_xls<-
   dplyr::mutate(exp = round(exp, 3))
 ```
 
+# Counterfactual
 ```{r Counterfactual scenario}
 
+cf_rawdata <- 
+  # Read data
+  read.csv("testing/input/cf.csv",
+           sep = ";",
+           na.strings=c("NA", ""))
+  
+
 cf_data <-
-  exp_data %>%
-  # Take the WHO-AQG 2021 
-  dplyr::filter(year %in% "whoaqg21") %>%
-  dplyr::select(pollutant, exp)%>%
-  # Rename the column
-  dplyr::rename(cf =exp)
+  cf_rawdata %>%
+  # Take the relevant columns and rows 
+  dplyr::filter(pollutant %in% c("PM2.5", "NO2")) %>%
+  dplyr::select(pollutant, cf_mean, cf_unit) %>%
+  # Rename cf_mean to cf 
+  # TODO: to be changed if we used cf with CI
+  dplyr::rename(cf = cf_mean)
+  
 ```
 
 # Calculate health impacts

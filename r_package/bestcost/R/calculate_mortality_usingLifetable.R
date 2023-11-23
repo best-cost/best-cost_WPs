@@ -118,7 +118,7 @@ calculate_mortality_usingLifetable <-
 
         # Get shifted_popOverTime
         shifted_popOverTime <-
-          bestcost:::get_shifted_popOverTime(
+          bestcost::get_shifted_popOverTime(
             lifetab_withPop = lifetable_withPop,
             nonNatural_death = nonNatural_death,
             firstYear_lifetable = firstYear_lifetable,
