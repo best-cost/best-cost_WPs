@@ -12,10 +12,6 @@ Pending
 - healthiar vs. geluft in the package
 - test
 
-Suggestions
-- Put all lines where data is loaded from excels together in one chunk at the start of the script
-- When variables are not used anymore in the script, remove them with the rm(variable_name) command
-
 # Preparation
 
 The R script required the loading of certain R packages. 
@@ -155,43 +151,122 @@ rescale_conc_pmFraction <-
     rescaled_fraction <- 
       conc * conversionFactor
   }
+
+# Create function to get lifetable with population
+get_lifetable_withPopulation <-
+  function(lifetable, population, firstYear_lifetable){
+        
+    # Life table for 
+    lifetable_withPopulation <- 
+      # Join lifetable and population by age 
+      dplyr::right_join(lifetable,
+                        population,
+                        by = "age")%>%
+      # We close the last row assigning a 1 for probability to die and 
+      # a 0 to probability to survive
+      dplyr::mutate(death_probability = replace(death_probability, n(), 1))%>%
+      # Add year to population column
+      dplyr::rename("population_{firstYear_lifetable}" := population)
+  }
+
 ```
 
 
-# Load input data
+# Load raw input data
+```{r load raw data}
 
-## Generic data
-```{r Other generic data}
-
-# Extract the value of the conversion factor from the generic_data csv file
+# Generic data
 percentage_pm2.5_in_pm10 <- 
   read.csv("testing/input/generic_data.csv", sep = ";") %>% 
   dplyr::filter(parameter_name %in% "percentage_pm2.5_in_pm10") %>%
   dplyr::select(value) %>%
   dplyr::pull()
-```
 
-
-## CRFs data
-```{r crf_rawdata}
-
-# Read CRF data inserted manually in the csv table
+# CRF data (inserted manually in the csv table)
 crf_rawdata <- 
   read.csv("testing/input/crf.csv",
            sep = ";",
            na.strings=c("NA", ""))
+
+# Population data by age (To be used in the life table approach)
+population_byAge_rawdata <-
+  read.csv2("testing/input/population/population_byAge_bySex_CH_2018_2019.csv") %>%
+  # Rename columns
+  dplyr::rename("age" = "Alter",
+                "male_end2018" = "Mann.2018",
+                "female_end2018" = "Frau.2018",
+                "male_end2019" = "Mann.2019",
+                "female_end2019" = "Frau.2019") %>%
+  # Remove "Jahre" 
+    dplyr::mutate(
+      age = gsub(" Jahre| Jahr","", age)) #gsub() for pattern replacement
+
+# Baseline health data 
+bhd_rawdata <- 
+  read.csv("testing/input/bhd.csv", sep = ";")
+
+# Read raw life table data
+lifetable <- list()
+for(s in sex){
+  # Life table for 2019
+  # Average of the period 2016-2020
+  lifetable[[s]] <- 
+    read.csv2(
+      # The raw data are for the period 2013-2020 but we focused on 2015-2019 (five years period)
+      paste0("testing/input/life_tables/life_table_2013_2020_",
+             s,
+             ".csv"))
+}
+
+
+# Read raw non-natural mortality data for 2019 (average of the period 2009-2019)
+nonNatural_mortality_rawdata<- 
+   list(
+     male = read.csv2("testing/input/mortality/nonNatural_mortality_byAge_2009_2019_male.csv",
+                      na.strings =".", 
+                      check.names = FALSE),
+     female = read.csv2("testing/input/mortality/nonNatural_mortality_byAge_2009_2019_female.csv",
+                        na.strings =".", 
+                      check.names = FALSE))
+
+# Read total mortality raw data for 2019 (average of the period 2009-2019)
+total_mortality_rawdata <- 
+  list(
+    male = read.csv2("testing/input/mortality/total_mortality_byAge_2009_2019_male.csv",
+                     na.strings =".", 
+                      check.names = FALSE),
+    female = read.csv2("testing/input/mortality/total_mortality_byAge_2009_2019_female.csv",
+                       na.strings =".", 
+                      check.names = FALSE))
+
+# Concentration data
+# Scenario
+exp_rawdata <- 
+  read.csv("testing/input/exp.csv",
+           sep = ";",
+           na.strings=c("NA", ""))
+
+# Counterfactual
+cf_rawdata <- 
+  # Read data
+  read.csv("testing/input/cf.csv",
+           sep = ";",
+           na.strings=c("NA", ""))
 ```
 
-```{r Editing crf (rescale inclusive)}
+# Edit input data
+
+## CRF data
+```{r Edit CRF (rescale inclusive)}
 crf_data <- 
-  crf_rawdata%>%
+  crf_rawdata %>%
   # Select only CRFs that are relevant 
-  dplyr::filter(!is.na(choice_pair))%>%
+  dplyr::filter(!is.na(choice_pair)) %>%
   # Reshape CRFs from wide to long (to enable editing CRFs by row)
   tidyr::pivot_longer(c(crf_mean, crf_lowci, crf_highci),
                       names_to = "ci",
                       names_prefix = "crf_", 
-                      values_to = "crf")%>%
+                      values_to = "crf") %>%
   # Add a copy of columns with the original values (before re-scaling)
   dplyr::mutate(
     crf_pollutant_original = pollutant,
@@ -201,8 +276,8 @@ crf_data <-
   # for each pollutant
     crf_per_target =
       ifelse(pollutant %in% c(pm_fractions, "NO2"), 10, NA),
-      # ifelse(pollutant %in% "BC", 0.44, NA)))%>%
-      # ifelse(pollutant %in% "O3", , NA))))%>% 
+      # ifelse(pollutant %in% "BC", 0.44, NA))) %>%
+      # ifelse(pollutant %in% "O3", , NA)))) %>% 
       # If O3 is included, the O3 increment is to be decided
   # Re-scale concentration of PM fractions in CRFs
     crf_per_rescaled = 
@@ -216,7 +291,7 @@ crf_data <-
         crf = crf,
         per_original = crf_per_rescaled,
         per_target = crf_per_target),
-    crf = crf_rescaled)%>%
+    crf = crf_rescaled) %>%
   # Modify columns based on target
   dplyr::mutate(
     pollutant = 
@@ -226,7 +301,7 @@ crf_data <-
     crf_per = 
       ifelse(!crf_per %in% crf_per_target, 
              crf_per_target, 
-             crf_per))%>%
+             crf_per)) %>%
 
   # Change format of source
   # Remove brackets and spaces
@@ -237,7 +312,7 @@ crf_data <-
         stringr::word(crf_source, 1),
         # Year between brackets
         stringr::str_extract(crf_source, "(?<=\\().*(?=\\))"),
-        sep = "_"))%>%
+        sep = "_")) %>%
   
   # Add id for outcome as single variable
   tidyr::unite("outcome_id",
@@ -263,10 +338,8 @@ crf_data <-
 # Pivot wider to have ci in columns
   tidyr::pivot_wider(values_from = c(crf, crf_original, crf_rescaled), 
                      names_from = ci)
-```
 
-```{r Storing relevant values from crf_data}
-# Store the pollutant-outcomes pairs 
+# Store the relevant pollutant-outcomes pairs 
 
 # Pollutant-outcome pairs to be considered in the main analysis or in the appendix
 choice_pairs_main <- crf_data %>% 
@@ -298,11 +371,8 @@ choice_crf_main_sensitivity <-
 
 choice_pairs <- c("main", "appendix")
 choice_crfs <- c("selected", "sensitivity")
-```
 
-```{r Subsets of crf data}
-
-# CRF data for all-cause mortality (removing disease specific)
+# Select CRF data for all-cause mortality (removing disease specific)
 crf_data_allCauseMortality <-
   dplyr::filter(crf_data,
     outcome_metric %in% "premature deaths" &
@@ -313,27 +383,10 @@ crf_data_morbidities<-
     !outcome_metric %in% "premature deaths")
 ```
 
-
 ## Population data 
+```{r Edit population data by age for life table}
 
-```{r Population data by age for life table}
-# Population data by age
-# To be used in the life table approach
-population_byAge_rawdata <-
-  read.csv2("testing/input/population/population_byAge_bySex_CH_2018_2019.csv") %>%
-  # Rename columns
-  dplyr::rename("age" = "Alter",
-                "male_end2018" = "Mann.2018",
-                "female_end2018" = "Frau.2018",
-                "male_end2019" = "Mann.2019",
-                "female_end2019" = "Frau.2019") %>%
-  # Remove "Jahre" 
-    dplyr::mutate(
-      age = gsub(" Jahre| Jahr","", age )) #gsub() for pattern replacement
-
-
-# Create a list with two elements to split male and female data 
-# (each of them requires a separate life table calculation)
+# Create a list with two elements to split male and female data (for seperate life table calculations)
 population_byAge <- 
   list()
 
@@ -341,13 +394,13 @@ for (s in sex){
   population_byAge[[s]] <- 
     population_byAge_rawdata %>%
     # Select relevant columns
-    dplyr::select(age, starts_with(s))%>%
+    dplyr::select(age, starts_with(s)) %>%
     # Estimate the population at the middle of 2019 by 
     # calculating the average between the population at the end of 2018 and 2019
     dplyr::mutate(
-      population = rowMeans(across(contains(s)), na.rm = TRUE))%>%
+      population = rowMeans(across(contains(s)), na.rm = TRUE)) %>%
     # Remove male and female columns used to calculate the mean
-    dplyr::select(-contains(s))%>%
+    dplyr::select(-contains(s)) %>%
     # Remove "und mehr" (and more)
     dplyr::mutate(
       age = gsub(" und mehr","", age ))
@@ -361,11 +414,7 @@ total_population <-
 
 ## Baseline morbidity data
 
-```{r bhd_data}
-
-# Baseline health data 
-bhd_rawdata <- 
-  read.csv("testing/input/bhd.csv", sep = ";")
+```{r Edit bhd_data}
 
 # Adapt the rawdata as needed
 bhd_data <- 
@@ -376,13 +425,13 @@ bhd_data <-
     # Calculate the rate based on the absolute value
     # Already available in the csv file but to be overwritten  
     # to update the information.
-    bhd_rate = round((bhd_absolute/total_population)*1E5, 2))%>%
+    bhd_rate = round((bhd_absolute/total_population)*1E5, 2)) %>%
   # Add bhd_id
   tidyr::unite("outcome_id",
                outcome_metric, outcome_disease, outcome_group,
                sep = "_", 
                na.rm =TRUE,
-               remove = FALSE)%>%
+               remove = FALSE) %>%
   # Filter the data to remove "all ages" in some of the GBD data
   dplyr::filter(!(source %in% "IHME (2020)" & 
                     outcome_disease %in% c("lung cancer",
@@ -391,38 +440,28 @@ bhd_data <-
                                            "diabetes (type 2)",
                                            "dementia")
                   &  age %in% "all"))
-```
 
-
-```{r subsets}
-# Keep only morbidity (mortality is in life tables)
+# Select only morbidity (mortality is to be done with life tables)
 bhd_data_morbidity <- bhd_data %>%
-  # Keep only those rows that are relevant 
-  # (only morbidity because mortality is to be done with life tables)
+  # Filter for relevant rows 
   dplyr::filter(!outcome_metric %in% "premature deaths")
 ```
 
 
 ## Baseline mortality data
 
-```{r Life table}
-#TODO: AirQ+ require the death rate by age to derive probability of survings
+```{r Edit life table}
+#TODO: AirQ+ require the death rate by age to derive probability of surviving
 # instead of using the probability of dying as here. 
 # The AirQ+ method has to be accomodated here. 
 # See  formulas here: https://www.who.int/europe/publications/i/item/WHO-EURO-2020-1559-41310-56212
 
-lifetable <- list()
-
-# Read raw data
 for(s in sex){
   # Life table for 2019
   # Average of the period 2016-2020
-  lifetable[[s]] <- 
-    read.csv2(
-      # The raw data are for the period 2013-2020 but we focused on 2015-2019 (five years period)
-      paste0("testing/input/life_tables/life_table_2013_2020_",
-             s,
-             ".csv")) %>%
+  lifetable[[s]] <- lifetable[[s]] %>% 
+  # Life table for 2019
+  # Average of the period 2016-2020
     # Rename columns
     dplyr::rename("age" = "AGE..X." ,
                   "indicator" = "INDICATOR",
@@ -440,54 +479,21 @@ for(s in sex){
     # Rename column probability of dying
     dplyr::rename("death_probability" = "Q(X)") %>%
     # Select columns probability of dying (drop the other indicators)
-    dplyr::select(age, death_probability)
+    dplyr::select(age, death_probability) %>% 
+    dplyr::mutate(age=as.character(age))
     }
 
-
-for (s in sex){
-    # Convert column age in lifetable to character 
-    # to have the same type as in population data
-    lifetable[[s]]$age <- 
-      as.character(lifetable[[s]]$age)
-  }
 ```
 
-```{r Non-natural mortality}
+```{r Edit non-natural mortality data}
 
-nonNatural_mortality_rawdata <- list()
-total_mortality_rawdata <- list()
-nonNatural_mortality <-list()
-total_mortality <- list()
+#Create a copy of rawdata to edit them
+nonNatural_mortality <- nonNatural_mortality_rawdata 
+total_mortality <- total_mortality_rawdata 
 # Create list joining non-natural and total mortality data
 mortality_data_beforeCorrecting <- list()
 mortality_data <- list()
 
-# Read non-natural mortality raw data for 2019 (average of the period 2009-2019)
-nonNatural_mortality_rawdata<- 
-   list(
-     male = read.csv2("testing/input/mortality/nonNatural_mortality_byAge_2009_2019_male.csv",
-                      na.strings =".", 
-                      check.names = FALSE),
-     female = read.csv2("testing/input/mortality/nonNatural_mortality_byAge_2009_2019_female.csv",
-                        na.strings =".", 
-                      check.names = FALSE))
-
-# Read total mortality raw data for 2019 (average of the period 2009-2019)
-total_mortality_rawdata <- 
-  list(
-    male = read.csv2("testing/input/mortality/total_mortality_byAge_2009_2019_male.csv",
-                     na.strings =".", 
-                      check.names = FALSE),
-    female = read.csv2("testing/input/mortality/total_mortality_byAge_2009_2019_female.csv",
-                       na.strings =".", 
-                      check.names = FALSE))
-
-#Create a copy of rawdata to edit them
-nonNatural_mortality <- 
-      nonNatural_mortality_rawdata 
-total_mortality <- 
-      total_mortality_rawdata 
-  
 # Calculate average by age in non-natural and total mortality
 for(s in sex){
     # Non-natural mortality
@@ -505,7 +511,7 @@ for(s in sex){
     total_mortality[[s]] <- 
       total_mortality[[s]] %>%
       # Select columns keeping only those 10 year before (2010-2019)
-      dplyr::select(all_of(c("Age", as.character(2010:2019))))%>%
+      dplyr::select(all_of(c("Age", as.character(2010:2019)))) %>%
       # Calculate average by age
       dplyr::mutate(mean_total = 
                       rowMeans(subset(total_mortality[[s]], 
@@ -517,19 +523,18 @@ for(s in sex){
     dplyr::left_join(total_mortality[[s]][, c("Age", "mean_total")],
                      nonNatural_mortality[[s]][, c("Age", "mean_nonNatural")],
                      by = "Age") %>%
-    # Rename column Age to age %>%
-    dplyr::rename("age" = "Age")%>%
+    dplyr::rename("age" = "Age") %>%
     # Calculate percentage of deaths from non-natural mortality
     dplyr::mutate(percent_nonNatural_raw = mean_nonNatural / mean_total)
     
     
     # Calculate the moving average (mean of 5 ages) to correct yearly deviations
   mortality_data[[s]] <-
-    mortality_data_beforeCorrecting[[s]]%>%
+    mortality_data_beforeCorrecting[[s]] %>%
     dplyr::mutate(percent_nonNatural_movingAverage = 
                     zoo::rollmean(percent_nonNatural_raw, 
                                   k = 5, 
-                                  fill = NA))%>%
+                                  fill = NA)) %>%
     # The three first lines of the moving average are special cases
     # Edit them manually
     dplyr::mutate(percent_nonNatural = 
@@ -538,32 +543,14 @@ for(s in sex){
                                                  na.rm =TRUE),
                                   ifelse(age == 2, mean(percent_nonNatural_raw[2:5],
                                                         na.rm =TRUE),
-                                         percent_nonNatural_movingAverage))))%>%
+                                         percent_nonNatural_movingAverage)))) %>%
     # Keep only age and percentage of non-natural deaths, which the only data needed.
     dplyr::select(age, percent_nonNatural)
 }
 ```
 
-```{r Create function to get lifetable with population}
 
-get_lifetable_withPopulation <-
-  function(lifetable, population, firstYear_lifetable){
-        
-    # Life table for 
-    lifetable_withPopulation <- 
-      # Join lifetable and population by age 
-      dplyr::right_join(lifetable,
-                        population,
-                        by = "age")%>%
-      # We close the last row assigning a 1 for probability to die and 
-      # a 0 to probability to survive
-      dplyr::mutate(death_probability = replace(death_probability, n(), 1))%>%
-      # Add year to population column
-      dplyr::rename("population_{firstYear_lifetable}" := population)
-  }
-```
-
-```{r Apply function to get lifetable with population}
+```{r Join lifetable and population data}
 
 lifetable_withPopulation <- list()
 
@@ -577,7 +564,7 @@ for(s in sex){
 }
 ```
 
-```{r Lifetable as in Airq+}
+```{r Create lifetable as in Airq+}
 
 #Create list to derive natural deaths
 natural_mortality <- list()
@@ -591,14 +578,14 @@ for(s in sex){
       dplyr::select(nonNatural_mortality[[s]], Age,  mean_nonNatural),
       by="Age")%>%
     # Rename age
-    dplyr::rename(age = Age)%>%
+    dplyr::rename(age = Age) %>%
     # Delete total row
-    dplyr::filter(!age %in% "Total")%>%
+    dplyr::filter(!age %in% "Total") %>%
     # Replace NA with 0
     dplyr::mutate(mean_nonNatural = 
-                    ifelse(is.na(mean_nonNatural), 0, mean_nonNatural))%>%
+                    ifelse(is.na(mean_nonNatural), 0, mean_nonNatural)) %>%
     # Calculate difference between total and non natural
-    dplyr::mutate(natural_deaths = round(mean_total-mean_nonNatural, 0))%>%
+    dplyr::mutate(natural_deaths = round(mean_total-mean_nonNatural, 0)) %>%
     # Select only relevant columns
     dplyr::select(age, natural_deaths)
   
@@ -616,14 +603,14 @@ lifetable_airqplus <-
   dplyr::left_join(population_byAge[["male"]], 
                    population_byAge[["female"]],
                    by = "age",
-                   suffix = c("_male", "_female"))%>%
+                   suffix = c("_male", "_female")) %>%
   # Round population values
   dplyr::mutate(population_male =round(population_male, 0),
-                population_female = round(population_female, 0))%>%
+                population_female = round(population_female, 0)) %>%
   # Add mortality data
   dplyr::left_join(.,
                    natural_mortality,
-                   by = "age")%>%
+                   by = "age") %>%
   # Convert age to numeric (previously character)
   dplyr::mutate(age = as.numeric(age)) %>%
   # Duplicate column for age as in AirQ+
@@ -632,15 +619,9 @@ lifetable_airqplus <-
 
 ## Concentration data
 
-```{r exposure}
+```{r exposure data scenario}
 
 # Select relevant columns
-exp_rawdata <- 
-  read.csv("testing/input/exp.csv",
-           sep = ";",
-           na.strings=c("NA", ""))
-
-
 # This data set will include other data beyond those from HRAs
 exp_data <- 
   exp_rawdata %>%
@@ -669,7 +650,7 @@ exp_data <-
         pm_target = pm_target))
 ```
 
-```{r Subsets}
+```{r Subsets exposure data scenario}
 
 # Exposure data in a list form
 exp_data_forLoop <- 
@@ -687,15 +668,7 @@ exp_data_swiss_xls<-
   dplyr::mutate(exp = round(exp, 3))
 ```
 
-# Counterfactual
 ```{r Counterfactual scenario}
-
-cf_rawdata <- 
-  # Read data
-  read.csv("testing/input/cf.csv",
-           sep = ";",
-           na.strings=c("NA", ""))
-  
 
 cf_data <-
   cf_rawdata %>%
@@ -710,7 +683,7 @@ cf_data <-
 
 # Calculate health impacts
 
-```{r Codebook}
+```{r Create Codebook}
 # Do not forget yll
 codebook <- unique(bhd_data[, c("outcome_id", "mort_morb")]) 
 
@@ -720,7 +693,7 @@ codebook <- unique(bhd_data[, c("outcome_id", "mort_morb")])
 # should be built
 ```
 
-```{r input data}
+```{r prepare input data for function}
 input_data <-
   # Join data sets of input data
   dplyr::left_join(exp_data, crf_data, by="pollutant", 
@@ -742,7 +715,7 @@ input_data_mortality <-
   dplyr::filter(crf_id %in% crf_data_allCauseMortality$crf_id)
 ```
 
-```{r morbidities}
+```{r impact morbidity}
 impact_morbidities_raw <- list()
 
 for(i in 1:nrow(input_data_morbidities)){
@@ -780,15 +753,15 @@ for (r in c("2019", "whoaqg21")){
 
 impact_morbidities <- 
   impact_morbidities_comparative %>%
-  dplyr::bind_rows(.)%>%
+  dplyr::bind_rows(.) %>%
   # Remove column crf_ci
-  dplyr::select(-crf_ci, -crfConc, -af)%>%
+  dplyr::select(-crf_ci, -crfConc, -af) %>%
   
   # Pivot wider the ci
   tidyr::pivot_wider(
     values_from = c(crf,
                     impact_ref, impact_whoaqg21, impact_diff), 
-    names_from = ci)%>%
+    names_from = ci) %>%
   # Paste the CIs
   dplyr::mutate(
     crf_meanCI = paste_round_CI(crf_mean, crf_lowci, crf_highci, 3),
@@ -800,21 +773,21 @@ impact_morbidities <-
   tidyr::pivot_wider(
     values_from = 
       c(contains("_ref"),contains("_diff")),
-    names_from = ref)%>%
+    names_from = ref) %>%
   
     # Left join to add further information on crf
   dplyr::left_join(., crf_data, 
                    by = c("pollutant", "crf_id", 
                           paste0("crf_", c("mean", "lowci", "highci"))),
-                   relationship = "many-to-one")%>%
+                   relationship = "many-to-one") %>%
      # Left join to add further information on bhd
   dplyr::left_join(., unique(input_data_morbidities [, c("outcome_id", "bhd_absolute", "source_bhd", "choice_bhd")]), 
                    by = c("outcome_id", "bhd" = "bhd_absolute"),
-                   relationship = "many-to-one")%>%
+                   relationship = "many-to-one") %>%
   # Left join to add label in German of outcomes
   dplyr::left_join(., codebook,
                    by = "outcome_id",
-                   relationship = "many-to-one")%>%
+                   relationship = "many-to-one") %>%
   
   # Order columns 
   dplyr::select(pollutant, term, 
@@ -829,7 +802,7 @@ impact_morbidities <-
 
 
 
-```{r mortality}
+```{r impact mortality}
 impact_mortality_raw <- list()
 
 # Calculate using bestcost
@@ -867,9 +840,9 @@ impact_mortality_edited[["yll"]] <-
 
 impact_mortality_edited <- impact_mortality_edited %>%
   # Unlist assigning id
-  purrr::map(., map,  ~ dplyr::bind_rows(., .id = "crf_id"))%>%
-  purrr::map(.,  ~ dplyr::bind_rows(., .id = "case"))%>%
-  dplyr::bind_rows(., .id = "outcome_metric_short")%>%
+  purrr::map(., map,  ~ dplyr::bind_rows(., .id = "crf_id")) %>%
+  purrr::map(.,  ~ dplyr::bind_rows(., .id = "case")) %>%
+  dplyr::bind_rows(., .id = "outcome_metric_short") %>%
   # Now list only scenario
   split(., .$case) 
 
@@ -883,7 +856,7 @@ for (r in c("2019", "whoaqg21")){
     dplyr::left_join(impact_mortality_edited[[r]],
                      impact_mortality_edited[["whoaqg21"]][c("crf_id", "ci", "impact", "outcome_metric_short", "exp")], 
                      by = c("outcome_metric_short", "crf_id", "ci"), 
-                     suffix = c("_ref", "_whoaqg21"))%>%
+                     suffix = c("_ref", "_whoaqg21")) %>%
     dplyr::mutate(ref = r,
                   impact_diff = impact_ref - impact_whoaqg21)
   }
@@ -898,7 +871,7 @@ impact_mortality <-
   tidyr::pivot_wider(
     values_from = c(crf, 
                     impact_ref, impact_whoaqg21, impact_diff), 
-    names_from = ci)%>%
+    names_from = ci) %>%
   # Paste the CIs
   dplyr::mutate(
     crf_meanCI = paste_round_CI(crf_mean, crf_lowci, crf_highci, 3),
@@ -906,13 +879,13 @@ impact_mortality <-
     impact_whoaqg21_meanCI = paste_round_CI(impact_whoaqg21_mean, impact_whoaqg21_lowci, impact_whoaqg21_highci, 0),
     impact_diff_meanCI = paste_round_CI(impact_diff_mean, impact_diff_lowci, impact_diff_highci, 0),
     # bhd as NA just to match with structure of morbidities
-    bhd = NA)%>%
+    bhd = NA) %>%
   
   # Pivot wider the impacts
   tidyr::pivot_wider(
     values_from = 
       c(contains("_ref"),contains("_diff")),
-    names_from = ref)%>%
+    names_from = ref) %>%
     
   # Left join to add further information on crf
   dplyr::left_join(., crf_data, 
@@ -928,11 +901,11 @@ impact_mortality <-
   dplyr::mutate(
     outcome_id = ifelse(outcome_metric_short %in% "yll",
                         gsub("premature deaths", "yll", outcome_id),
-                        outcome_id))%>%
+                        outcome_id)) %>%
   # Left join to add label in German of outcomes
   dplyr::left_join(., codebook, 
                    by = "outcome_id",
-                   relationship = "many-to-one")%>%
+                   relationship = "many-to-one") %>%
   # Order columns 
   dplyr::select(pollutant, term,
                 #outcome_label_de, # LUYTAX: removed
@@ -941,14 +914,14 @@ impact_mortality <-
                 contains("impact_diff_meanCI"),
                 contains("impact_ref_meanCI"), 
                 impact_whoaqg21_meanCI,
-                everything())%>%
+                everything()) %>%
   # Order rows by label
   dplyr::arrange(outcome_group)
 ```
 
 # Export 
 
-```{r}
+```{r eval=FALSE, include=FALSE}
 write.csv2(lifetable_airqplus,
             "testing/output/lifetable_airqplus_2019_ch.csv", 
             row.names = FALSE)
