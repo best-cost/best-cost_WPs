@@ -695,14 +695,13 @@ codebook <- unique(bhd_data[, c("outcome_id", "mort_morb")])
 
 ```{r prepare input data for function}
 input_data <-
-  # Join data sets of input data
+  # Join data sets of input data: exposure data, bhd data, counterfactual data
   dplyr::left_join(exp_data, crf_data, by="pollutant", 
                    suffix =c("_exp", "_crf"),
                    relationship = "many-to-many") %>%
   dplyr::left_join(., bhd_data, by="outcome_id",
                    suffix = c("", "_bhd"),
                    relationship = "many-to-many") %>%
-  # Add counterfactual
   dplyr::left_join(., cf_data, by="pollutant",
                    relationship = "many-to-one")
 
@@ -721,8 +720,8 @@ impact_morbidities_raw <- list()
 for(i in 1:nrow(input_data_morbidities)){
   impact_morbidities_raw[[input_data_morbidities$year[i]]][[input_data_morbidities$crf_id[[i]]]] <-
   bestcost::calculate_healthImpacts(
-    exp = input_data_morbidities$exp[i],
-    cf = input_data_morbidities$cf[i],
+    exp = input_data_morbidities$exp[i],  # PM2.5=8.30=limit LRV CH, NO2=16.32=mean conc. in CH in 2019
+    cf = input_data_morbidities$cf[i],    # PM2.5=5, NO2=10, i.e. WHO AQG 2021 
     bhd = input_data_morbidities$bhd_absolute[i],
     crf = unlist(input_data_morbidities[i, 
                             c("crf_mean", "crf_lowci", "crf_highci")]) ,
@@ -743,7 +742,7 @@ impact_morbidities_comparative <- list()
 for (r in c("2019", "whoaqg21")){ 
   # Substract the impacts for the scenarios
   impact_morbidities_comparative[[paste0(r, "_whoaqg21")]] <- 
-    dplyr::left_join(impact_morbidities_edited[[r]], # LUYTAX: ERROR (now fixed) 
+    dplyr::left_join(impact_morbidities_edited[[r]],
                      impact_morbidities_edited[["whoaqg21"]][c("crf_id", "ci", "crf", "exp", "impact")], 
                      by = c("crf_id", "ci", "crf"), 
                      suffix = c("_ref", "_whoaqg21")) %>%
@@ -767,7 +766,7 @@ impact_morbidities <-
     crf_meanCI = paste_round_CI(crf_mean, crf_lowci, crf_highci, 3),
     impact_ref_meanCI = paste_round_CI(impact_ref_mean, impact_ref_lowci, impact_ref_highci, 0),
     impact_whoaqg21_meanCI = paste_round_CI(impact_whoaqg21_mean, impact_whoaqg21_lowci, impact_whoaqg21_highci, 0),
-    impact_diff_meanCI = paste_round_CI(impact_diff_mean, impact_diff_lowci, impact_diff_highci, 0))%>%
+    impact_diff_meanCI = paste_round_CI(impact_diff_mean, impact_diff_lowci, impact_diff_highci, 0)) %>%
   
       # Pivot wider the impacts
   tidyr::pivot_wider(
@@ -805,14 +804,15 @@ impact_morbidities <-
 ```{r impact mortality}
 impact_mortality_raw <- list()
 
-# Calculate using bestcost
+# Calculate mortality impacts using bestcost function
 
 for(i in 1:nrow(input_data_mortality)){
   impact_mortality_raw[[input_data_mortality$year[i]]][[input_data_mortality$crf_id[[i]]]] <-
-  bestcost:::calculate_mortality_usingLifetable(
+  
+    bestcost:::calculate_mortality_usingLifetable(
 
-    exp = input_data_mortality$exp[i],
-    cf = input_data_morbidities$cf[i],
+    exp = input_data_mortality$exp[i], # PM2.5=8.30=limit LRV CH, NO2=16.32=mean conc. in CH in 2019
+    cf = input_data_mortality$cf[i],   # PM2.5=5, NO2=10, i.e. WHO AQG 2021 
     crf = unlist(input_data_mortality[i, 
                             c("crf_mean", "crf_lowci", "crf_highci")]) ,
     crf_per = 10, 
@@ -820,8 +820,8 @@ for(i in 1:nrow(input_data_mortality)){
     lifetable_withPop_male = lifetable_withPopulation[["male"]],
     lifetable_withPop_female = lifetable_withPopulation[["female"]],
     firstYear_lifetable = 2019, 
-    nonNatural_death_male = mortality_data[["male"]],
-    nonNatural_death_female = mortality_data[["female"]], 
+    nonNatural_death_male = mortality_data[["male"]], # % of non-natural male deaths in BHD
+    nonNatural_death_female = mortality_data[["female"]], # % of non-natural female deaths in BHD
     pollutant = input_data_mortality$pollutant[i], 
     age_group = input_data_mortality$outcome_group[i],
     min_age = 20,

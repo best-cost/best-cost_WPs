@@ -48,7 +48,7 @@ get_popOverTime <-
       crf_forPaf <- rescale_crf(crf, exp$exp, cf$cf, crf_per, method = crf_rescale_method)
     }
 
-    af <- get_paf(crf_forPaf)
+    af <- bestcost::get_paf(crf_forPaf)
 
     popOverTime_AP <-
       # Add column with moving average percent of non-natural deaths
