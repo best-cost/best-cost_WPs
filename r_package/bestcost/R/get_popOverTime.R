@@ -104,15 +104,18 @@ get_popOverTime <-
 
 
     # Difference of population considering and not considering air pollutionn
+    # popOverTime_diff <-
+      # tibble::column_to_rownames(  # Add age to rowname
+        # dplyr::select(popOverTime_AP, age, contains("population_")),
+        # "age") -
+      # tibble::column_to_rownames(
+        # dplyr::select(popOverTime_noAP, age, contains("population_")),
+        # "age")
+    # popOverTime_diff <-
+      # tibble::rownames_to_column(popOverTime_diff, "age")
     popOverTime_diff <-
-      tibble::column_to_rownames(  # Add age to rowname
-        dplyr::select(popOverTime_AP, age, contains("population_")),
-        "age") -
-      tibble::column_to_rownames(
-        dplyr::select(popOverTime_noAP, age, contains("population_")),
-        "age")
-    popOverTime_diff <-
-      tibble::rownames_to_column(popOverTime_diff, "age")
+      bestcost::get_pop_diff(popOverTime_AP = popOverTime_AP,
+                             popOverTime_noAP = popOverTime_noAP)
 
     output <- list(noAP = popOverTime_noAP,
                    AP = popOverTime_AP,
