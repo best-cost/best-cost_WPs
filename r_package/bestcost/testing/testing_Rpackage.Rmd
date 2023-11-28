@@ -45,9 +45,10 @@ library(devtools)
 # https://stackoverflow.com/a/71846333/6104907
 if(!"bestcost" %in% installed.packages()[, "Package"]){
   #gitcreds::gitcreds_set()
-  credentials::set_github_pat()
+  #usethis::use_git_config(user.name = "YourName", user.email = "your@mail.com") # run if installation doesn't work
+  credentials::set_github_pat() # paste github PAT when prompted
   devtools::install_github(repo = "best-cost/best-cost_WPs",
-                           subdir = "/bestcost",
+                           subdir = "/r_package/bestcost",
                            force =TRUE)
 }
 
