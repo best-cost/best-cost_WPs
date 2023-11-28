@@ -15,14 +15,14 @@
 #'
 get_pop_diff <- function(popOverTime_AP, popOverTime_noAP)
   {
-  output <-
+  popOverTime_diff <-
     tibble::column_to_rownames(  # Add age to rowname
     dplyr::select(popOverTime_AP, age, contains("population_")),
     "age") -
     tibble::column_to_rownames(
       dplyr::select(popOverTime_noAP, age, contains("population_")),
       "age")
-  popOverTime_diff <-
+  output <-
     tibble::rownames_to_column(popOverTime_diff, "age")
   return(output)
 }
