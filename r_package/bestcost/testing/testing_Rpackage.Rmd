@@ -12,7 +12,7 @@ Pending
 - healthiar vs. geluft in the package
 - test
 
-# Preparation
+# Load packages
 
 The R script required the loading of certain R packages. 
 ```{r Load packages, include=FALSE}
