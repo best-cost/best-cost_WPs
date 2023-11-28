@@ -662,18 +662,6 @@ exp_data_forLoop <-
   purrr::map(function(x) split(x, x$year))
 ```
 
-<<<<<<< HEAD
-# Counterfactual
-=======
-```{r table to export}
-
-exp_data_swiss_xls<- 
-  exp_data %>%
-  dplyr::arrange(desc(pollutant), exp) %>%
-  dplyr::mutate(exp = round(exp, 3))
-```
-
->>>>>>> 9fbaecd51387c79dac5c19f969cedef92874835b
 ```{r Counterfactual scenario}
 
 cf_data <-
