@@ -53,6 +53,7 @@ if(!"bestcost" %in% installed.packages()[, "Package"]){
 }
 
 library(bestcost)
+devtools::load_all() # loads all functions in {bestcost}
 ```
 
 ```{r Useful variables}
