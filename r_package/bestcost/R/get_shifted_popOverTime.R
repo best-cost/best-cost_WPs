@@ -63,7 +63,7 @@ get_shifted_popOverTime <-
     for(s in sex){
       for(v in ci){
         shifted_popOverTime[[s]][[v]] <-
-          bestcost:::shift_popOverTime(popOTime = popOverTime[[s]][[v]][["diff"]], # AL: replaced healthiar with bestcost ####
+          bestcost:::move_rows_up(popOTime = popOverTime[[s]][[v]][["diff"]], # AL: replaced healthiar with bestcost ####
                                         firstYear_lifetable = firstYear_lifetable)
       }
     }
