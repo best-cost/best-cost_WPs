@@ -33,7 +33,7 @@
 
 
 
-get_yll <-
+get_yll_new <-
   function(exp, cf, crf_rescale_method,
            shifted_popOverTime, firstYear_lifetable,
            age_group, min_age = min_age, max_age = max_age,
@@ -45,15 +45,38 @@ get_yll <-
     discount_factor <- corrected_discount_rate + 1
 
     for(s in sex){
-      for (v in ci){        # ci has three values: mean, lowci, highci
+      for (v in ci){
 
         # Life years by year
-        lifeyears_byYear[[s]][[v]][["noDiscount"]] <-
-          bestcost::get_lifeyears(
-            spot = shifted_popOverTime[["shifted_popOverTime"]][[s]][[v]],
-            age_group = age_group,
-            min_age = min_age,
-            max_age = max_age)
+        # lifeyears_byYear[[s]][[v]][["noDiscount"]] <-
+          # bestcost::get_lifeyears(
+            # spot = shifted_popOverTime[["shifted_popOverTime"]][[s]][[v]],
+            # age_group = age_group,
+            # min_age = min_age,
+            # max_age = max_age)
+
+        # Life years by year (NO FUNCTION CALLED)
+        lifeyears_byYear[[s]][[v]][["noDiscount"]] <- shifted_popOverTime[["shifted_popOverTime"]][[s]][[v]] %>%
+          # Filter ages depending on the age_group
+          {if(age_group %in% "adults")
+            dplyr::filter(., age >= min_age)
+            else .} %>%
+          {if(age_group %in% "infants")
+            dplyr::filter(., age <= max_age)
+            else .} %>%
+
+          # Sum over ages
+          dplyr::select(., contains("population_")) %>%
+          dplyr::summarize_all(sum, na.rm = TRUE) %>%
+
+          # Add outcome_group and age_range
+          dplyr::mutate(
+            outcome_group = age_group,
+            age_range = ifelse(outcome_group %in% c("infants", "infant", "children"),
+                               paste0("below", max_age+1),
+                               ifelse(outcome_group %in% c("adults", "adult"),
+                                      paste0("from", min_age),
+                                      NA)))
 
         # Years of life lost
         yll_by_list[[s]][[v]][["noDiscount"]] <-
