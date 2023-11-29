@@ -18,6 +18,8 @@
 get_popOverTime_withAP <-
   function(lifetable_wPopX, nonNatural_deathX, firstYear_lifetableX, age_groupX){
 
+    second_year <- firstYear_lifetableX + 1
+
     output <-
       # Add column with moving average percent of non-natural deaths
       dplyr::left_join(lifetable_wPopX,
