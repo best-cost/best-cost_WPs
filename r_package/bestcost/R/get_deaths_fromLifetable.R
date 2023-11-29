@@ -1,8 +1,8 @@
 # Title and description
 
-#' Get deaths from lifetable
+#' Get deaths
 #'
-#' Get deaths from lifetable
+#' Get deaths
 #' @param exp Numeric value showing the population-weighted mean exposure in ug/m3,
 #' @param cf Numeric value showing the counter-factual scenario (i.e. minimum cut-off concentration) in ug/m3,
 #' @param crf_rescale_method String to choose among "linear" and "loglinear",
@@ -20,7 +20,7 @@
 #' @note Experimental function
 
 
-get_deaths_fromLifetable <-
+get_deaths <-
   function(exp, cf, crf_rescale_method,
            shifted_popOverTime, firstYear_lifetable,
            age_group, min_age=min_age, max_age=max_age){
