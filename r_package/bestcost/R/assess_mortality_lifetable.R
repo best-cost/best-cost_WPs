@@ -38,7 +38,7 @@
 #' @author Alberto Castro
 #' @note Experimental function
 #' @export
-calculate_mortality_usingLifetable <-
+assess_mortality_lifetable <-
   function(exp, cf, crf, crf_per, crf_rescale_method,
            lifetable_withPop_male, lifetable_withPop_female, firstYear_lifetable,
            nonNatural_death_male, nonNatural_death_female,
