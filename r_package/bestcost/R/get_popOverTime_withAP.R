@@ -7,6 +7,7 @@
 #' @param nonNatural_deathX \code{Data frame} with two columns: the first one for age, the second one for the percentage of non-natural deaths (sex specific),
 #' @param firstYear_lifetableX Numeric value of the year of analysis, which corresponds to the first year of the life table
 #' @param age_groupX String with the denomination of the age group (e.g. "adults" or "infants"),
+#' @param af Attributable fraction
 #' @return
 #' This function returns a \code{data.frame} with the life table plus an additional column for population one year later without changing air pollution exposure.
 #' @import dplyr
@@ -16,7 +17,7 @@
 #' @note Experimental function
 
 get_popOverTime_withAP <-
-  function(lifetable_wPopX, nonNatural_deathX, firstYear_lifetableX, age_groupX){
+  function(lifetable_wPopX, nonNatural_deathX, firstYear_lifetableX, age_groupX, af){
 
     second_year <- firstYear_lifetableX + 1
 

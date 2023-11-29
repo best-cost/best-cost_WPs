@@ -98,7 +98,8 @@ get_popOverTime <-
         lifetable_wPopX = lifetab_withPop,
         nonNatural_deathX = nonNatural_death,
         firstYear_lifetableX = firstYear_lifetable,
-        age_groupX = age_group)
+        age_groupX = age_group,
+        af = af)
 
     # Now calculate population over time (for the rest of years)
     # without considering air pollution
