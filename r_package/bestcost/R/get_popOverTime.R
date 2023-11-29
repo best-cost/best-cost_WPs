@@ -95,10 +95,10 @@ get_popOverTime <-
     #   dplyr::select(-contains("_lag"))
     popOverTime_AP <- # TEST NEW FUNCTION
       bestcost::get_popOverTime_withAP(
-        lifetable_wPopX = lifetab_withPop,
-        nonNatural_deathX = nonNatural_death,
-        firstYear_lifetableX = firstYear_lifetable,
-        age_groupX = age_group,
+        lifetable_wPop = lifetab_withPop,
+        nonNatural_death = nonNatural_death,
+        firstYear_lifetable = firstYear_lifetable,
+        age_group = age_group,
         af = af)
 
     # Now calculate population over time (for the rest of years)

@@ -3,10 +3,10 @@
 #' Get population over time with change in air pollution exposure
 #'
 #' Get population over time with change in air pollution exposure
-#' @param lifetable_wPopX \code{Data frame} with three columns: the first one should refer to age, the second one to the probability of dying and the third one to the population (sex specific),
-#' @param nonNatural_deathX \code{Data frame} with two columns: the first one for age, the second one for the percentage of non-natural deaths (sex specific),
-#' @param firstYear_lifetableX Numeric value of the year of analysis, which corresponds to the first year of the life table
-#' @param age_groupX String with the denomination of the age group (e.g. "adults" or "infants"),
+#' @param lifetable_wPop \code{Data frame} with three columns: the first one should refer to age, the second one to the probability of dying and the third one to the population (sex specific),
+#' @param nonNatural_death \code{Data frame} with two columns: the first one for age, the second one for the percentage of non-natural deaths (sex specific),
+#' @param firstYear_lifetable Numeric value of the year of analysis, which corresponds to the first year of the life table
+#' @param age_group String with the denomination of the age group (e.g. "adults" or "infants"),
 #' @param af Attributable fraction
 #' @return
 #' This function returns a \code{data.frame} with the life table plus an additional column for population one year later without changing air pollution exposure.
@@ -17,25 +17,25 @@
 #' @note Experimental function
 
 get_popOverTime_withAP <-
-  function(lifetable_wPopX, nonNatural_deathX, firstYear_lifetableX, age_groupX, af){
+  function(lifetable_wPop, nonNatural_death, firstYear_lifetable, age_group, af){
 
-    second_year <- firstYear_lifetableX + 1
+    second_year <- firstYear_lifetable + 1
 
     output <-
       # Add column with moving average percent of non-natural deaths
-      dplyr::left_join(lifetable_wPopX,
-                       nonNatural_deathX[, c("age", "percent_nonNatural")],
+      dplyr::left_join(lifetable_wPop,
+                       nonNatural_death[, c("age", "percent_nonNatural")],
                        by = "age")%>%
       # Calculate the population the second year (first column after first year)
       # Considering the health effect of air pollution
       dplyr::mutate(
         population_lag =
           dplyr::lag(!!as.symbol(paste0("population_",
-                                        firstYear_lifetableX))),
+                                        firstYear_lifetable))),
         death_probability_lag = dplyr::lag(death_probability),
         percent_nonNatural_lag = dplyr::lag(percent_nonNatural))%>%
       # For infants
-      {if(age_groupX %in% "infants")
+      {if(age_group %in% "infants")
         dplyr::mutate(.,
                       "population_{second_year}" :=
                         ifelse(age %in% 1,
@@ -50,7 +50,7 @@ get_popOverTime_withAP <-
         else .}%>%
 
       # For adults
-      {if(age_groupX %in% "adults")
+      {if(age_group %in% "adults")
         dplyr::mutate(.,
                       "population_{second_year}" :=
                         population_lag *
