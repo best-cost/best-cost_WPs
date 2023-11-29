@@ -917,6 +917,6 @@ impact_mortality <-
 
 ```{r eval=FALSE, include=FALSE}
 write.csv2(lifetable_airqplus,
-            "testing/output/WITH get_pop_diff() lifetable_airqplus_2019_ch.csv", 
+            "testing/output/lifetable_airqplus_2019_ch.csv", 
             row.names = FALSE)
 ```

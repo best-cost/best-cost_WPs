@@ -132,7 +132,7 @@ calculate_mortality_usingLifetable <-
 
         # Calculate deaths
         deaths <-
-          bestcost:::get_deaths_fromLifetable(
+          bestcost:::get_deaths(
             shifted_popOverTime = shifted_popOverTime,
             firstYear_lifetable = firstYear_lifetable,
             age_group = age_group,
