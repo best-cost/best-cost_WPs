@@ -33,7 +33,7 @@
 #' @author Alberto Castro
 #' @note Experimental function
 #' @export
-calculate_healthImpacts <-
+assess_impact_single <-
   function(exp, cf, crf, bhd,
            crf_per, crf_rescale_method,
            pollutant, outcome_metric, age_group,
