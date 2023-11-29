@@ -94,10 +94,11 @@ get_popOverTime <-
     #   # Remove the lag columns
     #   dplyr::select(-contains("_lag"))
     popOverTime_AP <- # TEST NEW FUNCTION
-    bestcost::get_popOverTime_withAP(lifetable_wPop = lifetab_withPop,
-                                     nonNatural_death = nonNatural_death,
-                                     firstYear_lifetable = firstYear_lifetable,
-                                     age_group = age_group)
+      bestcost::get_popOverTime_withAP(
+        lifetable_wPop = lifetab_withPop,
+        nonNatural_death = nonNatural_death,
+        firstYear_lifetable = firstYear_lifetable,
+        age_group = age_group)
 
     # Now calculate population over time (for the rest of years)
     # without considering air pollution
