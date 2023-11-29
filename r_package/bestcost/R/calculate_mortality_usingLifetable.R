@@ -116,9 +116,9 @@ calculate_mortality_usingLifetable <-
                                  female = nonNatural_death_female)
 
 
-        # Get shifted_popOverTime
+        # Get population impact
         shifted_popOverTime <-
-          bestcost::get_shifted_popOverTime(
+          bestcost::get_pop_impact(
             lifetab_withPop = lifetable_withPop,
             nonNatural_death = nonNatural_death,
             firstYear_lifetable = firstYear_lifetable,

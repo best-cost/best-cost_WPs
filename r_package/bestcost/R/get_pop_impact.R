@@ -1,8 +1,8 @@
 # Title and description
 
-#' Get shifted population over time
+#' Get population impact over time
 #'
-#' Get shifted population over time
+#' Get population impact over time
 #' @param exp Numeric value showing the population-weighted mean exposure in ug/m3.
 #' @param cf Numeric value showing the counter-factual scenario (i.e. minimum cut-off concentration) in ug/m3.
 #' @param crf \code{Vector} of three numeric values referring to the mean as well as the lower bound and upper bound of the confidence interval.
@@ -31,7 +31,7 @@
 #' @note Experimental function
 
 
-get_shifted_popOverTime <-
+get_pop_impact <-
   function(exp, cf, crf, crf_per, crf_rescale_method,
            lifetab_withPop, nonNatural_death, firstYear_lifetable,
            age_group){
