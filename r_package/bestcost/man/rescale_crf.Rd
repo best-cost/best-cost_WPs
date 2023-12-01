@@ -7,7 +7,7 @@
 rescale_crf(crf, exp, cf, crf_per, method)
 }
 \arguments{
-\item{crf}{Data frame containing the concentration response function as in the epidemiological study, i.e. per the usual concentration increase. The data frame must contain the mean, lower and upper bound of the concentration-response function.}
+\item{crf}{Data frame containing the concentration-response function as in the epidemiological study, i.e. per the usual concentration increase. The data frame must contain the mean, lower and upper bound of the concentration-response function.}
 
 \item{exp}{Population exposure to the stressor (e.g. annual population-weighted mean).}
 

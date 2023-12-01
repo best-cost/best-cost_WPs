@@ -7,3 +7,4 @@ Description: R package developed withing the framework of the EU project BEST-CO
 License: GPL
 Encoding: UTF-8
 LazyData: true
+RoxygenNote: 7.2.3
