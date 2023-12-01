@@ -21,6 +21,12 @@ The R script required the loading of certain R packages.
 rm(list = ls())
 
 # Load required packages
+
+# Performance assessment
+library(profvis)
+library(bench)
+library(microbenchmark)
+
 library(readxl)
 library(dplyr)
 library(tidyr)
@@ -711,6 +717,7 @@ input_data_mortality <-
 ```{r impact morbidity}
 impact_morbidities_raw <- list()
 
+system.time(
 for(i in 1:nrow(input_data_morbidities)){
   impact_morbidities_raw[[input_data_morbidities$year[i]]][[input_data_morbidities$crf_id[[i]]]] <-
   bestcost::assess_impact_single(
@@ -724,8 +731,9 @@ for(i in 1:nrow(input_data_morbidities)){
     pollutant = input_data_morbidities$pollutant[i], 
     outcome_metric = input_data_morbidities$outcome_metric[i], 
     age_group = input_data_morbidities$outcome_group[i])
-      
-}
+  }
+)
+
 
 impact_morbidities_edited <- 
   # Bind rows within the nested lists
