@@ -42,7 +42,7 @@ get_pop_impact <-
     for(s in sex){
       for(v in ci){
         popOverTime[[s]][[v]] <-
-          bestcost:::get_popOverTime( # AL: replaced healthiar with bestcost ####
+          bestcost::get_popOverTime( # AL: replaced healthiar with bestcost ####
             lifetab_withPop = lifetab_withPop[[s]],
             nonNatural_death = nonNatural_death[[s]],
             firstYear_lifetable = firstYear_lifetable,
@@ -63,7 +63,7 @@ get_pop_impact <-
     for(s in sex){
       for(v in ci){
         shifted_popOverTime[[s]][[v]] <-
-          bestcost:::move_rows_up(popOTime = popOverTime[[s]][[v]][["diff"]], # AL: replaced healthiar with bestcost ####
+          bestcost::move_rows_up(popOTime = popOverTime[[s]][[v]][["diff"]], # AL: replaced healthiar with bestcost ####
                                         firstYear_lifetable = firstYear_lifetable)
       }
     }
