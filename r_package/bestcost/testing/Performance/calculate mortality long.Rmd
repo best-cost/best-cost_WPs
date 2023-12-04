@@ -1,0 +1,167 @@
+---
+title: "Calculate mortality long"
+author: "Axel Luyten"
+date: "`r Sys.Date()`"
+output: pdf_document
+---
+
+Calculate the mortality impacts of one crf_id ("PM2.5_premature deaths_all causes_adults_main_Hoek_2013_sensitivity") step by step to identify potential bottlenecks.
+
+```{r load data}
+load(file = "testing/input/performance/calculate mortality long data.RData") # workspace image from "testing_Rpackage" before running chunk "impact mortality"
+```
+
+```{r define input data}
+#impact_mortality_raw <- list()
+
+exp = input_data_mortality$exp[1] # PM2.5=8.30=limit LRV CH, NO2=16.32=mean conc. in CH in 2019
+cf = input_data_mortality$cf[1]   # PM2.5=5, NO2=10, i.e. WHO AQG 2021
+crf = unlist(input_data_mortality[1, c("crf_mean", "crf_lowci", "crf_highci")])
+crf_per = 10
+crf_rescale_method = "loglinear"
+lifetable_withPop_male = lifetable_withPopulation[["male"]]
+lifetable_withPop_female = lifetable_withPopulation[["female"]]
+firstYear_lifetable = 2019
+nonNatural_death_male = mortality_data[["male"]] # % of non-natural male deaths in BHD
+nonNatural_death_female = mortality_data[["female"]] # % of non-natural female deaths in BHD
+pollutant = input_data_mortality$pollutant[1]
+age_group = input_data_mortality$outcome_group[1]
+min_age = 20
+max_age = 0
+corrected_discount_rate = 0
+exp_info = NULL
+cf_info = NULL
+crf_info =NULL
+```
+
+# assess_mortality_lifetable()
+This code happens in "assess_mortality_lifetable.R"
+```{r digest input data}
+
+input_fun <- list()
+
+        if(is.null(exp_info)){
+          input_fun[["exp"]] <- data.frame(exp = exp)
+        } else {
+          # When there is an extra_info data frame
+          # the values from argument should replace the values
+          # of likely columns with same name
+          input_fun[["exp"]] <- exp_info
+          input_fun[["exp"]]$exp <- exp}
+
+        if(is.null(cf_info)){
+          input_fun[["cf"]] <- data.frame(cf = cf)
+        } else {
+          input_fun[["cf"]] <- cf_info
+          input_fun[["cf"]]$cf <- cf}
+
+        if(is.null(crf_info)){
+          input_fun[["crf"]] <- data.frame(crf = crf)
+        } else {
+          input_fun[["crf"]] <- crf_info
+          input_fun[["crf"]]$crf <- crf
+          input_fun[["crf"]]$crf_per <- crf_per}
+
+        # Add ci
+        input_fun[["crf"]] <-
+          mutate(input_fun[["crf"]],
+                 ci = ifelse(crf %in% min(crf), "lowci",
+                        ifelse(crf %in% max(crf), "highci",
+                               "mean")))
+
+        # Add pollutant to all input data tables to provide a common key for joining
+        # {{}} ensure that the value from the function argument is used
+        # instead of from an existing column is used
+        input_fun <-
+          input_fun %>%
+          purrr::map(~mutate(.,
+                             pollutant = {{pollutant}},
+                             outcome_group = {{age_group}}))
+
+        # The life table has to be provided as a data.frame (by sex)
+        # The first column has to be the age. Second, probability of death. Third, population.
+        # Rename column names to standard names
+        names(lifetable_withPop_male) <-
+          c("age", "death_probability", paste0("population_", firstYear_lifetable))
+        names(lifetable_withPop_female) <-
+          c("age", "death_probability", paste0("population_", firstYear_lifetable))
+        # Store data in a list
+        lifetable_withPop <- list(male = lifetable_withPop_male,
+                                  female = lifetable_withPop_female)
+
+
+        # The mortality has to be provided as a data.frame (by sex)
+        # The first column has to be the age. Second, percent_nonNatural.
+        # Rename column names to standard names
+        names(nonNatural_death_male) <-
+          c("age", "percent_nonNatural")
+        names(nonNatural_death_female) <-
+          c("age", "percent_nonNatural")
+        # Store data in a list
+        nonNatural_death <- list(male = nonNatural_death_male,
+                                 female = nonNatural_death_female)
+        
+        # shifted_popOverTime <-
+        #   bestcost::get_pop_impact(
+            lifetab_withPop <- lifetable_withPop
+            nonNatural_death <- nonNatural_death
+            # firstYear_lifetable = firstYear_lifetable
+            crf <- input_fun[["crf"]]
+            # crf_per = crf_per
+            # age_group = age_group
+            exp <- input_fun[["exp"]] # existing variable "exp" is overwritten ####
+            cf <- input_fun[["cf"]] # existing variable "cf" is overwritten ####
+            # crf_rescale_method = crf_rescale_method
+            # )
+```
+
+# get_pop_impact()
+```{r}
+popOverTime <- list()
+```
+
+# get_popOverTime()
+```{r}
+sex <-  c("male", "female") # can be removed once added to function code
+ci <- c("mean", "lowci", "highci") # can be removed once added to function code
+
+profvis(for(s in sex){
+      for(v in ci){
+        popOverTime[[s]][[v]] <-
+          bestcost::get_popOverTime( # AL: replaced healthiar with bestcost ####
+            lifetab_withPop = lifetable_withPop[[s]],
+            nonNatural_death = nonNatural_death[[s]],
+            firstYear_lifetable = firstYear_lifetable,
+            crf = crf$crf[crf$ci %in% v],
+            exp = exp,
+            cf = cf,
+            crf_per = crf_per,
+            crf_rescale_method = crf_rescale_method,
+            age_group = age_group)
+      }
+}
+)
+```
+
+In the code of get_popOverTime_noAP(), the data frame "lifetable_withPop[["female"]] is grown in a loop
+```{r evaluate single call of get_popOverTime_noAP}
+# Check output 
+output <- bestcost::get_popOverTime_noAP(
+  lifetable_wPop = lifetable_withPop[["female"]],
+  firstYear_lifetable = firstYear_lifetable,
+  year_loopStart = firstYear_lifetable + 1
+  )
+
+
+profvis(bestcost::get_popOverTime_noAP(
+  lifetable_wPop = lifetable_withPop[["female"]],
+  firstYear_lifetable = firstYear_lifetable,
+  year_loopStart = firstYear_lifetable + 1
+  )
+)
+```
+
+
+
+
+
