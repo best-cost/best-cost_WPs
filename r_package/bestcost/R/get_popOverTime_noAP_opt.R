@@ -54,7 +54,7 @@ function(lifetable_wPop, firstYear_lifetable, year_loopStart){
   for (yl in year_loopStart : year_loopEnd){
     output[, paste0("population_", yl)] <-
       dplyr::lag(output[, paste0("population_", yl-1)]) *
-      (1 - dplyr::lag(lifetable_wPop$death_probability))
+      (1 - dplyr::lag(output$death_probability))
   }
   return(output)
 

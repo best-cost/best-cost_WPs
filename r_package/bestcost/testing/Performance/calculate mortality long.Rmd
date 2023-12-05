@@ -5,7 +5,7 @@ date: "`r Sys.Date()`"
 output: pdf_document
 ---
 
-Calculate the mortality impacts of one crf_id ("PM2.5_premature deaths_all causes_adults_main_Hoek_2013_sensitivity") step by step to identify potential bottlenecks.
+Calculate the mortality impacts of one crf_id ("PM2.5_premature deaths_all causes_adults_main_ERS-ISEE_2022_selected", 2nd row of df "input_data_mortality") step by step to identify potential bottlenecks.
 
 Places to check are marked with # NOTE: ...
 
@@ -13,6 +13,7 @@ Places to check are marked with # NOTE: ...
 load("testing/input/performance/PER assess_mortality_lifetable() data.Rdata")
 
 library(tidyverse) ; library(profvis) ; library(bestcost)
+
 ```
 
 ```{r define input data}
@@ -147,6 +148,7 @@ profvis(for(s in sex){
 prof_output = "testing/output/performance/get_popOverTime() whole loop.Rprof")
 ```
 
+<<<<<<< HEAD
 ```{r }
 shifted_popOverTime <- list()
 ```
@@ -162,6 +164,47 @@ profvis(
 }
 , interval = 0.005,
 prof_output = "testing/output/performance/move_rows_up() whole loop.Rprof")
+=======
+In the code of get_popOverTime_noAP(), the data frame "lifetable_withPop[["female"]] is grown in a loop
+```{r evaluate single call of get_popOverTime_noAP}
+# Check output 
+# output <- bestcost::get_popOverTime_noAP(
+#   lifetable_wPop = lifetable_withPop[["female"]],
+#   firstYear_lifetable = firstYear_lifetable,
+#   year_loopStart = firstYear_lifetable + 1
+#   )
+
+
+profvis(bestcost::get_popOverTime_noAP(
+  lifetable_wPop = lifetable_withPop[["female"]],
+  firstYear_lifetable = firstYear_lifetable,
+  year_loopStart = firstYear_lifetable + 1
+  )
+)
+
+system.time(bestcost::get_popOverTime_noAP(
+  lifetable_wPop = lifetable_withPop[["female"]],
+  firstYear_lifetable = firstYear_lifetable,
+  year_loopStart = firstYear_lifetable + 1
+  )
+)
+```
+
+In the code of this optimized function the data frame (tibble) to be used in the loop is defined in advance.
+```{r evaluate single call of get_popOverTime_noAP_opt}
+profvis(bestcost::get_popOverTime_noAP_opt(
+  lifetable_wPop = lifetable_withPop[["female"]],
+  firstYear_lifetable = firstYear_lifetable,
+  year_loopStart = firstYear_lifetable + 1
+  )
+)
+
+system.time(bestcost::get_popOverTime_noAP_opt(
+  lifetable_wPop = lifetable_withPop[["female"]],
+  firstYear_lifetable = firstYear_lifetable,
+  year_loopStart = firstYear_lifetable + 1
+  ))
+>>>>>>> 73d14754c47fba014d44d3809a7f79a272dc65c5
 ```
 
 ```{r}
