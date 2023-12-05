@@ -143,7 +143,8 @@ profvis(for(s in sex){
             age_group = age_group)
       }
 }
-)
+, interval = 0.005,
+prof_output = "testing/output/performance/get_popOverTime() whole loop.Rprof")
 ```
 
 ```{r }
@@ -151,13 +152,16 @@ shifted_popOverTime <- list()
 ```
 
 ```{r calling shifted_popOverTime()}
-for(s in sex){
+profvis(
+  for(s in sex){
       for(v in ci){
         shifted_popOverTime[[s]][[v]] <-
           bestcost::move_rows_up(popOTime = popOverTime[[s]][[v]][["diff"]], # AL: replaced healthiar with bestcost ####
                                         firstYear_lifetable = firstYear_lifetable)
       }
-    }
+}
+, interval = 0.005,
+prof_output = "testing/output/performance/move_rows_up() whole loop.Rprof")
 ```
 
 ```{r}
@@ -175,19 +179,25 @@ output <-
 shifted_popOverTime <- output # added so that this Rmd runs
 
 
-profvis(deaths <- bestcost::get_deaths(shifted_popOverTime = shifted_popOverTime,
+profvis(
+    deaths <- 
+    bestcost::get_deaths(shifted_popOverTime = shifted_popOverTime,
                                        firstYear_lifetable = firstYear_lifetable,
                                        age_group = age_group,
                                        min_age = min_age,
                                        max_age = max_age,
                                        exp = input_fun[["exp"]] ,
                                        cf = input_fun[["cf"]],
-                                       crf_rescale_method = crf_rescale_method))#,
+                                       crf_rescale_method = crf_rescale_method)
+    , interval = 0.005,
+prof_output = "testing/output/performance/get_deaths() single call.Rprof")#,
         # rerun = TRUE)
+
 ```
 
 ```{r calling get_yll()}
-profvis(yll <-
+profvis(
+  yll <-
           bestcost::get_yll_new( #AL: changed from bestcost::get_yll( and the results are exactly the same
             shifted_popOverTime = shifted_popOverTime,
             firstYear_lifetable = firstYear_lifetable,  # NOTE: same as initial input
@@ -198,7 +208,8 @@ profvis(yll <-
             cf = input_fun[["cf"]],
             crf_rescale_method = crf_rescale_method, # NOTE: same as initial input
             corrected_discount_rate = corrected_discount_rate) # NOTE: same as initial input
-)
+    , interval = 0.005, 
+prof_output = "testing/output/performance/get_yll() single call.Rprof")
 ```
 
 ```{r compiling output}
@@ -210,41 +221,9 @@ output <-
             yll_long = yll[["yll_long"]],
             yll = yll[["yll"]])
 ```
-# Output is the same as when running assess_mortality_lifetable() directly
+Output is the same as when running assess_mortality_lifetable() directly
 
 
-
-
-
-
-# Performance assessment
-In the code of get_popOverTime_noAP(), the data frame "lifetable_withPop[["female"]] is grown in a loop
-```{r evaluate single call of get_popOverTime_noAP}
-# Check output 
-output <- bestcost::get_popOverTime_noAP(
-  lifetable_wPop = lifetable_withPop[["female"]],
-  firstYear_lifetable = firstYear_lifetable,
-  year_loopStart = firstYear_lifetable + 1
-  )
-
-
-profvis(bestcost::get_popOverTime_noAP(
-  lifetable_wPop = lifetable_withPop[["female"]],
-  firstYear_lifetable = firstYear_lifetable,
-  year_loopStart = firstYear_lifetable + 1
-  )
-)
-```
-
-In the code of this optimized function the data frame (tibble) to be used in the loop is defined in advance.
-```{r evaluate single call of get_popOverTime_noAP_opt}
-profvis(bestcost::get_popOverTime_noAP_opt(
-  lifetable_wPop = lifetable_withPop[["female"]],
-  firstYear_lifetable = firstYear_lifetable,
-  year_loopStart = firstYear_lifetable + 1
-  )
-)
-```
 
 
 
