@@ -50,50 +50,7 @@ get_popOverTime <-
 
     af <- bestcost::get_paf(crf_forPaf)
 
-    # popOverTime_AP <-
-    #   # Add column with moving average percent of non-natural deaths
-    #   dplyr::left_join(lifetab_withPop,
-    #                    nonNatural_death[, c("age", "percent_nonNatural")],
-    #                    by = "age")%>%
-    #   # Calculate the population the second year (first column after first year)
-    #   # Considering the health effect of air pollution
-    #   dplyr::mutate(
-    #     population_lag =
-    #       dplyr::lag(!!as.symbol(paste0("population_",
-    #                                     firstYear_lifetable))),
-    #     death_probability_lag = dplyr::lag(death_probability),
-    #     percent_nonNatural_lag = dplyr::lag(percent_nonNatural))%>%
-    #   # For infants
-    #   {if(age_group %in% "infants")
-    #     dplyr::mutate(.,
-    #                   "population_{second_year}" :=
-    #                     ifelse(age %in% 1,
-    #                            population_lag *
-    #                              # total population
-    #                              (1-
-    #                                 #minus non-natural deaths
-    #                                 death_probability_lag*percent_nonNatural_lag -
-    #                                 # minus air pollution deaths
-    #                                 death_probability_lag*(1-percent_nonNatural_lag)*(1-af)),
-    #                            population_lag*(1-death_probability_lag)))
-    #     else .}%>%
-    #
-    #   # For adults
-    #   {if(age_group %in% "adults")
-    #     dplyr::mutate(.,
-    #                   "population_{second_year}" :=
-    #                     population_lag *
-    #                     # total population
-    #                     (1-
-    #                        #minus non-natural deaths
-    #                        death_probability_lag*percent_nonNatural_lag -
-    #                        # minus air pollution deaths
-    #                        death_probability_lag*(1-percent_nonNatural_lag)*(1-af)))
-    #
-    #     else .}%>%
-    #   # Remove the lag columns
-    #   dplyr::select(-contains("_lag"))
-    popOverTime_AP <- # TEST NEW FUNCTION
+    popOverTime_AP <-
       bestcost::get_popOverTime_withAP(
         lifetable_wPop = lifetab_withPop,
         nonNatural_death = nonNatural_death,
@@ -110,16 +67,7 @@ get_popOverTime <-
         year_loopStart = firstYear_lifetable + 2)
 
 
-    # Difference of population considering and not considering air pollutionn
-    # popOverTime_diff <-
-      # tibble::column_to_rownames(  # Add age to rowname
-        # dplyr::select(popOverTime_AP, age, contains("population_")),
-        # "age") -
-      # tibble::column_to_rownames(
-        # dplyr::select(popOverTime_noAP, age, contains("population_")),
-        # "age")
-    # popOverTime_diff <-
-      # tibble::rownames_to_column(popOverTime_diff, "age")
+    # Difference of population considering and not considering air pollution
     popOverTime_diff <-
       bestcost::get_pop_diff(popOverTime_AP = popOverTime_AP,
                              popOverTime_noAP = popOverTime_noAP)

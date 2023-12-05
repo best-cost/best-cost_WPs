@@ -33,7 +33,7 @@
 
 
 
-get_yll_new <-
+get_yll <-
   function(exp, cf, crf_rescale_method,
            shifted_popOverTime, firstYear_lifetable,
            age_group, min_age = min_age, max_age = max_age,
