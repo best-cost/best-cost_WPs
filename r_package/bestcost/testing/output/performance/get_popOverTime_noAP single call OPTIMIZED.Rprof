@@ -1,0 +1,5 @@
+memory profiling: GC profiling: line profiling: sample.interval=5000
+:1340060:2143920:81027240:0:"tryCatch" ".rs.callAs" "Rprof" "profvis" 
+:1360268:2187957:85596112:2611:"bestcost::get_popOverTime_noAP_opt" "profvis" 
+:1396279:2253195:91708568:3556:"<Anonymous>" "as.data.frame.list" "data.frame" "Ops.data.frame" "bestcost::get_popOverTime_noAP_opt" "profvis" 
+:1432861:2319123:97902448:3619:"c" "profvis" 

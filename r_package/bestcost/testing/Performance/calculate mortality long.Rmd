@@ -7,8 +7,10 @@ output: pdf_document
 
 Calculate the mortality impacts of one crf_id ("PM2.5_premature deaths_all causes_adults_main_ERS-ISEE_2022_selected", 2nd row of df "input_data_mortality") step by step to identify potential bottlenecks.
 
+Places to check are marked with # NOTE: ...
+
 ```{r load data}
-load(file = "testing/input/performance/calculate mortality long data.RData") # workspace image from "testing_Rpackage" before running chunk "impact mortality"
+load("testing/input/performance/PER assess_mortality_lifetable() data.Rdata")
 
 library(tidyverse) ; library(profvis) ; library(bestcost)
 
@@ -17,9 +19,9 @@ library(tidyverse) ; library(profvis) ; library(bestcost)
 ```{r define input data}
 #impact_mortality_raw <- list()
 
-exp = input_data_mortality$exp[1] # PM2.5=8.30=limit LRV CH, NO2=16.32=mean conc. in CH in 2019
-cf = input_data_mortality$cf[1]   # PM2.5=5, NO2=10, i.e. WHO AQG 2021
-crf = unlist(input_data_mortality[1, c("crf_mean", "crf_lowci", "crf_highci")])
+exp = input_data_mortality$exp[2] # PM2.5=8.30=limit LRV CH, NO2=16.32=mean conc. in CH in 2019
+cf = input_data_mortality$cf[2]   # PM2.5=5, NO2=10, i.e. WHO AQG 2021
+crf = unlist(input_data_mortality[2, c("crf_mean", "crf_lowci", "crf_highci")])
 crf_per = 10
 crf_rescale_method = "loglinear"
 lifetable_withPop_male = lifetable_withPopulation[["male"]]
@@ -27,8 +29,8 @@ lifetable_withPop_female = lifetable_withPopulation[["female"]]
 firstYear_lifetable = 2019
 nonNatural_death_male = mortality_data[["male"]] # % of non-natural male deaths in BHD
 nonNatural_death_female = mortality_data[["female"]] # % of non-natural female deaths in BHD
-pollutant = input_data_mortality$pollutant[1]
-age_group = input_data_mortality$outcome_group[1]
+pollutant = input_data_mortality$pollutant[2]
+age_group = input_data_mortality$outcome_group[2]
 min_age = 20
 max_age = 0
 corrected_discount_rate = 0
@@ -106,15 +108,15 @@ input_fun <- list()
         
         # shifted_popOverTime <-
         #   bestcost::get_pop_impact(
-            lifetab_withPop <- lifetable_withPop
+            lifetab_withPop <- lifetable_withPop # NOTE: variable name slightly different
             nonNatural_death <- nonNatural_death
-            # firstYear_lifetable = firstYear_lifetable
+            # firstYear_lifetable = firstYear_lifetable # NOTE: same as initial input
             crf <- input_fun[["crf"]]
-            # crf_per = crf_per
-            # age_group = age_group
-            exp <- input_fun[["exp"]] # existing variable "exp" is overwritten ####
-            cf <- input_fun[["cf"]] # existing variable "cf" is overwritten ####
-            # crf_rescale_method = crf_rescale_method
+            # crf_per = crf_per # NOTE: same as initial input
+            # age_group = age_group # NOTE: same as initial input
+            exp <- input_fun[["exp"]] # NOTE: existing variable "exp" is overwritten
+            cf <- input_fun[["cf"]] # NOTE: existing variable "cf" is overwritten
+            # crf_rescale_method = crf_rescale_method # NOTE: same as initial input
             # )
 ```
 
@@ -123,15 +125,14 @@ input_fun <- list()
 popOverTime <- list()
 ```
 
-# get_popOverTime()
-```{r}
+```{r calling get_popOverTime())}
 sex <-  c("male", "female") # can be removed once added to function code
 ci <- c("mean", "lowci", "highci") # can be removed once added to function code
 
 profvis(for(s in sex){
       for(v in ci){
         popOverTime[[s]][[v]] <-
-          bestcost::get_popOverTime( # AL: replaced healthiar with bestcost ####
+          bestcost::get_popOverTime( # AL: replaced healthiar with bestcost
             lifetab_withPop = lifetable_withPop[[s]],
             nonNatural_death = nonNatural_death[[s]],
             firstYear_lifetable = firstYear_lifetable,
@@ -143,9 +144,27 @@ profvis(for(s in sex){
             age_group = age_group)
       }
 }
-)
+, interval = 0.005,
+prof_output = "testing/output/performance/get_popOverTime() whole loop.Rprof")
 ```
 
+<<<<<<< HEAD
+```{r }
+shifted_popOverTime <- list()
+```
+
+```{r calling shifted_popOverTime()}
+profvis(
+  for(s in sex){
+      for(v in ci){
+        shifted_popOverTime[[s]][[v]] <-
+          bestcost::move_rows_up(popOTime = popOverTime[[s]][[v]][["diff"]], # AL: replaced healthiar with bestcost ####
+                                        firstYear_lifetable = firstYear_lifetable)
+      }
+}
+, interval = 0.005,
+prof_output = "testing/output/performance/move_rows_up() whole loop.Rprof")
+=======
 In the code of get_popOverTime_noAP(), the data frame "lifetable_withPop[["female"]] is grown in a loop
 ```{r evaluate single call of get_popOverTime_noAP}
 # Check output 
@@ -185,7 +204,69 @@ system.time(bestcost::get_popOverTime_noAP_opt(
   firstYear_lifetable = firstYear_lifetable,
   year_loopStart = firstYear_lifetable + 1
   ))
+>>>>>>> 73d14754c47fba014d44d3809a7f79a272dc65c5
 ```
+
+```{r}
+output <-
+      list(crf = crf,
+           popOverTime = popOverTime,
+           shifted_popOverTime = shifted_popOverTime)
+
+
+    # return(output)
+```
+
+# assess_mortality_lifetable()
+```{r calling get_deaths()}
+shifted_popOverTime <- output # added so that this Rmd runs
+
+
+profvis(
+    deaths <- 
+    bestcost::get_deaths(shifted_popOverTime = shifted_popOverTime,
+                                       firstYear_lifetable = firstYear_lifetable,
+                                       age_group = age_group,
+                                       min_age = min_age,
+                                       max_age = max_age,
+                                       exp = input_fun[["exp"]] ,
+                                       cf = input_fun[["cf"]],
+                                       crf_rescale_method = crf_rescale_method)
+    , interval = 0.005,
+prof_output = "testing/output/performance/get_deaths() single call.Rprof")#,
+        # rerun = TRUE)
+
+```
+
+```{r calling get_yll()}
+profvis(
+  yll <-
+          bestcost::get_yll_new( #AL: changed from bestcost::get_yll( and the results are exactly the same
+            shifted_popOverTime = shifted_popOverTime,
+            firstYear_lifetable = firstYear_lifetable,  # NOTE: same as initial input
+            age_group = age_group, # NOTE: same as initial input
+            min_age = min_age, # NOTE: same as initial input
+            max_age = max_age, # NOTE: same as initial input
+            exp = input_fun[["exp"]] ,
+            cf = input_fun[["cf"]],
+            crf_rescale_method = crf_rescale_method, # NOTE: same as initial input
+            corrected_discount_rate = corrected_discount_rate) # NOTE: same as initial input
+    , interval = 0.005, 
+prof_output = "testing/output/performance/get_yll() single call.Rprof")
+```
+
+```{r compiling output}
+output <-
+          list(
+            shifted_popOverTime = shifted_popOverTime,
+            deaths_long = deaths[["deaths_long"]],
+            deaths = deaths[["deaths"]],
+            yll_long = yll[["yll_long"]],
+            yll = yll[["yll"]])
+```
+Output is the same as when running assess_mortality_lifetable() directly
+
+
 
 
 

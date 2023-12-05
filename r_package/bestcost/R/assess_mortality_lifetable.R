@@ -144,7 +144,7 @@ assess_mortality_lifetable <-
 
         # Calculate years of life lost (yll)
         yll <-
-          bestcost::get_yll_new( #AL: changed from bestcost::get_yll( and the results are exactly the same
+          bestcost::get_yll(
             shifted_popOverTime = shifted_popOverTime,
             firstYear_lifetable = firstYear_lifetable,
             age_group = age_group,

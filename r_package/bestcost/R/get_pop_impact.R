@@ -64,7 +64,7 @@ get_pop_impact <-
       for(v in ci){
         shifted_popOverTime[[s]][[v]] <-
           bestcost::move_rows_up(popOTime = popOverTime[[s]][[v]][["diff"]], # AL: replaced healthiar with bestcost ####
-                                        firstYear_lifetable = firstYear_lifetable)
+                                 firstYear_lifetable = firstYear_lifetable)
       }
     }
 

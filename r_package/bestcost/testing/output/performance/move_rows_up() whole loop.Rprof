@@ -1,0 +1,10 @@
+memory profiling: GC profiling: line profiling: sample.interval=5000
+:3052471:4133029:196229264:0:"invisible" "profvis" 
+:3077987:4170582:201357688:2367:"all" "profvis" 
+#File 1: C:/Users/luytax/switchdrive/bestcost_euproject/r_package/bestcost/R/move_rows_up.R
+:3095558:4207313:204072792:1795:"[<-.data.frame" 1#34 "bestcost::move_rows_up" "profvis" 
+:3123115:4265748:208404728:2860:"[<-.data.frame" 1#34 "bestcost::move_rows_up" "profvis" 
+:3138758:4299936:210923944:1657:"paste0" "bestcost::move_rows_up" "profvis" 
+:3165813:4357329:215187448:2806:".External2" "profvis" 
+:3191380:4411811:219217544:2665:"%in%" "[.data.frame" 1#34 "bestcost::move_rows_up" "profvis" 
+:3214858:4461618:222927376:2442:"FUN" "vapply" "pmin" "dplyr::lead" 1#34 "bestcost::move_rows_up" "profvis" 
