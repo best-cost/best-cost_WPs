@@ -5,12 +5,13 @@ date: "`r Sys.Date()`"
 output: pdf_document
 ---
 
-Calculate the mortality impacts of one crf_id ("PM2.5_premature deaths_all causes_adults_main_Hoek_2013_sensitivity") step by step to identify potential bottlenecks.
+Calculate the mortality impacts of one crf_id ("PM2.5_premature deaths_all causes_adults_main_ERS-ISEE_2022_selected", 2nd row of df "input_data_mortality") step by step to identify potential bottlenecks.
 
 ```{r load data}
 load(file = "testing/input/performance/calculate mortality long data.RData") # workspace image from "testing_Rpackage" before running chunk "impact mortality"
 
 library(tidyverse) ; library(profvis) ; library(bestcost)
+
 ```
 
 ```{r define input data}
@@ -148,14 +149,21 @@ profvis(for(s in sex){
 In the code of get_popOverTime_noAP(), the data frame "lifetable_withPop[["female"]] is grown in a loop
 ```{r evaluate single call of get_popOverTime_noAP}
 # Check output 
-output <- bestcost::get_popOverTime_noAP(
+# output <- bestcost::get_popOverTime_noAP(
+#   lifetable_wPop = lifetable_withPop[["female"]],
+#   firstYear_lifetable = firstYear_lifetable,
+#   year_loopStart = firstYear_lifetable + 1
+#   )
+
+
+profvis(bestcost::get_popOverTime_noAP(
   lifetable_wPop = lifetable_withPop[["female"]],
   firstYear_lifetable = firstYear_lifetable,
   year_loopStart = firstYear_lifetable + 1
   )
+)
 
-
-profvis(bestcost::get_popOverTime_noAP(
+system.time(bestcost::get_popOverTime_noAP(
   lifetable_wPop = lifetable_withPop[["female"]],
   firstYear_lifetable = firstYear_lifetable,
   year_loopStart = firstYear_lifetable + 1
@@ -171,6 +179,12 @@ profvis(bestcost::get_popOverTime_noAP_opt(
   year_loopStart = firstYear_lifetable + 1
   )
 )
+
+system.time(bestcost::get_popOverTime_noAP_opt(
+  lifetable_wPop = lifetable_withPop[["female"]],
+  firstYear_lifetable = firstYear_lifetable,
+  year_loopStart = firstYear_lifetable + 1
+  ))
 ```
 
 
