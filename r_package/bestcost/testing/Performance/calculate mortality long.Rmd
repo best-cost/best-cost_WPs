@@ -9,6 +9,8 @@ Calculate the mortality impacts of one crf_id ("PM2.5_premature deaths_all cause
 
 ```{r load data}
 load(file = "testing/input/performance/calculate mortality long data.RData") # workspace image from "testing_Rpackage" before running chunk "impact mortality"
+
+library(tidyverse) ; library(profvis) ; library(bestcost)
 ```
 
 ```{r define input data}
@@ -161,6 +163,15 @@ profvis(bestcost::get_popOverTime_noAP(
 )
 ```
 
+In the code of this optimized function the data frame (tibble) to be used in the loop is defined in advance.
+```{r evaluate single call of get_popOverTime_noAP_opt}
+profvis(bestcost::get_popOverTime_noAP_opt(
+  lifetable_wPop = lifetable_withPop[["female"]],
+  firstYear_lifetable = firstYear_lifetable,
+  year_loopStart = firstYear_lifetable + 1
+  )
+)
+```
 
 
 
