@@ -49,9 +49,10 @@ get_popOverTime <-
     }
 
     af <- bestcost::get_paf(crf_forPaf)
-
+    # After the exposure to air pollution (first year),
+    # get the population for the year after (second year)
     popOverTime_AP <-
-      bestcost::get_popOverTime_withAP(
+      bestcost::get_popSingleYear_withAP(
         lifetable_wPop = lifetab_withPop,
         nonNatural_death = nonNatural_death,
         firstYear_lifetable = firstYear_lifetable,

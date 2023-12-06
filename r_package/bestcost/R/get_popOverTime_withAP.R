@@ -16,7 +16,7 @@
 #' @author Alberto Castro
 #' @note Experimental function
 
-get_popOverTime_withAP <-
+get_popSingleYear_withAP <-
   function(lifetable_wPop, nonNatural_death, firstYear_lifetable, age_group, af){
 
     second_year <- firstYear_lifetable + 1
