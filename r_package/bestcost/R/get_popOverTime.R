@@ -27,54 +27,33 @@ get_popOverTime <-
            age_group){
 
 
-    second_year <- firstYear_lifetable + 1
-
-    # Calculate population for the next years
-    popOverTime_noAP <-
-      bestcost::get_popOverTime_noAP(
-        lifetable_wPop = lifetab_withPop,
-        firstYear_lifetable = firstYear_lifetable,
-        year_loopStart = firstYear_lifetable + 1)
+    # Add the first year of the lifetable to the column name of population
+    lifetab_withPop <-
+      dpylr::rename(setNames(population,
+                             paste0("population_", firstYear_lifetable)))
 
 
     # Calculate population in the next year assuming
-    #- a 10ug/m3 reduction in PM (as in STE-2010) or
-    #- the actual change in /level of air pollution
+    # the change in /level of air pollution
     # based on the CRF
-    if(crf_rescale_method == "ap10"){
-      crf_forPaf <- crf
-    }
-    if(crf_rescale_method %in% c("loglinear", "linear")){
-      crf_forPaf <- rescale_crf(crf, exp$exp, cf$cf, crf_per, method = crf_rescale_method)
-    }
+    crf_forPaf <- rescale_crf(crf, exp$exp, cf$cf, crf_per, method = crf_rescale_method)
+    paf <- bestcost::get_paf(crf_forPaf)
 
-    af <- bestcost::get_paf(crf_forPaf)
-
-    popOverTime_AP <-
-      bestcost::get_popOverTime_withAP(
+    popOverTime <-
+      bestcost::get_popSingleYear_withAP(
         lifetable_wPop = lifetab_withPop,
-        nonNatural_death = nonNatural_death,
         firstYear_lifetable = firstYear_lifetable,
         age_group = age_group,
-        af = af)
+        paf = paf)
 
     # Now calculate population over time (for the rest of years)
     # without considering air pollution
-    popOverTime_AP <-
+    popOverTime <-
       bestcost::get_popOverTime_noAP(
         lifetable_wPop = popOverTime_AP,
-        firstYear_lifetable = firstYear_lifetable,
-        year_loopStart = firstYear_lifetable + 2)
+        firstYear_lifetable = firstYear_lifetable)
 
-
-    # Difference of population considering and not considering air pollution
-    popOverTime_diff <-
-      bestcost::get_pop_diff(popOverTime_AP = popOverTime_AP,
-                             popOverTime_noAP = popOverTime_noAP)
-
-    output <- list(noAP = popOverTime_noAP,
-                   AP = popOverTime_AP,
-                   diff = popOverTime_diff)
+    output <- popOverTime
 
     return(output)
   }

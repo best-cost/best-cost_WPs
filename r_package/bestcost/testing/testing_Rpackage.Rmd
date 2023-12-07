@@ -162,7 +162,7 @@ rescale_conc_pmFraction <-
 
 # Create function to get lifetable with population
 get_lifetable_withPopulation <-
-  function(lifetable, population, firstYear_lifetable){
+  function(lifetable, population, firstYear_lifetable, nonNatural_mortality){
         
     # Life table for 
     lifetable_withPopulation <- 
@@ -170,9 +170,15 @@ get_lifetable_withPopulation <-
       dplyr::right_join(lifetable,
                         population,
                         by = "age")%>%
+      dplyr::right_join(.,
+                        nonNatural_mortality,
+                        by = "age")%>%
+      # Rename the column to show that it is total (and not only natural) mortality
+      dplyr::rename("death_probability_total" = "death_probability")%>%
       # We close the last row assigning a 1 for probability to die and 
       # a 0 to probability to survive
-      dplyr::mutate(death_probability = replace(death_probability, n(), 1))%>%
+      dplyr::mutate(death_probability_total = replace(death_probability_total, n(), 1),
+                    death_probability_natural = death_probability_total * (1-percent_NonNatural))%>%
       # Add year to population column
       dplyr::rename("population_{firstYear_lifetable}" := population)
   }
@@ -567,6 +573,7 @@ for(s in sex){
     get_lifetable_withPopulation(
       lifetable = lifetable[[s]],
       population = population_byAge[[s]],
+      nonNatural_mortality = mortality_data[[s]],
       firstYear_lifetable = 2019)
 
 }
