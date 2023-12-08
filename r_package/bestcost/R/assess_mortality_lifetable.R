@@ -22,7 +22,7 @@
 #' @param age_group String with the denomination of the age group (e.g. "adults" or "infants"),
 #' @param min_age Number with the minimal age to be considered for adults (by default 30, i.e. 30+),
 #' @param max_age Number with the maximal age to be considered for infants/children (by default 0, i.e. below 1 years old)
-#' @param corrected_discount_rate Numeric value with the corrected discount rate as proportion (i.e. 0.1 instead of 10%)
+#' @param corrected_discount_rate Numeric value with the corrected discount rate as proportion (i.e. 0.1 instead of 10\%)
 #' @param exp_info \code{Data frame} of one row showing extra information in columns. Default value = NULL,
 #' @param cf_info \code{Data frame} of one row showing extra information in columns. Default value = NULL,
 #' @param crf_info \code{Data frame} of three rows (mean, lower bound and upper bound) showing extra information in columns. Default value = NULL,
