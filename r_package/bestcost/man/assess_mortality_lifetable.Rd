@@ -65,7 +65,7 @@ assess_mortality_lifetable(
 
 \item{age_group}{String with the denomination of the age group (e.g. "adults" or "infants"),}
 
-\item{corrected_discount_rate}{Numeric value with the corrected discount rate as proportion (i.e. 0.1 instead of 10%)}
+\item{corrected_discount_rate}{Numeric value with the corrected discount rate as proportion (i.e. 0.1 instead of 10\%)}
 
 \item{min_age}{Number with the minimal age to be considered for adults (by default 30, i.e. 30+),}
 

@@ -27,7 +27,7 @@ get_yll(
 
 \item{age_group}{String with the denomination of the age group (e.g. "adults" or "infants"),}
 
-\item{corrected_discount_rate}{Numeric value with the annual discount rate as proportion (i.e. 0.1 instead of 10%). It can be calculated as (1+discount_rate_beforeCorrection/1+rate_of_increase)-1}
+\item{corrected_discount_rate}{Numeric value with the annual discount rate as proportion (i.e. 0.1 instead of 10\%). It can be calculated as (1+discount_rate_beforeCorrection/1+rate_of_increase)-1}
 
 \item{crf_per}{Numeric value showing the increment of the concentration-response function in ug/m3 (usually 10 or 5),}
 
