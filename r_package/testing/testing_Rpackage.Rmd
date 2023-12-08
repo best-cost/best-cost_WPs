@@ -192,20 +192,20 @@ get_lifetable_withPopulation <-
 
 # Generic data
 percentage_pm2.5_in_pm10 <- 
-  read.csv("testing/input/generic_data.csv", sep = ";") %>% 
+  read.csv("../testing/input/generic_data.csv", sep = ";") %>% 
   dplyr::filter(parameter_name %in% "percentage_pm2.5_in_pm10") %>%
   dplyr::select(value) %>%
   dplyr::pull()
 
 # CRF data (inserted manually in the csv table)
 crf_rawdata <- 
-  read.csv("testing/input/crf.csv",
+  read.csv("../testing/input/crf.csv",
            sep = ";",
            na.strings=c("NA", ""))
 
 # Population data by age (To be used in the life table approach)
 population_byAge_rawdata <-
-  read.csv2("testing/input/population/population_byAge_bySex_CH_2018_2019.csv") %>%
+  read.csv2("../testing/input/population/population_byAge_bySex_CH_2018_2019.csv") %>%
   # Rename columns
   dplyr::rename("age" = "Alter",
                 "male_end2018" = "Mann.2018",
@@ -218,7 +218,7 @@ population_byAge_rawdata <-
 
 # Baseline health data 
 bhd_rawdata <- 
-  read.csv("testing/input/bhd.csv", sep = ";")
+  read.csv("../testing/input/bhd.csv", sep = ";")
 
 # Read raw life table data
 lifetable <- list()
@@ -228,7 +228,7 @@ for(s in sex){
   lifetable[[s]] <- 
     read.csv2(
       # The raw data are for the period 2013-2020 but we focused on 2015-2019 (five years period)
-      paste0("testing/input/life_tables/life_table_2013_2020_",
+      paste0("../testing/input/life_tables/life_table_2013_2020_",
              s,
              ".csv"))
 }
@@ -237,34 +237,34 @@ for(s in sex){
 # Read raw non-natural mortality data for 2019 (average of the period 2009-2019)
 nonNatural_mortality_rawdata<- 
    list(
-     male = read.csv2("testing/input/mortality/nonNatural_mortality_byAge_2009_2019_male.csv",
+     male = read.csv2("../testing/input/mortality/nonNatural_mortality_byAge_2009_2019_male.csv",
                       na.strings =".", 
                       check.names = FALSE),
-     female = read.csv2("testing/input/mortality/nonNatural_mortality_byAge_2009_2019_female.csv",
+     female = read.csv2("../testing/input/mortality/nonNatural_mortality_byAge_2009_2019_female.csv",
                         na.strings =".", 
                       check.names = FALSE))
 
 # Read total mortality raw data for 2019 (average of the period 2009-2019)
 total_mortality_rawdata <- 
   list(
-    male = read.csv2("testing/input/mortality/total_mortality_byAge_2009_2019_male.csv",
+    male = read.csv2("../testing/input/mortality/total_mortality_byAge_2009_2019_male.csv",
                      na.strings =".", 
                       check.names = FALSE),
-    female = read.csv2("testing/input/mortality/total_mortality_byAge_2009_2019_female.csv",
+    female = read.csv2("../testing/input/mortality/total_mortality_byAge_2009_2019_female.csv",
                        na.strings =".", 
                       check.names = FALSE))
 
 # Concentration data
 # Scenario
 exp_rawdata <- 
-  read.csv("testing/input/exp.csv",
+  read.csv("../testing/input/exp.csv",
            sep = ";",
            na.strings=c("NA", ""))
 
 # Counterfactual
 cf_rawdata <- 
   # Read data
-  read.csv("testing/input/cf.csv",
+  read.csv("../testing/input/cf.csv",
            sep = ";",
            na.strings=c("NA", ""))
 ```
@@ -933,6 +933,6 @@ impact_mortality <-
 
 ```{r eval=FALSE, include=FALSE}
 write.csv2(lifetable_airqplus,
-            "testing/output/lifetable_airqplus_2019_ch.csv", 
+            "../testing/output/lifetable_airqplus_2019_ch.csv", 
             row.names = FALSE)
 ```
