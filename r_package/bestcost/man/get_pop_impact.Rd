@@ -11,7 +11,6 @@ get_pop_impact(
   crf_per,
   crf_rescale_method,
   lifetab_withPop,
-  nonNatural_death,
   firstYear_lifetable,
   age_group
 )
@@ -26,8 +25,6 @@ get_pop_impact(
 \item{crf_per}{Numeric value showing the increment of the concentration-response function in ug/m3 (usually 10 or 5)}
 
 \item{crf_rescale_method}{String to choose among "linear" and "loglinear",}
-
-\item{nonNatural_death}{\code{Data frame} with two columns: the first one for age, the second one for the percentage of non-natural deaths (sex specific),}
 
 \item{firstYear_lifetable}{Numeric value of the year of analysis, which corresponds to the first year of the life table}
 

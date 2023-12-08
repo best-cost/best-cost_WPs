@@ -55,6 +55,7 @@ if(!"bestcost" %in% installed.packages()[, "Package"]){
   credentials::set_github_pat() # paste github PAT when prompted
   devtools::install_github(repo = "best-cost/best-cost_WPs",
                            subdir = "/r_package/bestcost",
+                           ref = "natural_deaths_as_input",
                            force =TRUE)
 }
 
