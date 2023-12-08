@@ -132,19 +132,6 @@ assess_mortality_lifetable <-
               population = population_female))
 
 
-
-        # The mortality has to be provided as a data.frame (by sex)
-        # The first column has to be the age. Second, percent_nonNatural.
-        # Rename column names to standard names
-        names(nonNatural_death_male) <-
-          c("age", "percent_nonNatural")
-        names(nonNatural_death_female) <-
-          c("age", "percent_nonNatural")
-        # Store data in a list
-        nonNatural_death <- list(male = nonNatural_death_male,
-                                 female = nonNatural_death_female)
-
-
         # Get population impact
         shifted_popOverTime <-
           bestcost::get_pop_impact(

@@ -178,7 +178,7 @@ get_lifetable_withPopulation <-
       # We close the last row assigning a 1 for probability to die and 
       # a 0 to probability to survive
       dplyr::mutate(death_probability_total = replace(death_probability_total, n(), 1),
-                    death_probability_natural = death_probability_total * (1-percent_NonNatural))%>%
+                    death_probability_natural = death_probability_total * (1-percent_nonNatural))%>%
       # Add year to population column
       dplyr::rename("population_{firstYear_lifetable}" := population)
   }

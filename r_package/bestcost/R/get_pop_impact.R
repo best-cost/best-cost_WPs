@@ -10,7 +10,6 @@
 #' @param crf_rescale_method String to choose among "linear" and "loglinear",
 #' @param lifetable_withPop_male \code{Data frame} with three columns: the first one should refer to age, the second one to the probability of dying and the third one to the population (sex specific),
 #' @param firstYear_lifetable Numeric value of the year of analysis, which corresponds to the first year of the life table
-#' @param nonNatural_death \code{Data frame} with two columns: the first one for age, the second one for the percentage of non-natural deaths (sex specific),
 #' @param age_group String with the denomination of the age group (e.g. "adults" or "infants"),
 
 #' @return
@@ -33,7 +32,7 @@
 
 get_pop_impact <-
   function(exp, cf, crf, crf_per, crf_rescale_method,
-           lifetab_withPop, nonNatural_death, firstYear_lifetable,
+           lifetab_withPop, firstYear_lifetable,
            age_group){
 
     # Get popOvertime
@@ -44,7 +43,6 @@ get_pop_impact <-
         popOverTime[[s]][[v]] <-
           bestcost::get_popOverTime(
             lifetab_withPop = lifetab_withPop[[s]],
-            nonNatural_death = nonNatural_death[[s]],
             firstYear_lifetable = firstYear_lifetable,
             crf = crf$crf[crf$ci %in% v],
             exp = exp,
