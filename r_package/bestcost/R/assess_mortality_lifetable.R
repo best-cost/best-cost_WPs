@@ -110,11 +110,11 @@ assess_mortality_lifetable <-
           male =
             data.frame(
               age = seq(from = first_age_pop,
-                        to = last_age_pop - interval_age_pop,
+                        to = last_age_pop,
                         by = interval_age_pop),
               age_end = seq(from = first_age_pop + interval_age_pop,
                             to = last_age_pop,
-                            by = interval_age_pop),
+                            by = interval_age_pop + interval_age_pop),
               death_probability_natural = prob_natural_death_male,
               death_probability_total = prob_total_death_male,
               population = population_male),
