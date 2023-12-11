@@ -1,9 +1,9 @@
 Package: bestcost
-Title: What the Package Does (Title Case)
+Title: Quantification and monetarization of health impacts of environmental stressors.
 Version: 0.0.0.1
 Author: Alberto Castro [aut, cre], Axel Luyten [aut, cre]
 Maintainer: Alberto Castro <alberto.castrofernandez@swisstph.ch>
-Description: R package developed withing the framework of the EU project BEST-COST to quantify and monetize health impacts of environmental stressors
+Description: This R package was developed within the framework of the EU project BEST-COST. It aims to quantify and monetize health impacts of environmental stressors focusing on air pollution and noise.
 License: GPL
 Encoding: UTF-8
 RoxygenNote: 7.2.3
