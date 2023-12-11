@@ -28,8 +28,8 @@ get_popOverTime <-
 
     # Add the first year of the lifetable to the column name of population
     lifetab_withPop <-
-      dplyr::rename(setNames(population,
-                             paste0("population_", firstYear_lifetable)))
+      lifetab_withPop %>%
+      dplyr::rename(!!paste0("population_", firstYear_lifetable) := population)
 
 
     # Calculate population in the next year assuming
