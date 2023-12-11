@@ -49,7 +49,7 @@ get_popOverTime <-
     # without considering air pollution
     popOverTime <-
       bestcost::get_popOverTime_noAP(
-        lifetable_wPop = popOverTime_AP,
+        lifetable_wPop = popOverTime,
         firstYear_lifetable = firstYear_lifetable)
 
     output <- popOverTime
