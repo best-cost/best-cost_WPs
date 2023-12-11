@@ -28,7 +28,7 @@ get_popOverTime <-
 
     # Add the first year of the lifetable to the column name of population
     lifetab_withPop <-
-      dpylr::rename(setNames(population,
+      dplyr::rename(setNames(population,
                              paste0("population_", firstYear_lifetable)))
 
 
