@@ -16,7 +16,7 @@
 #' @note Experimental function
 
 get_popSingleYear_withAP <-
-  function(lifetable_wPop, firstYear_lifetable, age_group, af){
+  function(lifetable_wPop, firstYear_lifetable, age_group, paf){
 
     second_year <- firstYear_lifetable + 1
 
