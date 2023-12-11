@@ -35,7 +35,7 @@ get_popSingleYear_withAP <-
         dplyr::mutate(.,
                       "population_{second_year}" :=
                         ifelse(age %in% 1,
-                               population_lag * death_probability_natural * paf,
+                               population_lag * death_probability_natural_lag * paf,
                                population_lag*(1-death_probability_total_lag)))
         else .}%>%
 
@@ -43,7 +43,7 @@ get_popSingleYear_withAP <-
       {if(age_group %in% "adults")
         dplyr::mutate(.,
                       "population_{second_year}" :=
-                        population_lag * death_probability_natural * paf)
+                        population_lag * death_probability_natural_lag * paf)
 
         else .}%>%
       # Remove the lag columns
