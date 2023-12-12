@@ -36,13 +36,15 @@ get_pop_impact <-
            lifetab_withPop, nonNatural_death, firstYear_lifetable,
            age_group){
 
+    c("mean", "lowci", "highci") # variable used in code
+
     # Get popOvertime
     popOverTime <- list()
 
-    for(s in sex){
+    for(s in c("female","male")){#sex){
       for(v in ci){
         popOverTime[[s]][[v]] <-
-          bestcost::get_popOverTime( # AL: replaced healthiar with bestcost ####
+          bestcost::get_popOverTime(
             lifetab_withPop = lifetab_withPop[[s]],
             nonNatural_death = nonNatural_death[[s]],
             firstYear_lifetable = firstYear_lifetable,
@@ -60,10 +62,10 @@ get_pop_impact <-
 
     shifted_popOverTime <- list()
 
-    for(s in sex){
+    for(s in c("female","male")){#sex){
       for(v in ci){
         shifted_popOverTime[[s]][[v]] <-
-          bestcost::move_rows_up(popOTime = popOverTime[[s]][[v]][["diff"]], # AL: replaced healthiar with bestcost ####
+          bestcost::move_rows_up(popOTime = popOverTime[[s]][[v]][["diff"]],
                                  firstYear_lifetable = firstYear_lifetable)
       }
     }
