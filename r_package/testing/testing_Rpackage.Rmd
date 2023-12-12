@@ -57,7 +57,7 @@ if(!"bestcost" %in% installed.packages()[, "Package"]){
   devtools::install_github(repo = "best-cost/best-cost_WPs",
                            subdir = "/r_package/bestcost",
                            # Branch (by default "MAIN")
-                           #ref = "natural_deaths_as_input",
+                           ref = "natural_deaths_as_input",
                            force = TRUE)
 
 }
@@ -65,7 +65,7 @@ if(!"bestcost" %in% installed.packages()[, "Package"]){
 # to quantify and monetize health impacts (own package)
 library(bestcost)
 # loads all functions in {bestcost}
-devtools::load_all() 
+#devtools::load_all() 
 ```
 
 ```{r Useful variables}
@@ -821,7 +821,8 @@ impact_mortality_raw <- list()
 
 # Calculate mortality impacts using bestcost function
 
-for(i in 2){  #1:nrow(input_data_mortality) Activate this if you need multiple crfs
+for(i in 1:nrow(input_data_mortality)){  # Use this if you want to evaluate multiple crfs
+# for(i in 2){                           # Use this if you want to evaluate only one crfs
   impact_mortality_raw[[input_data_mortality$year[i]]][[input_data_mortality$crf_id[[i]]]] <-
   
     bestcost::assess_mortality_lifetable(
