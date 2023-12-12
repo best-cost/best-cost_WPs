@@ -1,8 +1,8 @@
 # Title and description
 
-#' Get population over time with change in air pollution exposure
+#' Get population for single year with change in air pollution exposure
 #'
-#' Get population over time with change in air pollution exposure
+#' Get population for single year with change in air pollution exposure
 #' @param lifetable_wPop \code{Data frame} with three columns: the first one should refer to age, the second one to the probability of dying and the third one to the population (sex specific),
 #' @param nonNatural_death \code{Data frame} with two columns: the first one for age, the second one for the percentage of non-natural deaths (sex specific),
 #' @param firstYear_lifetable Numeric value of the year of analysis, which corresponds to the first year of the life table
