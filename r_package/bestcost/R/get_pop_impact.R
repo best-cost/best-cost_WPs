@@ -35,10 +35,12 @@ get_pop_impact <-
            lifetab_withPop, firstYear_lifetable,
            age_group){
 
+    c("mean", "lowci", "highci") # variable used in code
+
     # Get popOvertime
     popOverTime <- list()
 
-    for(s in sex){
+    for(s in c("female","male")){#sex){
       for(v in ci){
         popOverTime[[s]][[v]] <-
           bestcost::get_popOverTime(
@@ -58,9 +60,10 @@ get_pop_impact <-
 
     shifted_popOverTime <- list()
 
-    for(s in sex){
+    for(s in c("female","male")){#sex){
       for(v in ci){
         shifted_popOverTime[[s]][[v]] <-
+
           bestcost::move_rows_up(popOTime = popOverTime[[s]][[v]],
                                  firstYear_lifetable = firstYear_lifetable)
       }

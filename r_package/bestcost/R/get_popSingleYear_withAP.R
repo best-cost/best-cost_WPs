@@ -1,8 +1,8 @@
 # Title and description
 
-#' Get population over time with change in air pollution exposure
+#' Get population for single year with change in air pollution exposure
 #'
-#' Get population over time with change in air pollution exposure
+#' Get population for single year with change in air pollution exposure
 #' @param lifetable_wPop \code{Data frame} with three columns: the first one should refer to age, the second one to the probability of dying and the third one to the population (sex specific),
 #' @param firstYear_lifetable Numeric value of the year of analysis, which corresponds to the first year of the life table
 #' @param age_group String with the denomination of the age group (e.g. "adults" or "infants"),
@@ -17,6 +17,7 @@
 
 get_popSingleYear_withAP <-
   function(lifetable_wPop, firstYear_lifetable, age_group, paf){
+
 
     second_year <- firstYear_lifetable + 1
 

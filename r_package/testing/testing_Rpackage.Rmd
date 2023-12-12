@@ -57,8 +57,9 @@ if(!"bestcost" %in% installed.packages()[, "Package"]){
   devtools::install_github(repo = "best-cost/best-cost_WPs",
                            subdir = "/r_package/bestcost",
                            # Branch (by default "MAIN")
-                           ref = "natural_deaths_as_input",
+                           #ref = "natural_deaths_as_input",
                            force = TRUE)
+
 }
 
 # to quantify and monetize health impacts (own package)
