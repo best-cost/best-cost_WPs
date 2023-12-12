@@ -12,7 +12,7 @@
 #' @param age_group String with the denomination of the age group (e.g. "adults" or "infants"),
 #' @param age_min Number with the minimal age to be considered for adults (by default 30, i.e. 30+),
 #' @param age_max Number with the maximal age to be considered for infants/children (by default 0, i.e. below 1 years old)
-#' @param corrected_discount_rate Numeric value with the annual discount rate as proportion (i.e. 0.1 instead of 10%). It can be calculated as (1+discount_rate_beforeCorrection/1+rate_of_increase)-1
+#' @param corrected_discount_rate Numeric value with the annual discount rate as proportion (i.e. 0.1 instead of 10\%). It can be calculated as (1+discount_rate_beforeCorrection/1+rate_of_increase)-1
 #' @return
 #' This function returns a \code{data.frame} with one row for each value of the
 #' concentration-response function (i.e. mean, lower and upper bound confidence interval.

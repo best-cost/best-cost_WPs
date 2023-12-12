@@ -8,16 +8,21 @@
 #' @param crf \code{Vector} of three numeric values referring to the mean as well as the lower bound and upper bound of the confidence interval,
 #' @param crf_per Numeric value showing the increment of the concentration-response function in ug/m3 (usually 10 or 5),
 #' @param crf_rescale_method String to choose among "linear" and "loglinear",
-#' @param lifetable_withPop_male \code{Data frame} with three columns: the first one should refer to age, the second one to the probability of dying and the third one to the population (only male),
-#' @param lifetable_withPop_female \code{Data frame} with three columns: the first one should refer to age, the second one to the probability of dying and the third one to the population (only female),
+#' @param first_age_pop Numeric value of the first item of the age sequence from population and life table data
+#' @param last_age_pop Numeric value of the last item of the age sequence from population and life table data
+#' @param interval_age_pop Numeric value of the interval of the age sequence from population and life table data
+#' @param prob_natural_death_male \code{Vector} containing the probability of dying because of natural cause (excluding non-natural deaths such as violence or accidents) by age or age group for male,
+#' @param prob_natural_death_female \code{Vector} containing the probability of dying because of natural cause (excluding non-natural deaths such as violence or accidents) by age or age group for female,
+#' @param prob_total_death_male \code{Vector} containing the probability of dying because of all causes (including non-natural deaths such as violence or accidents) by age or age group for male,
+#' @param prob_total_death_female \code{Vector} containing the probability of dying because of all causes (including non-natural deaths such as violence or accidents) by age or age group for female,
+#' @param population_male \code{Vector} containing the mid-year male population for the year of analysis,
+#' @param population_female \code{Vector} containing the mid-year female population for the year of analysis,
 #' @param firstYear_lifetable Numeric value of the year of analysis, which corresponds to the first year of the life table,
-#' @param nonNatural_death_male \code{Data frame} with two columns: the first one for age, the second one for the percentage of non-natural deaths (only male),
-#' @param nonNatural_death_female \code{Data frame} with two columns: the first one for age, the second one for the percentage of non-natural deaths (Only female),
 #' @param pollutant String with the name of the pollutant,
 #' @param age_group String with the denomination of the age group (e.g. "adults" or "infants"),
 #' @param min_age Number with the minimal age to be considered for adults (by default 30, i.e. 30+),
 #' @param max_age Number with the maximal age to be considered for infants/children (by default 0, i.e. below 1 years old)
-#' @param corrected_discount_rate Numeric value with the corrected discount rate as proportion (i.e. 0.1 instead of 10%)
+#' @param corrected_discount_rate Numeric value with the corrected discount rate as proportion (i.e. 0.1 instead of 10\%)
 #' @param exp_info \code{Data frame} of one row showing extra information in columns. Default value = NULL,
 #' @param cf_info \code{Data frame} of one row showing extra information in columns. Default value = NULL,
 #' @param crf_info \code{Data frame} of three rows (mean, lower bound and upper bound) showing extra information in columns. Default value = NULL,
@@ -39,9 +44,13 @@
 #' @note Experimental function
 #' @export
 assess_mortality_lifetable <-
-  function(exp, cf, crf, crf_per, crf_rescale_method,
-           lifetable_withPop_male, lifetable_withPop_female, firstYear_lifetable,
-           nonNatural_death_male, nonNatural_death_female,
+  function(exp, cf,
+           crf, crf_per, crf_rescale_method,
+           first_age_pop, last_age_pop, interval_age_pop,
+           prob_natural_death_male, prob_natural_death_female,
+           prob_total_death_male, prob_total_death_female,
+           population_male, population_female,
+           firstYear_lifetable,
            pollutant,
            age_group,
            corrected_discount_rate,
@@ -95,32 +104,38 @@ assess_mortality_lifetable <-
         # The life table has to be provided as a data.frame (by sex)
         # The first column has to be the age. Second, probability of death. Third, population.
         # Rename column names to standard names
-        names(lifetable_withPop_male) <-
-          c("age", "death_probability", paste0("population_", firstYear_lifetable))
-        names(lifetable_withPop_female) <-
-          c("age", "death_probability", paste0("population_", firstYear_lifetable))
-        # Store data in a list
-        lifetable_withPop <- list(male = lifetable_withPop_male,
-                                  female = lifetable_withPop_female)
 
+        lifetable_withPop <- list(
 
-        # The mortality has to be provided as a data.frame (by sex)
-        # The first column has to be the age. Second, percent_nonNatural.
-        # Rename column names to standard names
-        names(nonNatural_death_male) <-
-          c("age", "percent_nonNatural")
-        names(nonNatural_death_female) <-
-          c("age", "percent_nonNatural")
-        # Store data in a list
-        nonNatural_death <- list(male = nonNatural_death_male,
-                                 female = nonNatural_death_female)
+          male =
+            data.frame(
+              age = seq(from = first_age_pop,
+                        to = last_age_pop,
+                        by = interval_age_pop),
+              age_end = seq(from = first_age_pop + interval_age_pop,
+                            to = last_age_pop,
+                            by = interval_age_pop + interval_age_pop),
+              death_probability_natural = prob_natural_death_male,
+              death_probability_total = prob_total_death_male,
+              population = population_male),
+
+          female =
+            data.frame(
+              age = seq(from = first_age_pop,
+                        to = last_age_pop,
+                        by = interval_age_pop),
+              age_end = seq(from = first_age_pop + interval_age_pop,
+                            to = last_age_pop,
+                            by = interval_age_pop + interval_age_pop),
+              death_probability_natural = prob_natural_death_female,
+              death_probability_total = prob_total_death_female,
+              population = population_female))
 
 
         # Get population impact
         shifted_popOverTime <-
           bestcost::get_pop_impact(
             lifetab_withPop = lifetable_withPop,
-            nonNatural_death = nonNatural_death,
             firstYear_lifetable = firstYear_lifetable,
             crf = input_fun[["crf"]],
             crf_per = crf_per,

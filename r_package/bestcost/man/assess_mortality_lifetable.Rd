@@ -10,11 +10,16 @@ assess_mortality_lifetable(
   crf,
   crf_per,
   crf_rescale_method,
-  lifetable_withPop_male,
-  lifetable_withPop_female,
+  first_age_pop,
+  last_age_pop,
+  interval_age_pop,
+  prob_natural_death_male,
+  prob_natural_death_female,
+  prob_total_death_male,
+  prob_total_death_female,
+  population_male,
+  population_female,
   firstYear_lifetable,
-  nonNatural_death_male,
-  nonNatural_death_female,
   pollutant,
   age_group,
   corrected_discount_rate,
@@ -36,21 +41,31 @@ assess_mortality_lifetable(
 
 \item{crf_rescale_method}{String to choose among "linear" and "loglinear",}
 
-\item{lifetable_withPop_male}{\code{Data frame} with three columns: the first one should refer to age, the second one to the probability of dying and the third one to the population (only male),}
+\item{first_age_pop}{Numeric value of the first item of the age sequence from population and life table data}
 
-\item{lifetable_withPop_female}{\code{Data frame} with three columns: the first one should refer to age, the second one to the probability of dying and the third one to the population (only female),}
+\item{last_age_pop}{Numeric value of the last item of the age sequence from population and life table data}
+
+\item{interval_age_pop}{Numeric value of the interval of the age sequence from population and life table data}
+
+\item{prob_natural_death_male}{\code{Vector} containing the probability of dying because of natural cause (excluding non-natural deaths such as violence or accidents) by age or age group for male,}
+
+\item{prob_natural_death_female}{\code{Vector} containing the probability of dying because of natural cause (excluding non-natural deaths such as violence or accidents) by age or age group for female,}
+
+\item{prob_total_death_male}{\code{Vector} containing the probability of dying because of all causes (including non-natural deaths such as violence or accidents) by age or age group for male,}
+
+\item{prob_total_death_female}{\code{Vector} containing the probability of dying because of all causes (including non-natural deaths such as violence or accidents) by age or age group for female,}
+
+\item{population_male}{\code{Vector} containing the mid-year male population for the year of analysis,}
+
+\item{population_female}{\code{Vector} containing the mid-year female population for the year of analysis,}
 
 \item{firstYear_lifetable}{Numeric value of the year of analysis, which corresponds to the first year of the life table,}
-
-\item{nonNatural_death_male}{\code{Data frame} with two columns: the first one for age, the second one for the percentage of non-natural deaths (only male),}
-
-\item{nonNatural_death_female}{\code{Data frame} with two columns: the first one for age, the second one for the percentage of non-natural deaths (Only female),}
 
 \item{pollutant}{String with the name of the pollutant,}
 
 \item{age_group}{String with the denomination of the age group (e.g. "adults" or "infants"),}
 
-\item{corrected_discount_rate}{Numeric value with the corrected discount rate as proportion (i.e. 0.1 instead of 10%)}
+\item{corrected_discount_rate}{Numeric value with the corrected discount rate as proportion (i.e. 0.1 instead of 10\%)}
 
 \item{min_age}{Number with the minimal age to be considered for adults (by default 30, i.e. 30+),}
 

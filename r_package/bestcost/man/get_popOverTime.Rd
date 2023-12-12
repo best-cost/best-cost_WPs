@@ -12,7 +12,6 @@ get_popOverTime(
   crf_rescale_method,
   lifetab_withPop,
   firstYear_lifetable,
-  nonNatural_death,
   age_group
 )
 }
@@ -28,8 +27,6 @@ get_popOverTime(
 \item{crf_rescale_method}{String to choose among "linear" and "loglinear",}
 
 \item{firstYear_lifetable}{Numeric value of the year of analysis, which corresponds to the first year of the life table}
-
-\item{nonNatural_death}{\code{Data frame} with two columns: the first one for age, the second one for the percentage of non-natural deaths (sex specific),}
 
 \item{age_group}{String with the denomination of the age group (e.g. "adults" or "infants"),}
 
