@@ -5,7 +5,7 @@ date: "`r Sys.Date()`"
 output: pdf_document
 ---
 
-Here the ARE method (from the master branch), where mortalities are indirectly, is profiled.
+Here the ARE method (from the master branch), where mortalities are calculated indirectly, is profiled. These functions are from before merge #66 (before the new method was implemeted.)
 
 ```{r}
 load("testing/input/performance/PER assess_mortality_lifetable() data.RData")
