@@ -1,0 +1,44 @@
+---
+title: "PER ARE method assess_mortality_lifetable()"
+author: "Axel Luyten"
+date: "`r Sys.Date()`"
+output: pdf_document
+---
+
+Here the ARE method (from the master branch), where mortalities are indirectly, is profiled.
+
+```{r}
+load("testing/input/performance/PER assess_mortality_lifetable() data.RData")
+
+library(profvis)
+
+
+# Define sex
+sex <-  c("male", "female")
+
+# Define values in the confidence interval (ci)
+ci <- c("mean", "lowci", "highci")
+```
+
+```{r}
+profvis(bestcost::assess_mortality_lifetable(
+
+    exp = input_data_mortality$exp[2], # PM2.5=8.30=limit LRV CH, NO2=16.32=mean conc. in CH in 2019
+    cf = input_data_mortality$cf[2],   # PM2.5=5, NO2=10, i.e. WHO AQG 2021 
+    crf = unlist(input_data_mortality[2, 
+                            c("crf_mean", "crf_lowci", "crf_highci")]) ,
+    crf_per = 10, 
+    crf_rescale_method = "loglinear", 
+    lifetable_withPop_male = lifetable_withPopulation[["male"]],
+    lifetable_withPop_female = lifetable_withPopulation[["female"]],
+    firstYear_lifetable = 2019, 
+    nonNatural_death_male = mortality_data[["male"]], # % of non-natural male deaths in BHD
+    nonNatural_death_female = mortality_data[["female"]], # % of non-natural female deaths in BHD
+    pollutant = input_data_mortality$pollutant[2], 
+    age_group = input_data_mortality$outcome_group[2],
+    min_age = 20,
+    max_age = 0,
+    corrected_discount_rate = 0), 
+  prof_output = "../../../BEST-COST/Varia/PER ARE method.Rprof"
+)
+```
