@@ -22,27 +22,28 @@ rm(list = ls())
 
 # Load required packages
 
-# Performance assessment
+# to assess performance
 library(profvis)
 library(bench)
 library(microbenchmark)
 
+# to manipulate data
 library(readxl)
 library(dplyr)
 library(tidyr)
-
-library(ggplot2)
 library(purrr)
 library(stringr)
 library(tibble)
 
 library(zoo)
-library(meta)
 
-## To export tables in excel format
+# to visualize results
+library(ggplot2)
+
+## to export tables in excel format
 library(openxlsx)
 
-## To load own packages
+## to load own packages
 library(credentials)
 library(gitcreds)
 library(devtools)
@@ -55,12 +56,15 @@ if(!"bestcost" %in% installed.packages()[, "Package"]){
   credentials::set_github_pat() # paste github PAT when prompted
   devtools::install_github(repo = "best-cost/best-cost_WPs",
                            subdir = "/r_package/bestcost",
+                           # Branch (by default "MAIN")
                            ref = "natural_deaths_as_input",
-                           force =TRUE)
+                           force = TRUE)
 }
 
+# to quantify and monetize health impacts (own package)
 library(bestcost)
-devtools::load_all() # loads all functions in {bestcost}
+# loads all functions in {bestcost}
+devtools::load_all() 
 ```
 
 ```{r Useful variables}
