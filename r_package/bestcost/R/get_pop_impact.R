@@ -9,7 +9,7 @@
 #' @param crf_per Numeric value showing the increment of the concentration-response function in ug/m3 (usually 10 or 5)
 #' @param crf_rescale_method String to choose among "linear" and "loglinear",
 #' @param lifetable_withPop_male \code{Data frame} with three columns: the first one should refer to age, the second one to the probability of dying and the third one to the population (sex specific),
-#' @param firstYear_lifetable Numeric value of the year of analysis, which corresponds to the first year of the life table
+#' @param year_of_analysis Numeric value of the year of analysis, which corresponds to the first year of the life table
 #' @param age_group String with the denomination of the age group (e.g. "adults" or "infants"),
 
 #' @return
@@ -32,7 +32,7 @@
 
 get_pop_impact <-
   function(exp, cf, crf, crf_per, crf_rescale_method,
-           lifetab_withPop, firstYear_lifetable,
+           lifetab_withPop, year_of_analysis,
            age_group){
 
     c("mean", "lowci", "highci") # variable used in code
@@ -45,7 +45,7 @@ get_pop_impact <-
         popOverTime[[s]][[v]] <-
           bestcost::get_popOverTime(
             lifetab_withPop = lifetab_withPop[[s]],
-            firstYear_lifetable = firstYear_lifetable,
+            year_of_analysis = year_of_analysis,
             crf = crf$crf[crf$ci %in% v],
             exp = exp,
             cf = cf,
@@ -65,7 +65,7 @@ get_pop_impact <-
         shifted_popOverTime[[s]][[v]] <-
 
           bestcost::move_rows_up(popOTime = popOverTime[[s]][[v]],
-                                 firstYear_lifetable = firstYear_lifetable)
+                                 year_of_analysis = year_of_analysis)
       }
     }
 

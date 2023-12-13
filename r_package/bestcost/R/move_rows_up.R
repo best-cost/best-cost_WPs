@@ -4,7 +4,7 @@
 #'
 #' Move rows up
 #' @param popOTime Population over time,
-#' @param firstYear_lifetable Numeric value of the year of analysis, which corresponds to the first year of the life table
+#' @param year_of_analysis Numeric value of the year of analysis, which corresponds to the first year of the life table
 #' @return
 #' This function returns a shifted value of the population over time taking into account probability of dying
 #' @import dplyr
@@ -14,12 +14,12 @@
 #' @note Experimental function
 
 move_rows_up <-
-  function(popOTime, firstYear_lifetable){
+  function(popOTime, year_of_analysis){
 
     # Start of the loop
-    year_loopStart <- firstYear_lifetable+1
+    year_loopStart <- year_of_analysis+1
     # End of the loop
-    year_loopEnd <- firstYear_lifetable + nrow(popOTime) - 1
+    year_loopEnd <- year_of_analysis + nrow(popOTime) - 1
 
     years <- year_loopStart:year_loopEnd
 

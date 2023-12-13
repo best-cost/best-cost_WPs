@@ -17,7 +17,7 @@
 #' @param prob_total_death_female \code{Vector} containing the probability of dying because of all causes (including non-natural deaths such as violence or accidents) by age or age group for female,
 #' @param population_male \code{Vector} containing the mid-year male population for the year of analysis,
 #' @param population_female \code{Vector} containing the mid-year female population for the year of analysis,
-#' @param firstYear_lifetable Numeric value of the year of analysis, which corresponds to the first year of the life table,
+#' @param year_of_analysis Numeric value of the year of analysis, which corresponds to the first year of the life table,
 #' @param pollutant String with the name of the pollutant,
 #' @param age_group String with the denomination of the age group (e.g. "adults" or "infants"),
 #' @param min_age Number with the minimal age to be considered for adults (by default 30, i.e. 30+),
@@ -50,7 +50,7 @@ assess_mortality_lifetable <-
            prob_natural_death_male, prob_natural_death_female,
            prob_total_death_male, prob_total_death_female,
            population_male, population_female,
-           firstYear_lifetable,
+           year_of_analysis,
            pollutant,
            age_group,
            corrected_discount_rate,
@@ -136,7 +136,7 @@ assess_mortality_lifetable <-
         shifted_popOverTime <-
           bestcost::get_pop_impact(
             lifetab_withPop = lifetable_withPop,
-            firstYear_lifetable = firstYear_lifetable,
+            year_of_analysis = year_of_analysis,
             crf = input_fun[["crf"]],
             crf_per = crf_per,
             age_group = age_group,
@@ -149,7 +149,7 @@ assess_mortality_lifetable <-
         deaths <-
           bestcost::get_deaths(
             shifted_popOverTime = shifted_popOverTime,
-            firstYear_lifetable = firstYear_lifetable,
+            year_of_analysis = year_of_analysis,
             age_group = age_group,
             min_age = min_age,
             max_age = max_age,
@@ -161,7 +161,7 @@ assess_mortality_lifetable <-
         yll <-
           bestcost::get_yll(
             shifted_popOverTime = shifted_popOverTime,
-            firstYear_lifetable = firstYear_lifetable,
+            year_of_analysis = year_of_analysis,
             age_group = age_group,
             min_age = min_age,
             max_age = max_age,

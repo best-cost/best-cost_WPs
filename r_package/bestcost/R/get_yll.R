@@ -8,7 +8,7 @@
 #' @param crf_per Numeric value showing the increment of the concentration-response function in ug/m3 (usually 10 or 5),
 #' @param crf_rescale_method String to choose among "linear" and "loglinear",
 #' @param shifted_popOvertime \code{Data frame} with shifted population over time
-#' @param firstYear_lifetable Numeric value of the year of analysis, which corresponds to the first year of the life table,
+#' @param year_of_analysis Numeric value of the year of analysis, which corresponds to the first year of the life table,
 #' @param age_group String with the denomination of the age group (e.g. "adults" or "infants"),
 #' @param age_min Number with the minimal age to be considered for adults (by default 30, i.e. 30+),
 #' @param age_max Number with the maximal age to be considered for infants/children (by default 0, i.e. below 1 years old)
@@ -35,7 +35,7 @@
 
 get_yll <-
   function(exp, cf, crf_rescale_method,
-           shifted_popOverTime, firstYear_lifetable,
+           shifted_popOverTime, year_of_analysis,
            age_group, min_age = min_age, max_age = max_age,
            corrected_discount_rate){
 
@@ -103,7 +103,7 @@ get_yll <-
           # Convert year to numeric
           dplyr::mutate(year = as.numeric(year))%>%
           # Calculate discount
-          dplyr::mutate(discount = 1/(discount_factor^(year-(firstYear_lifetable+1))))%>%
+          dplyr::mutate(discount = 1/(discount_factor^(year-(year_of_analysis+1))))%>%
           # Calculate life years discounted
           dplyr::mutate(discounted_value = value*discount)%>%
           # Sum among years

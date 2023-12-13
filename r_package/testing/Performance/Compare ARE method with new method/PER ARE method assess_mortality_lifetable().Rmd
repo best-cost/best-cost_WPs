@@ -31,7 +31,7 @@ profvis(bestcost::assess_mortality_lifetable(
     crf_rescale_method = "loglinear", 
     lifetable_withPop_male = lifetable_withPopulation[["male"]],
     lifetable_withPop_female = lifetable_withPopulation[["female"]],
-    firstYear_lifetable = 2019, 
+    year_of_analysis = 2019, 
     nonNatural_death_male = mortality_data[["male"]], # % of non-natural male deaths in BHD
     nonNatural_death_female = mortality_data[["female"]], # % of non-natural female deaths in BHD
     pollutant = input_data_mortality$pollutant[2], 
