@@ -10,7 +10,7 @@
 #' @param crf_per Numeric value showing the increment of the concentration-response function in ug/m3 (usually 10 or 5)
 #' @param crf_rescale_method String to choose among "linear" and "loglinear",
 #' @param lifetable_withPop \code{Data frame} with three columns: the first one should refer to age, the second one to the probability of dying and the third one to the population (sex specific),
-#' @param firstYear_lifetable Numeric value of the year of analysis, which corresponds to the first year of the life table
+#' @param year_of_analysis Numeric value of the year of analysis, which corresponds to the first year of the life table
 #' @param age_group String with the denomination of the age group (e.g. "adults" or "infants"),
 #' @return
 #' This function returns a \code{data.frame} the population over time taking into account probability of dying
@@ -22,14 +22,14 @@
 #' @note Experimental function
 get_popOverTime <-
   function(exp, cf, crf, crf_per, crf_rescale_method,
-           lifetab_withPop, firstYear_lifetable,
+           lifetab_withPop, year_of_analysis,
            age_group){
 
 
     # Add the first year of the lifetable to the column name of population
     lifetab_withPop <-
       lifetab_withPop %>%
-      dplyr::rename(!!paste0("population_", firstYear_lifetable) := population)
+      dplyr::rename(!!paste0("population_", year_of_analysis) := population)
 
 
     # Calculate population in the next year assuming
@@ -41,7 +41,7 @@ get_popOverTime <-
     popOverTime <-
       bestcost::get_popSingleYear_withAP(
         lifetable_withPop = lifetab_withPop,
-        firstYear_lifetable = firstYear_lifetable,
+        year_of_analysis = year_of_analysis,
         age_group = age_group,
         paf = paf)
 
@@ -50,7 +50,7 @@ get_popOverTime <-
     popOverTime <-
       bestcost::get_popOverTime_noAP(
         lifetable_withPop = popOverTime,
-        firstYear_lifetable = firstYear_lifetable)
+        year_of_analysis = year_of_analysis)
 
     output <- popOverTime
 
