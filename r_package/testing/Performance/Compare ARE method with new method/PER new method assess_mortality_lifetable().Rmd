@@ -31,7 +31,7 @@ profvis(bestcost::assess_mortality_lifetable(
     prob_total_death_female = lifetable_withPopulation[["female"]]$death_probability_total,
     population_male = lifetable_withPopulation[["male"]]$population, 
     population_female = lifetable_withPopulation[["female"]]$population, 
-    firstYear_lifetable = 2019, 
+    year_of_analysis = 2019, 
     pollutant = input_data_mortality$pollutant[2], 
     age_group = input_data_mortality$outcome_group[2],
     min_age = 20,

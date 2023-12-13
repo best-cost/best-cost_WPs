@@ -168,7 +168,7 @@ rescale_conc_pmFraction <-
 
 # Create function to get lifetable with population
 get_lifetable_withPopulation <-
-  function(lifetable, population, firstYear_lifetable, nonNatural_mortality){
+  function(lifetable, population, year_of_analysis, nonNatural_mortality){
         
     # Life table for 
     lifetable_withPopulation <- 
@@ -186,7 +186,7 @@ get_lifetable_withPopulation <-
       dplyr::mutate(death_probability_total = replace(death_probability_total, n(), 1),
                     death_probability_natural = death_probability_total * (1-percent_nonNatural))%>%
       # Add year to population column
-      dplyr::rename("population_{firstYear_lifetable}" := population)
+      dplyr::rename("population_{year_of_analysis}" := population)
   }
 
 ```
@@ -580,7 +580,7 @@ for(s in sex){
       lifetable = lifetable[[s]],
       population = population_byAge[[s]],
       nonNatural_mortality = mortality_data[[s]],
-      firstYear_lifetable = 2019)
+      year_of_analysis = 2019)
 
 }
 ```
@@ -840,7 +840,7 @@ for(i in 1:nrow(input_data_mortality)){  # Use this if you want to evaluate mult
     prob_total_death_female = lifetable_withPopulation[["female"]]$death_probability_total,
     population_male = lifetable_withPopulation[["male"]]$population, 
     population_female = lifetable_withPopulation[["female"]]$population, 
-    firstYear_lifetable = 2019, 
+    year_of_analysis = 2019, 
     pollutant = input_data_mortality$pollutant[i], 
     age_group = input_data_mortality$outcome_group[i],
     min_age = 20,

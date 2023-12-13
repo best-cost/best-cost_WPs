@@ -7,7 +7,7 @@
 #' @param cf Numeric value showing the counter-factual scenario (i.e. minimum cut-off concentration) in ug/m3,
 #' @param crf_rescale_method String to choose among "linear" and "loglinear",
 #' @param shifted_popOvertime \code{Data frame} with shifted population over time,
-#' @param firstYear_lifetable Numeric value of the year of analysis, which corresponds to the first year of the life table,
+#' @param year_of_analysis Numeric value of the year of analysis, which corresponds to the first year of the life table,
 #' @param min_age Number with the minimal age to be considered for adults (by default 30, i.e. 30+),
 #' @param max_age Number with the maximal age to be considered for infants/children (by default 0, i.e. below 1 years old)#' @param age_group String with the denomination of the age group (e.g. "adults" or "infants"),
 #' @return
@@ -22,7 +22,7 @@
 
 get_deaths <-
   function(exp, cf, crf_rescale_method,
-           shifted_popOverTime, firstYear_lifetable,
+           shifted_popOverTime, year_of_analysis,
            age_group, min_age=min_age, max_age=max_age){
 
     deaths_by_list <- list()
@@ -30,7 +30,7 @@ get_deaths <-
     for (s in sex){
       for (v in ci){
         population_secondYear_lifetable <-
-          paste0("population_", firstYear_lifetable+1)
+          paste0("population_", year_of_analysis+1)
 
         deaths_by_list[[s]][[v]]<-
           shifted_popOverTime[["shifted_popOverTime"]][[s]][[v]] %>%

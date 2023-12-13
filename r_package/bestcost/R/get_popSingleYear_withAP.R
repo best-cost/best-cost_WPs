@@ -4,7 +4,7 @@
 #'
 #' Get population for single year with change in air pollution exposure
 #' @param lifetable_withPop \code{Data frame} with three columns: the first one should refer to age, the second one to the probability of dying and the third one to the population (sex specific),
-#' @param firstYear_lifetable Numeric value of the year of analysis, which corresponds to the first year of the life table
+#' @param year_of_analysis Numeric value of the year of analysis, which corresponds to the first year of the life table
 #' @param age_group String with the denomination of the age group (e.g. "adults" or "infants"),
 #' @param paf Attributable fraction
 #' @return
@@ -16,10 +16,10 @@
 #' @note Experimental function
 
 get_popSingleYear_withAP <-
-  function(lifetable_withPop, firstYear_lifetable, age_group, paf){
+  function(lifetable_withPop, year_of_analysis, age_group, paf){
 
 
-    second_year <- firstYear_lifetable + 1
+    second_year <- year_of_analysis + 1
 
     output <-
       lifetable_withPop %>%
@@ -28,7 +28,7 @@ get_popSingleYear_withAP <-
       dplyr::mutate(
         population_lag =
           dplyr::lag(!!as.symbol(paste0("population_",
-                                        firstYear_lifetable))),
+                                        year_of_analysis))),
         death_probability_natural_lag = dplyr::lag(death_probability_natural),
         death_probability_total_lag = dplyr::lag(death_probability_total))%>%
       # For infants
