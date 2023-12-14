@@ -71,6 +71,11 @@ get_deaths <-
                        shifted_popOverTime[["crf"]][, c("pollutant", "ci", "crf")],
                        by = c("pollutant", "ci"))%>%
 
+      # Create column impact
+      {if(crf_rescale_method == "ap10")
+        # Calculate the health impact for the actual exposure and not only for 10ug/m3
+        dplyr::mutate(., impact = impact_per_unit * (exp - cf)/10)
+        else dplyr::mutate(., impact = impact_per_unit)}%>%
 
       # Sum among age groups
       # Sum among sex
@@ -83,21 +88,17 @@ get_deaths <-
                     # and both have the same value)
                     across(where(is.character), ~"total"),
                     .groups = "keep"))%>%
-      # Add approach and metric
+      # Add approach and metric and round
       dplyr::mutate(approach_id = paste0("lifetable_", crf_rescale_method),
                     impact_metric = "Premature deaths",
                     age_range = ifelse(outcome_group %in% c("infants", "infant", "children"),
                                        paste0("below", max_age+1),
                                        ifelse(outcome_group %in% c("adults", "adult"),
                                               paste0("from", min_age),
-                                              NA)))%>%
-      # Round crf
-      # dplyr::mutate(crf = round(crf, 3))%>%
+                                              NA)),
+                    # Round column impact
+                    impact = round(impact, 0))%>%
 
-      {if(crf_rescale_method == "ap10")
-        # Calculate the health impact for the actual exposure and not only for 10ug/m3
-        dplyr::mutate(., impact = round(impact_per_unit * (exp - cf)/10, 0))
-        else dplyr::mutate(., impact = round(impact_per_unit))}%>%
 
       # Order columns
       dplyr::select(pollutant, sex, ci, everything())%>%

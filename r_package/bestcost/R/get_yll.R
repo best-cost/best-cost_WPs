@@ -136,6 +136,15 @@ get_yll <-
                                                         "crf")],
                        by = c("pollutant", "outcome_group", "ci"))%>%
 
+      # Rename column
+      dplyr::rename("impact_per_unit" = "value")%>%
+
+      # Create column impact
+      {if(crf_rescale_method == "ap10")
+        # Calculate the health impact for the actual exposure and not only for 10ug/m3
+        dplyr::mutate(., impact = impact_per_unit * (exp - cf)/10)
+        else dplyr::mutate(., impact = impact_per_unit)}%>%
+
 
       # Sum among sex
       # Add row for total by age group (infants+adults)
@@ -147,20 +156,14 @@ get_yll <-
                     across(.cols=c(impact_per_unit, impact), sum),
                     across(where(is.character), ~"total"),
                     .groups = "keep"))%>%
-      # Add approach
+      # Add approach and round
       dplyr::mutate(approach_id = paste0("lifetable_", crf_rescale_method),
                     # Add metric
-                    impact_metric = "Year of life lost")%>%
+                    impact_metric = "Year of life lost",
+                    # Round column impact
+                    impact = round(impact, 0))%>%
 
-      # Round crf
-      # dplyr::mutate(crf = round(crf, 3))%>%
-      # Rename column
-      dplyr::rename("impact_per_unit" = "value")%>%
 
-      {if(crf_rescale_method == "ap10")
-        # Calculate the health impact for the actual exposure and not only for 10ug/m3
-        dplyr::mutate(., impact = round(impact_per_unit * (exp - cf)/10, 0))
-        else dplyr::mutate(., impact = round(impact_per_unit))}%>%
 
       # Order columns
       dplyr::select(pollutant, discount, sex, age_range, ci, everything())%>%
