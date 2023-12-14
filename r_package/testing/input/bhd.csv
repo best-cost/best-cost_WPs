@@ -1,4 +1,4 @@
-mort_morb;outcome_metric;outcome_disease;outcome_group;age;bhd_absolute;bhd_rate;bhd_year;source;choice_bhd
+mort_morb;outcome_metric;outcome_disease;outcome_group;bhd_age;bhd_absolute;bhd_rate;bhd_year;source;choice_bhd
 mortality;premature deaths;all causes;adults;;64003;;2019;;selected
 mortality;premature deaths;all causes;infants;;;;;;selected
 mortality;yll;all causes;adults;;;;;;selected
