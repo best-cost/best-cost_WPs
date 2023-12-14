@@ -57,13 +57,9 @@ get_yll <-
 
         # Life years by year (NO FUNCTION CALLED)
         lifeyears_byYear[[s]][[v]][["noDiscount"]] <- shifted_popOverTime[["shifted_popOverTime"]][[s]][[v]] %>%
-          # Filter ages depending on the age_group
-          {if(age_group %in% "adults")
-            dplyr::filter(., age >= min_age)
-            else .} %>%
-          {if(age_group %in% "infants")
-            dplyr::filter(., age <= max_age)
-            else .} %>%
+
+          # Filter keeping only the relevant age
+          dplyr::filter(., age >= min_age & age <= max_age) %>%
 
           # Sum over ages
           dplyr::select(., contains("population_")) %>%

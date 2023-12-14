@@ -57,7 +57,7 @@ if(!"bestcost" %in% installed.packages()[, "Package"]){
   devtools::install_github(repo = "best-cost/best-cost_WPs",
                            subdir = "/r_package/bestcost",
                            # Branch (by default "HEAD")
-                           ref = "HEAD",
+                           ref = "63-simplification-of-the-code",
                            force = TRUE)
 
 }
@@ -459,7 +459,7 @@ bhd_data <-
                                            "stroke",
                                            "diabetes (type 2)",
                                            "dementia")
-                  &  age %in% "all"))
+                  &  bhd_age %in% "all"))
 
 # Select only morbidity (mortality is to be done with life tables)
 bhd_data_morbidity <- bhd_data %>%
@@ -716,7 +716,18 @@ input_data <-
                    suffix = c("", "_bhd"),
                    relationship = "many-to-many") %>%
   dplyr::left_join(., cf_data, by="pollutant",
-                   relationship = "many-to-one")
+                   relationship = "many-to-one")%>%
+  # Add the minimum age and maximum age for each row 
+  # (only relevant for mortality with lifetable)
+  dplyr::mutate(
+    min_age = ifelse(
+      mort_morb %in% "mortality" & outcome_group_bhd %in% "adults", 
+      20,
+      NA),
+    max_age = ifelse(
+      mort_morb %in% "mortality" & outcome_group_bhd %in% "infants",
+      0,
+      NA))
 
 input_data_morbidities <- 
   input_data %>%
@@ -843,8 +854,8 @@ for(i in 1:nrow(input_data_mortality)){  # Use this if you want to evaluate mult
     year_of_analysis = 2019, 
     pollutant = input_data_mortality$pollutant[i], 
     age_group = input_data_mortality$outcome_group[i],
-    min_age = 20,
-    max_age = 0,
+    min_age = input_data_mortality$min_age[i],
+    max_age = input_data_mortality$max_age[i],
     corrected_discount_rate = 0)
 }
 

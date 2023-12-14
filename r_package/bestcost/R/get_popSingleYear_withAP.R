@@ -23,30 +23,19 @@ get_popSingleYear_withAP <-
 
     output <-
       lifetable_withPop %>%
-      # Calculate the population the second year (first column after first year)
-      # Considering the health effect of air pollution
+      # Add columns with the population and probability of death
+      # moving the row to the bottom
       dplyr::mutate(
         population_lag =
           dplyr::lag(!!as.symbol(paste0("population_",
                                         year_of_analysis))),
         death_probability_natural_lag = dplyr::lag(death_probability_natural),
         death_probability_total_lag = dplyr::lag(death_probability_total))%>%
-      # For infants
-      {if(age_group %in% "infants")
-        dplyr::mutate(.,
+      # Calculate the population the second year (first column after first year)
+      # Considering the health effect of air pollution
+      dplyr::mutate(.,
                       "population_{second_year}" :=
-                        ifelse(age %in% 1,
-                               population_lag * death_probability_natural_lag * paf,
-                               population_lag*(1-death_probability_total_lag)))
-        else .}%>%
-
-      # For adults
-      {if(age_group %in% "adults")
-        dplyr::mutate(.,
-                      "population_{second_year}" :=
-                        population_lag * death_probability_natural_lag * paf)
-
-        else .}%>%
+                        population_lag * death_probability_natural_lag * paf)%>%
       # Remove the lag columns
       dplyr::select(-contains("_lag"))
 
