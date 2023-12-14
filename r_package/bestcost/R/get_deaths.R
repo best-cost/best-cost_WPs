@@ -34,14 +34,11 @@ get_deaths <-
 
         deaths_by_list[[s]][[v]]<-
           shifted_popOverTime[["shifted_popOverTime"]][[s]][[v]] %>%
-          dplyr::select(., age, all_of(population_secondYear_lifetable))%>%
-          {if (age_group %in% "infants")
-            dplyr::filter(., age <= max_age)
-            else .}%>%
-          {if(age_group %in% c("adults", "all"))
-            dplyr::filter(., age >= min_age)
-            else . }%>%
-          dplyr::select(all_of(population_secondYear_lifetable))%>%
+          # Select only relevant columns
+          dplyr::select(., age, all_of(population_secondYear_lifetable)) %>%
+          # Filter keeping only the relevant age
+          dplyr::filter(., age >= min_age & age <= max_age) %>%
+          dplyr::select(all_of(population_secondYear_lifetable)) %>%
           sum(., na.rm = TRUE)
       }
     }
