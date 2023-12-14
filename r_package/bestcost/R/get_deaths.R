@@ -70,13 +70,7 @@ get_deaths <-
       dplyr::left_join(.,
                        shifted_popOverTime[["crf"]][, c("pollutant", "ci", "crf")],
                        by = c("pollutant", "ci"))%>%
-      # Round crf
-      # dplyr::mutate(crf = round(crf, 3))%>%
 
-      {if(crf_rescale_method == "ap10")
-        # Calculate the health impact for the actual exposure and not only for 10ug/m3
-        dplyr::mutate(., impact = round(impact_per_unit * (exp - cf)/10, 0))
-        else dplyr::mutate(., impact = round(impact_per_unit))}%>%
 
       # Sum among age groups
       # Sum among sex
@@ -97,6 +91,14 @@ get_deaths <-
                                        ifelse(outcome_group %in% c("adults", "adult"),
                                               paste0("from", min_age),
                                               NA)))%>%
+      # Round crf
+      # dplyr::mutate(crf = round(crf, 3))%>%
+
+      {if(crf_rescale_method == "ap10")
+        # Calculate the health impact for the actual exposure and not only for 10ug/m3
+        dplyr::mutate(., impact = round(impact_per_unit * (exp - cf)/10, 0))
+        else dplyr::mutate(., impact = round(impact_per_unit))}%>%
+
       # Order columns
       dplyr::select(pollutant, sex, ci, everything())%>%
       # Order rows
