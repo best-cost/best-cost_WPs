@@ -25,9 +25,9 @@ assess_mortality_lifetable(
   corrected_discount_rate,
   min_age = 30,
   max_age = 0,
-  exp_info = NULL,
-  cf_info = NULL,
-  crf_info = NULL
+  info_exp = NULL,
+  info_cf = NULL,
+  info_crf = NULL
 )
 }
 \arguments{
@@ -71,11 +71,11 @@ assess_mortality_lifetable(
 
 \item{max_age}{Number with the maximal age to be considered for infants/children (by default 0, i.e. below 1 years old)}
 
-\item{exp_info}{\code{Data frame} of one row showing extra information in columns. Default value = NULL,}
+\item{info_exp}{\code{Data frame} of one row showing extra information in columns. Default value = NULL,}
 
-\item{cf_info}{\code{Data frame} of one row showing extra information in columns. Default value = NULL,}
+\item{info_cf}{\code{Data frame} of one row showing extra information in columns. Default value = NULL,}
 
-\item{crf_info}{\code{Data frame} of three rows (mean, lower bound and upper bound) showing extra information in columns. Default value = NULL,}
+\item{info_crf}{\code{Data frame} of three rows (mean, lower bound and upper bound) showing extra information in columns. Default value = NULL,}
 }
 \value{
 This function returns a \code{data.frame} with one row for each value of the

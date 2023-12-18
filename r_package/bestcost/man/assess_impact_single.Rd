@@ -14,10 +14,10 @@ assess_impact_single(
   pollutant,
   outcome_metric,
   age_group,
-  exp_info = NULL,
-  cf_info = NULL,
-  crf_info = NULL,
-  bhd_info = NULL
+  info_exp = NULL,
+  info_cf = NULL,
+  info_crf = NULL,
+  info_bhd = NULL
 )
 }
 \arguments{
@@ -39,13 +39,13 @@ assess_impact_single(
 
 \item{age_group}{String with the denomination of the age group (e.g. "adults" or "infants") ,}
 
-\item{exp_info}{\code{Data frame} of one row showing extra information in columns. Default value = NULL,}
+\item{info_exp}{\code{Data frame} of one row showing extra information in columns. Default value = NULL,}
 
-\item{cf_info}{\code{Data frame} of one row showing extra information in columns. Default value = NULL,}
+\item{info_cf}{\code{Data frame} of one row showing extra information in columns. Default value = NULL,}
 
-\item{crf_info}{\code{Data frame} of three rows (mean, lower bound and upper bound) showing extra information in columns. Default value = NULL,}
+\item{info_crf}{\code{Data frame} of three rows (mean, lower bound and upper bound) showing extra information in columns. Default value = NULL,}
 
-\item{bhd_info}{\code{Data frame} of one row showing extra information in columns. Default value = NULL,}
+\item{info_bhd}{\code{Data frame} of one row showing extra information in columns. Default value = NULL,}
 }
 \value{
 This function returns a \code{data.frame} with one row for each value of the
