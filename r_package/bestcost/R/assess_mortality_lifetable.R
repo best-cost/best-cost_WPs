@@ -24,7 +24,7 @@
 #' @param corrected_discount_rate Numeric value with the corrected discount rate as proportion (i.e. 0.1 instead of 10\%)
 #' @param info_exp \code{Data frame} of one row showing extra information in columns. Default value = NULL,
 #' @param info_cf \code{Data frame} of one row showing extra information in columns. Default value = NULL,
-#' @param crf_info \code{Data frame} of three rows (mean, lower bound and upper bound) showing extra information in columns. Default value = NULL,
+#' @param info_crf \code{Data frame} of three rows (mean, lower bound and upper bound) showing extra information in columns. Default value = NULL,
 #' @return
 #' This function returns a \code{data.frame} with one row for each value of the
 #' concentration-response function (i.e. mean, lower and upper bound confidence interval.
@@ -76,10 +76,10 @@ assess_mortality_lifetable <-
           input_fun[["cf"]] <- info_cf
           input_fun[["cf"]]$cf <- cf}
 
-        if(is.null(crf_info)){
+        if(is.null(info_crf)){
           input_fun[["crf"]] <- data.frame(crf = crf)
         } else {
-          input_fun[["crf"]] <- crf_info
+          input_fun[["crf"]] <- info_crf
           input_fun[["crf"]]$crf <- crf
           input_fun[["crf"]]$crf_per <- crf_per}
 
