@@ -3,18 +3,18 @@
 #' Calculation of Health Impacts
 #'
 #' Calculates the health impacts, mortality or morbidity, of an environmental stressor using a single value for baseline heath data, i.e. without life table. It provides as a result the mean as well as the lower and the higher bound of the impact based on the confidence interval of the concentration-response function.
-#' @param exp Numeric value showing the population-weighted mean exposure in ug/m3.
-#' @param cf Numeric value showing the counter-factual scenario (i.e. minimum cut-off concentration) in ug/m3.
+#' @param exp \code{Numeric value} showing the population-weighted mean exposure in ug/m3.
+#' @param cf \code{Numeric value} showing the counter-factual scenario (i.e. minimum cut-off concentration) in ug/m3.
 #' @param crf \code{Vector} of three numeric values referring to the mean as well as the lower bound and upper bound of the confidence interval.
-#' @param bhd Numeric value showing the baseline health data (incidence of the health outcome in the population),
-#' @param crf_per Numeric value showing the increment of the concentration-response function in ug/m3 (usually 10 or 5)
-#' @param crf_rescale_method String to choose among "linear" and "loglinear",
-#' @param pollutant String with the name of the pollutant,
-#' @param outcome_metric String with the name of the health outcome,
-#' @param info_exp \code{Data frame} of one row and one or multiple columns showing information about the exposure. This information will be added to all rows of the result tables. Default value = NULL.
-#' @param info_cf \code{Data frame} of one row and one or multiple columns showing information about the counter-factual scenario (cut-off). This information will be added to all rows of the result tables. Default value = NULL.
-#' @param info_crf \code{Data frame} of one row and one or multiple columns showing information about the concentration-response function. This information will be added to all rows of the result tables. Default value = NULL.
-#' @param info_bhd \code{Data frame} of one row and one or multiple columns showing information about the baseline health data. This information will be added to all rows of the result tables. Default value = NULL.
+#' @param bhd \code{Numeric value} showing the baseline health data (incidence of the health outcome in the population).
+#' @param crf_per \code{Numeric value} showing the increment of the concentration-response function in ug/m3 (usually 10 or 5).
+#' @param crf_rescale_method \code{String} to choose among "linear" and "loglinear".
+#' @param info_pollutant \code{String} showing additional information or id for the pollutant. Default value = NULL.
+#' @param info_outcome \code{String} showing additional information or id for the health outcome. Default value = NULL.
+#' @param info_exp \code{String} showing additional information or id for the exposure. This information will be added to all rows of the results. Default value = NULL.
+#' @param info_cf \code{String} showing additional information or id for counter-factual scenario (cut-off). This information will be added to all rows of the results. Default value = NULL.
+#' @param info_crf \code{String} showing additional information or id for the concentration-response function. This information will be added to all rows of the results. Default value = NULL.
+#' @param info_bhd \code{String} showing additional information or id for the baseline health data. This information will be added to all rows of the results. Default value = NULL.
 #' @return
 #' This function returns a \code{data.frame} with one row for each value of the
 #' concentration-response function (i.e. mean, lower and upper bound confidence interval.
@@ -35,7 +35,8 @@
 assess_impact_single <-
   function(exp, cf, crf, bhd,
            crf_per, crf_rescale_method,
-           pollutant, outcome_metric,
+           info_pollutant = NULL,
+           info_outcome = NULL,
            info_exp = NULL,
            info_cf = NULL,
            info_crf = NULL,
@@ -77,7 +78,7 @@ assess_impact_single <-
     # instead of from an existing column is used
     input_fun <-
       input_fun %>%
-      purrr::map(~mutate(., pollutant = {{pollutant}}))
+      purrr::map(~mutate(., pollutant = {{info_pollutant}}))
 
     # Join all input data together
     calculation <-
@@ -107,12 +108,13 @@ assess_impact_single <-
                     crf_rescale_method = crf_rescale_method) %>%
       dplyr::mutate(ci = ifelse(duplicated(crf), "mean", ci))%>%
 
-      # Calculate attributable fraction (AF) and impact
+      # Calculate attributable fraction (AF) as well as impact
+      # and add additional information
       dplyr::mutate(approach_id = paste0("singleValue_", crf_rescale_method),
                     af =  bestcost::get_paf(crfConc = crfConc),
                     impact = round(af * bhd, 0),
-                    impact_metric = {{outcome_metric}},
-                    pollutant = {{pollutant}})%>%
+                    impact_metric = {{info_outcome}},
+                    pollutant = {{info_pollutant}})%>%
       # Order columns
       dplyr::select(everything(),
                     exp, cf, bhd, crf, crfConc, crf_per, crf_ci, crf_rescale_method,
