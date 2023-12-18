@@ -9,7 +9,7 @@ get_paf(crfConc, pep = 1)
 \arguments{
 \item{crfConc}{Concentration response function after re-scaling the concentration-response function from the increment value in the epidemiological study (e.g. for PM2.5 10 or 5 ug/m3) to the actual population exposure).}
 
-\item{pep}{Proportion (from 0 to 1) of population exposed to the environmental stressor. Per default = 1 (i.e. 100% of population is exposed).}
+\item{pep}{Proportion (from 0 to 1) of population exposed to the environmental stressor. Per default = 1 (i.e. 100\% of population is exposed).}
 }
 \value{
 This function returns a \code{value} corresponding to the population attributable fraction

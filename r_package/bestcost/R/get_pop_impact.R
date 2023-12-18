@@ -9,9 +9,7 @@
 #' @param crf_per Numeric value showing the increment of the concentration-response function in ug/m3 (usually 10 or 5)
 #' @param crf_rescale_method String to choose among "linear" and "loglinear",
 #' @param lifetable_withPop_male \code{Data frame} with three columns: the first one should refer to age, the second one to the probability of dying and the third one to the population (sex specific),
-#' @param firstYear_lifetable Numeric value of the year of analysis, which corresponds to the first year of the life table
-#' @param nonNatural_death \code{Data frame} with two columns: the first one for age, the second one for the percentage of non-natural deaths (sex specific),
-#' @param age_group String with the denomination of the age group (e.g. "adults" or "infants"),
+#' @param year_of_analysis Numeric value of the year of analysis, which corresponds to the first year of the life table
 
 #' @return
 #' This function returns a \code{data.frame} with one row for each value of the
@@ -33,8 +31,7 @@
 
 get_pop_impact <-
   function(exp, cf, crf, crf_per, crf_rescale_method,
-           lifetab_withPop, nonNatural_death, firstYear_lifetable,
-           age_group){
+           lifetab_withPop, year_of_analysis){
 
     c("mean", "lowci", "highci") # variable used in code
 
@@ -46,14 +43,12 @@ get_pop_impact <-
         popOverTime[[s]][[v]] <-
           bestcost::get_popOverTime(
             lifetab_withPop = lifetab_withPop[[s]],
-            nonNatural_death = nonNatural_death[[s]],
-            firstYear_lifetable = firstYear_lifetable,
+            year_of_analysis = year_of_analysis,
             crf = crf$crf[crf$ci %in% v],
             exp = exp,
             cf = cf,
             crf_per = crf_per,
-            crf_rescale_method = crf_rescale_method,
-            age_group = age_group)
+            crf_rescale_method = crf_rescale_method)
       }
     }
 
@@ -65,8 +60,9 @@ get_pop_impact <-
     for(s in c("female","male")){#sex){
       for(v in ci){
         shifted_popOverTime[[s]][[v]] <-
-          bestcost::move_rows_up(popOTime = popOverTime[[s]][[v]][["diff"]],
-                                 firstYear_lifetable = firstYear_lifetable)
+
+          bestcost::move_rows_up(popOTime = popOverTime[[s]][[v]],
+                                 year_of_analysis = year_of_analysis)
       }
     }
 

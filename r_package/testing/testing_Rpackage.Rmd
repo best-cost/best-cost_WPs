@@ -22,27 +22,28 @@ rm(list = ls())
 
 # Load required packages
 
-# Performance assessment
+# to assess performance
 library(profvis)
 library(bench)
 library(microbenchmark)
 
+# to manipulate data
 library(readxl)
 library(dplyr)
 library(tidyr)
-
-library(ggplot2)
 library(purrr)
 library(stringr)
 library(tibble)
 
 library(zoo)
-library(meta)
 
-## To export tables in excel format
+# to visualize results
+library(ggplot2)
+
+## to export tables in excel format
 library(openxlsx)
 
-## To load own packages
+## to load own packages
 library(credentials)
 library(gitcreds)
 library(devtools)
@@ -55,12 +56,16 @@ if(!"bestcost" %in% installed.packages()[, "Package"]){
   credentials::set_github_pat() # paste github PAT when prompted
   devtools::install_github(repo = "best-cost/best-cost_WPs",
                            subdir = "/r_package/bestcost",
-                           ref = "Small_code_changes", # Specify branch name here if installation not from HEAD
-                           force =TRUE)
+                           # Branch (by default "HEAD")
+                           ref = "HEAD",
+                           force = TRUE)
+
 }
 
+# to quantify and monetize health impacts (own package)
 library(bestcost)
-devtools::load_all() # loads all functions in {bestcost}
+# loads all functions in {bestcost}
+#devtools::load_all() 
 ```
 
 ```{r Useful variables}
@@ -77,7 +82,7 @@ pm_fractions <- c("PM2.5", "PM10")
 pm_target <- "PM2.5"
 
 # PM fraction that is not targeted
-pm_no_target <- pm_fractions[!pm_fractions%in% pm_target]
+pm_no_target <- pm_fractions[!pm_fractions %in% pm_target]
 
 # Pollutants to be considered in the hra based on available exposure data
 pollutants_hra <- c(pm_target, "NO2")
@@ -163,19 +168,25 @@ rescale_conc_pmFraction <-
 
 # Create function to get lifetable with population
 get_lifetable_withPopulation <-
-  function(lifetable, population, firstYear_lifetable){
+  function(lifetable, population, year_of_analysis, nonNatural_mortality){
         
     # Life table for 
     lifetable_withPopulation <- 
       # Join lifetable and population by age 
-      dplyr::right_join(lifetable,
-                        population,
+      dplyr::left_join(population,
+                       lifetable,
                         by = "age")%>%
+      dplyr::left_join(.,
+                       nonNatural_mortality,
+                       by = "age")%>%
+      # Rename the column to show that it is total (and not only natural) mortality
+      dplyr::rename("death_probability_total" = "death_probability")%>%
       # We close the last row assigning a 1 for probability to die and 
       # a 0 to probability to survive
-      dplyr::mutate(death_probability = replace(death_probability, n(), 1))%>%
+      dplyr::mutate(death_probability_total = replace(death_probability_total, n(), 1),
+                    death_probability_natural = death_probability_total * (1-percent_nonNatural))%>%
       # Add year to population column
-      dplyr::rename("population_{firstYear_lifetable}" := population)
+      dplyr::rename("population_{year_of_analysis}" := population)
   }
 
 ```
@@ -186,20 +197,20 @@ get_lifetable_withPopulation <-
 
 # Generic data
 percentage_pm2.5_in_pm10 <- 
-  read.csv("testing/input/generic_data.csv", sep = ";") %>% 
+  read.csv("../testing/input/generic_data.csv", sep = ";") %>% 
   dplyr::filter(parameter_name %in% "percentage_pm2.5_in_pm10") %>%
   dplyr::select(value) %>%
   dplyr::pull()
 
 # CRF data (inserted manually in the csv table)
 crf_rawdata <- 
-  read.csv("testing/input/crf.csv",
+  read.csv("../testing/input/crf.csv",
            sep = ";",
            na.strings=c("NA", ""))
 
 # Population data by age (To be used in the life table approach)
 population_byAge_rawdata <-
-  read.csv2("testing/input/population/population_byAge_bySex_CH_2018_2019.csv") %>%
+  read.csv2("../testing/input/population/population_byAge_bySex_CH_2018_2019.csv") %>%
   # Rename columns
   dplyr::rename("age" = "Alter",
                 "male_end2018" = "Mann.2018",
@@ -212,7 +223,7 @@ population_byAge_rawdata <-
 
 # Baseline health data 
 bhd_rawdata <- 
-  read.csv("testing/input/bhd.csv", sep = ";")
+  read.csv("../testing/input/bhd.csv", sep = ";")
 
 # Read raw life table data
 lifetable <- list()
@@ -222,7 +233,7 @@ for(s in sex){
   lifetable[[s]] <- 
     read.csv2(
       # The raw data are for the period 2013-2020 but we focused on 2015-2019 (five years period)
-      paste0("testing/input/life_tables/life_table_2013_2020_",
+      paste0("../testing/input/life_tables/life_table_2013_2020_",
              s,
              ".csv"))
 }
@@ -231,34 +242,34 @@ for(s in sex){
 # Read raw non-natural mortality data for 2019 (average of the period 2009-2019)
 nonNatural_mortality_rawdata<- 
    list(
-     male = read.csv2("testing/input/mortality/nonNatural_mortality_byAge_2009_2019_male.csv",
+     male = read.csv2("../testing/input/mortality/nonNatural_mortality_byAge_2009_2019_male.csv",
                       na.strings =".", 
                       check.names = FALSE),
-     female = read.csv2("testing/input/mortality/nonNatural_mortality_byAge_2009_2019_female.csv",
+     female = read.csv2("../testing/input/mortality/nonNatural_mortality_byAge_2009_2019_female.csv",
                         na.strings =".", 
                       check.names = FALSE))
 
 # Read total mortality raw data for 2019 (average of the period 2009-2019)
 total_mortality_rawdata <- 
   list(
-    male = read.csv2("testing/input/mortality/total_mortality_byAge_2009_2019_male.csv",
+    male = read.csv2("../testing/input/mortality/total_mortality_byAge_2009_2019_male.csv",
                      na.strings =".", 
                       check.names = FALSE),
-    female = read.csv2("testing/input/mortality/total_mortality_byAge_2009_2019_female.csv",
+    female = read.csv2("../testing/input/mortality/total_mortality_byAge_2009_2019_female.csv",
                        na.strings =".", 
                       check.names = FALSE))
 
 # Concentration data
 # Scenario
 exp_rawdata <- 
-  read.csv("testing/input/exp.csv",
+  read.csv("../testing/input/exp.csv",
            sep = ";",
            na.strings=c("NA", ""))
 
 # Counterfactual
 cf_rawdata <- 
   # Read data
-  read.csv("testing/input/cf.csv",
+  read.csv("../testing/input/cf.csv",
            sep = ";",
            na.strings=c("NA", ""))
 ```
@@ -448,7 +459,7 @@ bhd_data <-
                                            "stroke",
                                            "diabetes (type 2)",
                                            "dementia")
-                  &  age %in% "all"))
+                  &  bhd_age %in% "all"))
 
 # Select only morbidity (mortality is to be done with life tables)
 bhd_data_morbidity <- bhd_data %>%
@@ -568,7 +579,8 @@ for(s in sex){
     get_lifetable_withPopulation(
       lifetable = lifetable[[s]],
       population = population_byAge[[s]],
-      firstYear_lifetable = 2019)
+      nonNatural_mortality = mortality_data[[s]],
+      year_of_analysis = 2019)
 
 }
 ```
@@ -704,7 +716,18 @@ input_data <-
                    suffix = c("", "_bhd"),
                    relationship = "many-to-many") %>%
   dplyr::left_join(., cf_data, by="pollutant",
-                   relationship = "many-to-one")
+                   relationship = "many-to-one")%>%
+  # Add the minimum age and maximum age for each row 
+  # (only relevant for mortality with lifetable)
+  dplyr::mutate(
+    min_age = ifelse(
+      mort_morb %in% "mortality" & outcome_group_bhd %in% "adults", 
+      20,
+      NA),
+    max_age = ifelse(
+      mort_morb %in% "mortality" & outcome_group_bhd %in% "infants",
+      0,
+      NA))
 
 input_data_morbidities <- 
   input_data %>%
@@ -718,7 +741,6 @@ input_data_mortality <-
 ```{r impact morbidity}
 impact_morbidities_raw <- list()
 
-system.time(
 for(i in 1:nrow(input_data_morbidities)){
   impact_morbidities_raw[[input_data_morbidities$year[i]]][[input_data_morbidities$crf_id[[i]]]] <-
   bestcost::assess_impact_single(
@@ -730,10 +752,8 @@ for(i in 1:nrow(input_data_morbidities)){
     crf_per = 10, 
     crf_rescale_method = "loglinear", 
     pollutant = input_data_morbidities$pollutant[i], 
-    outcome_metric = input_data_morbidities$outcome_metric[i], 
-    age_group = input_data_morbidities$outcome_group[i])
+    outcome_metric = input_data_morbidities$outcome_metric[i])
   }
-)
 
 
 impact_morbidities_edited <- 
@@ -809,26 +829,31 @@ impact_mortality_raw <- list()
 
 # Calculate mortality impacts using bestcost function
 
-for(i in 1:nrow(input_data_mortality)){
+for(i in 1:nrow(input_data_mortality)){  # Use this if you want to evaluate multiple crfs
+# for(i in 2){                           # Use this if you want to evaluate only one crfs
   impact_mortality_raw[[input_data_mortality$year[i]]][[input_data_mortality$crf_id[[i]]]] <-
   
     bestcost::assess_mortality_lifetable(
 
     exp = input_data_mortality$exp[i], # PM2.5=8.30=limit LRV CH, NO2=16.32=mean conc. in CH in 2019
     cf = input_data_mortality$cf[i],   # PM2.5=5, NO2=10, i.e. WHO AQG 2021 
-    crf = unlist(input_data_mortality[i, 
-                            c("crf_mean", "crf_lowci", "crf_highci")]) ,
+    crf = unlist(input_data_mortality[i,
+                                      c("crf_mean", "crf_lowci", "crf_highci")]),
     crf_per = 10, 
-    crf_rescale_method = "loglinear", 
-    lifetable_withPop_male = lifetable_withPopulation[["male"]],
-    lifetable_withPop_female = lifetable_withPopulation[["female"]],
-    firstYear_lifetable = 2019, 
-    nonNatural_death_male = mortality_data[["male"]], # % of non-natural male deaths in BHD
-    nonNatural_death_female = mortality_data[["female"]], # % of non-natural female deaths in BHD
+    crf_rescale_method = "loglinear",
+    first_age_pop = 0,
+    last_age_pop = 99,
+    interval_age_pop = 1,
+    prob_natural_death_male = lifetable_withPopulation[["male"]]$death_probability_natural,
+    prob_natural_death_female = lifetable_withPopulation[["female"]]$death_probability_natural,
+    prob_total_death_male = lifetable_withPopulation[["male"]]$death_probability_total,
+    prob_total_death_female = lifetable_withPopulation[["female"]]$death_probability_total,
+    population_male = lifetable_withPopulation[["male"]]$population, 
+    population_female = lifetable_withPopulation[["female"]]$population, 
+    year_of_analysis = 2019, 
     pollutant = input_data_mortality$pollutant[i], 
-    age_group = input_data_mortality$outcome_group[i],
-    min_age = 20,
-    max_age = 0,
+    min_age = input_data_mortality$min_age[i],
+    max_age = input_data_mortality$max_age[i],
     corrected_discount_rate = 0)
 }
 
@@ -892,7 +917,7 @@ impact_mortality <-
     
   # Left join to add further information on crf
   dplyr::left_join(., crf_data, 
-                   by = c("pollutant", "crf_id", "outcome_group",
+                   by = c("pollutant", "crf_id", 
                           paste0("crf_", c("mean", "lowci", "highci"))),
                    relationship = "many-to-one")%>%
      # Left join to add further information on choice_bhd
@@ -920,12 +945,13 @@ impact_mortality <-
                 everything()) %>%
   # Order rows by label
   dplyr::arrange(outcome_group)
+
 ```
 
 # Export 
 
 ```{r eval=FALSE, include=FALSE}
 write.csv2(lifetable_airqplus,
-            "testing/output/lifetable_airqplus_2019_ch.csv", 
+            "../testing/output/lifetable_airqplus_2019_ch.csv", 
             row.names = FALSE)
 ```
