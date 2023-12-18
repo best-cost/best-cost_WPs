@@ -19,7 +19,6 @@
 #' @param population_female \code{Vector} containing the mid-year female population for the year of analysis,
 #' @param year_of_analysis Numeric value of the year of analysis, which corresponds to the first year of the life table,
 #' @param pollutant String with the name of the pollutant,
-#' @param age_group String with the denomination of the age group (e.g. "adults" or "infants"),
 #' @param min_age Number with the minimal age to be considered for adults (by default 30, i.e. 30+),
 #' @param max_age Number with the maximal age to be considered for infants/children (by default 0, i.e. below 1 years old)
 #' @param corrected_discount_rate Numeric value with the corrected discount rate as proportion (i.e. 0.1 instead of 10\%)
@@ -52,10 +51,9 @@ assess_mortality_lifetable <-
            population_male, population_female,
            year_of_analysis,
            pollutant,
-           age_group,
            corrected_discount_rate,
-           min_age = 30, max_age = 0,
-           exp_info = NULL, cf_info = NULL, crf_info =NULL){
+           min_age = NULL, max_age = NULL,
+           exp_info = NULL, cf_info = NULL, crf_info = NULL){
 
         # Digest input data
 
@@ -98,8 +96,7 @@ assess_mortality_lifetable <-
         input_fun <-
           input_fun %>%
           purrr::map(~mutate(.,
-                             pollutant = {{pollutant}},
-                             outcome_group = {{age_group}}))
+                             pollutant = {{pollutant}}))
 
         # The life table has to be provided as a data.frame (by sex)
         # The first column has to be the age. Second, probability of death. Third, population.
@@ -139,7 +136,6 @@ assess_mortality_lifetable <-
             year_of_analysis = year_of_analysis,
             crf = input_fun[["crf"]],
             crf_per = crf_per,
-            age_group = age_group,
             exp = input_fun[["exp"]],
             cf = input_fun[["cf"]],
             crf_rescale_method = crf_rescale_method)
@@ -150,7 +146,6 @@ assess_mortality_lifetable <-
           bestcost::get_deaths(
             shifted_popOverTime = shifted_popOverTime,
             year_of_analysis = year_of_analysis,
-            age_group = age_group,
             min_age = min_age,
             max_age = max_age,
             exp = input_fun[["exp"]] ,
@@ -162,7 +157,6 @@ assess_mortality_lifetable <-
           bestcost::get_yll(
             shifted_popOverTime = shifted_popOverTime,
             year_of_analysis = year_of_analysis,
-            age_group = age_group,
             min_age = min_age,
             max_age = max_age,
             exp = input_fun[["exp"]] ,

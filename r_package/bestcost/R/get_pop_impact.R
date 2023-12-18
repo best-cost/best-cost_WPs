@@ -10,7 +10,6 @@
 #' @param crf_rescale_method String to choose among "linear" and "loglinear",
 #' @param lifetable_withPop_male \code{Data frame} with three columns: the first one should refer to age, the second one to the probability of dying and the third one to the population (sex specific),
 #' @param year_of_analysis Numeric value of the year of analysis, which corresponds to the first year of the life table
-#' @param age_group String with the denomination of the age group (e.g. "adults" or "infants"),
 
 #' @return
 #' This function returns a \code{data.frame} with one row for each value of the
@@ -32,8 +31,7 @@
 
 get_pop_impact <-
   function(exp, cf, crf, crf_per, crf_rescale_method,
-           lifetab_withPop, year_of_analysis,
-           age_group){
+           lifetab_withPop, year_of_analysis){
 
     c("mean", "lowci", "highci") # variable used in code
 
@@ -50,8 +48,7 @@ get_pop_impact <-
             exp = exp,
             cf = cf,
             crf_per = crf_per,
-            crf_rescale_method = crf_rescale_method,
-            age_group = age_group)
+            crf_rescale_method = crf_rescale_method)
       }
     }
 
