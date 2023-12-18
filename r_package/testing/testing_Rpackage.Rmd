@@ -57,7 +57,7 @@ if(!"bestcost" %in% installed.packages()[, "Package"]){
   devtools::install_github(repo = "best-cost/best-cost_WPs",
                            subdir = "/r_package/bestcost",
                            # Branch (by default "HEAD")
-                           ref = "HEAD",
+                           ref = "Small_code_changes",
                            force = TRUE)
 
 }
@@ -799,7 +799,7 @@ impact_morbidities <-
   
     # Left join to add further information on crf
   dplyr::left_join(., crf_data, 
-                   by = c("pollutant", "crf_id", 
+                   by = c( "crf_id", 
                           paste0("crf_", c("mean", "lowci", "highci"))),
                    relationship = "many-to-one") %>%
      # Left join to add further information on bhd
