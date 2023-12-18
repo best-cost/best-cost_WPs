@@ -42,16 +42,29 @@ assess_impact_single <-
            info_crf = NULL,
            info_bhd = NULL){
 
-    # Calculate crf estimate which corresponds to the exposure
-    # depending on the method
-    calculation <-
+    # Input data in data frame
+    input <-
       data.frame(
         crf = crf,
         exp = exp,
         cf = cf,
         bhd = bhd,
         crf_per = crf_per,
-        crf_rescale_method = crf_rescale_method,
+        crf_rescale_method = crf_rescale_method) %>%
+      # Add additional information (info_x variables)
+      dplyr::mutate(
+        info_pollutant = ifelse(is.null(info_pollutant), NA, info_pollutant),
+        info_outcome = ifelse(is.null(info_outcome), NA, info_outcome),
+        info_exp = ifelse(is.null(info_exp), NA, info_exp),
+        info_cf = ifelse(is.null(info_cf), NA, info_cf),
+        info_crf = ifelse(is.null(info_crf), NA, info_crf),
+        info_bhd = ifelse(is.null(info_bhd), NA, info_bhd))
+
+
+    # Calculate crf estimate which corresponds to the exposure
+    # depending on the method
+    calculation <-
+      dplyr::mutate(
         crfConc = rescale_crf(crf = crf,
                               exp = exp,
                               cf = cf,
@@ -67,19 +80,10 @@ assess_impact_single <-
       dplyr::mutate(approach_id = paste0("singleValue_", crf_rescale_method),
                     af =  bestcost::get_paf(crfConc = crfConc),
                     impact = round(af * bhd, 0)) %>%
-
-      # Add additional information (info_x variables)
-      dplyr::mutate(
-        info_pollutant = ifelse(is.null(info_pollutant), NA, info_pollutant),
-        info_outcome = ifelse(is.null(info_outcome), NA, info_outcome),
-        info_exp = ifelse(is.null(info_exp), NA, info_exp),
-        info_cf = ifelse(is.null(info_cf), NA, info_cf),
-        info_crf = ifelse(is.null(info_crf), NA, info_crf),
-        info_bhd = ifelse(is.null(info_bhd), NA, info_bhd)) %>%
       # Order columns
       dplyr::select(exp, cf, bhd, crf, crfConc, crf_per, ci, crf_rescale_method,
                     af, impact,
-                    everything())
+                    starts_with("info_"))
 
     return(calculation)
   }
