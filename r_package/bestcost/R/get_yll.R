@@ -9,7 +9,6 @@
 #' @param crf_rescale_method String to choose among "linear" and "loglinear",
 #' @param shifted_popOvertime \code{Data frame} with shifted population over time
 #' @param year_of_analysis Numeric value of the year of analysis, which corresponds to the first year of the life table,
-#' @param age_group String with the denomination of the age group (e.g. "adults" or "infants"),
 #' @param age_min Number with the minimal age to be considered for adults (by default 30, i.e. 30+),
 #' @param age_max Number with the maximal age to be considered for infants/children (by default 0, i.e. below 1 years old)
 #' @param corrected_discount_rate Numeric value with the annual discount rate as proportion (i.e. 0.1 instead of 10\%). It can be calculated as (1+discount_rate_beforeCorrection/1+rate_of_increase)-1
@@ -36,7 +35,7 @@
 get_yll <-
   function(exp, cf, crf_rescale_method,
            shifted_popOverTime, year_of_analysis,
-           age_group, min_age = min_age, max_age = max_age,
+           min_age = min_age, max_age = max_age,
            corrected_discount_rate){
 
     lifeyears_byYear <- list()
@@ -47,16 +46,9 @@ get_yll <-
     for(s in sex){
       for (v in ci){
 
-        # Life years by year
-        # lifeyears_byYear[[s]][[v]][["noDiscount"]] <-
-          # bestcost::get_lifeyears(
-            # spot = shifted_popOverTime[["shifted_popOverTime"]][[s]][[v]],
-            # age_group = age_group,
-            # min_age = min_age,
-            # max_age = max_age)
-
         # Life years by year (NO FUNCTION CALLED)
-        lifeyears_byYear[[s]][[v]][["noDiscount"]] <- shifted_popOverTime[["shifted_popOverTime"]][[s]][[v]] %>%
+        lifeyears_byYear[[s]][[v]][["noDiscount"]] <-
+          shifted_popOverTime[["shifted_popOverTime"]][[s]][[v]] %>%
 
           # Filter keeping only the relevant age
           dplyr::filter(., age >= min_age & age <= max_age) %>%
@@ -67,7 +59,6 @@ get_yll <-
 
           # Add outcome_group and age_range
           dplyr::mutate(
-            outcome_group = age_group,
             age_range = ifelse(outcome_group %in% c("infants", "infant", "children"),
                                paste0("below", max_age+1),
                                ifelse(outcome_group %in% c("adults", "adult"),

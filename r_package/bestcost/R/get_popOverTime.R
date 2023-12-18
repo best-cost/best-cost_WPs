@@ -11,7 +11,6 @@
 #' @param crf_rescale_method String to choose among "linear" and "loglinear",
 #' @param lifetable_withPop \code{Data frame} with three columns: the first one should refer to age, the second one to the probability of dying and the third one to the population (sex specific),
 #' @param year_of_analysis Numeric value of the year of analysis, which corresponds to the first year of the life table
-#' @param age_group String with the denomination of the age group (e.g. "adults" or "infants"),
 #' @return
 #' This function returns a \code{data.frame} the population over time taking into account probability of dying
 #' @import dplyr
@@ -22,8 +21,7 @@
 #' @note Experimental function
 get_popOverTime <-
   function(exp, cf, crf, crf_per, crf_rescale_method,
-           lifetab_withPop, year_of_analysis,
-           age_group){
+           lifetab_withPop, year_of_analysis){
 
 
     # Add the first year of the lifetable to the column name of population
@@ -42,7 +40,6 @@ get_popOverTime <-
       bestcost::get_popSingleYear_withAP(
         lifetable_withPop = lifetab_withPop,
         year_of_analysis = year_of_analysis,
-        age_group = age_group,
         paf = paf)
 
     # Now calculate population over time (for the rest of years)
