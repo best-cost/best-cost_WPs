@@ -57,7 +57,7 @@ if(!"bestcost" %in% installed.packages()[, "Package"]){
   devtools::install_github(repo = "best-cost/best-cost_WPs",
                            subdir = "/r_package/bestcost",
                            # Branch (by default "HEAD")
-                           ref = "HEAD",
+                           ref = "Small_code_changes",
                            force = TRUE)
 
 }
@@ -751,8 +751,8 @@ for(i in 1:nrow(input_data_morbidities)){
                             c("crf_mean", "crf_lowci", "crf_highci")]) ,
     crf_per = 10, 
     crf_rescale_method = "loglinear", 
-    pollutant = input_data_morbidities$pollutant[i], 
-    outcome_metric = input_data_morbidities$outcome_metric[i])
+    pollutant_info = input_data_morbidities$pollutant[i], 
+    outcome_info = input_data_morbidities$outcome_metric[i])
   }
 
 

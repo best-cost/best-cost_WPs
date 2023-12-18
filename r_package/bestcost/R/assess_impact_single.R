@@ -42,83 +42,44 @@ assess_impact_single <-
            info_crf = NULL,
            info_bhd = NULL){
 
-    # Bind input data by category
-    input_fun <- list()
-
-    if(is.null(info_exp)){
-      input_fun[["exp"]] <- data.frame(exp = exp)
-    } else {
-      # When there is an extra_info data frame
-      # the values from argument should replace the values
-      # of likely columns with same name
-      input_fun[["exp"]] <- info_exp
-      input_fun[["exp"]]$exp <- exp}
-
-    if(is.null(info_cf)){
-      input_fun[["cf"]] <- data.frame(cf = cf)
-    } else {
-      input_fun[["cf"]] <- info_cf
-      input_fun[["cf"]]$cf <- cf}
-
-    if(is.null(info_crf)){
-      input_fun[["crf"]] <- data.frame(crf = crf)
-    } else {
-      input_fun[["crf"]] <- info_crf
-      input_fun[["crf"]]$crf <- crf
-      input_fun[["crf"]]$crf_per <- crf_per}
-
-    if(is.null(info_bhd)){
-      input_fun[["bhd"]] <- data.frame(bhd = bhd)
-    } else {
-      input_fun[["bhd"]] <- info_bhd
-      input_fun[["bhd"]]$bhd <- bhd}
-
-    # Add pollutant to all input data tables to provide a common key for joining
-    # {{}} ensure that the value from the function argument is used
-    # instead of from an existing column is used
-    input_fun <-
-      input_fun %>%
-      purrr::map(~mutate(., pollutant = {{info_pollutant}}))
-
-    # Join all input data together
+    # Calculate crf estimate which corresponds to the exposure
+    # depending on the method
     calculation <-
-      dplyr::left_join(input_fun[["exp"]],
-                       input_fun[["cf"]],
-                       by = c("pollutant"),
-                       suffix = c("_exp", "_cf"))%>%
-      dplyr::left_join(.,
-                       input_fun[["crf"]],
-                       by = c("pollutant"),
-                       suffix = c("", "_crf"))%>%
-      dplyr::left_join(.,
-                       input_fun[["bhd"]],
-                       by = c("pollutant"),
-                       suffix = c("", "_bhd"))%>%
-
-      # Calculate crf estimate which corresponds to the exposure
-      # depending on the method
-      dplyr::mutate(crfConc = rescale_crf(crf = crf,
-                                          exp = exp,
-                                          cf = cf,
-                                          crf_per = crf_per,
-                                          method = {{crf_rescale_method}}),
-                    crf_ci = ifelse(crf %in% min(crf), "low",
-                                    ifelse(crf %in% max(crf), "high",
-                                           "mean")),
-                    crf_rescale_method = crf_rescale_method) %>%
-      dplyr::mutate(ci = ifelse(duplicated(crf), "mean", ci))%>%
+      data.frame(
+        crf = crf,
+        exp = exp,
+        cf = cf,
+        bhd = bhd,
+        crf_per = crf_per,
+        crf_rescale_method = crf_rescale_method,
+        crfConc = rescale_crf(crf = crf,
+                              exp = exp,
+                              cf = cf,
+                              crf_per = crf_per,
+                              method = crf_rescale_method),
+        crf_ci = ifelse(crf %in% min(crf), "low",
+                        ifelse(crf %in% max(crf), "high",
+                               "mean"))) %>%
+      # In case of same value in mean and low or high, assign value randomly
+      dplyr::mutate(ci = ifelse(duplicated(crf), "mean", ci)) %>%
 
       # Calculate attributable fraction (AF) as well as impact
-      # and add additional information
       dplyr::mutate(approach_id = paste0("singleValue_", crf_rescale_method),
                     af =  bestcost::get_paf(crfConc = crfConc),
-                    impact = round(af * bhd, 0),
-                    impact_metric = {{info_outcome}},
-                    pollutant = {{info_pollutant}})%>%
+                    impact = round(af * bhd, 0)) %>%
+
+      # Add additional information (info_x variables)
+      dplyr::mutate(
+        info_pollutant = ifelse(is.null(info_pollutant), NA, info_pollutant),
+        info_outcome = ifelse(is.null(info_outcome), NA, info_outcome),
+        info_exp = ifelse(is.null(info_exp), NA, info_exp),
+        info_cf = ifelse(is.null(info_cf), NA, info_cf),
+        info_crf = ifelse(is.null(info_crf), NA, info_crf),
+        info_bhd = ifelse(is.null(info_bhd), NA, info_bhd)) %>%
       # Order columns
-      dplyr::select(everything(),
-                    exp, cf, bhd, crf, crfConc, crf_per, crf_ci, crf_rescale_method,
-                    af, impact, impact_metric, pollutant)
+      dplyr::select(exp, cf, bhd, crf, crfConc, crf_per, ci, crf_rescale_method,
+                    af, impact,
+                    everything())
 
     return(calculation)
   }
