@@ -62,9 +62,6 @@ get_deaths <-
       # Add concentration data
       dplyr::bind_cols(.,
                        exp[, c("pollutant", "exp")])%>%
-      #dplyr::left_join(.,
-      #exp[, c("pollutant", "exp", "outcome_group")],
-      #by ="outcome_group") %>%
       dplyr::mutate(cf = cf$cf)%>%
       # Add crf
       dplyr::left_join(.,
@@ -81,7 +78,7 @@ get_deaths <-
       # Sum among sex
       # Add row for total by age group (infants+adults)
       dplyr::bind_rows(
-        group_by(., pollutant, ci, outcome_group, exp, cf, crf) %>%
+        group_by(., pollutant, ci, exp, cf, crf) %>%
           summarise(.,
                     across(.cols=c(impact_per_unit, impact), sum),
                     # Mean to keep the value (since it is the mean of male and female
@@ -91,9 +88,9 @@ get_deaths <-
       # Add approach and metric and round
       dplyr::mutate(approach_id = paste0("lifetable_", crf_rescale_method),
                     impact_metric = "Premature deaths",
-                    age_range = ifelse(outcome_group %in% c("infants", "infant", "children"),
+                    age_range = ifelse(!is.null(max_age),
                                        paste0("below", max_age+1),
-                                       ifelse(outcome_group %in% c("adults", "adult"),
+                                       ifelse(is.null(max_age),
                                               paste0("from", min_age),
                                               NA)),
                     # Round column impact

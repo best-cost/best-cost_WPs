@@ -57,11 +57,11 @@ get_yll <-
           dplyr::select(., contains("population_")) %>%
           dplyr::summarize_all(sum, na.rm = TRUE) %>%
 
-          # Add outcome_group and age_range
+          # Add age_range
           dplyr::mutate(
-            age_range = ifelse(outcome_group %in% c("infants", "infant", "children"),
+            age_range = ifelse(!is.null(max_age),
                                paste0("below", max_age+1),
-                               ifelse(outcome_group %in% c("adults", "adult"),
+                               ifelse(!is.null(min_age),
                                       paste0("from", min_age),
                                       NA)))
 
@@ -74,7 +74,7 @@ get_yll <-
                               values_to = "value",
                               names_prefix = "population_")%>%
           # Sum among years
-          dplyr::group_by(age_range, outcome_group)%>%
+          dplyr::group_by(age_range)%>%
           dplyr::summarise(value = sum(value), .groups = 'drop')
 
 
@@ -94,7 +94,7 @@ get_yll <-
           # Calculate life years discounted
           dplyr::mutate(discounted_value = value*discount)%>%
           # Sum among years
-          dplyr::group_by(age_range, outcome_group)%>%
+          dplyr::group_by(age_range)%>%
           dplyr::summarise(value = sum(discounted_value), .groups = 'drop')
       }
     }
@@ -102,7 +102,6 @@ get_yll <-
     # Convert list into data frame
     yll_by <-
       yll_by_list%>%
-      #purrr::map(map, map, dplyr::bind_rows, .id = "outcome_group")%>%
       purrr::map(map, dplyr::bind_rows, .id = "discount")%>%
       purrr::map(dplyr::bind_rows, .id = "ci" )%>%
       dplyr::bind_rows(., .id = "sex")
@@ -113,15 +112,14 @@ get_yll <-
       yll_by%>%
       # Add exposure and counterfactual scenario
       dplyr::left_join(.,
-                       exp[, c("pollutant", "exp", "outcome_group")],
-                       by ="outcome_group") %>%
+                       exp[, c("pollutant", "exp")],
+                       by ="pollutant") %>%
       dplyr::mutate(cf = cf$cf)%>%
       # Add crf
       dplyr::left_join(.,
-                       shifted_popOverTime[["crf"]][, c("pollutant",
-                                                        "outcome_group", "ci",
+                       shifted_popOverTime[["crf"]][, c("pollutant", "ci",
                                                         "crf")],
-                       by = c("pollutant", "outcome_group", "ci"))%>%
+                       by = c("pollutant", "ci"))%>%
 
       # Rename column
       dplyr::rename("impact_per_unit" = "value")%>%
@@ -137,7 +135,7 @@ get_yll <-
       # Add row for total by age group (infants+adults)
       dplyr::bind_rows(
         group_by(.,
-                 pollutant, discount, ci, age_range, outcome_group, exp, cf,
+                 pollutant, discount, ci, age_range, exp, cf,
                  crf) %>%
           summarise(.,
                     across(.cols=c(impact_per_unit, impact), sum),
