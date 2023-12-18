@@ -109,44 +109,38 @@ get_yll <-
 
     # Calculate Years of Life Lost (YLLs)
     yll_long <-
-      yll_by%>%
-      # Add exposure and counterfactual scenario
-      dplyr::left_join(.,
-                       exp[, c("pollutant", "exp")],
-                       by ="pollutant") %>%
-      dplyr::mutate(cf = cf$cf)%>%
-      # Add crf
+      yll_by %>%
+      # Rename column
+      dplyr::rename("impact_beforeRounding" = "value") %>%
+
+      # Create new column impact (later rounded)
+      dplyr::mutate(., impact = impact_beforeRounding) %>%
+
+
+      # Sum among sex
+      dplyr::bind_rows(
+        group_by(.,
+                 discount, ci) %>%
+          summarise(.,
+                    across(.cols=c(impact_beforeRounding, impact), sum),
+                    across(where(is.character), ~"total"),
+                    .groups = "keep"))%>%
+      # Add information such as exp, cf, approach, metric
+      dplyr::mutate(
+        pollutant = exp$pollutant,
+        exp = exp$exp,
+        cf = cf$cf,
+        approach_id = paste0("lifetable_", crf_rescale_method),
+        impact_metric = "Year of life lost") %>%
+      # Add crf (with left join)
       dplyr::left_join(.,
                        shifted_popOverTime[["crf"]][, c("pollutant", "ci",
                                                         "crf")],
                        by = c("pollutant", "ci"))%>%
-
-      # Rename column
-      dplyr::rename("impact_per_unit" = "value")%>%
-
-      # Create column impact
-      {if(crf_rescale_method == "ap10")
-        # Calculate the health impact for the actual exposure and not only for 10ug/m3
-        dplyr::mutate(., impact = impact_per_unit * (exp - cf)/10)
-        else dplyr::mutate(., impact = impact_per_unit)}%>%
-
-
-      # Sum among sex
-      # Add row for total by age group (infants+adults)
-      dplyr::bind_rows(
-        group_by(.,
-                 pollutant, discount, ci, age_range, exp, cf,
-                 crf) %>%
-          summarise(.,
-                    across(.cols=c(impact_per_unit, impact), sum),
-                    across(where(is.character), ~"total"),
-                    .groups = "keep"))%>%
-      # Add approach and round
-      dplyr::mutate(approach_id = paste0("lifetable_", crf_rescale_method),
-                    # Add metric
-                    impact_metric = "Year of life lost",
-                    # Round column impact
-                    impact = round(impact, 0))%>%
+      # Round the results
+      dplyr::mutate(
+        # Round column impact
+        impact = round(impact, 0))%>%
 
 
 
