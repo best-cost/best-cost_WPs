@@ -11,7 +11,6 @@
 #' @param crf_rescale_method String to choose among "linear" and "loglinear",
 #' @param pollutant String with the name of the pollutant,
 #' @param outcome_metric String with the name of the health outcome,
-#' @param age_group String with the denomination of the age group (e.g. "adults" or "infants") ,
 #' @param exp_info \code{Data frame} of one row showing extra information in columns. Default value = NULL,
 #' @param cf_info \code{Data frame} of one row showing extra information in columns. Default value = NULL,
 #' @param crf_info \code{Data frame} of three rows (mean, lower bound and upper bound) showing extra information in columns. Default value = NULL,
@@ -36,7 +35,7 @@
 assess_impact_single <-
   function(exp, cf, crf, bhd,
            crf_per, crf_rescale_method,
-           pollutant, outcome_metric, age_group,
+           pollutant, outcome_metric,
            exp_info = NULL,
            cf_info = NULL,
            crf_info = NULL,
@@ -113,12 +112,11 @@ assess_impact_single <-
                     af =  bestcost::get_paf(crfConc = crfConc),
                     impact = round(af * bhd, 0),
                     impact_metric = {{outcome_metric}},
-                    age_group = {{age_group}},
                     pollutant = {{pollutant}})%>%
       # Order columns
       dplyr::select(everything(),
                     exp, cf, bhd, crf, crfConc, crf_per, crf_ci, crf_rescale_method,
-                    af, impact, impact_metric, age_group, pollutant)
+                    af, impact, impact_metric, pollutant)
 
     return(calculation)
   }
