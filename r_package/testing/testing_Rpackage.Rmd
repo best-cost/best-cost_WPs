@@ -917,7 +917,7 @@ impact_mortality <-
     
   # Left join to add further information on crf
   dplyr::left_join(., crf_data, 
-                   by = c("pollutant", "crf_id", "outcome_group",
+                   by = c("pollutant", "crf_id", 
                           paste0("crf_", c("mean", "lowci", "highci"))),
                    relationship = "many-to-one")%>%
      # Left join to add further information on choice_bhd
@@ -945,6 +945,7 @@ impact_mortality <-
                 everything()) %>%
   # Order rows by label
   dplyr::arrange(outcome_group)
+
 ```
 
 # Export 
