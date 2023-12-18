@@ -64,6 +64,7 @@ assess_impact_single <-
     # Calculate crf estimate which corresponds to the exposure
     # depending on the method
     calculation <-
+      input %>%
       dplyr::mutate(
         crfConc = rescale_crf(crf = crf,
                               exp = exp,
