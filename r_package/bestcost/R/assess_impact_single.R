@@ -71,8 +71,9 @@ assess_impact_single <-
                               cf = cf,
                               crf_per = crf_per,
                               method = {{crf_rescale_method}}
-                              #{{}} ensures that the input variable
-                              # and not the column is used
+                              #{{}} ensures that the
+                              # value from the function argument is used
+                              # instead of from an existing column
                               ),
         crf_ci = ifelse(crf %in% min(crf), "low",
                         ifelse(crf %in% max(crf), "high",
