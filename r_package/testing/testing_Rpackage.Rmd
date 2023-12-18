@@ -57,7 +57,7 @@ if(!"bestcost" %in% installed.packages()[, "Package"]){
   devtools::install_github(repo = "best-cost/best-cost_WPs",
                            subdir = "/r_package/bestcost",
                            # Branch (by default "HEAD")
-                           ref = "63-simplification-of-the-code",
+                           ref = "HEAD",
                            force = TRUE)
 
 }
@@ -82,7 +82,7 @@ pm_fractions <- c("PM2.5", "PM10")
 pm_target <- "PM2.5"
 
 # PM fraction that is not targeted
-pm_no_target <- pm_fractions[!pm_fractions%in% pm_target]
+pm_no_target <- pm_fractions[!pm_fractions %in% pm_target]
 
 # Pollutants to be considered in the hra based on available exposure data
 pollutants_hra <- c(pm_target, "NO2")
@@ -752,8 +752,7 @@ for(i in 1:nrow(input_data_morbidities)){
     crf_per = 10, 
     crf_rescale_method = "loglinear", 
     pollutant = input_data_morbidities$pollutant[i], 
-    outcome_metric = input_data_morbidities$outcome_metric[i], 
-    age_group = input_data_morbidities$outcome_group[i])
+    outcome_metric = input_data_morbidities$outcome_metric[i])
   }
 
 
@@ -853,7 +852,6 @@ for(i in 1:nrow(input_data_mortality)){  # Use this if you want to evaluate mult
     population_female = lifetable_withPopulation[["female"]]$population, 
     year_of_analysis = 2019, 
     pollutant = input_data_mortality$pollutant[i], 
-    age_group = input_data_mortality$outcome_group[i],
     min_age = input_data_mortality$min_age[i],
     max_age = input_data_mortality$max_age[i],
     corrected_discount_rate = 0)
