@@ -11,10 +11,10 @@
 #' @param crf_rescale_method String to choose among "linear" and "loglinear",
 #' @param pollutant String with the name of the pollutant,
 #' @param outcome_metric String with the name of the health outcome,
-#' @param info_exp \code{Data frame} of one row showing extra information in columns. Default value = NULL,
-#' @param info_cf \code{Data frame} of one row showing extra information in columns. Default value = NULL,
-#' @param info_crf \code{Data frame} of three rows (mean, lower bound and upper bound) showing extra information in columns. Default value = NULL,
-#' @param info_bhd \code{Data frame} of one row showing extra information in columns. Default value = NULL,
+#' @param info_exp \code{Data frame} of one row and one or multiple columns showing information about the exposure. This information will be added to all rows of the result tables. Default value = NULL.
+#' @param info_cf \code{Data frame} of one row and one or multiple columns showing information about the counter-factual scenario (cut-off). This information will be added to all rows of the result tables. Default value = NULL.
+#' @param info_crf \code{Data frame} of one row and one or multiple columns showing information about the concentration-response function. This information will be added to all rows of the result tables. Default value = NULL.
+#' @param info_bhd \code{Data frame} of one row and one or multiple columns showing information about the baseline health data. This information will be added to all rows of the result tables. Default value = NULL.
 #' @return
 #' This function returns a \code{data.frame} with one row for each value of the
 #' concentration-response function (i.e. mean, lower and upper bound confidence interval.

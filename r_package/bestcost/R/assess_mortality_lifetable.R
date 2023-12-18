@@ -4,27 +4,28 @@
 #'
 #' Calculates the mortality, i.e. premature deaths or years of life lost, attributed to the exposure to an environmental stressor using a life table approach. It provides as a result the mean as well as the lower and the higher bound of the impact based on the confidence interval of the concentration-response function.
 #' @param exp Numeric value showing the population-weighted mean exposure in ug/m3,
-#' @param cf Numeric value showing the counter-factual scenario (i.e. minimum cut-off concentration) in ug/m3,
-#' @param crf \code{Vector} of three numeric values referring to the mean as well as the lower bound and upper bound of the confidence interval,
-#' @param crf_per Numeric value showing the increment of the concentration-response function in ug/m3 (usually 10 or 5),
-#' @param crf_rescale_method String to choose among "linear" and "loglinear",
+#' @param cf Numeric value showing the counter-factual scenario (i.e. minimum cut-off concentration) in ug/m3.
+#' @param crf \code{Vector} of three numeric values referring to the mean as well as the lower bound and upper bound of the confidence interval.
+#' @param crf_per Numeric value showing the increment of the concentration-response function in ug/m3 (usually 10 or 5).
+#' @param crf_rescale_method String to choose among "linear" and "loglinear".
 #' @param first_age_pop Numeric value of the first item of the age sequence from population and life table data
 #' @param last_age_pop Numeric value of the last item of the age sequence from population and life table data
 #' @param interval_age_pop Numeric value of the interval of the age sequence from population and life table data
-#' @param prob_natural_death_male \code{Vector} containing the probability of dying because of natural cause (excluding non-natural deaths such as violence or accidents) by age or age group for male,
-#' @param prob_natural_death_female \code{Vector} containing the probability of dying because of natural cause (excluding non-natural deaths such as violence or accidents) by age or age group for female,
-#' @param prob_total_death_male \code{Vector} containing the probability of dying because of all causes (including non-natural deaths such as violence or accidents) by age or age group for male,
-#' @param prob_total_death_female \code{Vector} containing the probability of dying because of all causes (including non-natural deaths such as violence or accidents) by age or age group for female,
-#' @param population_male \code{Vector} containing the mid-year male population for the year of analysis,
-#' @param population_female \code{Vector} containing the mid-year female population for the year of analysis,
-#' @param year_of_analysis Numeric value of the year of analysis, which corresponds to the first year of the life table,
-#' @param pollutant String with the name of the pollutant,
-#' @param min_age Number with the minimal age to be considered for adults (by default 30, i.e. 30+),
-#' @param max_age Number with the maximal age to be considered for infants/children (by default 0, i.e. below 1 years old)
-#' @param corrected_discount_rate Numeric value with the corrected discount rate as proportion (i.e. 0.1 instead of 10\%)
-#' @param info_exp \code{Data frame} of one row showing extra information in columns. Default value = NULL,
-#' @param info_cf \code{Data frame} of one row showing extra information in columns. Default value = NULL,
-#' @param info_crf \code{Data frame} of three rows (mean, lower bound and upper bound) showing extra information in columns. Default value = NULL,
+#' @param prob_natural_death_male \code{Vector} containing the probability of dying because of natural cause (excluding non-natural deaths such as violence or accidents) by age or age group for male.
+#' @param prob_natural_death_female \code{Vector} containing the probability of dying because of natural cause (excluding non-natural deaths such as violence or accidents) by age or age group for female.
+#' @param prob_total_death_male \code{Vector} containing the probability of dying because of all causes (including non-natural deaths such as violence or accidents) by age or age group for male.
+#' @param prob_total_death_female \code{Vector} containing the probability of dying because of all causes (including non-natural deaths such as violence or accidents) by age or age group for female.
+#' @param population_male \code{Vector} containing the mid-year male population for the year of analysis.
+#' @param population_female \code{Vector} containing the mid-year female population for the year of analysis.
+#' @param year_of_analysis Numeric value of the year of analysis, which corresponds to the first year of the life table.
+#' @param pollutant String with the name of the pollutant.
+#' @param min_age Number with the minimal age to be considered for adults (by default 30, i.e. 30+).
+#' @param max_age Number with the maximal age to be considered for infants/children (by default 0, i.e. below 1 years old).
+#' @param corrected_discount_rate Numeric value with the corrected discount rate as proportion (i.e. 0.1 instead of 10\%).
+#' @param info_exp \code{Data frame} of one row and one or multiple columns showing information about the exposure. This information will be added to all rows of the result tables. Default value = NULL.
+#' @param info_cf \code{Data frame} of one row and one or multiple columns showing information about the counter-factual scenario (cut-off). This information will be added to all rows of the result tables. Default value = NULL.
+#' @param info_crf \code{Data frame} of one row and one or multiple columns showing information about the concentration-response function. This information will be added to all rows of the result tables. Default value = NULL.
+#' @param info_bhd \code{Data frame} of one row and one or multiple columns showing information about the baseline health data. This information will be added to all rows of the result tables. Default value = NULL.
 #' @return
 #' This function returns a \code{data.frame} with one row for each value of the
 #' concentration-response function (i.e. mean, lower and upper bound confidence interval.
@@ -90,6 +91,10 @@ assess_mortality_lifetable <-
                         ifelse(crf %in% max(crf), "highci",
                                "mean")))
 
+        # Add bhd
+        if(!is.null(info_bhd)){
+          input_fun[["bhd"]] <- data.frame(bhd = bhd)}
+
         # Add pollutant to all input data tables to provide a common key for joining
         # {{}} ensure that the value from the function argument is used
         # instead of from an existing column is used
@@ -148,7 +153,7 @@ assess_mortality_lifetable <-
             year_of_analysis = year_of_analysis,
             min_age = min_age,
             max_age = max_age,
-            exp = input_fun[["exp"]] ,
+            exp = input_fun[["exp"]],
             cf = input_fun[["cf"]],
             crf_rescale_method = crf_rescale_method)
 
@@ -159,7 +164,7 @@ assess_mortality_lifetable <-
             year_of_analysis = year_of_analysis,
             min_age = min_age,
             max_age = max_age,
-            exp = input_fun[["exp"]] ,
+            exp = input_fun[["exp"]],
             cf = input_fun[["cf"]],
             crf_rescale_method = crf_rescale_method,
             corrected_discount_rate = corrected_discount_rate)
