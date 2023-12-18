@@ -54,7 +54,7 @@ assess_mortality_lifetable <-
            pollutant,
            corrected_discount_rate,
            min_age = NULL, max_age = NULL,
-           info_exp = NULL, info_cf = NULL, info_crf = NULL){
+           info_exp = NULL, info_cf = NULL, info_crf = NULL, info_bhd = NULL){
 
         # Digest input data
 
