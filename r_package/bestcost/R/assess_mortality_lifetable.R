@@ -22,8 +22,8 @@
 #' @param min_age Number with the minimal age to be considered for adults (by default 30, i.e. 30+),
 #' @param max_age Number with the maximal age to be considered for infants/children (by default 0, i.e. below 1 years old)
 #' @param corrected_discount_rate Numeric value with the corrected discount rate as proportion (i.e. 0.1 instead of 10\%)
-#' @param exp_info \code{Data frame} of one row showing extra information in columns. Default value = NULL,
-#' @param cf_info \code{Data frame} of one row showing extra information in columns. Default value = NULL,
+#' @param info_exp \code{Data frame} of one row showing extra information in columns. Default value = NULL,
+#' @param info_cf \code{Data frame} of one row showing extra information in columns. Default value = NULL,
 #' @param crf_info \code{Data frame} of three rows (mean, lower bound and upper bound) showing extra information in columns. Default value = NULL,
 #' @return
 #' This function returns a \code{data.frame} with one row for each value of the
@@ -53,7 +53,7 @@ assess_mortality_lifetable <-
            pollutant,
            corrected_discount_rate,
            min_age = NULL, max_age = NULL,
-           exp_info = NULL, cf_info = NULL, crf_info = NULL){
+           info_exp = NULL, info_cf = NULL, info_crf = NULL){
 
         # Digest input data
 
@@ -61,19 +61,19 @@ assess_mortality_lifetable <-
         # Bind input data by category
         input_fun <- list()
 
-        if(is.null(exp_info)){
+        if(is.null(info_exp)){
           input_fun[["exp"]] <- data.frame(exp = exp)
         } else {
           # When there is an extra_info data frame
           # the values from argument should replace the values
           # of likely columns with same name
-          input_fun[["exp"]] <- exp_info
+          input_fun[["exp"]] <- info_exp
           input_fun[["exp"]]$exp <- exp}
 
-        if(is.null(cf_info)){
+        if(is.null(info_cf)){
           input_fun[["cf"]] <- data.frame(cf = cf)
         } else {
-          input_fun[["cf"]] <- cf_info
+          input_fun[["cf"]] <- info_cf
           input_fun[["cf"]]$cf <- cf}
 
         if(is.null(crf_info)){
