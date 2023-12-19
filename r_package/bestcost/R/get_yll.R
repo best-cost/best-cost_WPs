@@ -94,10 +94,10 @@ get_yll <-
           # Calculate discount
           dplyr::mutate(discount = 1/(discount_factor^(year-(year_of_analysis+1))))%>%
           # Calculate life years discounted
-          dplyr::mutate(discounted_value = value*discount)%>%
+          dplyr::mutate(discounted_impact = impact*discount)%>%
           # Sum among years
           dplyr::group_by(age_range)%>%
-          dplyr::summarise(value = sum(discounted_value), .groups = 'drop')
+          dplyr::summarise(impact = sum(discounted_impact), .groups = 'drop')
       }
     }
 
