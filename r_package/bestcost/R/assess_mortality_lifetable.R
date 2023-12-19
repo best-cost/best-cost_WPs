@@ -60,56 +60,11 @@ assess_mortality_lifetable <-
         # Digest input data
 
 
-        # Bind input data by category
-        input_fun <- list()
-
-        if(is.null(info_exp)){
-          input_fun[["exp"]] <- data.frame(exp = exp)
-        } else {
-          # When there is an extra_info data frame
-          # the values from argument should replace the values
-          # of likely columns with same name
-          input_fun[["exp"]] <- info_exp
-          input_fun[["exp"]]$exp <- exp}
-
-        if(is.null(info_cf)){
-          input_fun[["cf"]] <- data.frame(cf = cf)
-        } else {
-          input_fun[["cf"]] <- info_cf
-          input_fun[["cf"]]$cf <- cf}
-
-        if(is.null(info_crf)){
-          input_fun[["crf"]] <- data.frame(crf = crf)
-        } else {
-          input_fun[["crf"]] <- info_crf
-          input_fun[["crf"]]$crf <- crf
-          input_fun[["crf"]]$crf_per <- crf_per}
-
-        # Add ci
-        input_fun[["crf"]] <-
-          mutate(input_fun[["crf"]],
-                 ci = ifelse(crf %in% min(crf), "lowci",
-                        ifelse(crf %in% max(crf), "highci",
-                               "mean")))
-
-        # Add bhd
-        if(!is.null(info_bhd)){
-          input_fun[["bhd"]] <- data.frame(bhd = bhd)}
-
-        # Add pollutant to all input data tables to provide a common key for joining
-        # {{}} ensure that the value from the function argument is used
-        # instead of from an existing column is used
-        input_fun <-
-          input_fun %>%
-          purrr::map(~mutate(.,
-                             pollutant = {{pollutant}}))
-
         # The life table has to be provided as a data.frame (by sex)
         # The first column has to be the age. Second, probability of death. Third, population.
         # Rename column names to standard names
 
         lifetable_withPop <- list(
-
           male =
             data.frame(
               age = seq(from = first_age_pop,
@@ -134,17 +89,57 @@ assess_mortality_lifetable <-
               death_probability_total = prob_total_death_female,
               population = population_female))
 
+        # Input data in data frame
+        input <-
+          data.frame(
+            crf = crf,
+            exp = exp,
+            cf = cf,
+            crf_per = crf_per,
+            crf_rescale_method = crf_rescale_method) %>%
+          # Add additional information (info_x variables)
+          dplyr::mutate(
+            info_pollutant = ifelse(is.null(info_pollutant), NA, info_pollutant),
+            info_outcome = ifelse(is.null(info_outcome), NA, info_outcome),
+            info_exp = ifelse(is.null(info_exp), NA, info_exp),
+            info_cf = ifelse(is.null(info_cf), NA, info_cf),
+            info_crf = ifelse(is.null(info_crf), NA, info_crf),
+            info_bhd = ifelse(is.null(info_bhd), NA, info_bhd))
+
+
+        # Calculate crf estimate which corresponds to the exposure
+        # depending on the method
+        paf <-
+          input %>%
+          dplyr::mutate(
+            crf_forPaf =
+              rescale_crf(crf = crf,
+                          exp = exp,
+                          cf = cf,
+                          crf_per = crf_per,
+                          method ={{crf_rescale_method}}
+                          #{{}} ensures that the
+                          # value from the function argument is used
+                          # instead of from an existing column
+                          ),
+            crf_ci = ifelse(crf %in% min(crf), "low",
+                            ifelse(crf %in% max(crf), "high",
+                                   "mean"))) %>%
+          # In case of same value in mean and low or high, assign value randomly
+          dplyr::mutate(ci = ifelse(duplicated(crf), "mean", ci)) %>%
+
+          # Calculate attributable fraction (AF) as well as impact
+          dplyr::mutate(approach_id = paste0("singleValue_", crf_rescale_method),
+                        paf =  bestcost::get_paf(crfConc = crf_forPaf))
+
+
 
         # Get population impact
         shifted_popOverTime <-
           bestcost::get_pop_impact(
             lifetab_withPop = lifetable_withPop,
             year_of_analysis = year_of_analysis,
-            crf = input_fun[["crf"]],
-            crf_per = crf_per,
-            exp = input_fun[["exp"]],
-            cf = input_fun[["cf"]],
-            crf_rescale_method = crf_rescale_method)
+            paf = paf[, c("ci", "paf")])
 
 
         # Calculate deaths
@@ -153,10 +148,7 @@ assess_mortality_lifetable <-
             shifted_popOverTime = shifted_popOverTime,
             year_of_analysis = year_of_analysis,
             min_age = min_age,
-            max_age = max_age,
-            exp = input_fun[["exp"]],
-            cf = input_fun[["cf"]],
-            crf_rescale_method = crf_rescale_method)
+            max_age = max_age)
 
         # Calculate years of life lost (yll)
         yll <-
@@ -165,9 +157,6 @@ assess_mortality_lifetable <-
             year_of_analysis = year_of_analysis,
             min_age = min_age,
             max_age = max_age,
-            exp = input_fun[["exp"]],
-            cf = input_fun[["cf"]],
-            crf_rescale_method = crf_rescale_method,
             corrected_discount_rate = corrected_discount_rate)
 
 

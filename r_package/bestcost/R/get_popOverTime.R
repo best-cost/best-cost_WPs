@@ -20,8 +20,7 @@
 #' @author Alberto Castro
 #' @note Experimental function
 get_popOverTime <-
-  function(exp, cf, crf, crf_per, crf_rescale_method,
-           lifetab_withPop, year_of_analysis){
+  function(lifetab_withPop, year_of_analysis, paf){
 
 
     # Add the first year of the lifetable to the column name of population
@@ -33,9 +32,6 @@ get_popOverTime <-
     # Calculate population in the next year assuming
     # the change in /level of air pollution
     # based on the CRF
-    crf_forPaf <- rescale_crf(crf, exp$exp, cf$cf, crf_per, method = crf_rescale_method)
-    paf <- bestcost::get_paf(crf_forPaf)
-
     popOverTime <-
       bestcost::get_popSingleYear_withAP(
         lifetable_withPop = lifetab_withPop,

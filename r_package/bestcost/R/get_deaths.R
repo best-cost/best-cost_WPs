@@ -3,9 +3,6 @@
 #' Get deaths
 #'
 #' Get deaths
-#' @param exp Numeric value showing the population-weighted mean exposure in ug/m3,
-#' @param cf Numeric value showing the counter-factual scenario (i.e. minimum cut-off concentration) in ug/m3,
-#' @param crf_rescale_method String to choose among "linear" and "loglinear",
 #' @param shifted_popOvertime \code{Data frame} with shifted population over time,
 #' @param year_of_analysis Numeric value of the year of analysis, which corresponds to the first year of the life table,
 #' @param min_age Number with the minimal age to be considered for adults (by default 30, i.e. 30+),
@@ -21,9 +18,8 @@
 
 
 get_deaths <-
-  function(exp, cf, crf_rescale_method,
-           shifted_popOverTime, year_of_analysis,
-           min_age=min_age, max_age=max_age){
+  function(shifted_popOverTime, year_of_analysis,
+           min_age = min_age, max_age = max_age){
 
     deaths_by_list <- list()
 

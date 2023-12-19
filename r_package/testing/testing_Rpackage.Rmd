@@ -851,7 +851,7 @@ for(i in 1:nrow(input_data_mortality)){  # Use this if you want to evaluate mult
     population_male = lifetable_withPopulation[["male"]]$population, 
     population_female = lifetable_withPopulation[["female"]]$population, 
     year_of_analysis = 2019, 
-    pollutant = input_data_mortality$pollutant[i], 
+    info_pollutant = input_data_mortality$pollutant[i], 
     min_age = input_data_mortality$min_age[i],
     max_age = input_data_mortality$max_age[i],
     corrected_discount_rate = 0)
