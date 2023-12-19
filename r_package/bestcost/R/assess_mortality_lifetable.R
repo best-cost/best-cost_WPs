@@ -133,6 +133,10 @@ assess_mortality_lifetable <-
           dplyr::mutate(approach_id = paste0("singleValue_", crf_rescale_method),
                         paf =  bestcost::get_paf(crfConc = crf_forPaf))
 
+        # Convert NULL into NA
+        min_age <- ifelse(is.null(min_age), NA, min_age)
+        max_age <- ifelse(is.null(max_age), NA, max_age)
+
 
 
         # Get population impact

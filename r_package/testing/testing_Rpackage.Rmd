@@ -917,26 +917,16 @@ impact_mortality <-
     
   # Left join to add further information on crf
   dplyr::left_join(., crf_data, 
-                   by = c("pollutant", "crf_id", 
+                   by = c("info_pollutant" = "pollutant", "crf_id", "crf_per",
                           paste0("crf_", c("mean", "lowci", "highci"))),
                    relationship = "many-to-one")%>%
-     # Left join to add further information on choice_bhd
-  # Since there is a life table and no alternative 
-  # the information has to be added manually
-  dplyr::mutate(choice_bhd = "selected") %>%
-  
   # Change outcome_id to ensure match with codebook
   dplyr::mutate(
     outcome_id = ifelse(outcome_metric_short %in% "yll",
                         gsub("premature deaths", "yll", outcome_id),
                         outcome_id)) %>%
-  # Left join to add label in German of outcomes
-  dplyr::left_join(., codebook, 
-                   by = "outcome_id",
-                   relationship = "many-to-one") %>%
   # Order columns 
-  dplyr::select(pollutant, term,
-                #outcome_label_de, # LUYTAX: removed
+  dplyr::select(info_pollutant, term,
                 bhd,
                 crf_meanCI, 
                 contains("impact_diff_meanCI"),

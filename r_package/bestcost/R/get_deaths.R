@@ -35,10 +35,10 @@ get_deaths <-
           # Select only relevant columns
           dplyr::select(., age, all_of(population_secondYear_lifetable)) %>%
           # Filter keeping only the relevant age
-          {if(!is.null(max_age)&!is.na(max_age))
+          {if(!is.na(max_age))
             dplyr::filter(., age <= max_age)
             else .} %>%
-          {if(!is.null(min_age)&!is.na(min_age))
+          {if(!is.na(min_age))
             dplyr::filter(., age >= min_age)
             else .} %>%
           dplyr::select(all_of(population_secondYear_lifetable)) %>%
@@ -56,14 +56,15 @@ get_deaths <-
                           values_to = "impact_per_unit")
 
     deaths_long <-
+      deaths_by %>%
       # Create column impact
-      dplyr::mutate(., impact = impact_per_unit)%>%
+      dplyr::mutate(., impact = impact_per_unit) %>%
 
       # Sum among age groups
       # Sum among sex
       # Add row for total by age group (infants+adults)
       dplyr::bind_rows(
-        group_by(., ci, exp, cf, crf) %>%
+        group_by(., ci) %>%
           summarise(.,
                     across(.cols=c(impact_per_unit, impact), sum),
                     # Mean to keep the value (since it is the mean of male and female
@@ -75,17 +76,17 @@ get_deaths <-
 
       # Add approach and metric and round
       dplyr::mutate(impact_metric = "Premature deaths",
-                    age_range = ifelse(!is.null(max_age),
+                    age_range = ifelse(!is.na(max_age),
                                        paste0("below", max_age+1),
-                                       ifelse(is.null(max_age),
+                                       ifelse(!is.na(min_age),
                                               paste0("from", min_age),
                                               NA)))%>%
 
 
       # Add input data and info_ data
-      dplyr::left_join(deaths_by,
+      dplyr::left_join(.,
                        meta,
-                       by = "ci")%>%
+                       by = "ci") %>%
       # Order columns
       dplyr::select(sex, ci, everything())%>%
       # Order rows

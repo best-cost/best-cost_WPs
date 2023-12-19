@@ -56,9 +56,9 @@ get_yll <-
 
           # Add age_range
           dplyr::mutate(
-            age_range = ifelse(!is.null(max_age),
+            age_range = ifelse(!is.na(max_age),
                                paste0("below", max_age+1),
-                               ifelse(!is.null(min_age),
+                               ifelse(!is.na(min_age),
                                       paste0("from", min_age),
                                       NA)))
 
