@@ -139,7 +139,7 @@ assess_mortality_lifetable <-
           bestcost::get_pop_impact(
             lifetab_withPop = lifetable_withPop,
             year_of_analysis = year_of_analysis,
-            paf = paf[, c("ci", "paf")])
+            paf = input_info_paf[, c("ci", "paf")])
 
 
         # Calculate deaths
