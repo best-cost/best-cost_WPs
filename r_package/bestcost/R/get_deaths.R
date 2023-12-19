@@ -56,11 +56,6 @@ get_deaths <-
                           values_to = "impact_per_unit")
 
     deaths_long <-
-      # Add input data and info_ data
-      dplyr::left_join(deaths_by,
-                       meta,
-                       by = "ci")%>%
-
       # Create column impact
       dplyr::mutate(., impact = impact_per_unit)%>%
 
@@ -75,17 +70,22 @@ get_deaths <-
                     # and both have the same value)
                     across(where(is.character), ~"total"),
                     .groups = "keep"))%>%
+      # Round column impact
+      dplyr::mutate(impact = round(impact, 0))%>%
+
       # Add approach and metric and round
       dplyr::mutate(impact_metric = "Premature deaths",
                     age_range = ifelse(!is.null(max_age),
                                        paste0("below", max_age+1),
                                        ifelse(is.null(max_age),
                                               paste0("from", min_age),
-                                              NA)),
-                    # Round column impact
-                    impact = round(impact, 0))%>%
+                                              NA)))%>%
 
 
+      # Add input data and info_ data
+      dplyr::left_join(deaths_by,
+                       meta,
+                       by = "ci")%>%
       # Order columns
       dplyr::select(sex, ci, everything())%>%
       # Order rows
