@@ -882,11 +882,12 @@ for (r in c("2019", "whoaqg21")){
   # Substract the impacts for the scenarios
   impact_mortality_comparative[[paste0(r, "_whoaqg21")]] <- 
     dplyr::left_join(impact_mortality_edited[[r]],
-                     impact_mortality_edited[["whoaqg21"]][c("crf_id", "ci", "impact", "outcome_metric_short", "exp")], 
+                     impact_mortality_edited[["whoaqg21"]][c("crf_id", "ci", "impact", "impact_beforeRounding" ,"outcome_metric_short", "exp")], 
                      by = c("outcome_metric_short", "crf_id", "ci"), 
                      suffix = c("_ref", "_whoaqg21")) %>%
     dplyr::mutate(ref = r,
-                  impact_diff = impact_ref - impact_whoaqg21)
+                  impact_diff = impact_ref - impact_whoaqg21,
+                  impact_beforeRounding_diff = impact_beforeRounding_ref - impact_beforeRounding_whoaqg21)
   }
 
 impact_mortality <- 
@@ -898,7 +899,8 @@ impact_mortality <-
   # Pivot wider CI
   tidyr::pivot_wider(
     values_from = c(crf, crf_forPaf, paf,
-                    impact_ref, impact_whoaqg21, impact_diff), 
+                    impact_ref, impact_whoaqg21, impact_diff,
+                    impact_beforeRounding_ref, impact_beforeRounding_whoaqg21, impact_beforeRounding_diff), 
     names_from = ci) %>%
   # Paste the CIs
   dplyr::mutate(
@@ -921,16 +923,14 @@ impact_mortality <-
                         gsub("premature deaths", "yll", outcome_id),
                         outcome_id)) %>%
   # Order columns 
-  dplyr::select(ref, impact_metric, crf_id,
-                info_pollutant, term,
-                bhd,
-                crf_meanCI, 
+  dplyr::select(info_pollutant, ref, outcome_id, crf_source, 
+                term, bhd, crf_meanCI, 
                 contains("impact_diff_meanCI"),
                 contains("impact_ref_meanCI"), 
                 impact_whoaqg21_meanCI,
                 everything()) %>%
   # Order rows by label
-  dplyr::arrange(ref, impact_metric, desc(crf_id))
+  dplyr::arrange(desc(info_pollutant), ref, outcome_id, crf_source)
 
 ```
 
