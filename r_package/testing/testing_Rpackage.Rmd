@@ -893,7 +893,7 @@ impact_mortality <-
   impact_mortality_comparative %>%
   dplyr::bind_rows(.) %>%
   # Remove non relevant columns
-  dplyr::select(-impact_per_unit, -case, -crf_ci) %>%
+  dplyr::select(-case, -crf_ci) %>%
   
   # Pivot wider CI
   tidyr::pivot_wider(
