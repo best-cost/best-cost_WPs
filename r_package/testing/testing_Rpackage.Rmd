@@ -777,11 +777,11 @@ impact_morbidities <-
   impact_morbidities_comparative %>%
   dplyr::bind_rows(.) %>%
   # Remove column crf_ci
-  dplyr::select(-crf_ci, -crfConc, -af) %>%
+  dplyr::select(-crf_ci, -crfConc) %>%
   
   # Pivot wider the ci
   tidyr::pivot_wider(
-    values_from = c(crf,
+    values_from = c(crf, paf,
                     impact_ref, impact_whoaqg21, impact_diff), 
     names_from = ci) %>%
   # Paste the CIs

@@ -107,16 +107,16 @@ assess_impact_single <-
                     crf_rescale_method = crf_rescale_method) %>%
       dplyr::mutate(ci = ifelse(duplicated(crf), "mean", ci))%>%
 
-      # Calculate attributable fraction (AF) and impact
+      # Calculate population attributable fraction (PAF) and impact
       dplyr::mutate(approach_id = paste0("singleValue_", crf_rescale_method),
-                    af =  bestcost::get_paf(crfConc = crfConc),
-                    impact = round(af * bhd, 0),
+                    paf =  bestcost::get_paf(crfConc = crfConc),
+                    impact = round(paf * bhd, 0),
                     impact_metric = {{outcome_metric}},
                     pollutant = {{pollutant}})%>%
       # Order columns
       dplyr::select(everything(),
                     exp, cf, bhd, crf, crfConc, crf_per, crf_ci, crf_rescale_method,
-                    af, impact, impact_metric, pollutant)
+                    paf, impact, impact_metric, pollutant)
 
     return(calculation)
   }
