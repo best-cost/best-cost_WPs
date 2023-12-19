@@ -137,9 +137,9 @@ get_yll <-
 
 
       # Order columns
-      dplyr::select(pollutant, discount, sex, age_range, ci, everything())%>%
+      dplyr::select(discount, sex, age_range, ci, everything())%>%
       # Order rows
-      dplyr::arrange(pollutant, discount, sex, age_range, ci)
+      dplyr::arrange(discount, sex, age_range, ci)
 
     yll <-
       yll_long%>%
