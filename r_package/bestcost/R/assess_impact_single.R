@@ -82,13 +82,15 @@ assess_impact_single <-
       # In case of same value in mean and low or high, assign value randomly
       dplyr::mutate(ci = ifelse(duplicated(crf), "mean", ci)) %>%
 
-      # Calculate attributable fraction (AF) as well as impact
-      dplyr::mutate(af =  bestcost::get_paf(crfConc = crfConc),
-                    impact = round(af * bhd, 0)) %>%
+
+      # Calculate population attributable fraction (PAF) as well as impact
+      dplyr::mutate(paf =  bestcost::get_paf(crfConc = crfConc),
+                    impact = round(paf * bhd, 0)) %>%
       # Order columns
       dplyr::select(exp, cf, bhd, crf, crfConc, crf_per, ci, crf_rescale_method,
-                    af, impact,
+                    paf, impact,
                     starts_with("info_"))
+
 
     return(calculation)
   }
