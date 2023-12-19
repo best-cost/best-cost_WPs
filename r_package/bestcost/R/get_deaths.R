@@ -3,10 +3,11 @@
 #' Get deaths
 #'
 #' Get deaths
-#' @param shifted_popOvertime \code{Data frame} with shifted population over time,
-#' @param year_of_analysis Numeric value of the year of analysis, which corresponds to the first year of the life table,
-#' @param min_age Number with the minimal age to be considered for adults (by default 30, i.e. 30+),
-#' @param max_age Number with the maximal age to be considered for infants/children (by default 0, i.e. below 1 years old)#'
+#' @param shifted_popOvertime \code{Data frame} with shifted population over time.
+#' @param year_of_analysis \code{Numeric value} of the year of analysis, which corresponds to the first year of the life table,
+#' @param min_age \code{Numeric value} with the minimal age to be considered for adults (by default 30, i.e. 30+),
+#' @param max_age \code{Numeric value} with the maximal age to be considered for infants/children (by default 0, i.e. below 1 years old)#'
+#' @param meta \code{Data frame} with meta-information such as input data, additional information and intermediate results.
 #' @return
 #' This function returns a \code{data.frame} with the number of deaths based on the life table
 #' @import dplyr
@@ -19,6 +20,7 @@
 
 get_deaths <-
   function(shifted_popOverTime, year_of_analysis,
+           meta,
            min_age = min_age, max_age = max_age){
 
     deaths_by_list <- list()
@@ -54,15 +56,10 @@ get_deaths <-
                           values_to = "impact_per_unit")
 
     deaths_long <-
-      deaths_by%>%
-      # Add concentration data
-      dplyr::bind_cols(.,
-                       exp[, c("pollutant", "exp")])%>%
-      dplyr::mutate(cf = cf$cf)%>%
-      # Add crf
-      dplyr::left_join(.,
-                       shifted_popOverTime[["crf"]][, c("pollutant", "ci", "crf")],
-                       by = c("pollutant", "ci"))%>%
+      # Add input data and info_ data
+      dplyr::left_join(deaths_by,
+                       meta,
+                       by = "ci")%>%
 
       # Create column impact
       {if(crf_rescale_method == "ap10")
@@ -74,7 +71,7 @@ get_deaths <-
       # Sum among sex
       # Add row for total by age group (infants+adults)
       dplyr::bind_rows(
-        group_by(., pollutant, ci, exp, cf, crf) %>%
+        group_by(., ci, exp, cf, crf) %>%
           summarise(.,
                     across(.cols=c(impact_per_unit, impact), sum),
                     # Mean to keep the value (since it is the mean of male and female
@@ -94,9 +91,9 @@ get_deaths <-
 
 
       # Order columns
-      dplyr::select(pollutant, sex, ci, everything())%>%
+      dplyr::select(sex, ci, everything())%>%
       # Order rows
-      dplyr::arrange(pollutant, sex, ci)
+      dplyr::arrange(sex, ci)
 
 
     deaths <-

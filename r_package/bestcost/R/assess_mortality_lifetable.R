@@ -109,7 +109,7 @@ assess_mortality_lifetable <-
 
         # Calculate crf estimate which corresponds to the exposure
         # depending on the method
-        paf <-
+        input_info_paf <-
           input %>%
           dplyr::mutate(
             crf_forPaf =
@@ -148,7 +148,8 @@ assess_mortality_lifetable <-
             shifted_popOverTime = shifted_popOverTime,
             year_of_analysis = year_of_analysis,
             min_age = min_age,
-            max_age = max_age)
+            max_age = max_age,
+            meta = input_info_paf)
 
         # Calculate years of life lost (yll)
         yll <-
@@ -157,6 +158,7 @@ assess_mortality_lifetable <-
             year_of_analysis = year_of_analysis,
             min_age = min_age,
             max_age = max_age,
+            meta = input_info_paf,
             corrected_discount_rate = corrected_discount_rate)
 
 

@@ -4,10 +4,11 @@
 #'
 #' Get years of life lost
 #' @param shifted_popOvertime \code{Data frame} with shifted population over time
-#' @param year_of_analysis Numeric value of the year of analysis, which corresponds to the first year of the life table,
-#' @param age_min Number with the minimal age to be considered for adults (by default 30, i.e. 30+),
-#' @param age_max Number with the maximal age to be considered for infants/children (by default 0, i.e. below 1 years old)
-#' @param corrected_discount_rate Numeric value with the annual discount rate as proportion (i.e. 0.1 instead of 10\%). It can be calculated as (1+discount_rate_beforeCorrection/1+rate_of_increase)-1
+#' @param year_of_analysis \code{Numeric value} of the year of analysis, which corresponds to the first year of the life table,
+#' @param age_min \code{Numeric value}  with the minimal age to be considered for adults (by default 30, i.e. 30+),
+#' @param age_max \code{Numeric value}  with the maximal age to be considered for infants/children (by default 0, i.e. below 1 years old)
+#' @param meta \code{Data frame} with meta-information such as input data, additional information and intermediate results.
+#' @param corrected_discount_rate \code{Numeric value}  with the annual discount rate as proportion (i.e. 0.1 instead of 10\%). It can be calculated as (1+discount_rate_beforeCorrection/1+rate_of_increase)-1
 #' @return
 #' This function returns a \code{data.frame} with one row for each value of the
 #' concentration-response function (i.e. mean, lower and upper bound confidence interval.
@@ -31,6 +32,7 @@
 get_yll <-
   function(shifted_popOverTime, year_of_analysis,
            min_age = min_age, max_age = max_age,
+           meta,
            corrected_discount_rate){
 
     lifeyears_byYear <- list()
@@ -120,18 +122,13 @@ get_yll <-
                     across(.cols=c(impact_beforeRounding, impact), sum),
                     across(where(is.character), ~"total"),
                     .groups = "keep"))%>%
-      # Add information such as exp, cf, approach, metric
+      # Add  metric
       dplyr::mutate(
-        pollutant = exp$pollutant,
-        exp = exp$exp,
-        cf = cf$cf,
-        approach_id = paste0("lifetable_", crf_rescale_method),
         impact_metric = "Year of life lost") %>%
-      # Add crf (with left join)
+      # Add meta information (with left join)
       dplyr::left_join(.,
-                       shifted_popOverTime[["crf"]][, c("pollutant", "ci",
-                                                        "crf")],
-                       by = c("pollutant", "ci"))%>%
+                       meta,
+                       by = "ci")%>%
       # Round the results
       dplyr::mutate(
         # Round column impact
