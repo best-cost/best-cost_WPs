@@ -50,7 +50,8 @@ assess_impact_single <-
         cf = cf,
         bhd = bhd,
         crf_per = crf_per,
-        crf_rescale_method = crf_rescale_method) %>%
+        crf_rescale_method = crf_rescale_method,
+        approach_id = paste0("lifetable_", crf_rescale_method)) %>%
       # Add additional information (info_x variables)
       dplyr::mutate(
         info_pollutant = ifelse(is.null(info_pollutant), NA, info_pollutant),
@@ -82,8 +83,7 @@ assess_impact_single <-
       dplyr::mutate(ci = ifelse(duplicated(crf), "mean", ci)) %>%
 
       # Calculate attributable fraction (AF) as well as impact
-      dplyr::mutate(approach_id = paste0("singleValue_", crf_rescale_method),
-                    af =  bestcost::get_paf(crfConc = crfConc),
+      dplyr::mutate(af =  bestcost::get_paf(crfConc = crfConc),
                     impact = round(af * bhd, 0)) %>%
       # Order columns
       dplyr::select(exp, cf, bhd, crf, crfConc, crf_per, ci, crf_rescale_method,

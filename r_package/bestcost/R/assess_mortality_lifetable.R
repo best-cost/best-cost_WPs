@@ -96,7 +96,8 @@ assess_mortality_lifetable <-
             exp = exp,
             cf = cf,
             crf_per = crf_per,
-            crf_rescale_method = crf_rescale_method) %>%
+            crf_rescale_method = crf_rescale_method,
+            approach_id = paste0("lifetable_", crf_rescale_method)) %>%
           # Add additional information (info_x variables)
           dplyr::mutate(
             info_pollutant = ifelse(is.null(info_pollutant), NA, info_pollutant),

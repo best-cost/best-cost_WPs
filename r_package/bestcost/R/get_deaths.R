@@ -62,10 +62,7 @@ get_deaths <-
                        by = "ci")%>%
 
       # Create column impact
-      {if(crf_rescale_method == "ap10")
-        # Calculate the health impact for the actual exposure and not only for 10ug/m3
-        dplyr::mutate(., impact = impact_per_unit * (exp - cf)/10)
-        else dplyr::mutate(., impact = impact_per_unit)}%>%
+      dplyr::mutate(., impact = impact_per_unit)%>%
 
       # Sum among age groups
       # Sum among sex
@@ -79,8 +76,7 @@ get_deaths <-
                     across(where(is.character), ~"total"),
                     .groups = "keep"))%>%
       # Add approach and metric and round
-      dplyr::mutate(approach_id = paste0("lifetable_", crf_rescale_method),
-                    impact_metric = "Premature deaths",
+      dplyr::mutate(impact_metric = "Premature deaths",
                     age_range = ifelse(!is.null(max_age),
                                        paste0("below", max_age+1),
                                        ifelse(is.null(max_age),
