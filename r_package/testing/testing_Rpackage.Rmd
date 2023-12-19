@@ -57,7 +57,9 @@ if(!"bestcost" %in% installed.packages()[, "Package"]){
   devtools::install_github(repo = "best-cost/best-cost_WPs",
                            subdir = "/r_package/bestcost",
                            # Branch (by default "HEAD")
-                           ref = "Small_code_changes",
+                           # Other usual branches 
+                           # "63-simplification-of-the-code"
+                           ref = "HEAD",
                            force = TRUE)
 
 }
