@@ -53,26 +53,24 @@ get_deaths <-
       # Reshape to long format
       tidyr::pivot_longer(cols = where(is.numeric),
                           names_to = "ci",
-                          values_to = "impact_per_unit")
+                          values_to = "impact")
 
     deaths_long <-
       deaths_by %>%
-      # Create column impact
-      dplyr::mutate(., impact = impact_per_unit) %>%
-
       # Sum among age groups
       # Sum among sex
       # Add row for total by age group (infants+adults)
       dplyr::bind_rows(
         group_by(., ci) %>%
           summarise(.,
-                    across(.cols=c(impact_per_unit, impact), sum),
+                    across(.cols=c(impact), sum),
                     # Mean to keep the value (since it is the mean of male and female
                     # and both have the same value)
                     across(where(is.character), ~"total"),
                     .groups = "keep"))%>%
       # Round column impact
-      dplyr::mutate(impact = round(impact, 0))%>%
+      dplyr::mutate(impact_beforeRounding = impact,
+                    impact = round(impact, 0))%>%
 
       # Add approach and metric and round
       dplyr::mutate(impact_metric = "Premature deaths",

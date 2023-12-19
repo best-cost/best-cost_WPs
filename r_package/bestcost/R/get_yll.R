@@ -82,7 +82,7 @@ get_yll <-
           # Reshape to long format
           tidyr::pivot_longer(cols = starts_with("population_"),
                               names_to = "year",
-                              values_to = "value",
+                              values_to = "impact",
                               names_prefix = "population_")%>%
           # Convert year to numeric
           dplyr::mutate(year = as.numeric(year))%>%
@@ -107,19 +107,13 @@ get_yll <-
     # Calculate Years of Life Lost (YLLs)
     yll_long <-
       yll_by %>%
-      # Rename column
-      dplyr::rename("impact_beforeRounding" = "value") %>%
-
-      # Create new column impact (later rounded)
-      dplyr::mutate(., impact = impact_beforeRounding) %>%
-
 
       # Sum among sex
       dplyr::bind_rows(
         group_by(.,
                  discount, ci) %>%
           summarise(.,
-                    across(.cols=c(impact_beforeRounding, impact), sum),
+                    across(.cols=c(impact), sum),
                     across(where(is.character), ~"total"),
                     .groups = "keep"))%>%
       # Add  metric
@@ -131,6 +125,8 @@ get_yll <-
                        by = "ci")%>%
       # Round the results
       dplyr::mutate(
+        # Create new column impact (later rounded)
+        impact_beforeRounding = impact,
         # Round column impact
         impact = round(impact, 0))%>%
 
