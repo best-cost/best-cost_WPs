@@ -3,13 +3,10 @@
 #' Get population impact over time
 #'
 #' Get population impact over time
-#' @param exp Numeric value showing the population-weighted mean exposure in ug/m3.
-#' @param cf Numeric value showing the counter-factual scenario (i.e. minimum cut-off concentration) in ug/m3.
-#' @param crf \code{Vector} of three numeric values referring to the mean as well as the lower bound and upper bound of the confidence interval.
-#' @param crf_per Numeric value showing the increment of the concentration-response function in ug/m3 (usually 10 or 5)
-#' @param crf_rescale_method String to choose among "linear" and "loglinear",
 #' @param lifetable_withPop_male \code{Data frame} with three columns: the first one should refer to age, the second one to the probability of dying and the third one to the population (sex specific),
-#' @param year_of_analysis Numeric value of the year of analysis, which corresponds to the first year of the life table
+#' @param year_of_analysis \code{Numeric value} of the year of analysis, which corresponds to the first year of the life table
+#' @param paf \code{Data frame} with three rows (mean, lower bound and upper bound)
+#'
 
 #' @return
 #' This function returns a \code{data.frame} with one row for each value of the
@@ -30,25 +27,21 @@
 
 
 get_pop_impact <-
-  function(exp, cf, crf, crf_per, crf_rescale_method,
-           lifetab_withPop, year_of_analysis){
+  function(lifetab_withPop, year_of_analysis, paf){
 
-    c("mean", "lowci", "highci") # variable used in code
+    ci <- c("mean", "lowci", "highci") # variable used in code
+    sex <- c("female","male")
 
     # Get popOvertime
     popOverTime <- list()
 
-    for(s in c("female","male")){#sex){
+    for(s in sex){
       for(v in ci){
         popOverTime[[s]][[v]] <-
           bestcost::get_popOverTime(
             lifetab_withPop = lifetab_withPop[[s]],
             year_of_analysis = year_of_analysis,
-            crf = crf$crf[crf$ci %in% v],
-            exp = exp,
-            cf = cf,
-            crf_per = crf_per,
-            crf_rescale_method = crf_rescale_method)
+            paf = paf$paf[paf$ci %in% v])
       }
     }
 
@@ -57,7 +50,7 @@ get_pop_impact <-
 
     shifted_popOverTime <- list()
 
-    for(s in c("female","male")){#sex){
+    for(s in sex){
       for(v in ci){
         shifted_popOverTime[[s]][[v]] <-
 
@@ -67,7 +60,7 @@ get_pop_impact <-
     }
 
     output <-
-      list(crf = crf,
+      list(paf = paf,
            popOverTime = popOverTime,
            shifted_popOverTime = shifted_popOverTime)
 
