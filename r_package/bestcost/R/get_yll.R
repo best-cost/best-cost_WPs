@@ -73,11 +73,11 @@ get_yll <-
           lifeyears_byYear[[s]][[v]][["noDiscount"]]%>%
           tidyr::pivot_longer(cols = starts_with("population_"),
                               names_to = "year",
-                              values_to = "value",
+                              values_to = "impact",
                               names_prefix = "population_")%>%
           # Sum among years
           dplyr::group_by(age_range)%>%
-          dplyr::summarise(value = sum(value), .groups = 'drop')
+          dplyr::summarise(impact = sum(impact), .groups = 'drop')
 
 
 
