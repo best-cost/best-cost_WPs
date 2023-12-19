@@ -57,6 +57,7 @@ get_yll <-
 
           # Sum over ages
           dplyr::select(., contains("population_")) %>%
+          # Remove the year of analysis (we are only interested in the folowing ones)
           dplyr::select(., -contains(as.character(year_of_analysis))) %>%
           dplyr::summarize_all(sum, na.rm = TRUE) %>%
 
