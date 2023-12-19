@@ -893,11 +893,11 @@ impact_mortality <-
   impact_mortality_comparative %>%
   dplyr::bind_rows(.) %>%
   # Remove non relevant columns
-  dplyr::select(-impact_per_unit, -case) %>%
+  dplyr::select(-impact_per_unit, -case, -crf_ci) %>%
   
   # Pivot wider CI
   tidyr::pivot_wider(
-    values_from = c(crf, 
+    values_from = c(crf, crf_forPaf, paf,
                     impact_ref, impact_whoaqg21, impact_diff), 
     names_from = ci) %>%
   # Paste the CIs
@@ -908,12 +908,7 @@ impact_mortality <-
     impact_diff_meanCI = paste_round_CI(impact_diff_mean, impact_diff_lowci, impact_diff_highci, 0),
     # bhd as NA just to match with structure of morbidities
     bhd = NA) %>%
-  
-  # Pivot wider the impacts
-  tidyr::pivot_wider(
-    values_from = 
-      c(contains("_ref"),contains("_diff")),
-    names_from = ref) %>%
+
     
   # Left join to add further information on crf
   dplyr::left_join(., crf_data, 
@@ -926,7 +921,8 @@ impact_mortality <-
                         gsub("premature deaths", "yll", outcome_id),
                         outcome_id)) %>%
   # Order columns 
-  dplyr::select(info_pollutant, term,
+  dplyr::select(ref, outcome_metric_short, crf_id,
+                info_pollutant, term,
                 bhd,
                 crf_meanCI, 
                 contains("impact_diff_meanCI"),
@@ -934,7 +930,7 @@ impact_mortality <-
                 impact_whoaqg21_meanCI,
                 everything()) %>%
   # Order rows by label
-  dplyr::arrange(outcome_group)
+  dplyr::arrange(ref, outcome_metric_short, desc(crf_id))
 
 ```
 
