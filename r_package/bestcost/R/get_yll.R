@@ -48,7 +48,12 @@ get_yll <-
           shifted_popOverTime[["shifted_popOverTime"]][[s]][[v]] %>%
 
           # Filter keeping only the relevant age
-          dplyr::filter(., age >= min_age & age <= max_age) %>%
+          {if(!is.na(max_age))
+            dplyr::filter(., age <= max_age)
+            else .} %>%
+          {if(!is.na(min_age))
+            dplyr::filter(., age >= min_age)
+            else .} %>%
 
           # Sum over ages
           dplyr::select(., contains("population_")) %>%
