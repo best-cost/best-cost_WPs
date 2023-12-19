@@ -921,7 +921,7 @@ impact_mortality <-
                         gsub("premature deaths", "yll", outcome_id),
                         outcome_id)) %>%
   # Order columns 
-  dplyr::select(ref, outcome_metric_short, crf_id,
+  dplyr::select(ref, impact_metric, crf_id,
                 info_pollutant, term,
                 bhd,
                 crf_meanCI, 
@@ -930,7 +930,7 @@ impact_mortality <-
                 impact_whoaqg21_meanCI,
                 everything()) %>%
   # Order rows by label
-  dplyr::arrange(ref, outcome_metric_short, desc(crf_id))
+  dplyr::arrange(ref, impact_metric, desc(crf_id))
 
 ```
 
