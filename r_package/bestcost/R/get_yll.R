@@ -61,14 +61,6 @@ get_yll <-
           dplyr::select(., -contains(as.character(year_of_analysis))) %>%
           dplyr::summarize_all(sum, na.rm = TRUE) %>%
 
-          # Add age_range
-          dplyr::mutate(
-            age_range = ifelse(!is.na(max_age),
-                               paste0("below", max_age+1),
-                               ifelse(!is.na(min_age),
-                                      paste0("from", min_age),
-                                      NA)))
-
         # Years of life lost
         yll_by_list[[s]][[v]][["noDiscount"]] <-
           # Convert to long
@@ -78,7 +70,6 @@ get_yll <-
                               values_to = "impact",
                               names_prefix = "population_")%>%
           # Sum among years
-          dplyr::group_by(age_range)%>%
           dplyr::summarise(impact = sum(impact), .groups = 'drop')
 
 
@@ -98,7 +89,6 @@ get_yll <-
           # Calculate life years discounted
           dplyr::mutate(discounted_impact = impact*discount)%>%
           # Sum among years
-          dplyr::group_by(age_range)%>%
           dplyr::summarise(impact = sum(discounted_impact), .groups = 'drop')
       }
     }
@@ -140,9 +130,9 @@ get_yll <-
 
 
       # Order columns
-      dplyr::select(discount, sex, age_range, ci, everything())%>%
+      dplyr::select(discount, sex, ci, everything())%>%
       # Order rows
-      dplyr::arrange(discount, sex, age_range, ci)
+      dplyr::arrange(discount, sex, ci)
 
     yll <-
       yll_long%>%

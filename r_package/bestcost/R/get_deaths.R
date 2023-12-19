@@ -73,12 +73,7 @@ get_deaths <-
                     impact = round(impact, 0))%>%
 
       # Add approach and metric and round
-      dplyr::mutate(impact_metric = "Premature deaths",
-                    age_range = ifelse(!is.na(max_age),
-                                       paste0("below", max_age+1),
-                                       ifelse(!is.na(min_age),
-                                              paste0("from", min_age),
-                                              NA)))%>%
+      dplyr::mutate(impact_metric = "Premature deaths")%>%
 
 
       # Add input data and info_ data
