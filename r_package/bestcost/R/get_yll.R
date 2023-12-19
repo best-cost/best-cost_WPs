@@ -3,15 +3,12 @@
 #' Get years of life lost
 #'
 #' Get years of life lost
-#' @param exp Numeric value showing the population-weighted mean exposure in ug/m3,
-#' @param cf Numeric value showing the counter-factual scenario (i.e. minimum cut-off concentration) in ug/m3,
-#' @param crf_per Numeric value showing the increment of the concentration-response function in ug/m3 (usually 10 or 5),
-#' @param crf_rescale_method String to choose among "linear" and "loglinear",
 #' @param shifted_popOvertime \code{Data frame} with shifted population over time
-#' @param year_of_analysis Numeric value of the year of analysis, which corresponds to the first year of the life table,
-#' @param age_min Number with the minimal age to be considered for adults (by default 30, i.e. 30+),
-#' @param age_max Number with the maximal age to be considered for infants/children (by default 0, i.e. below 1 years old)
-#' @param corrected_discount_rate Numeric value with the annual discount rate as proportion (i.e. 0.1 instead of 10\%). It can be calculated as (1+discount_rate_beforeCorrection/1+rate_of_increase)-1
+#' @param year_of_analysis \code{Numeric value} of the year of analysis, which corresponds to the first year of the life table,
+#' @param age_min \code{Numeric value}  with the minimal age to be considered for adults (by default 30, i.e. 30+),
+#' @param age_max \code{Numeric value}  with the maximal age to be considered for infants/children (by default 0, i.e. below 1 years old)
+#' @param meta \code{Data frame} with meta-information such as input data, additional information and intermediate results.
+#' @param corrected_discount_rate \code{Numeric value}  with the annual discount rate as proportion (i.e. 0.1 instead of 10\%). It can be calculated as (1+discount_rate_beforeCorrection/1+rate_of_increase)-1
 #' @return
 #' This function returns a \code{data.frame} with one row for each value of the
 #' concentration-response function (i.e. mean, lower and upper bound confidence interval.
@@ -33,9 +30,9 @@
 
 
 get_yll <-
-  function(exp, cf, crf_rescale_method,
-           shifted_popOverTime, year_of_analysis,
+  function(shifted_popOverTime, year_of_analysis,
            min_age = min_age, max_age = max_age,
+           meta,
            corrected_discount_rate){
 
     lifeyears_byYear <- list()
@@ -51,17 +48,24 @@ get_yll <-
           shifted_popOverTime[["shifted_popOverTime"]][[s]][[v]] %>%
 
           # Filter keeping only the relevant age
-          dplyr::filter(., age >= min_age & age <= max_age) %>%
+          {if(!is.na(max_age))
+            dplyr::filter(., age <= max_age)
+            else .} %>%
+          {if(!is.na(min_age))
+            dplyr::filter(., age >= min_age)
+            else .} %>%
 
           # Sum over ages
           dplyr::select(., contains("population_")) %>%
+          # Remove the year of analysis (we are only interested in the folowing ones)
+          dplyr::select(., -contains(as.character(year_of_analysis))) %>%
           dplyr::summarize_all(sum, na.rm = TRUE) %>%
 
           # Add age_range
           dplyr::mutate(
-            age_range = ifelse(!is.null(max_age),
+            age_range = ifelse(!is.na(max_age),
                                paste0("below", max_age+1),
-                               ifelse(!is.null(min_age),
+                               ifelse(!is.na(min_age),
                                       paste0("from", min_age),
                                       NA)))
 
@@ -71,11 +75,11 @@ get_yll <-
           lifeyears_byYear[[s]][[v]][["noDiscount"]]%>%
           tidyr::pivot_longer(cols = starts_with("population_"),
                               names_to = "year",
-                              values_to = "value",
+                              values_to = "impact",
                               names_prefix = "population_")%>%
           # Sum among years
           dplyr::group_by(age_range)%>%
-          dplyr::summarise(value = sum(value), .groups = 'drop')
+          dplyr::summarise(impact = sum(impact), .groups = 'drop')
 
 
 
@@ -85,17 +89,17 @@ get_yll <-
           # Reshape to long format
           tidyr::pivot_longer(cols = starts_with("population_"),
                               names_to = "year",
-                              values_to = "value",
+                              values_to = "impact",
                               names_prefix = "population_")%>%
           # Convert year to numeric
           dplyr::mutate(year = as.numeric(year))%>%
           # Calculate discount
           dplyr::mutate(discount = 1/(discount_factor^(year-(year_of_analysis+1))))%>%
           # Calculate life years discounted
-          dplyr::mutate(discounted_value = value*discount)%>%
+          dplyr::mutate(discounted_impact = impact*discount)%>%
           # Sum among years
           dplyr::group_by(age_range)%>%
-          dplyr::summarise(value = sum(discounted_value), .groups = 'drop')
+          dplyr::summarise(impact = sum(discounted_impact), .groups = 'drop')
       }
     }
 
@@ -110,44 +114,35 @@ get_yll <-
     # Calculate Years of Life Lost (YLLs)
     yll_long <-
       yll_by %>%
-      # Rename column
-      dplyr::rename("impact_beforeRounding" = "value") %>%
-
-      # Create new column impact (later rounded)
-      dplyr::mutate(., impact = impact_beforeRounding) %>%
-
 
       # Sum among sex
       dplyr::bind_rows(
         group_by(.,
                  discount, ci) %>%
           summarise(.,
-                    across(.cols=c(impact_beforeRounding, impact), sum),
+                    across(.cols=c(impact), sum),
                     across(where(is.character), ~"total"),
                     .groups = "keep"))%>%
-      # Add information such as exp, cf, approach, metric
+      # Add  metric
       dplyr::mutate(
-        pollutant = exp$pollutant,
-        exp = exp$exp,
-        cf = cf$cf,
-        approach_id = paste0("lifetable_", crf_rescale_method),
         impact_metric = "Year of life lost") %>%
-      # Add crf (with left join)
+      # Add meta information (with left join)
       dplyr::left_join(.,
-                       shifted_popOverTime[["crf"]][, c("pollutant", "ci",
-                                                        "crf")],
-                       by = c("pollutant", "ci"))%>%
+                       meta,
+                       by = "ci")%>%
       # Round the results
       dplyr::mutate(
+        # Create new column impact (later rounded)
+        impact_beforeRounding = impact,
         # Round column impact
         impact = round(impact, 0))%>%
 
 
 
       # Order columns
-      dplyr::select(pollutant, discount, sex, age_range, ci, everything())%>%
+      dplyr::select(discount, sex, age_range, ci, everything())%>%
       # Order rows
-      dplyr::arrange(pollutant, discount, sex, age_range, ci)
+      dplyr::arrange(discount, sex, age_range, ci)
 
     yll <-
       yll_long%>%
