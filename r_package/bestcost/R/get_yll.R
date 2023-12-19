@@ -57,6 +57,7 @@ get_yll <-
 
           # Sum over ages
           dplyr::select(., contains("population_")) %>%
+          dplyr::select(., -contains(as.character(year_of_analysis))) %>%
           dplyr::summarize_all(sum, na.rm = TRUE) %>%
 
           # Add age_range
