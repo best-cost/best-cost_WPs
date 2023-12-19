@@ -57,6 +57,8 @@ if(!"bestcost" %in% installed.packages()[, "Package"]){
   devtools::install_github(repo = "best-cost/best-cost_WPs",
                            subdir = "/r_package/bestcost",
                            # Branch (by default "HEAD")
+                           # Other usual branches 
+                           # "63-simplification-of-the-code"
                            ref = "HEAD",
                            force = TRUE)
 
@@ -751,8 +753,8 @@ for(i in 1:nrow(input_data_morbidities)){
                             c("crf_mean", "crf_lowci", "crf_highci")]) ,
     crf_per = 10, 
     crf_rescale_method = "loglinear", 
-    pollutant = input_data_morbidities$pollutant[i], 
-    outcome_metric = input_data_morbidities$outcome_metric[i])
+    info_pollutant = input_data_morbidities$pollutant[i], 
+    info_outcome = input_data_morbidities$outcome_metric[i])
   }
 
 
@@ -776,8 +778,10 @@ for (r in c("2019", "whoaqg21")){
 impact_morbidities <- 
   impact_morbidities_comparative %>%
   dplyr::bind_rows(.) %>%
-  # Remove column crf_ci
+
+  # Remove columns 
   dplyr::select(-crf_ci, -crfConc) %>%
+
   
   # Pivot wider the ci
   tidyr::pivot_wider(
@@ -799,7 +803,7 @@ impact_morbidities <-
   
     # Left join to add further information on crf
   dplyr::left_join(., crf_data, 
-                   by = c("pollutant", "crf_id", 
+                   by = c( "crf_id", 
                           paste0("crf_", c("mean", "lowci", "highci"))),
                    relationship = "many-to-one") %>%
      # Left join to add further information on bhd
@@ -818,7 +822,7 @@ impact_morbidities <-
                 contains("impact_diff_meanCI"),
                 contains("impact_ref_meanCI"), 
                 impact_whoaqg21_meanCI,
-                everything()) #%>%
+                everything())
 
 ```
 
@@ -851,7 +855,7 @@ for(i in 1:nrow(input_data_mortality)){  # Use this if you want to evaluate mult
     population_male = lifetable_withPopulation[["male"]]$population, 
     population_female = lifetable_withPopulation[["female"]]$population, 
     year_of_analysis = 2019, 
-    pollutant = input_data_mortality$pollutant[i], 
+    info_pollutant = input_data_mortality$pollutant[i], 
     min_age = input_data_mortality$min_age[i],
     max_age = input_data_mortality$max_age[i],
     corrected_discount_rate = 0)
@@ -882,23 +886,25 @@ for (r in c("2019", "whoaqg21")){
   # Substract the impacts for the scenarios
   impact_mortality_comparative[[paste0(r, "_whoaqg21")]] <- 
     dplyr::left_join(impact_mortality_edited[[r]],
-                     impact_mortality_edited[["whoaqg21"]][c("crf_id", "ci", "impact", "outcome_metric_short", "exp")], 
+                     impact_mortality_edited[["whoaqg21"]][c("crf_id", "ci", "impact", "impact_beforeRounding" ,"outcome_metric_short", "exp")], 
                      by = c("outcome_metric_short", "crf_id", "ci"), 
                      suffix = c("_ref", "_whoaqg21")) %>%
     dplyr::mutate(ref = r,
-                  impact_diff = impact_ref - impact_whoaqg21)
+                  impact_diff = impact_ref - impact_whoaqg21,
+                  impact_beforeRounding_diff = impact_beforeRounding_ref - impact_beforeRounding_whoaqg21)
   }
 
 impact_mortality <- 
   impact_mortality_comparative %>%
   dplyr::bind_rows(.) %>%
   # Remove non relevant columns
-  dplyr::select(-impact_per_unit, -case) %>%
+  dplyr::select(-case, -crf_ci) %>%
   
   # Pivot wider CI
   tidyr::pivot_wider(
-    values_from = c(crf, 
-                    impact_ref, impact_whoaqg21, impact_diff), 
+    values_from = c(crf, crf_forPaf, paf,
+                    impact_ref, impact_whoaqg21, impact_diff,
+                    impact_beforeRounding_ref, impact_beforeRounding_whoaqg21, impact_beforeRounding_diff), 
     names_from = ci) %>%
   # Paste the CIs
   dplyr::mutate(
@@ -908,43 +914,28 @@ impact_mortality <-
     impact_diff_meanCI = paste_round_CI(impact_diff_mean, impact_diff_lowci, impact_diff_highci, 0),
     # bhd as NA just to match with structure of morbidities
     bhd = NA) %>%
-  
-  # Pivot wider the impacts
-  tidyr::pivot_wider(
-    values_from = 
-      c(contains("_ref"),contains("_diff")),
-    names_from = ref) %>%
+
     
   # Left join to add further information on crf
   dplyr::left_join(., crf_data, 
-                   by = c("pollutant", "crf_id", "outcome_group",
+                   by = c("info_pollutant" = "pollutant", "crf_id", "crf_per",
                           paste0("crf_", c("mean", "lowci", "highci"))),
                    relationship = "many-to-one")%>%
-     # Left join to add further information on choice_bhd
-  # Since there is a life table and no alternative 
-  # the information has to be added manually
-  dplyr::mutate(choice_bhd = "selected") %>%
-  
   # Change outcome_id to ensure match with codebook
   dplyr::mutate(
     outcome_id = ifelse(outcome_metric_short %in% "yll",
                         gsub("premature deaths", "yll", outcome_id),
                         outcome_id)) %>%
-  # Left join to add label in German of outcomes
-  dplyr::left_join(., codebook, 
-                   by = "outcome_id",
-                   relationship = "many-to-one") %>%
   # Order columns 
-  dplyr::select(pollutant, term,
-                #outcome_label_de, # LUYTAX: removed
-                bhd,
-                crf_meanCI, 
+  dplyr::select(info_pollutant, ref, outcome_id, crf_source, 
+                term, bhd, crf_meanCI, 
                 contains("impact_diff_meanCI"),
                 contains("impact_ref_meanCI"), 
                 impact_whoaqg21_meanCI,
                 everything()) %>%
   # Order rows by label
-  dplyr::arrange(outcome_group)
+  dplyr::arrange(desc(info_pollutant), ref, outcome_id, crf_source)
+
 ```
 
 # Export 

@@ -5,7 +5,7 @@
 #' Get population for single year with change in air pollution exposure
 #' @param lifetable_withPop \code{Data frame} with three columns: the first one should refer to age, the second one to the probability of dying and the third one to the population (sex specific),
 #' @param year_of_analysis Numeric value of the year of analysis, which corresponds to the first year of the life table
-#' @param paf Attributable fraction
+#' @param paf Population attributable fraction
 #' @return
 #' This function returns a \code{data.frame} with the life table plus an additional column for population one year later without changing air pollution exposure.
 #' @import dplyr
