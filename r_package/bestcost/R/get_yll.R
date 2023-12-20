@@ -44,7 +44,7 @@ get_yll <-
       for (v in ci){
 
         # Life years by year (NO FUNCTION CALLED)
-        lifeyears_byYear[[s]][[v]][["noDiscount"]] <-
+        lifeyears_byYear[[s]][[v]] <-
           shifted_popOverTime[["shifted_popOverTime"]][[s]][[v]] %>%
 
           # Filter keeping only the relevant age
@@ -55,20 +55,21 @@ get_yll <-
             dplyr::filter(., age >= min_age)
             else .} %>%
 
-          # Sum over ages
+          # Select relevant columns
           dplyr::select(., contains("population_")) %>%
           # Remove the year of analysis (we are only interested in the following ones)
           dplyr::select(., -contains(as.character(year_of_analysis))) %>%
-          dplyr::summarize_all(sum, na.rm = TRUE)
-
-        # Years of life lost
-        yll_by_list[[s]][[v]][["noDiscount"]] <-
-          # Convert to long
-          lifeyears_byYear[[s]][[v]][["noDiscount"]]%>%
+          # Sum over ages
+          dplyr::summarize_all(sum, na.rm = TRUE) %>%
+          # Reshape to long format
           tidyr::pivot_longer(cols = starts_with("population_"),
                               names_to = "year",
                               values_to = "impact",
-                              names_prefix = "population_")%>%
+                              names_prefix = "population_")
+
+        # Years of life lost
+        yll_by_list[[s]][[v]][["noDiscount"]] <-
+          lifeyears_byYear[[s]][[v]]%>%
           # Sum among years
           dplyr::summarise(impact = sum(impact), .groups = 'drop')
 
@@ -76,12 +77,7 @@ get_yll <-
 
         # Discounted life years
         yll_by_list[[s]][[v]][["discounted"]] <-
-          lifeyears_byYear[[s]][[v]][["noDiscount"]]%>%
-          # Reshape to long format
-          tidyr::pivot_longer(cols = starts_with("population_"),
-                              names_to = "year",
-                              values_to = "impact",
-                              names_prefix = "population_")%>%
+          lifeyears_byYear[[s]][[v]]%>%
           # Convert year to numeric
           dplyr::mutate(year = as.numeric(year))%>%
           # Calculate discount
@@ -105,7 +101,7 @@ get_yll <-
     yll_long <-
       yll_by %>%
 
-      # Sum among sex
+      # Sum among sex adding total
       dplyr::bind_rows(
         group_by(.,
                  discount, ci) %>%
@@ -113,6 +109,7 @@ get_yll <-
                     across(.cols=c(impact), sum),
                     across(where(is.character), ~"total"),
                     .groups = "keep"))%>%
+
       # Add  metric
       dplyr::mutate(
         impact_metric = "Year of life lost") %>%
@@ -120,14 +117,13 @@ get_yll <-
       dplyr::left_join(.,
                        meta,
                        by = "ci")%>%
+
       # Round the results
       dplyr::mutate(
         # Create new column impact (later rounded)
         impact_beforeRounding = impact,
         # Round column impact
         impact = round(impact, 0))%>%
-
-
 
       # Order columns
       dplyr::select(discount, sex, ci, everything())%>%
