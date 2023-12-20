@@ -67,7 +67,7 @@ assess_impact_single <-
     calculation <-
       input %>%
       dplyr::mutate(
-        crfConc = rescale_crf(crf = crf,
+        crf_forPaf = rescale_crf(crf = crf,
                               exp = exp,
                               cf = cf,
                               crf_per = crf_per,
@@ -84,10 +84,11 @@ assess_impact_single <-
 
 
       # Calculate population attributable fraction (PAF) as well as impact
-      dplyr::mutate(paf =  bestcost::get_paf(crfConc = crfConc),
+      dplyr::mutate(paf =  bestcost::get_paf(crf_conc = crf_forPaf),
                     impact = round(paf * bhd, 0)) %>%
       # Order columns
-      dplyr::select(exp, cf, bhd, crf, crfConc, crf_per, ci, crf_rescale_method,
+      dplyr::select(exp, cf, bhd,
+                    crf, crf_forPaf, crf_per, ci, crf_rescale_method,
                     paf, impact,
                     starts_with("info_"))
 
