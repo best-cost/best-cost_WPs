@@ -57,9 +57,9 @@ get_yll <-
 
           # Sum over ages
           dplyr::select(., contains("population_")) %>%
-          # Remove the year of analysis (we are only interested in the folowing ones)
+          # Remove the year of analysis (we are only interested in the following ones)
           dplyr::select(., -contains(as.character(year_of_analysis))) %>%
-          dplyr::summarize_all(sum, na.rm = TRUE) %>%
+          dplyr::summarize_all(sum, na.rm = TRUE)
 
         # Years of life lost
         yll_by_list[[s]][[v]][["noDiscount"]] <-
