@@ -780,7 +780,7 @@ impact_morbidities <-
   dplyr::bind_rows(.) %>%
 
   # Remove columns 
-  dplyr::select(-crf_ci, -crfConc) %>%
+  dplyr::select(-crfConc) %>%
 
   
   # Pivot wider the ci
