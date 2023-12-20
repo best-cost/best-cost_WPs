@@ -59,6 +59,8 @@ if(!"bestcost" %in% installed.packages()[, "Package"]){
                            # Branch (by default "HEAD")
                            # Other usual branches 
                            # "63-simplification-of-the-code"
+                           # "Variable_names"
+                           # "Small_code_changes"
                            ref = "HEAD",
                            force = TRUE)
 
