@@ -79,48 +79,6 @@ library(bestcost)
 
 # Calculate health impacts
 
-```{r Create Codebook}
-# Do not forget yll
-codebook <- unique(bhd_data[, c("outcome_id", "mort_morb")]) 
-
-#TODO: Here a table with the correspondence between 
-# short names or ids (without spaces) 
-# and labels (spaces and eventually capital letter)
-# should be built
-```
-
-```{r prepare input data for function}
-input_data <-
-  # Join data sets of input data: exposure data, bhd data, counterfactual data
-  dplyr::left_join(exp_data, crf_data, by="pollutant", 
-                   suffix =c("_exp", "_crf"),
-                   relationship = "many-to-many") %>%
-  dplyr::left_join(., bhd_data, by="outcome_id",
-                   suffix = c("", "_bhd"),
-                   relationship = "many-to-many") %>%
-  dplyr::left_join(., cf_data, by="pollutant",
-                   relationship = "many-to-one")%>%
-  # Add the minimum age and maximum age for each row 
-  # (only relevant for mortality with lifetable)
-  dplyr::mutate(
-    min_age = ifelse(
-      mort_morb %in% "mortality" & outcome_group_bhd %in% "adults", 
-      20,
-      NA),
-    max_age = ifelse(
-      mort_morb %in% "mortality" & outcome_group_bhd %in% "infants",
-      0,
-      NA))
-
-input_data_morbidities <- 
-  input_data %>%
-  dplyr::filter(crf_id %in% crf_data_morbidities$crf_id)
-
-input_data_mortality <- 
-  input_data %>%
-  dplyr::filter(crf_id %in% crf_data_allCauseMortality$crf_id)
-```
-
 ```{r impact morbidity}
 impact_morbidities_raw <- list()
 
