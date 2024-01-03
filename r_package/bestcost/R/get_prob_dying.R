@@ -20,8 +20,10 @@
 #' @note Experimental function
 #' @export
 
+# List the required packages (to be loaded if not yet)
 require(dplyr)
 
+# Define the function
 get_prob_dying <-
   function(first_age_pop, last_age_pop, interval_age_pop,
            population, deaths,
