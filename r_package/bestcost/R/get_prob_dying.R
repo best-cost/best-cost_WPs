@@ -23,6 +23,19 @@
 # List the required packages (to be loaded if not yet)
 require(dplyr)
 
+# load tables
+# TODO: As soon as the function is ready move to testing file
+airqplus_deaths_pop_multipleYear <-
+  read.csv2("../testing/input/life_tables/airqplus_manual_age0to14_multipleYear.csv")
+airqplus_deaths_pop_singleYear <-
+  read.csv2("../testing/input/life_tables/airqplus_manual_age0to14_singleYear.csv")
+first_age_pop <- 0
+last_age_pop <- 14
+interval_age_pop <- 5
+population <- airqplus_deaths_pop_multipleYear$mi
+deaths <- airqplus_deaths_pop_multipleYear$di
+fraction_of_year_lived <- as.numeric(airqplus_deaths_pop_multipleYear$ai)
+
 # Define the function
 get_prob_dying <-
   function(first_age_pop, last_age_pop, interval_age_pop,
@@ -33,23 +46,28 @@ get_prob_dying <-
                             to = last_age_pop,
                             by = interval_age_pop)))){
 
+    # Probability of dying using the user-defined age interval
+    # The age interval can be 1 and then no further data preparation is needed
+    # or the age interval can be more than one and in that case a furter step is needed (see below)
     by_original_interval <-
       # Enter input data
       data.frame(
         age_start = seq(from = first_age_pop,
                         to = last_age_pop,
                         by = interval_age_pop),
-        age_end = seq(from = first_age_pop + interval_age_pop,
-                      to = last_age_pop,
-                      by = interval_age_pop + interval_age_pop),
+        age_end = seq(from = first_age_pop + interval_age_pop - 1,
+                      to = last_age_pop + interval_age_pop - 1,
+                      by = interval_age_pop),
         population = population,
         deaths = deaths,
         fraction_of_year_lived = fraction_of_year_lived) %>%
+
       # Make calculation
       dplyr::mutate(
         death_rate = deaths / population,
+
         # The probability of dying is defined as
-        # the number of people dying in a a year divided by
+        # the number of people dying in a year divided by
         # the number of people living at the beginning of the year (entry_population)
         # Simplified (divided by population), the following equation can be used
         # Formula from AirQ+ Manual for life tables
@@ -58,9 +76,12 @@ get_prob_dying <-
         # Alternative source where the formulas are also nicely defined:
         # https://www.statsdirect.com/help/survival_analysis/abridged_life_table.htm
         prob_dying = (death_rate * interval_age_pop) /
-          1 + ((1-fraction_of_year_lived) * death_rate * interval_age_pop),
+          (1 + ((1-fraction_of_year_lived) * death_rate * interval_age_pop)),
+
         prob_surviving = 1 - prob_dying)
 
+    # If the user-defined age interval is higher than 1,
+    # this second step is needed to standardize to single-year age interval
     by_single_year <-
       data.frame(
         age_start = seq(from = first_age_pop,
