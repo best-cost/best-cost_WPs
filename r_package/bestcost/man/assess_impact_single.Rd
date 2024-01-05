@@ -11,9 +11,8 @@ assess_impact_single(
   bhd,
   crf_per,
   crf_rescale_method,
-  pollutant,
-  outcome_metric,
-  age_group,
+  info_pollutant = NULL,
+  info_outcome = NULL,
   info_exp = NULL,
   info_cf = NULL,
   info_crf = NULL,
@@ -21,31 +20,29 @@ assess_impact_single(
 )
 }
 \arguments{
-\item{exp}{Numeric value showing the population-weighted mean exposure in ug/m3.}
+\item{exp}{\code{Numeric value} showing the population-weighted mean exposure in ug/m3.}
 
-\item{cf}{Numeric value showing the counter-factual scenario (i.e. minimum cut-off concentration) in ug/m3.}
+\item{cf}{\code{Numeric value} showing the counter-factual scenario (i.e. minimum cut-off concentration) in ug/m3.}
 
 \item{crf}{\code{Vector} of three numeric values referring to the mean as well as the lower bound and upper bound of the confidence interval.}
 
-\item{bhd}{Numeric value showing the baseline health data (incidence of the health outcome in the population),}
+\item{bhd}{\code{Numeric value} showing the baseline health data (incidence of the health outcome in the population).}
 
-\item{crf_per}{Numeric value showing the increment of the concentration-response function in ug/m3 (usually 10 or 5)}
+\item{crf_per}{\code{Numeric value} showing the increment of the concentration-response function in ug/m3 (usually 10 or 5).}
 
-\item{crf_rescale_method}{String to choose among "linear" and "loglinear",}
+\item{crf_rescale_method}{\code{String} to choose among "linear" and "loglinear".}
 
-\item{pollutant}{String with the name of the pollutant,}
+\item{info_pollutant}{\code{String} showing additional information or id for the pollutant. Default value = NULL.}
 
-\item{outcome_metric}{String with the name of the health outcome,}
+\item{info_outcome}{\code{String} showing additional information or id for the health outcome. Default value = NULL.}
 
-\item{age_group}{String with the denomination of the age group (e.g. "adults" or "infants") ,}
+\item{info_exp}{\code{String} showing additional information or id for the exposure. This information will be added to all rows of the results. Default value = NULL.}
 
-\item{info_exp}{\code{Data frame} of one row showing extra information in columns. Default value = NULL,}
+\item{info_cf}{\code{String} showing additional information or id for counter-factual scenario (cut-off). This information will be added to all rows of the results. Default value = NULL.}
 
-\item{info_cf}{\code{Data frame} of one row showing extra information in columns. Default value = NULL,}
+\item{info_crf}{\code{String} showing additional information or id for the concentration-response function. This information will be added to all rows of the results. Default value = NULL.}
 
-\item{info_crf}{\code{Data frame} of three rows (mean, lower bound and upper bound) showing extra information in columns. Default value = NULL,}
-
-\item{info_bhd}{\code{Data frame} of one row showing extra information in columns. Default value = NULL,}
+\item{info_bhd}{\code{String} showing additional information or id for the baseline health data. This information will be added to all rows of the results. Default value = NULL.}
 }
 \value{
 This function returns a \code{data.frame} with one row for each value of the
