@@ -71,6 +71,26 @@ library(bestcost)
 # loads all functions in {bestcost}
 #devtools::load_all() 
 ```
+```{r Test probability of dying}
+# load data sets from the AirQ+ manual
+# 
+# TODO: As soon as the function is ready move to testing file
+airqplus_deaths_pop_multipleYear <-
+  read.csv2("../testing/input/life_tables/airqplus_manual_age0to14_multipleYear.csv")
+airqplus_deaths_pop_singleYear <-
+  read.csv2("../testing/input/life_tables/airqplus_manual_age0to14_singleYear.csv")
+
+# Use function
+bestcost::get_prob_dying(
+  first_age_pop = 0,
+  last_age_pop = 14,
+  interval_age_pop = 15,
+  population_midyear = airqplus_deaths_pop_multipleYear$mi,
+  deaths = airqplus_deaths_pop_multipleYear$di
+)
+
+
+```
 
 ```{r Useful variables}
 

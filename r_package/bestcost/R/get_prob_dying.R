@@ -23,18 +23,6 @@
 # List the required packages (to be loaded if not yet)
 require(dplyr)
 
-# load tables
-# TODO: As soon as the function is ready move to testing file
-airqplus_deaths_pop_multipleYear <-
-  read.csv2("../testing/input/life_tables/airqplus_manual_age0to14_multipleYear.csv")
-airqplus_deaths_pop_singleYear <-
-  read.csv2("../testing/input/life_tables/airqplus_manual_age0to14_singleYear.csv")
-first_age_pop <- 0
-last_age_pop <- 14
-interval_age_pop <- 5
-population_midyear <- airqplus_deaths_pop_multipleYear$mi
-deaths <- airqplus_deaths_pop_multipleYear$di
-fraction_of_year_lived <- as.numeric(airqplus_deaths_pop_multipleYear$ai)
 
 # Define the function
 get_prob_dying <-
