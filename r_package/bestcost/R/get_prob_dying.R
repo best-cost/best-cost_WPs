@@ -6,7 +6,7 @@
 #' @param first_age_pop \code{Numberic value} of the first item of the age sequence from population and life table data.
 #' @param last_age_pop \code{Numberic value} of the last item of the age sequence from population and life table data.
 #' @param interval_age_pop \code{Vector} containing the interval of the age sequence from population and death data.
-#' @param population \code{Vector} containing the mid-year population by age range.
+#' @param population_midyear \code{Vector} containing the mid-year population by age range.
 #' @param deaths \code{Vector} containing deaths of the year of analysis by age range.
 #' @param fraction_of_year_lived \code{Vector} containing the fraction of the age interval that was lived by those who died for each age interval. Default value = 0.5 (i.e. 50%) for all age intervals.
 #'
@@ -32,14 +32,14 @@ airqplus_deaths_pop_singleYear <-
 first_age_pop <- 0
 last_age_pop <- 14
 interval_age_pop <- 5
-population <- airqplus_deaths_pop_multipleYear$mi
+population_midyear <- airqplus_deaths_pop_multipleYear$mi
 deaths <- airqplus_deaths_pop_multipleYear$di
 fraction_of_year_lived <- as.numeric(airqplus_deaths_pop_multipleYear$ai)
 
 # Define the function
 get_prob_dying <-
   function(first_age_pop, last_age_pop, interval_age_pop,
-           population, deaths,
+           population_midyear, deaths,
            fraction_of_year_lived =
              rep(0.5,
                  length(seq(from = first_age_pop,
@@ -49,7 +49,7 @@ get_prob_dying <-
     # Probability of dying using the user-defined age interval
     # The age interval can be 1 and then no further data preparation is needed
     # or the age interval can be more than one and in that case a furter step is needed (see below)
-    by_original_interval <-
+    data_original_interval <-
       # Enter input data
       data.frame(
         age_start = seq(from = first_age_pop,
@@ -58,13 +58,13 @@ get_prob_dying <-
         age_end = seq(from = first_age_pop + interval_age_pop - 1,
                       to = last_age_pop + interval_age_pop - 1,
                       by = interval_age_pop),
-        population = population,
+        population_midyear = population_midyear,
         deaths = deaths,
         fraction_of_year_lived = fraction_of_year_lived) %>%
 
       # Make calculation
       dplyr::mutate(
-        death_rate = deaths / population,
+        death_rate = deaths / population_midyear,
 
         # The probability of dying is defined as
         # the number of people dying in a year divided by
@@ -80,48 +80,87 @@ get_prob_dying <-
 
         prob_surviving = 1 - prob_dying)
 
-    # If the user-defined age interval is higher than 1,
-    # this second step is needed to standardize to single-year age interval
-    names(by_original_interval) <- paste0(names(by_original_interval), "_group")
+    # Store as function output
+    output <- data_original_interval
 
-    # Create data frame with the start and end age of single years intervals
-    # and the the start year of the multiple year to use it as link for the join
-    by_single_year <-
-      data.frame(
-        age_start = seq(from = first_age_pop,
+    # If the user-defined age interval is higher than 1,
+    if(interval_age_pop > 1){
+      # this second step is needed to standardize to single-year age interval
+      names(data_original_interval) <- paste0(names(data_original_interval), "_group")
+
+      # Create data frame with the start and end age of single years intervals
+      # and the the start year of the multiple year to use it as link for the join
+      data_interpolated <-
+        data.frame(
+          age_start = seq(from = first_age_pop,
+                          to = last_age_pop,
+                          by = 1),
+          age_end = seq(from = first_age_pop,
                         to = last_age_pop,
                         by = 1),
-        age_end = seq(from = first_age_pop,
-                      to = last_age_pop,
-                      by = 1),
-        age_start_group = rep(seq(from = first_age_pop,
-                              to = last_age_pop,
-                              by = interval_age_pop),
-                              each = interval_age_pop))%>%
-      # Add information from the table with multiple-year interval
-      dplyr::left_join(., by_original_interval,
-                       by = "age_start_group") %>%
-      dplyr::mutate(
-        prob_dying =
-          death_rate_group /
-          (1 + (1-fraction_of_year_lived_group)*death_rate_group),
-        prob_surviving =
-          1 - prob_dying,
-        is_first_row_group =
-          !duplicated(age_start_group))%>%
-      dplyr::rowwise() %>%
-      dplyr::mutate(
-        population_entry =
-          ifelse(is_first_row_group,
-                 population_group /
-                 sum(
-                   c(0.5,
-                     prob_surviving^(1:(interval_age_pop-1)),
-                     0.5 * prob_surviving^interval_age_pop)),
-                 NA))
+          age_start_group = rep(seq(from = first_age_pop,
+                                    to = last_age_pop,
+                                    by = interval_age_pop),
+                                each = interval_age_pop))%>%
+        # Add information from the table with multiple-year interval
+        dplyr::left_join(., data_original_interval,
+                         by = "age_start_group") %>%
+        # Rename fraction of year lived from multiple to single year
+        # (it is the same for single year as for multiple year)
+        dplyr::rename("fraction_of_year_lived" = "fraction_of_year_lived_group") %>%
+        # Calculate probability of dying
+        dplyr::mutate(
+          prob_dying =
+            death_rate_group /
+            (1 + (1-fraction_of_year_lived)*death_rate_group),
+          prob_surviving =
+            1 - prob_dying,
+          is_first_row_group =
+            !duplicated(age_start_group))%>%
+        # Calculate population_entry, deaths and population_midyear for each row
+        # Actually, we just need to edit the first row but we edit all because
+        # the rest of the rows are edited again below.
+        dplyr::rowwise() %>%
+        dplyr::mutate(
+          population_entry =
+            ifelse(is_first_row_group,
+                   population_midyear_group /
+                     sum(
+                       c(0.5,
+                         prob_surviving^(1:(interval_age_pop-1)),
+                         0.5 * prob_surviving^interval_age_pop)),
+                   NA),
+          deaths =
+            population_entry * prob_dying,
+          population_midyear =
+            population_entry - (1-fraction_of_year_lived) * deaths)
+
+      # Now only for rows that are not the first item/row for each group
+      for(i in which(!data_interpolated$is_first_row_group)){
+        data_interpolated$population_entry[i] <-
+          data_interpolated$population_entry[i-1] - data_interpolated$deaths[i-1]
+
+        data_interpolated$deaths[i] <-
+          data_interpolated$population_entry[i] * data_interpolated$prob_dying[i]
+
+        data_interpolated$population_midyear <-
+          data_interpolated$population_entry[i] -
+          (1-data_interpolated$fraction_of_year_lived) *
+          data_interpolated$deaths
+
+      }
+      # Store it as the new function output
+      output <- data_interpolated
+    }
 
 
 
+    # Prepare output of the function
+    output <-
+      output %>%
+      dplyr::select(age_start, age_end, fraction_of_year_lived,
+                    population_entry, deaths, population_midyear,
+                    prob_dying, prob_surviving)
 
 
     return(output)
