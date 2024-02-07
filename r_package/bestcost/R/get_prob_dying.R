@@ -3,12 +3,13 @@
 #' Get probability of dying
 #'
 #' Calculates the probability of dying (natural, non-natural or all cause deaths) based on population and mortality data.
-#' @param first_age_pop \code{Numberic value} of the first item of the age sequence from population and life table data.
-#' @param last_age_pop \code{Numberic value} of the last item of the age sequence from population and life table data.
+#' @name get_prob_dying
+#' @param first_age_pop \code{Numeric value} of the first item of the age sequence from population and life table data.
+#' @param last_age_pop \code{Numeric value} of the last item of the age sequence from population and life table data.
 #' @param interval_age_pop \code{Vector} containing the interval of the age sequence from population and death data.
 #' @param population_midyear \code{Vector} containing the mid-year population by age range.
 #' @param deaths \code{Vector} containing deaths of the year of analysis by age range.
-#' @param fraction_of_year_lived \code{Vector} containing the fraction of the age interval that was lived by those who died for each age interval. Default value = 0.5 (i.e. 50%) for all age intervals.
+#' @param fraction_of_year_lived \code{Numeric value} or \code{Vector} containing the fraction of the age interval that was lived by those who died for each age interval. Default value = 0.5 (i.e. 50%) for all age intervals.
 #'
 #' @return
 #' This function returns a \code{data frame} showing the probability of dying by age interval.
