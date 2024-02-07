@@ -28,11 +28,14 @@ require(dplyr)
 get_prob_dying <-
   function(first_age_pop, last_age_pop, interval_age_pop,
            population_midyear, deaths,
-           fraction_of_year_lived =
-             rep(0.5,
-                 length(seq(from = first_age_pop,
-                            to = last_age_pop,
-                            by = interval_age_pop)))){
+           fraction_of_year_lived = 0.5){
+
+
+    # If input value for parameter "fraction_of_year_lived" is single value convert to vector
+    if (length(fraction_of_year_lived)==1){fraction_of_year_lived <-  rep(fraction_of_year_lived,
+                                                                         length(seq(from = first_age_pop,
+                                                                                    to = last_age_pop,
+                                                                                    by = interval_age_pop)))}
 
     # Probability of dying using the user-defined age interval
     # The age interval can be 1 and then no further data preparation is needed
