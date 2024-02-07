@@ -5,30 +5,23 @@
 \title{Get deaths}
 \usage{
 get_deaths(
-  exp,
-  cf,
-  crf_rescale_method,
   shifted_popOverTime,
-  firstYear_lifetable,
-  age_group,
+  year_of_analysis,
+  meta,
   min_age = min_age,
   max_age = max_age
 )
 }
 \arguments{
-\item{exp}{Numeric value showing the population-weighted mean exposure in ug/m3,}
+\item{year_of_analysis}{\code{Numeric value} of the year of analysis, which corresponds to the first year of the life table,}
 
-\item{cf}{Numeric value showing the counter-factual scenario (i.e. minimum cut-off concentration) in ug/m3,}
+\item{meta}{\code{Data frame} with meta-information such as input data, additional information and intermediate results.}
 
-\item{crf_rescale_method}{String to choose among "linear" and "loglinear",}
+\item{min_age}{\code{Numeric value} with the minimal age to be considered for adults (by default 30, i.e. 30+),}
 
-\item{firstYear_lifetable}{Numeric value of the year of analysis, which corresponds to the first year of the life table,}
+\item{max_age}{\code{Numeric value} with the maximal age to be considered for infants/children (by default 0, i.e. below 1 years old)#'}
 
-\item{min_age}{Number with the minimal age to be considered for adults (by default 30, i.e. 30+),}
-
-\item{max_age}{Number with the maximal age to be considered for infants/children (by default 0, i.e. below 1 years old)#' @param age_group String with the denomination of the age group (e.g. "adults" or "infants"),}
-
-\item{shifted_popOvertime}{\code{Data frame} with shifted population over time,}
+\item{shifted_popOvertime}{\code{Data frame} with shifted population over time.}
 }
 \value{
 This function returns a \code{data.frame} with the number of deaths based on the life table
