@@ -40,7 +40,7 @@ get_prob_dying <-
 
     # Probability of dying using the user-defined age interval
     # The age interval can be 1 and then no further data preparation is needed
-    # or the age interval can be more than one and in that case a furter step is needed (see below)
+    # or the age interval can be more than one and in that case a further step is needed (see below)
     data_original_interval <-
       # Enter input data
       data.frame(

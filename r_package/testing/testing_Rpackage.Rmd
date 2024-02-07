@@ -82,7 +82,7 @@ prob_dying_airqplus <-
   bestcost::get_prob_dying(
     first_age_pop = 0,
     last_age_pop = 14,
-    interval_age_pop = 15,
+    interval_age_pop = 5,
     population_midyear = airqplus_deaths_pop_multipleYear$mi,
     deaths = airqplus_deaths_pop_multipleYear$di
   )
