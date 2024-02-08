@@ -1,0 +1,7 @@
+920 ms
+810 ms
+850 ms
+850 ms
+910 ms
+
+average: 868 ms

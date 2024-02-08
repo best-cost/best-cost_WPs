@@ -4,33 +4,12 @@
 \alias{get_popOverTime}
 \title{Get population over time}
 \usage{
-get_popOverTime(
-  exp,
-  cf,
-  crf,
-  crf_per,
-  crf_rescale_method,
-  lifetab_withPop,
-  firstYear_lifetable,
-  age_group
-)
+get_popOverTime(lifetab_withPop, year_of_analysis, paf)
 }
 \arguments{
-\item{exp}{Numeric value showing the population-weighted mean exposure in ug/m3.}
+\item{year_of_analysis}{Numeric value of the year of analysis, which corresponds to the first year of the life table}
 
-\item{cf}{Numeric value showing the counter-factual scenario (i.e. minimum cut-off concentration) in ug/m3.}
-
-\item{crf}{\code{Vector} of three numeric values referring to the mean as well as the lower bound and upper bound of the confidence interval.}
-
-\item{crf_per}{Numeric value showing the increment of the concentration-response function in ug/m3 (usually 10 or 5)}
-
-\item{crf_rescale_method}{String to choose among "linear" and "loglinear",}
-
-\item{firstYear_lifetable}{Numeric value of the year of analysis, which corresponds to the first year of the life table}
-
-\item{age_group}{String with the denomination of the age group (e.g. "adults" or "infants"),}
-
-\item{bhd}{Numeric value showing the baseline health data (incidence of the health outcome in the population),}
+\item{paf}{\code{Data frame} with three rows (mean, lower bound and upper bound)}
 
 \item{lifetable_withPop}{\code{Data frame} with three columns: the first one should refer to age, the second one to the probability of dying and the third one to the population (sex specific),}
 }

@@ -4,12 +4,12 @@
 \alias{get_popOverTime_noAP}
 \title{Get population over time without changing air pollution exposure}
 \usage{
-get_popOverTime_noAP(lifetable_wPop, firstYear_lifetable)
+get_popOverTime_noAP(lifetable_withPop, year_of_analysis)
 }
 \arguments{
-\item{lifetable_wPop}{\code{Data frame} with three columns: the first one should refer to age, the second one to the probability of dying and the third one to the population (sex specific),}
+\item{lifetable_withPop}{\code{Data frame} with three columns: the first one should refer to age, the second one to the probability of dying and the third one to the population (sex specific),}
 
-\item{firstYear_lifetable}{Numeric value of the year of analysis, which corresponds to the first year of the life table}
+\item{year_of_analysis}{Numeric value of the year of analysis, which corresponds to the first year of the life table}
 }
 \value{
 This function returns a \code{data.frame} with the life table plus an additional column for population one year later without changing air pollution exposure.

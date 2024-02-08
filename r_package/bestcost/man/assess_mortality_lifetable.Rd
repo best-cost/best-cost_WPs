@@ -19,63 +19,66 @@ assess_mortality_lifetable(
   prob_total_death_female,
   population_male,
   population_female,
-  firstYear_lifetable,
-  pollutant,
-  age_group,
-  corrected_discount_rate,
-  min_age = 30,
-  max_age = 0,
+  year_of_analysis,
+  corrected_discount_rate = 0,
+  min_age = NULL,
+  max_age = NULL,
+  info_pollutant = NULL,
+  info_outcome = NULL,
   info_exp = NULL,
   info_cf = NULL,
-  info_crf = NULL
+  info_crf = NULL,
+  info_bhd = NULL
 )
 }
 \arguments{
-\item{exp}{Numeric value showing the population-weighted mean exposure in ug/m3,}
+\item{exp}{\code{Numberic value} showing the population-weighted mean exposure in ug/m3,}
 
-\item{cf}{Numeric value showing the counter-factual scenario (i.e. minimum cut-off concentration) in ug/m3,}
+\item{cf}{\code{Numberic value} showing the counter-factual scenario (i.e. minimum cut-off concentration) in ug/m3.}
 
-\item{crf}{\code{Vector} of three numeric values referring to the mean as well as the lower bound and upper bound of the confidence interval,}
+\item{crf}{\code{Vector} of three numeric values referring to the mean as well as the lower bound and upper bound of the confidence interval.}
 
-\item{crf_per}{Numeric value showing the increment of the concentration-response function in ug/m3 (usually 10 or 5),}
+\item{crf_per}{\code{Numberic value} showing the increment of the concentration-response function in ug/m3 (usually 10 or 5).}
 
-\item{crf_rescale_method}{String to choose among "linear" and "loglinear",}
+\item{crf_rescale_method}{\code{String} to choose among "linear" and "loglinear".}
 
-\item{first_age_pop}{Numeric value of the first item of the age sequence from population and life table data}
+\item{first_age_pop}{\code{Numberic value} of the first item of the age sequence from population and life table data}
 
-\item{last_age_pop}{Numeric value of the last item of the age sequence from population and life table data}
+\item{last_age_pop}{\code{Numberic value} of the last item of the age sequence from population and life table data}
 
-\item{interval_age_pop}{Numeric value of the interval of the age sequence from population and life table data}
+\item{interval_age_pop}{\code{Numberic value} of the interval of the age sequence from population and life table data}
 
-\item{prob_natural_death_male}{\code{Vector} containing the probability of dying because of natural cause (excluding non-natural deaths such as violence or accidents) by age or age group for male,}
+\item{prob_natural_death_male}{\code{Vector} containing the probability of dying because of natural cause (excluding non-natural deaths such as violence or accidents) by age or age group for male.}
 
-\item{prob_natural_death_female}{\code{Vector} containing the probability of dying because of natural cause (excluding non-natural deaths such as violence or accidents) by age or age group for female,}
+\item{prob_natural_death_female}{\code{Vector} containing the probability of dying because of natural cause (excluding non-natural deaths such as violence or accidents) by age or age group for female.}
 
-\item{prob_total_death_male}{\code{Vector} containing the probability of dying because of all causes (including non-natural deaths such as violence or accidents) by age or age group for male,}
+\item{prob_total_death_male}{\code{Vector} containing the probability of dying because of all causes (including non-natural deaths such as violence or accidents) by age or age group for male.}
 
-\item{prob_total_death_female}{\code{Vector} containing the probability of dying because of all causes (including non-natural deaths such as violence or accidents) by age or age group for female,}
+\item{prob_total_death_female}{\code{Vector} containing the probability of dying because of all causes (including non-natural deaths such as violence or accidents) by age or age group for female.}
 
-\item{population_male}{\code{Vector} containing the mid-year male population for the year of analysis,}
+\item{population_male}{\code{Vector} containing the mid-year male population for the year of analysis.}
 
-\item{population_female}{\code{Vector} containing the mid-year female population for the year of analysis,}
+\item{population_female}{\code{Vector} containing the mid-year female population for the year of analysis.}
 
-\item{firstYear_lifetable}{Numeric value of the year of analysis, which corresponds to the first year of the life table,}
+\item{year_of_analysis}{Numeric value of the year of analysis, which corresponds to the first year of the life table.}
 
-\item{pollutant}{String with the name of the pollutant,}
+\item{corrected_discount_rate}{Numeric value with the corrected discount rate as proportion (i.e. 0.1 instead of 10\%).}
 
-\item{age_group}{String with the denomination of the age group (e.g. "adults" or "infants"),}
+\item{min_age}{\code{Numberic value} of the minimal age to be considered for adults (by default 30, i.e. 30+).}
 
-\item{corrected_discount_rate}{Numeric value with the corrected discount rate as proportion (i.e. 0.1 instead of 10\%)}
+\item{max_age}{\code{Numberic value} of the maximal age to be considered for infants/children (by default 0, i.e. below 1 years old).}
 
-\item{min_age}{Number with the minimal age to be considered for adults (by default 30, i.e. 30+),}
+\item{info_pollutant}{\code{String} showing additional information or id for the pollutant. Default value = NULL.}
 
-\item{max_age}{Number with the maximal age to be considered for infants/children (by default 0, i.e. below 1 years old)}
+\item{info_outcome}{\code{String} showing additional information or id for the health outcome. Default value = NULL.}
 
-\item{info_exp}{\code{Data frame} of one row showing extra information in columns. Default value = NULL,}
+\item{info_exp}{\code{String} showing additional information or id for the exposure. This information will be added to all rows of the results. Default value = NULL.}
 
-\item{info_cf}{\code{Data frame} of one row showing extra information in columns. Default value = NULL,}
+\item{info_cf}{\code{String} showing additional information or id for counter-factual scenario (cut-off). This information will be added to all rows of the results. Default value = NULL.}
 
-\item{info_crf}{\code{Data frame} of three rows (mean, lower bound and upper bound) showing extra information in columns. Default value = NULL,}
+\item{info_crf}{\code{String} showing additional information or id for the concentration-response function. This information will be added to all rows of the results. Default value = NULL.}
+
+\item{info_bhd}{\code{String} showing additional information or id for the baseline health data. This information will be added to all rows of the results. Default value = NULL.}
 }
 \value{
 This function returns a \code{data.frame} with one row for each value of the
