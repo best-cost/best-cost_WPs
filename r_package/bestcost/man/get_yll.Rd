@@ -5,37 +5,26 @@
 \title{Get years of life lost}
 \usage{
 get_yll(
-  exp,
-  cf,
-  crf_rescale_method,
   shifted_popOverTime,
-  firstYear_lifetable,
-  age_group,
+  year_of_analysis,
   min_age = min_age,
   max_age = max_age,
+  meta,
   corrected_discount_rate
 )
 }
 \arguments{
-\item{exp}{Numeric value showing the population-weighted mean exposure in ug/m3,}
+\item{year_of_analysis}{\code{Numeric value} of the year of analysis, which corresponds to the first year of the life table,}
 
-\item{cf}{Numeric value showing the counter-factual scenario (i.e. minimum cut-off concentration) in ug/m3,}
+\item{meta}{\code{Data frame} with meta-information such as input data, additional information and intermediate results.}
 
-\item{crf_rescale_method}{String to choose among "linear" and "loglinear",}
-
-\item{firstYear_lifetable}{Numeric value of the year of analysis, which corresponds to the first year of the life table,}
-
-\item{age_group}{String with the denomination of the age group (e.g. "adults" or "infants"),}
-
-\item{corrected_discount_rate}{Numeric value with the annual discount rate as proportion (i.e. 0.1 instead of 10\%). It can be calculated as (1+discount_rate_beforeCorrection/1+rate_of_increase)-1}
-
-\item{crf_per}{Numeric value showing the increment of the concentration-response function in ug/m3 (usually 10 or 5),}
+\item{corrected_discount_rate}{\code{Numeric value}  with the annual discount rate as proportion (i.e. 0.1 instead of 10\%). It can be calculated as (1+discount_rate_beforeCorrection/1+rate_of_increase)-1}
 
 \item{shifted_popOvertime}{\code{Data frame} with shifted population over time}
 
-\item{age_min}{Number with the minimal age to be considered for adults (by default 30, i.e. 30+),}
+\item{age_min}{\code{Numeric value}  with the minimal age to be considered for adults (by default 30, i.e. 30+),}
 
-\item{age_max}{Number with the maximal age to be considered for infants/children (by default 0, i.e. below 1 years old)}
+\item{age_max}{\code{Numeric value}  with the maximal age to be considered for infants/children (by default 0, i.e. below 1 years old)}
 }
 \value{
 This function returns a \code{data.frame} with one row for each value of the

@@ -2,24 +2,22 @@
 % Please edit documentation in R/get_popSingleYear_withAP.R
 \name{get_popSingleYear_withAP}
 \alias{get_popSingleYear_withAP}
-\title{Get population over time with change in air pollution exposure}
+\title{Get population for single year with change in air pollution exposure}
 \usage{
-get_popSingleYear_withAP(lifetable_wPop, firstYear_lifetable, age_group, af)
+get_popSingleYear_withAP(lifetable_withPop, year_of_analysis, paf)
 }
 \arguments{
-\item{lifetable_wPop}{\code{Data frame} with three columns: the first one should refer to age, the second one to the probability of dying and the third one to the population (sex specific),}
+\item{lifetable_withPop}{\code{Data frame} with three columns: the first one should refer to age, the second one to the probability of dying and the third one to the population (sex specific),}
 
-\item{firstYear_lifetable}{Numeric value of the year of analysis, which corresponds to the first year of the life table}
+\item{year_of_analysis}{Numeric value of the year of analysis, which corresponds to the first year of the life table}
 
-\item{age_group}{String with the denomination of the age group (e.g. "adults" or "infants"),}
-
-\item{paf}{Attributable fraction}
+\item{paf}{Population attributable fraction}
 }
 \value{
 This function returns a \code{data.frame} with the life table plus an additional column for population one year later without changing air pollution exposure.
 }
 \description{
-Get population over time with change in air pollution exposure
+Get population for single year with change in air pollution exposure
 }
 \note{
 Experimental function

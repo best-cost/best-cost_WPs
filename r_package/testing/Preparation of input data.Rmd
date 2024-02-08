@@ -270,6 +270,13 @@ cf_rawdata <-
   read.csv("../testing/input/cf.csv",
            sep = ";",
            na.strings=c("NA", ""))
+
+# Data sets from the AirQ+ manual (for testing of function get_prob_dying())
+
+airqplus_deaths_pop_multipleYear <-
+  read.csv2("../testing/input/life_tables/airqplus_manual_age0to14_multipleYear.csv")
+airqplus_deaths_pop_singleYear <-
+  read.csv2("../testing/input/life_tables/airqplus_manual_age0to14_singleYear.csv")
 ```
 
 # Edit input data
