@@ -75,6 +75,17 @@ library(bestcost)
 #devtools::load_all() 
 ```
 
+```{r load current version of bestcost from local source, include=FALSE}
+library(bestcost)
+detach("package:bestcost", unload = TRUE) # detach bestcost
+# Save current state of package as .zip file (e.g. to directly test changes in functions)
+devtools::build(binary = TRUE, path = "../testing/input/") 
+# Install package from source
+install.packages("../testing/input/bestcost_0.0.0.1.zip", repos=NULL, type='source')
+# Load updated package
+library(bestcost)
+```
+
 
 ```{r Test probability of dying}
 # Use function
@@ -84,7 +95,8 @@ prob_dying_airqplus <-
     last_age_pop = 14,
     interval_age_pop = 5,
     population_midyear = airqplus_deaths_pop_multipleYear$mi,
-    deaths = airqplus_deaths_pop_multipleYear$di
+    deaths = airqplus_deaths_pop_multipleYear$di,
+    fraction_of_year_lived = c(0.5,0.5)
   )
 ```
 
