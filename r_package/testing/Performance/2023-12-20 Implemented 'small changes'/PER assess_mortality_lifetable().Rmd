@@ -9,7 +9,7 @@ Here the function assess_mortality_lifetable() (date: 2023-12-20) is profiled.
 
 ```{r}
 # First save package in current state as .zip file
-devtools::build(binary = TRUE, path = "../testing/Performance/2023-12-20 Implemented 'small changes'/")
+#devtools::build(binary = TRUE, path = "../testing/Performance/2023-12-20 Implemented 'small changes'/")
 
 # Load input data for function to be tested
 load("../testing/Performance/2023-12-20 Implemented 'small changes'/data.Rdata")

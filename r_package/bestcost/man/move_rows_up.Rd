@@ -4,12 +4,12 @@
 \alias{move_rows_up}
 \title{Move rows up}
 \usage{
-move_rows_up(popOTime, firstYear_lifetable)
+move_rows_up(popOTime, year_of_analysis)
 }
 \arguments{
 \item{popOTime}{Population over time,}
 
-\item{firstYear_lifetable}{Numeric value of the year of analysis, which corresponds to the first year of the life table}
+\item{year_of_analysis}{Numeric value of the year of analysis, which corresponds to the first year of the life table}
 }
 \value{
 This function returns a shifted value of the population over time taking into account probability of dying
