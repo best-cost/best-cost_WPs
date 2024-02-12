@@ -58,7 +58,7 @@ if(!"bestcost" %in% installed.packages()[, "Package"]){
   #usethis::use_git_config(user.name = "YourName", user.email = "your@mail.com") # run if installation doesn't work
   credentials::set_github_pat() # paste github PAT when prompted
   devtools::install_github(repo = "best-cost/best-cost_WPs",
-                           subdir = "/r_package/bestcost",
+                           subdir = "/r_package/exposure_distribution",
                            # Branch (by default "HEAD")
                            # Other usual branches 
                            # "63-simplification-of-the-code"
@@ -91,8 +91,34 @@ prob_dying_airqplus <-
 
 # Calculate health impacts
 
+```{r impact exposure distribution}
+
+impact_morbidities_raw <- list()
+
+
+for(i in 1:nrow(input_data_morbidities)){
+  impact_morbidities_raw[[input_data_morbidities$year[i]]][[input_data_morbidities$crf_id[[i]]]] <-
+  bestcost::assess_impact_single(
+    exp = c(8, 8.5, 9),
+    prop_pop_exp = c(0.2, 0.4, 0.4), # Fake values (just for testing purposes)
+    cf = input_data_morbidities$cf[i],    # PM2.5=5, NO2=10, i.e. WHO AQG 2021 
+    bhd = input_data_morbidities$bhd_absolute[i],
+    crf = unlist(input_data_morbidities[i, 
+                            c("crf_mean", "crf_lowci", "crf_highci")]) ,
+    crf_per = 10, 
+    crf_rescale_method = "loglinear", 
+    info_pollutant = input_data_morbidities$pollutant[i], 
+    info_outcome = input_data_morbidities$outcome_metric[i])
+  }
+
+
+```
+
+
+
 ```{r impact morbidity}
 impact_morbidities_raw <- list()
+
 
 for(i in 1:nrow(input_data_morbidities)){
   impact_morbidities_raw[[input_data_morbidities$year[i]]][[input_data_morbidities$crf_id[[i]]]] <-

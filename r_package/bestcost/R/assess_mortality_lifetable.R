@@ -3,8 +3,8 @@
 #' Calculation of Health Impacts
 #'
 #' Calculates the mortality, i.e. premature deaths or years of life lost, attributed to the exposure to an environmental stressor using a life table approach. It provides as a result the mean as well as the lower and the higher bound of the impact based on the confidence interval of the concentration-response function.
-#' @param exp \code{Numberic value} showing the population-weighted mean exposure in ug/m3,
-#' @param cf \code{Numberic value} showing the counter-factual scenario (i.e. minimum cut-off concentration) in ug/m3.
+#' @param exp \code{Numeric value} showing the population-weighted mean exposure in ug/m3 or {vector} showing the exposure category in a exposure distribution (this information is linked to the proportion of population exposed).
+#' @param prop_pop_exp \code{Numeric value} or {vector] showing the proportion of population exposed (as fraction, i.e. values between 0 and 1) for a single exposure value or for multiple categories, i.e., a exposure distribution, respectively. If a exposure distribution is used, the dimension of this input variable should be the same as "exp". By default, 1 for single exposure value will be assigned to this input variable assuming a single exposure value, but users can change this value.
 #' @param crf \code{Vector} of three numeric values referring to the mean as well as the lower bound and upper bound of the confidence interval.
 #' @param crf_per \code{Numberic value} showing the increment of the concentration-response function in ug/m3 (usually 10 or 5).
 #' @param crf_rescale_method \code{String} to choose among "linear" and "loglinear".
@@ -45,7 +45,8 @@
 #' @note Experimental function
 #' @export
 assess_mortality_lifetable <-
-  function(exp, cf,
+  function(exp, prop_pop_exp = 1,
+           cf,
            crf, crf_per, crf_rescale_method,
            first_age_pop, last_age_pop, interval_age_pop,
            prob_natural_death_male, prob_natural_death_female,
@@ -67,13 +68,13 @@ assess_mortality_lifetable <-
 
     # Input data in data frame
     input_info <-
-      data.frame(
+      expand.grid(
         crf = crf,
         exp = exp,
         cf = cf,
         crf_per = crf_per,
         crf_rescale_method = crf_rescale_method,
-        # Infomation derived from input data
+        # Information derived from input data
         approach_id = paste0("lifetable_", crf_rescale_method),
         age_range = ifelse(!is.na(max_age), paste0("below", max_age + 1),
                            ifelse(!is.na(min_age), paste0("from", min_age),
