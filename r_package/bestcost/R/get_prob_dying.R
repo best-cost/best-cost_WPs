@@ -31,6 +31,13 @@ get_prob_dying <-
            population_midyear, deaths,
            fraction_of_year_lived = 0.5){
 
+    # Error if length of fraction_of_year_lived > 1
+    if (length(fraction_of_year_lived) > 1){
+    stop("input to argument fraction_of_year_lived is not single value")
+    }
+
+    # Error if length of fraction_of_year_lived > 1
+    #stopifnot(length(fraction_of_year_lived) == 1) # OR fraction_of ...
 
     # If input value for parameter "fraction_of_year_lived" is single value convert to vector
     if (length(fraction_of_year_lived)==1){fraction_of_year_lived <-  rep(fraction_of_year_lived,
