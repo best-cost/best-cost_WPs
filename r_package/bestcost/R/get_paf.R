@@ -16,9 +16,8 @@
 #' @export
 get_paf <-
   function(crf_conc, prop_pop_exp){
-    # Given the vectorial nature of R, this formula works for single values as well as for vectors
     # Source: https://pophealthmetrics.biomedcentral.com/articles/10.1186/1478-7954-1-1
-    paf <- (prop_pop_exp * (crf_conc-1)) / (1+(prop_pop_exp *(crf_conc-1)))
+    paf <- (sum(prop_pop_exp * (crf_conc-1))) / (1+(sum(prop_pop_exp *(crf_conc-1))))
 
     return(paf)
   }

@@ -50,15 +50,16 @@ assess_impact_single <-
     input <-
       # Use expand.grid to ensure that the data frame
       # contains all likely combinations of the columns
-      expand.grid(
-        prop_pop_exp = prop_pop_exp,
+      data.frame(
         exp = exp,
-        crf = crf,
+        prop_pop_exp = prop_pop_exp,
         crf_per = crf_per,
         crf_rescale_method = crf_rescale_method,
         cf = cf,
         bhd = bhd,
         approach_id = paste0("lifetable_", crf_rescale_method)) %>%
+      # Add crf with a cross join to produce all likely combinations
+      dplyr::cross_join(., data.frame(crf = crf)) %>%
       # Add additional information (info_x variables)
       dplyr::mutate(
         info_pollutant = ifelse(is.null(info_pollutant), NA, info_pollutant),
@@ -88,16 +89,20 @@ assess_impact_single <-
                         ifelse(crf %in% max(crf), "high",
                                "mean"))) %>%
       # In case of same value in mean and low or high, assign value randomly
-      dplyr::mutate(ci = ifelse(duplicated(crf), "mean", ci)) %>%
+      dplyr::mutate(ci = ifelse(duplicated(crf), "mean", ci))
 
-
-      # Calculate population attributable fraction (PAF) as well as impact
-      dplyr::mutate(
-        paf = bestcost::get_paf(crf_conc = crf_forPaf,
-                                prop_pop_exp = prop_pop_exp))%>%
+    # Calculate population attributable fraction (PAF)
+    paf <-
+      calculation %>%
       # Group by exp in case that there are different exposure categories
-      dplyr::group_by(exp)%>%
-      dplyr::summarize(impact = round(paf * bhd, 0)) %>%
+      dplyr::group_by(crf)%>%
+      dplyr::summarize(paf = bestcost::get_paf(crf_conc = crf_forPaf,
+                                               prop_pop_exp = prop_pop_exp))
+
+    # Add the to the calculation table
+    calculation <-
+      left_join(calculation, paf, by = "exp")
+      dplyr::summarize(impact = sum(round(paf * bhd, 0))) %>%
       # Order columns
       dplyr::select(exp, cf, bhd,
                     crf, crf_forPaf, crf_per, ci, crf_rescale_method,
