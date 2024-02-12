@@ -92,7 +92,9 @@ assess_impact_single <-
 
 
       # Calculate population attributable fraction (PAF) as well as impact
-      dplyr::mutate(paf =  bestcost::get_paf(crf_conc = crf_forPaf))%>%
+      dplyr::mutate(
+        paf = bestcost::get_paf(crf_conc = crf_forPaf,
+                                prop_pop_exp = prop_pop_exp))%>%
       # Group by exp in case that there are different exposure categories
       dplyr::group_by(exp)%>%
       dplyr::summarize(impact = round(paf * bhd, 0)) %>%

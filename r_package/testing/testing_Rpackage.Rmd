@@ -93,11 +93,11 @@ prob_dying_airqplus <-
 
 ```{r impact exposure distribution}
 
-impact_morbidities_raw <- list()
+impact_expDistribution_raw <- list()
 
 
 for(i in 1:nrow(input_data_morbidities)){
-  impact_morbidities_raw[[input_data_morbidities$year[i]]][[input_data_morbidities$crf_id[[i]]]] <-
+  impact_expDistribution_raw[[input_data_morbidities$year[i]]][[input_data_morbidities$crf_id[[i]]]] <-
   bestcost::assess_impact_single(
     exp = c(8, 8.5, 9),
     prop_pop_exp = c(0.2, 0.4, 0.4), # Fake values (just for testing purposes)
