@@ -42,7 +42,7 @@ assess_impact_single <-
            info_crf = NULL,
            info_bhd = NULL){
 
-    # Input data in data frame
+    # Input data in data frame ####
     input <-
       data.frame(
         crf = crf,
@@ -62,8 +62,8 @@ assess_impact_single <-
         info_bhd = ifelse(is.null(info_bhd), NA, info_bhd))
 
 
-    # Calculate crf estimate which corresponds to the exposure
-    # depending on the method
+    # Calculate health impact attributable to exposure ####
+    # (using crf estimate which corresponds to the exposure depending on the method)
     calculation <-
       input %>%
       dplyr::mutate(
