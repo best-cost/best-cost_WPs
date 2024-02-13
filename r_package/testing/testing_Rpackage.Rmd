@@ -212,11 +212,11 @@ impact_mortality_expDistribution_raw <- list()
 
 for(i in 1:nrow(input_data_mortality)){  # Use this if you want to evaluate multiple crfs
 # for(i in 2){                           # Use this if you want to evaluate only one crfs
-  impact_mortality_expDistribution[[input_data_mortality$year[i]]][[input_data_mortality$crf_id[[i]]]] <-
+  impact_mortality_expDistribution_raw[[input_data_mortality$year[i]]][[input_data_mortality$crf_id[[i]]]] <-
   
     bestcost::assess_mortality_lifetable(
     exp = c(8, 9, 10), # Fake data just for testing purposes
-    prop_pop_exp = c(0.2, 0.3, 0.5),
+    prop_pop_exp = c(0.2, 0.3, 0.5), # Fake data just for testing purposes
     cf = input_data_mortality$cf[i],   # PM2.5=5, NO2=10, i.e. WHO AQG 2021 
     crf = unlist(input_data_mortality[i,
                                       c("crf_mean", "crf_lowci", "crf_highci")]),
