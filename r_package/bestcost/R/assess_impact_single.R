@@ -1,6 +1,6 @@
 # Title and description
 
-#' Calculation of Health Impacts
+#' input_withPaf of Health Impacts
 #'
 #' Calculates the health impacts, mortality or morbidity, of an environmental stressor using a single value for baseline heath data, i.e. without life table. It provides as a result the mean as well as the lower and the higher bound of the impact based on the confidence interval of the concentration-response function.
 #' @param exp \code{Numeric value} showing the population-weighted mean exposure in ug/m3 or {vector} showing the exposure category in a exposure distribution (this information is linked to the proportion of population exposed).
@@ -46,18 +46,19 @@ assess_impact_single <-
            info_crf = NULL,
            info_bhd = NULL){
 
-    # First compile crf data to clean up them
+    # First compile crf data to assign categories
     crf_data <-
       data.frame(
         crf = crf,
         crf_per = crf_per,
         crf_rescale_method = crf_rescale_method,
+        # Assign mean, low and high crf values
         crf_ci = ifelse(crf %in% min(crf), "low",
                         ifelse(crf %in% max(crf), "high",
                                "mean"))) %>%
       # In case of same value in mean and low or high, assign value randomly
       dplyr::mutate(ci = ifelse(duplicated(crf), "mean", ci))
-      # Assign mean, low and high crf values
+
 
 
     # Input data in data frame
@@ -82,7 +83,7 @@ assess_impact_single <-
 
     # Calculate crf estimate which corresponds to the exposure
     # depending on the method
-    calculation <-
+    input_withPaf <-
       input %>%
       dplyr::mutate(
         crf_forPaf =
@@ -98,10 +99,8 @@ assess_impact_single <-
 
     # Calculate population attributable fraction (PAF)
     paf <-
-      calculation %>%
+      input_withPaf %>%
       # Group by exp in case that there are different exposure categories
-      #TODO: DELETE THE LINE BELOW (JUST FOR TESTING PURPOSES)
-      #filter(crf==min(calculation$crf)) %>%
       dplyr::group_by(crf)%>%
       dplyr::summarize(paf = bestcost::get_paf(crf_conc = crf_forPaf,
                                                prop_pop_exp = prop_pop_exp))
@@ -109,8 +108,8 @@ assess_impact_single <-
     # Only if exposure distribution (multiple exposure categories)
     # then reduce the number of rows to keep the same number as in crf
     if(length(exp)>1){
-      calculation <-
-        calculation %>%
+      input_withPaf <-
+        input_withPaf %>%
         dplyr::mutate(
           # Add a column for the average exp (way to summarize exposure)
           exp_mean = mean(exp),
@@ -122,20 +121,25 @@ assess_impact_single <-
         dplyr::distinct(.)
     }
 
+    # Join the input table with paf values
+    input_withPaf <-
+      input_withPaf %>%
+      dplyr::left_join(paf,
+                       input_withPaf,
+                       by = "crf")
 
-    # Build the result table adding the paf to the calculation table
-    results <-
-      left_join(paf,
-                calculation,
-                by = "crf")%>%
-      dplyr::mutate(impact = round(paf * bhd, 0)) %>%
+  # Build the result table adding the paf to the input_withPaf table
+   output <-
+      input_withPaf %>%
+      dplyr::mutate(impact = paf * bhd,
+                    impact_rounded = round(impact, 0)) %>%
       # Order columns
       dplyr::select(exp, cf, bhd,
                     crf, crf_forPaf, crf_per, ci, crf_rescale_method,
-                    paf, impact,
+                    paf, impact, impact_rounded,
                     starts_with("info_"))
 
 
-    return(results)
+    return(output)
   }
 
