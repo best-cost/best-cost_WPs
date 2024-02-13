@@ -99,16 +99,15 @@ impact_expDistribution_raw <- list()
 for(i in 1:nrow(input_data_morbidities)){
   impact_expDistribution_raw[[input_data_morbidities$year[i]]][[input_data_morbidities$crf_id[[i]]]] <-
   bestcost::assess_impact_single(
-    exp = c(8, 8.5, 9),
-    prop_pop_exp = c(0.2, 0.3, 0.5), # Fake values (just for testing purposes)
-    cf = input_data_morbidities$cf[i],    # PM2.5=5, NO2=10, i.e. WHO AQG 2021 
-    bhd = input_data_morbidities$bhd_absolute[i],
-    crf = unlist(input_data_morbidities[i, 
-                            c("crf_mean", "crf_lowci", "crf_highci")]) ,
+    exp = c(53, 57.5, 62.5, 67.5, 72.5, 77.5),
+    prop_pop_exp = c(0.8187, 0.0743, 0.0549, 0.0368, 0.0138, 0.0015), # Fake values (just for testing purposes)
+    cf = 53,    # PM2.5=5, NO2=10, i.e. WHO AQG 2021 
+    bhd = 5269.46,
+    crf = c(1.08, 1.07, 1.09) ,
     crf_per = 10, 
     crf_rescale_method = "loglinear", 
-    info_pollutant = input_data_morbidities$pollutant[i], 
-    info_outcome = input_data_morbidities$outcome_metric[i])
+    info_pollutant = "noise", 
+    info_outcome = "YLD")
   }
 
 

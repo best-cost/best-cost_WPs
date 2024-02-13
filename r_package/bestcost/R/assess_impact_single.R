@@ -46,20 +46,30 @@ assess_impact_single <-
            info_crf = NULL,
            info_bhd = NULL){
 
+    # First compile crf data to clean up them
+    crf_data <-
+      data.frame(
+        crf = crf,
+        crf_per = crf_per,
+        crf_rescale_method = crf_rescale_method,
+        crf_ci = ifelse(crf %in% min(crf), "low",
+                        ifelse(crf %in% max(crf), "high",
+                               "mean"))) %>%
+      # In case of same value in mean and low or high, assign value randomly
+      dplyr::mutate(ci = ifelse(duplicated(crf), "mean", ci))
+      # Assign mean, low and high crf values
+
+
     # Input data in data frame
     input <-
-      # Use expand.grid to ensure that the data frame
-      # contains all likely combinations of the columns
       data.frame(
         exp = exp,
         prop_pop_exp = prop_pop_exp,
-        crf_per = crf_per,
-        crf_rescale_method = crf_rescale_method,
         cf = cf,
         bhd = bhd,
         approach_id = paste0("lifetable_", crf_rescale_method)) %>%
       # Add crf with a cross join to produce all likely combinations
-      dplyr::cross_join(., data.frame(crf = crf)) %>%
+      dplyr::cross_join(., crf_data) %>%
       # Add additional information (info_x variables)
       dplyr::mutate(
         info_pollutant = ifelse(is.null(info_pollutant), NA, info_pollutant),
@@ -84,12 +94,7 @@ assess_impact_single <-
                       #{{}} ensures that the
                       # value from the function argument is used
                       # instead of from an existing column
-                      ),
-        crf_ci = ifelse(crf %in% min(crf), "low",
-                        ifelse(crf %in% max(crf), "high",
-                               "mean"))) %>%
-      # In case of same value in mean and low or high, assign value randomly
-      dplyr::mutate(ci = ifelse(duplicated(crf), "mean", ci))
+                      ))
 
     # Calculate population attributable fraction (PAF)
     paf <-
@@ -101,10 +106,29 @@ assess_impact_single <-
       dplyr::summarize(paf = bestcost::get_paf(crf_conc = crf_forPaf,
                                                prop_pop_exp = prop_pop_exp))
 
-    # Add the to the calculation table
-    calculation <-
-      left_join(calculation, paf, by = "crf")
-      dplyr::summarize(impact = sum(round(paf * bhd, 0))) %>%
+    # Only if exposure distribution (multiple exposure categories)
+    # then reduce the number of rows to keep the same number as in crf
+    if(length(exp)>1){
+      calculation <-
+        calculation %>%
+        dplyr::mutate(
+          # Add a column for the average exp (way to summarize exposure)
+          exp_mean = mean(exp),
+          # Replace the actual values with "multiple" to enable reduction of rows
+          exp = paste(exp, collapse = ", "),
+          prop_pop_exp = paste(prop_pop_exp, collapse = ", "),
+          crf_forPaf = paste(crf_forPaf, collapse = ", "))%>%
+        # Keep only rows that are distinct
+        dplyr::distinct(.)
+    }
+
+
+    # Build the result table adding the paf to the calculation table
+    results <-
+      left_join(paf,
+                calculation,
+                by = "crf")%>%
+      dplyr::mutate(impact = round(paf * bhd, 0)) %>%
       # Order columns
       dplyr::select(exp, cf, bhd,
                     crf, crf_forPaf, crf_per, ci, crf_rescale_method,
@@ -112,6 +136,6 @@ assess_impact_single <-
                     starts_with("info_"))
 
 
-    return(calculation)
+    return(results)
   }
 

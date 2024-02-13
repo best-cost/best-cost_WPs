@@ -68,7 +68,7 @@ assess_mortality_lifetable <-
 
     # Input data in data frame
     input_info <-
-      expand.grid(
+      data.frame(
         crf = crf,
         exp = exp,
         cf = cf,
