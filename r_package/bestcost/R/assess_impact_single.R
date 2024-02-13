@@ -95,13 +95,15 @@ assess_impact_single <-
     paf <-
       calculation %>%
       # Group by exp in case that there are different exposure categories
+      #TODO: DELETE THE LINE BELOW (JUST FOR TESTING PURPOSES)
+      #filter(crf==min(calculation$crf)) %>%
       dplyr::group_by(crf)%>%
       dplyr::summarize(paf = bestcost::get_paf(crf_conc = crf_forPaf,
                                                prop_pop_exp = prop_pop_exp))
 
     # Add the to the calculation table
     calculation <-
-      left_join(calculation, paf, by = "exp")
+      left_join(calculation, paf, by = "crf")
       dplyr::summarize(impact = sum(round(paf * bhd, 0))) %>%
       # Order columns
       dplyr::select(exp, cf, bhd,
