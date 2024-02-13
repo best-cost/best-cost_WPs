@@ -2,7 +2,7 @@
 % Please edit documentation in R/assess_impact_absolute_risk.R
 \name{assess_impact_absolute_risk}
 \alias{assess_impact_absolute_risk}
-\title{input_withPaf of Health Impacts}
+\title{Health impacts based on single baseline health value}
 \usage{
 assess_impact_absolute_risk(
   exp,
@@ -47,7 +47,7 @@ Moreover, the data frame include columns such as:
 }
 }
 \description{
-Calculates the health impacts, mortality or morbidity, of an environmental stressor using a single value for baseline heath data, i.e. without life table. It provides as a result the mean as well as the lower and the higher bound of the impact based on the confidence interval of the concentration-response function.
+Calculates the health impacts, of an environmental stressor (e.g. noise) using the absolute risk instead of the relative risk
 }
 \note{
 Experimental function

@@ -2,7 +2,7 @@
 % Please edit documentation in R/assess_mortality_lifetable.R
 \name{assess_mortality_lifetable}
 \alias{assess_mortality_lifetable}
-\title{Calculation of Health Impacts}
+\title{Health impacts based on life tables}
 \usage{
 assess_mortality_lifetable(
   exp,

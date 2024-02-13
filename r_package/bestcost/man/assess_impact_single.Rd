@@ -2,7 +2,8 @@
 % Please edit documentation in R/assess_impact_single.R
 \name{assess_impact_single}
 \alias{assess_impact_single}
-\title{input_withPaf of Health Impacts}
+\title{Health impacts based on absolute risk
+Calculates the health impacts, mortality or morbidity, of an environmental stressor using a single value for baseline heath data, i.e. without life table. It provides as a result the mean as well as the lower and the higher bound of the impact based on the confidence interval of the concentration-response function.}
 \usage{
 assess_impact_single(
   exp,
@@ -59,6 +60,7 @@ Moreover, the data frame include columns such as:
 }
 }
 \description{
+Health impacts based on absolute risk
 Calculates the health impacts, mortality or morbidity, of an environmental stressor using a single value for baseline heath data, i.e. without life table. It provides as a result the mean as well as the lower and the higher bound of the impact based on the confidence interval of the concentration-response function.
 }
 \note{
