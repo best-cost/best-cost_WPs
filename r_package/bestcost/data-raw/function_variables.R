@@ -8,6 +8,7 @@ interval_age_pop <- 1
 year_of_analysis <- 2019
 corrected_discount_rate <- 0
 ci <- c("mean", "lowci", "highci")
+sex <- c("female","male")
 
 usethis::use_data(crf_per,
                   first_age_pop,
@@ -16,5 +17,6 @@ usethis::use_data(crf_per,
                   year_of_analysis,
                   corrected_discount_rate,
                   ci,
+                  sex,
                   internal = TRUE,
                   overwrite = TRUE)
