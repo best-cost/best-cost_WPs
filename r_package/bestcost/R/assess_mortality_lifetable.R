@@ -83,6 +83,7 @@ assess_mortality_lifetable <-
     input <-
       data.frame(
         exp = exp,
+        prop_pop_exp = prop_pop_exp,
         cf = cf,
         # Information derived from input data
         approach_id = paste0("lifetable_", crf_rescale_method),
