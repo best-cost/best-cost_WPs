@@ -37,7 +37,6 @@ library(tidyr)
 library(purrr)
 library(stringr)
 library(tibble)
-
 library(zoo)
 
 # to visualize results
@@ -66,13 +65,11 @@ if(!"bestcost" %in% installed.packages()[, "Package"]){
                            # "Small_code_changes"
                            ref = "HEAD",
                            force = TRUE)
-
 }
 
 # to quantify and monetize health impacts (own package)
 library(bestcost)
-# loads all functions in {bestcost}
-#devtools::load_all() 
+#devtools::load_all() # loads all functions in {bestcost}
 ```
 
 ```{r load current version of bestcost from local source, include=FALSE}
