@@ -2,15 +2,16 @@
 % Please edit documentation in R/assess_impact_single.R
 \name{assess_impact_single}
 \alias{assess_impact_single}
-\title{Calculation of Health Impacts}
+\title{input_withPaf of Health Impacts}
 \usage{
 assess_impact_single(
   exp,
+  prop_pop_exp = 1,
   cf,
   crf,
-  bhd,
   crf_per,
   crf_rescale_method,
+  bhd,
   info_pollutant = NULL,
   info_outcome = NULL,
   info_exp = NULL,
@@ -20,17 +21,19 @@ assess_impact_single(
 )
 }
 \arguments{
-\item{exp}{\code{Numeric value} showing the population-weighted mean exposure in ug/m3.}
+\item{exp}{\code{Numeric value} showing the population-weighted mean exposure in ug/m3 or {vector} showing the exposure category in a exposure distribution (this information is linked to the proportion of population exposed).}
+
+\item{prop_pop_exp}{\code{Numeric value} or {vector} showing the proportion of population exposed (as fraction, i.e. values between 0 and 1) for a single exposure value or for multiple categories, i.e., a exposure distribution, respectively. If a exposure distribution is used, the dimension of this input variable should be the same as "exp". By default, 1 for single exposure value will be assigned to this input variable assuming a single exposure value, but users can change this value.}
 
 \item{cf}{\code{Numeric value} showing the counter-factual scenario (i.e. minimum cut-off concentration) in ug/m3.}
 
 \item{crf}{\code{Vector} of three numeric values referring to the mean as well as the lower bound and upper bound of the confidence interval.}
 
-\item{bhd}{\code{Numeric value} showing the baseline health data (incidence of the health outcome in the population).}
-
 \item{crf_per}{\code{Numeric value} showing the increment of the concentration-response function in ug/m3 (usually 10 or 5).}
 
 \item{crf_rescale_method}{\code{String} to choose among "linear" and "loglinear".}
+
+\item{bhd}{\code{Numeric value} showing the baseline health data (incidence of the health outcome in the population).}
 
 \item{info_pollutant}{\code{String} showing additional information or id for the pollutant. Default value = NULL.}
 

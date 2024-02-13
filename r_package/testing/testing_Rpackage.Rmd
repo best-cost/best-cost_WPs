@@ -103,6 +103,23 @@ prob_dying_airqplus <-
 
 # Calculate health impacts
 
+```{r absolute risk}
+
+
+impact_annoyance_expDistribution_raw <- 
+  impact_morbidity_expDistribution_raw[[input_data_morbidities$year[i]]][[input_data_morbidities$crf_id[[i]]]] <-
+  bestcost::assess_impact_absolute_risk(
+    exp = c(57.5, 62.5, 67.5, 72.5, 77.5),
+    pop_exp = c(387500, 286000, 191800, 72200, 7700), # Values as example provided by NIPH
+    erf_shape = "quadratic",
+    erf_parameters = c(78.9270, -3.1162, 0.0342), 
+    info_pollutant = "road_noise", 
+    info_outcome = "highly_annoyance")
+
+
+```
+
+
 ```{r morbidity using exposure distribution}
 
 impact_morbidity_expDistribution_raw <- list()
@@ -112,7 +129,7 @@ for(i in 1:nrow(input_data_morbidities)){
   impact_morbidity_expDistribution_raw[[input_data_morbidities$year[i]]][[input_data_morbidities$crf_id[[i]]]] <-
   bestcost::assess_impact_single(
     exp = c(53, 57.5, 62.5, 67.5, 72.5, 77.5),
-    prop_pop_exp = c(0.8187, 0.0743, 0.0549, 0.0368, 0.0138, 0.0015), # Fake values (just for testing purposes)
+    prop_pop_exp = c(0.8187, 0.0743, 0.0549, 0.0368, 0.0138, 0.0015), # Values as example provided by NIPH
     cf = 53,    # PM2.5=5, NO2=10, i.e. WHO AQG 2021 
     bhd = 5269.46,
     crf = c(1.08, 1.07, 1.09) ,

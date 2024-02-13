@@ -1,0 +1,83 @@
+# Title and description
+
+#' input_withPaf of Health Impacts
+#'
+#' Calculates the health impacts, mortality or morbidity, of an environmental stressor using a single value for baseline heath data, i.e. without life table. It provides as a result the mean as well as the lower and the higher bound of the impact based on the confidence interval of the concentration-response function.
+#' @param exp \code{Vector} showing the exposure categories (average of the exposure ranges) in a exposure distribution refering only to exposed population. The length of exp and pop_exp should be the same.
+#' @param pop_exp \code{Numeric value} or {vector} showing the population exposed for each of the exposure categories. The length of this input variable should be the same as "exp".
+#' @param erf_shape \code{String} to choose among "linear", "loglinear" and "quadratic".
+#' @param erf_parameters \code{Vector} of numeric values as in order of apereance in the exposure response function.
+#' @param info_pollutant \code{String} showing additional information or id for the pollutant. Default value = NULL.
+#' @param info_outcome \code{String} showing additional information or id for the health outcome. Default value = NULL.
+#' @param info_exp \code{String} showing additional information or id for the exposure. This information will be added to all rows of the results. Default value = NULL.
+#' @param info_cf \code{String} showing additional information or id for counter-factual scenario (cut-off). This information will be added to all rows of the results. Default value = NULL.
+#' @param info_ar \code{String} showing additional information or id for the concentration-response function. This information will be added to all rows of the results. Default value = NULL.
+#' @return
+#' This function returns a \code{data.frame} with one row for each value of the
+#' concentration-response function (i.e. mean, lower and upper bound confidence interval.
+#' Moreover, the data frame include columns such as:
+#' \itemize{
+#'  \item Attributable fraction
+#'  \item Health impact
+#'  \item Outcome metric
+#'  \item And many more.
+#' }
+#' @import dplyr
+#' @import purrr
+#' @examples
+#' TBD
+#' @author Alberto Castro
+#' @note Experimental function
+#' @export
+assess_impact_absolute_risk <-
+  function(exp,
+           pop_exp,
+           erf_shape,
+           erf_parameters,
+           info_pollutant = NULL,
+           info_outcome = NULL,
+           info_exp = NULL,
+           info_cf = NULL,
+           info_erf = NULL){
+
+    # First compile crf data to assign categories
+    if(erf_shape == "quadratic"){
+      erf <- function(exp){
+        erf_parameters[1] + erf_parameters[2]*exp + erf_parameters[3]*exp^2
+      }
+    }
+
+
+
+    # Input data in data frame
+    input <-
+      data.frame(
+        exp = exp,
+        prop_pop_exp = prop_pop_exp,
+        cf = cf,
+        erf_shape = erf_shape,
+        erf_parameters = paste(erf_parameters, collapse = ", "),
+        approach_id = paste0("absolute risk")) %>%
+      # Add additional information (info_x variables)
+      dplyr::mutate(
+        info_pollutant = ifelse(is.null(info_pollutant), NA, info_pollutant),
+        info_outcome = ifelse(is.null(info_outcome), NA, info_outcome),
+        info_exp = ifelse(is.null(info_exp), NA, info_exp),
+        info_cf = ifelse(is.null(info_cf), NA, info_cf),
+        info_crf = ifelse(is.null(info_crf), NA, info_crf),
+        info_bhd = ifelse(is.null(info_bhd), NA, info_bhd))
+
+    calculation <-
+      input %>%
+      # Calculate absolute risk for each exposure category
+      dplyr::mutate(
+        percent_population_affected = erf(exp),
+        population_affected = ar/100 * pop_exp) %>%
+      dplyr::bind_rows(summarise(., across(population_affected, sum),
+                                 across(where(is.character), ~'total')))
+
+
+
+
+    return(output)
+  }
