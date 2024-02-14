@@ -10,7 +10,6 @@
 #' @param info_pollutant \code{String} showing additional information or id for the pollutant. Default value = NULL.
 #' @param info_outcome \code{String} showing additional information or id for the health outcome. Default value = NULL.
 #' @param info_exp \code{String} showing additional information or id for the exposure. This information will be added to all rows of the results. Default value = NULL.
-#' @param info_cf \code{String} showing additional information or id for counter-factual scenario (cut-off). This information will be added to all rows of the results. Default value = NULL.
 #' @param info_ar \code{String} showing additional information or id for the concentration-response function. This information will be added to all rows of the results. Default value = NULL.
 #' @return
 #' This function returns a \code{data.frame} with one row for each value of the
@@ -53,7 +52,7 @@ assess_impact_absolute_risk <-
     input <-
       data.frame(
         exp = exp,
-        prop_pop_exp = prop_pop_exp,
+        pop_exp = pop_exp,
         erf_shape = erf_shape,
         erf_parameters = paste(erf_parameters, collapse = ", "),
         approach_id = paste0("absolute risk")) %>%
@@ -62,7 +61,6 @@ assess_impact_absolute_risk <-
         info_pollutant = ifelse(is.null(info_pollutant), NA, info_pollutant),
         info_outcome = ifelse(is.null(info_outcome), NA, info_outcome),
         info_exp = ifelse(is.null(info_exp), NA, info_exp),
-        info_cf = ifelse(is.null(info_cf), NA, info_cf),
         info_crf = ifelse(is.null(info_crf), NA, info_crf),
         info_bhd = ifelse(is.null(info_bhd), NA, info_bhd))
 
