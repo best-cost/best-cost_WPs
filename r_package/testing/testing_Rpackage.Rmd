@@ -64,7 +64,7 @@ if(!"bestcost" %in% installed.packages()[, "Package"]){
                            # "63-simplification-of-the-code"
                            # "Variable_names"
                            # "Small_code_changes"
-                           ref = "absolute_risk",
+                           ref = "HEAD",
                            force = TRUE)
 
 }
