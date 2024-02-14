@@ -69,9 +69,13 @@ assess_impact_absolute_risk <-
       # Calculate absolute risk for each exposure category
       dplyr::mutate(
         absolute_risk_as_percent = erf(exp),
-        population_affected = absolute_risk_as_percent/100 * pop_exp) %>%
-      dplyr::bind_rows(summarise(., across(population_affected, sum),
-                                 across(where(is.character), ~'total')))
+        population_affected = absolute_risk_as_percent/100 * pop_exp,
+        population_affected_rounded = round(population_affected, 0)) %>%
+      dplyr::bind_rows(
+        summarise(.,
+                  across(absolute_risk_as_percent, population_affected, pop_exp,
+                         sum),
+                  across(exp, paste(., collapse = ", "))))
 
 
 
