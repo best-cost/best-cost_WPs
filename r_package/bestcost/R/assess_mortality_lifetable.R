@@ -1,10 +1,10 @@
 # Title and description
 
-#' Calculation of Health Impacts
+#' Health impacts based on life tables
 #'
 #' Calculates the mortality, i.e. premature deaths or years of life lost, attributed to the exposure to an environmental stressor using a life table approach. It provides as a result the mean as well as the lower and the higher bound of the impact based on the confidence interval of the concentration-response function.
 #' @param exp \code{Numeric value} showing the population-weighted mean exposure in ug/m3 or {vector} showing the exposure category in a exposure distribution (this information is linked to the proportion of population exposed).
-#' @param prop_pop_exp \code{Numeric value} or {vector] showing the proportion of population exposed (as fraction, i.e. values between 0 and 1) for a single exposure value or for multiple categories, i.e., a exposure distribution, respectively. If a exposure distribution is used, the dimension of this input variable should be the same as "exp". By default, 1 for single exposure value will be assigned to this input variable assuming a single exposure value, but users can change this value.
+#' @param prop_pop_exp \code{Numeric value} or {vector} showing the proportion of population exposed (as fraction, i.e. values between 0 and 1) for a single exposure value or for multiple categories, i.e., a exposure distribution, respectively. If a exposure distribution is used, the dimension of this input variable should be the same as "exp". By default, 1 for single exposure value will be assigned to this input variable assuming a single exposure value, but users can change this value.
 #' @param crf \code{Vector} of three numeric values referring to the mean as well as the lower bound and upper bound of the confidence interval.
 #' @param crf_per \code{Numberic value} showing the increment of the concentration-response function in ug/m3 (usually 10 or 5).
 #' @param crf_rescale_method \code{String} to choose among "linear" and "loglinear".
