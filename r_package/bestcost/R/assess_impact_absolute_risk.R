@@ -12,17 +12,12 @@
 #' @param info_exp \code{String} showing additional information or id for the exposure. This information will be added to all rows of the results. Default value = NULL.
 #' @param info_ar \code{String} showing additional information or id for the concentration-response function. This information will be added to all rows of the results. Default value = NULL.
 #' @return
-#' This function returns a \code{data.frame} with one row for each value of the
-#' concentration-response function (i.e. mean, lower and upper bound confidence interval.
-#' Moreover, the data frame include columns such as:
+#' This function returns a \code{list} with two \code{data.frames}, one with the total health impact and the second one with a row for each category of the exposure distribution.
+#' The data frame include columns such as:
 #' \itemize{
-#'  \item Attributable fraction
-#'  \item Health impact
-#'  \item Outcome metric
-#'  \item And many more.
+#'  \item TBD
 #' }
 #' @import dplyr
-#' @import purrr
 #' @examples
 #' TBD
 #' @author Alberto Castro
@@ -80,7 +75,8 @@ assess_impact_absolute_risk <-
                       approach_id,
                       info_pollutant, info_outcome, info_exp, info_crf, info_bhd) %>%
       dplyr::summarize(
-        across(c(pop_exp, absolute_risk_as_percent, population_affected),
+        across(c(pop_exp, absolute_risk_as_percent,
+                 population_affected, population_affected_rounded),
                sum),
         .groups = "drop")
 
