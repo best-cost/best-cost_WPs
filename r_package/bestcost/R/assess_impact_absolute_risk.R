@@ -76,9 +76,10 @@ assess_impact_absolute_risk <-
                       info_pollutant, info_outcome, info_exp, info_crf, info_bhd) %>%
       dplyr::summarize(
         across(c(pop_exp, absolute_risk_as_percent,
-                 population_affected, population_affected_rounded),
+                 population_affected),
                sum),
-        .groups = "drop")
+        .groups = "drop") %>%
+      dplyr::mutate(population_affected_rounded = round(population_affected, 0))
 
     output <-
       list(total = output_total,
