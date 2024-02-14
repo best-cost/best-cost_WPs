@@ -77,7 +77,7 @@ if(!"bestcost" %in% installed.packages()[, "Package"]){
 # devtools::document()
 ```
 
-```{r load current version of bestcost from local source, include=FALSE}
+```{r load current version of bestcost from local source, eval=FALSE, include=FALSE}
 
 detach("package:bestcost", unload = TRUE) # detach bestcost
 # Save current state of package as .zip file (e.g. to directly test changes in functions)

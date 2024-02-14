@@ -64,7 +64,7 @@ assess_impact_absolute_risk <-
         info_crf = ifelse(is.null(info_crf), NA, info_crf),
         info_bhd = ifelse(is.null(info_bhd), NA, info_bhd))
 
-    ouput <-
+    output <-
       input %>%
       # Calculate absolute risk for each exposure category
       dplyr::mutate(
