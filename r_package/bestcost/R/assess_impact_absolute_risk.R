@@ -64,18 +64,27 @@ assess_impact_absolute_risk <-
         info_crf = ifelse(is.null(info_crf), NA, info_crf),
         info_bhd = ifelse(is.null(info_bhd), NA, info_bhd))
 
-    output <-
+    output_byExposureCategory <-
       input %>%
       # Calculate absolute risk for each exposure category
       dplyr::mutate(
         absolute_risk_as_percent = erf(exp),
         population_affected = absolute_risk_as_percent/100 * pop_exp,
-        population_affected_rounded = round(population_affected, 0)) %>%
-      dplyr::bind_rows(
-        summarise(.,
-                  across(absolute_risk_as_percent, population_affected, pop_exp,
-                         sum),
-                  across(exp, paste(., collapse = ", "))))
+        population_affected_rounded = round(population_affected, 0))
+
+    output_total <-
+      output_byExposureCategory %>%
+      dplyr::group_by(erf_shape, erf_parameters, approach_id,
+                      info_pollutant, info_outcome, info_exp, info_crf, info_bhd) %>%
+      dplyr::summarize(
+        across(exp,
+               paste(., collapse = ", ")),
+        across(c(pop_exp, absolute_risk_as_percent, population_affected),
+               sum))
+
+    output <-
+      list(total = output_total,
+           byExposureCategory = output_byExposureCategory)
 
 
 

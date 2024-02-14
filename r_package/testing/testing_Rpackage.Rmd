@@ -131,9 +131,9 @@ for(i in 1:nrow(input_data_morbidities)){
   bestcost::assess_impact_single(
     exp = c(53, 57.5, 62.5, 67.5, 72.5, 77.5),# Values as example provided by NIPH
     prop_pop_exp = c(0.8187, 0.0743, 0.0549, 0.0368, 0.0138, 0.0015), # Values as example provided by NIPH
-    cf = 53,    # PM2.5=5, NO2=10, i.e. WHO AQG 2021 
+    cf = 53, # PM2.5=5, NO2=10, i.e. WHO AQG 2021 
     bhd = 5269.46,
-    crf = c(1.08, 1.07, 1.09) ,
+    crf = c(1.08, 1.07, 1.09),
     crf_per = 10, 
     crf_rescale_method = "loglinear", 
     info_pollutant = "noise", 
