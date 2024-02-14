@@ -74,13 +74,15 @@ assess_impact_absolute_risk <-
 
     output_total <-
       output_byExposureCategory %>%
-      dplyr::group_by(erf_shape, erf_parameters, approach_id,
+      dplyr::mutate(exp = paste(exp, collapse = ", ")) %>%
+      dplyr::group_by(exp,
+                      erf_shape, erf_parameters,
+                      approach_id,
                       info_pollutant, info_outcome, info_exp, info_crf, info_bhd) %>%
       dplyr::summarize(
-        across(exp,
-               paste(., collapse = ", ")),
         across(c(pop_exp, absolute_risk_as_percent, population_affected),
-               sum))
+               sum),
+        .groups = "drop")
 
     output <-
       list(total = output_total,
