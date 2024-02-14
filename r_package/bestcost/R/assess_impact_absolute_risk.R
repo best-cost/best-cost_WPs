@@ -54,7 +54,6 @@ assess_impact_absolute_risk <-
       data.frame(
         exp = exp,
         prop_pop_exp = prop_pop_exp,
-        cf = cf,
         erf_shape = erf_shape,
         erf_parameters = paste(erf_parameters, collapse = ", "),
         approach_id = paste0("absolute risk")) %>%
