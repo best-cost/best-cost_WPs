@@ -19,7 +19,7 @@
 #' @return
 #' This function returns a \code{data.frame} with one row for each value of the
 #' concentration-response function (i.e. mean, lower and upper bound confidence interval.
-#' Moreover, the data frame include columns such as:
+#' Moreover, the data frame includes columns such as:
 #' \itemize{
 #'  \item Attributable fraction
 #'  \item Health impact

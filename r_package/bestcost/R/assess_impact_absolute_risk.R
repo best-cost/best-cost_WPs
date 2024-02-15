@@ -39,15 +39,6 @@ assess_impact_absolute_risk <-
     # Check input data ####
     # TBA: length(exp) == length(pop_exp)
 
-
-    if(erf_shape == "linear"){
-      erf <- function(exp){
-        erf_parameters[1] + erf_parameters[2]*exp
-      }
-    }
-
-
-
     # Input data in data frame
 
     input <-
@@ -64,7 +55,13 @@ assess_impact_absolute_risk <-
         info_exp = ifelse(is.null(info_exp), NA, info_exp),
         info_crf = ifelse(is.null(info_crf), NA, info_crf),
         info_bhd = ifelse(is.null(info_bhd), NA, info_bhd))
+
     # Create the crf ####
+    if(erf_shape == "linear"){
+      erf <- function(exp){
+        erf_parameters[1] + erf_parameters[2]*exp
+      }
+    }
     if(erf_shape == "quadratic"){
       erf <- function(exp){
         erf_parameters[1] + erf_parameters[2]*exp + erf_parameters[3]*exp^2 # Equation based on Guski et al., 2017 (cf. example calculation Excel AKB sent)
