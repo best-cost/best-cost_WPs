@@ -59,11 +59,12 @@ assess_mortality_lifetable <-
            info_exp = NULL, info_cf = NULL, info_crf = NULL, info_bhd = NULL){
 
 
-    # Digest input data
+    # Digest input data ####
 
     # Convert NULL into NA in min_age and max_age
     min_age <- ifelse(is.null(min_age), NA, min_age)
     max_age <- ifelse(is.null(max_age), NA, max_age)
+
 
     # Compile crf data to assign categories
     crf_data <-
@@ -100,7 +101,6 @@ assess_mortality_lifetable <-
         info_cf = ifelse(is.null(info_cf), NA, info_cf),
         info_crf = ifelse(is.null(info_crf), NA, info_crf),
         info_bhd = ifelse(is.null(info_bhd), NA, info_bhd))
-
 
     # Calculate crf estimate which corresponds to the exposure
     # depending on the method
@@ -149,6 +149,7 @@ assess_mortality_lifetable <-
                          input_withPaf,
                          by = "crf")
 
+
     # The life table has to be provided as a data.frame (by sex)
     # The first column has to be the age. Second, probability of death. Third, population.
     # Rename column names to standard names
@@ -179,7 +180,33 @@ assess_mortality_lifetable <-
           population = population_female))
 
 
-    # Get population impact
+
+    # Calculate PAF (corresponding to the exposure) ####
+    input_info_paf <-
+      input_info %>%
+      dplyr::mutate(
+        crf_forPaf =
+          bestcost::rescale_crf(crf = crf,
+                      exp = exp,
+                      cf = cf,
+                      crf_per = crf_per,
+                      method ={{crf_rescale_method}}
+                      #{{}} ensures that the
+                      # value from the function argument is used
+                      # instead of from an existing column
+                      ),
+        crf_ci = ifelse(crf %in% min(crf), "low",
+                        ifelse(crf %in% max(crf), "high",
+                               "mean"))) %>%
+      # In case of same value in mean and low or high, assign value randomly
+      dplyr::mutate(ci = ifelse(duplicated(crf), "mean", ci)) %>%
+
+      # Calculate attributable fraction (AF) as well as impact
+      dplyr::mutate(approach_id = paste0("singleValue_", crf_rescale_method),
+                    paf =  bestcost::get_paf(crf_conc = crf_forPaf))
+
+
+    # Get population impact ####
     shifted_popOverTime <-
       bestcost::get_pop_impact(
         lifetab_withPop = lifetable_withPop,
@@ -187,7 +214,7 @@ assess_mortality_lifetable <-
         paf = input_withPaf[, c("ci", "paf")])
 
 
-    # Calculate deaths
+    # Calculate deaths ####
     deaths <-
       bestcost::get_deaths(
         shifted_popOverTime = shifted_popOverTime,
@@ -196,7 +223,7 @@ assess_mortality_lifetable <-
         max_age = max_age,
         meta = input_withPaf)
 
-    # Calculate years of life lost (yll)
+    # Calculate years of life lost (yll) ####
     yll <-
       bestcost::get_yll(
         shifted_popOverTime = shifted_popOverTime,
@@ -206,7 +233,7 @@ assess_mortality_lifetable <-
         meta = input_withPaf,
         corrected_discount_rate = corrected_discount_rate)
 
-
+    # Calculate output ####
     output <-
       list(
         shifted_popOverTime = shifted_popOverTime,
