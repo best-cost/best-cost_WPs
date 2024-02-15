@@ -4,9 +4,9 @@
 \alias{get_prob_dying}
 \title{Get probability of dying}
 \arguments{
-\item{first_age_pop}{\code{Numberic value} of the first item of the age sequence from population and life table data.}
+\item{first_age_pop}{\code{Numeric value} of the first item of the age sequence from population and life table data.}
 
-\item{last_age_pop}{\code{Numberic value} of the last item of the age sequence from population and life table data.}
+\item{last_age_pop}{\code{Numeric value} of the last item of the age sequence from population and life table data.}
 
 \item{interval_age_pop}{\code{Vector} containing the interval of the age sequence from population and death data.}
 
@@ -14,7 +14,7 @@
 
 \item{deaths}{\code{Vector} containing deaths of the year of analysis by age range.}
 
-\item{fraction_of_year_lived}{\code{Vector} containing the fraction of the age interval that was lived by those who died for each age interval. Default value = 0.5 (i.e. 50%) for all age intervals.}
+\item{fraction_of_year_lived}{\code{Numeric value} or \code{Vector} containing the fraction of the age interval that was lived by those who died for each age interval. Default value = 0.5 (i.e. 50%) for all age intervals.}
 }
 \value{
 This function returns a \code{data frame} showing the probability of dying by age interval.
