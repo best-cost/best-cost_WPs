@@ -2,10 +2,11 @@
 % Please edit documentation in R/assess_mortality_lifetable.R
 \name{assess_mortality_lifetable}
 \alias{assess_mortality_lifetable}
-\title{Calculation of Health Impacts}
+\title{Health impacts based on life tables}
 \usage{
 assess_mortality_lifetable(
   exp,
+  prop_pop_exp = 1,
   cf,
   crf,
   crf_per,
@@ -32,9 +33,9 @@ assess_mortality_lifetable(
 )
 }
 \arguments{
-\item{exp}{\code{Numberic value} showing the population-weighted mean exposure in ug/m3,}
+\item{exp}{\code{Numeric value} showing the population-weighted mean exposure in ug/m3 or {vector} showing the exposure category in a exposure distribution (this information is linked to the proportion of population exposed).}
 
-\item{cf}{\code{Numberic value} showing the counter-factual scenario (i.e. minimum cut-off concentration) in ug/m3.}
+\item{prop_pop_exp}{\code{Numeric value} or {vector} showing the proportion of population exposed (as fraction, i.e. values between 0 and 1) for a single exposure value or for multiple categories, i.e., a exposure distribution, respectively. If a exposure distribution is used, the dimension of this input variable should be the same as "exp". By default, 1 for single exposure value will be assigned to this input variable assuming a single exposure value, but users can change this value.}
 
 \item{crf}{\code{Vector} of three numeric values referring to the mean as well as the lower bound and upper bound of the confidence interval.}
 
