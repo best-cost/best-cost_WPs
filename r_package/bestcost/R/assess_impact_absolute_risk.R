@@ -39,7 +39,17 @@ assess_impact_absolute_risk <-
     # Check input data ####
     # TBA: length(exp) == length(pop_exp)
 
-    # Group input data in data frame ####
+
+    if(erf_shape == "linear"){
+      erf <- function(exp){
+        erf_parameters[1] + erf_parameters[2]*exp
+      }
+    }
+
+
+
+    # Input data in data frame
+
     input <-
       data.frame(
         exp = exp,
