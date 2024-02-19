@@ -24,7 +24,7 @@ assess_impact_single(
 \arguments{
 \item{exp}{\code{Numeric value} showing the population-weighted mean exposure in ug/m3 or {vector} showing the exposure category in a exposure distribution (this information is linked to the proportion of population exposed).}
 
-\item{prop_pop_exp}{\code{Numeric value} or {vector} showing the proportion of population exposed (as fraction, i.e. values between 0 and 1) for a single exposure value or for multiple categories, i.e., a exposure distribution, respectively. If a exposure distribution is used, the dimension of this input variable should be the same as "exp". By default, 1 for single exposure value will be assigned to this input variable assuming a single exposure value, but users can change this value.}
+\item{prop_pop_exp}{\code{Numeric value} or {vector} showing the proportion of population exposed (as a fraction, i.e. values between 0 and 1) for a single exposure value or for multiple categories, i.e., a exposure distribution, respectively. If a exposure distribution is used, the dimension of this input variable should be the same as "exp". By default, 1 for single exposure value will be assigned to this input variable assuming a single exposure value, but users can change this value.}
 
 \item{cf}{\code{Numeric value} showing the counter-factual scenario (i.e. minimum cut-off concentration) in ug/m3.}
 
@@ -51,7 +51,7 @@ assess_impact_single(
 \value{
 This function returns a \code{data.frame} with one row for each value of the
 concentration-response function (i.e. mean, lower and upper bound confidence interval.
-Moreover, the data frame include columns such as:
+Moreover, the data frame includes columns such as:
 \itemize{
  \item Attributable fraction
  \item Health impact

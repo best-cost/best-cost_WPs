@@ -33,53 +33,53 @@ assess_mortality_lifetable(
 )
 }
 \arguments{
-\item{exp}{\code{Numeric value} showing the population-weighted mean exposure in ug/m3 or {vector} showing the exposure category in a exposure distribution (this information is linked to the proportion of population exposed).}
+\item{exp}{\code{Numeric values} Population-weighted mean exposure in ug/m3 or {vector} showing the exposure category in a exposure distribution (this information is linked to the proportion of population exposed).}
 
-\item{prop_pop_exp}{\code{Numeric value} or {vector} showing the proportion of population exposed (as fraction, i.e. values between 0 and 1) for a single exposure value or for multiple categories, i.e., a exposure distribution, respectively. If a exposure distribution is used, the dimension of this input variable should be the same as "exp". By default, 1 for single exposure value will be assigned to this input variable assuming a single exposure value, but users can change this value.}
+\item{prop_pop_exp}{\code{Numeric value} or {Numeric vector} Fraction (values between 0 & 1) of the total population exposed to (one or more) exposure categories, i.e., a exposure distribution, respectively. If a exposure distribution is used, the dimension of this input variable should be the same as "exp". By default, 1 for single exposure value will be assigned to this input variable assuming a single exposure value, but users can change this value.}
 
-\item{crf}{\code{Vector} of three numeric values referring to the mean as well as the lower bound and upper bound of the confidence interval.}
+\item{crf}{\code{Numeric vector} of three numeric values referring to the central estimate of the exposure-response function and the corresponding lower and upper 95% confidence interval bounds.}
 
-\item{crf_per}{\code{Numberic value} showing the increment of the concentration-response function in ug/m3 (usually 10 or 5).}
+\item{crf_per}{\code{Numeric value} showing the increment of the exposure-response function in ug/m3 (usually 10 or 5).}
 
-\item{crf_rescale_method}{\code{String} to choose among "linear" and "loglinear".}
+\item{crf_rescale_method}{\code{Character string} either "linear" or "loglinear".}
 
-\item{first_age_pop}{\code{Numberic value} of the first item of the age sequence from population and life table data}
+\item{first_age_pop}{\code{Numeric value} starting age of the youngest age group from population and life table data}
 
-\item{last_age_pop}{\code{Numberic value} of the last item of the age sequence from population and life table data}
+\item{last_age_pop}{\code{Numeric value} ending age of the oldest age group from population and life table data}
 
-\item{interval_age_pop}{\code{Numberic value} of the interval of the age sequence from population and life table data}
+\item{interval_age_pop}{\code{Numeric value} of the interval (in years) of each age group from population and life table data}
 
-\item{prob_natural_death_male}{\code{Vector} containing the probability of dying because of natural cause (excluding non-natural deaths such as violence or accidents) by age or age group for male.}
+\item{prob_natural_death_male}{\code{Numeric vector} containing the probability of dying due to natural cause (excluding non-natural deaths due to violence or accidents) by age or age group for males.}
 
-\item{prob_natural_death_female}{\code{Vector} containing the probability of dying because of natural cause (excluding non-natural deaths such as violence or accidents) by age or age group for female.}
+\item{prob_natural_death_female}{\code{Numeric vector} containing the probability of dying due to natural cause (excluding non-natural deaths due to violence or accidents) by age or age group for females.}
 
-\item{prob_total_death_male}{\code{Vector} containing the probability of dying because of all causes (including non-natural deaths such as violence or accidents) by age or age group for male.}
+\item{prob_total_death_male}{\code{Numeric vector} containing the probability of dying due to all causes (including non-natural deaths due to violence or accidents) by age or age group for males.}
 
-\item{prob_total_death_female}{\code{Vector} containing the probability of dying because of all causes (including non-natural deaths such as violence or accidents) by age or age group for female.}
+\item{prob_total_death_female}{\code{Numeric vector} containing the probability of dying due to all causes (including non-natural deaths due to violence or accidents) by age or age group for females.}
 
-\item{population_male}{\code{Vector} containing the mid-year male population for the year of analysis.}
+\item{population_male}{\code{Numeric vector} containing the mid-year male population for the year of analysis.}
 
 \item{population_female}{\code{Vector} containing the mid-year female population for the year of analysis.}
 
-\item{year_of_analysis}{Numeric value of the year of analysis, which corresponds to the first year of the life table.}
+\item{year_of_analysis}{\code{Numeric value} of the year of analysis, which corresponds to the first year of the life table.}
 
-\item{corrected_discount_rate}{Numeric value with the corrected discount rate as proportion (i.e. 0.1 instead of 10\%).}
+\item{corrected_discount_rate}{\code{Numeric value} of the corrected discount rate as proportion (i.e. 0.1 instead of 10\%).}
 
 \item{min_age}{\code{Numberic value} of the minimal age to be considered for adults (by default 30, i.e. 30+).}
 
-\item{max_age}{\code{Numberic value} of the maximal age to be considered for infants/children (by default 0, i.e. below 1 years old).}
+\item{max_age}{\code{Numberic value} of the maximal age to be considered for infants/children (by default 0, i.e. below 1 year old).}
 
-\item{info_pollutant}{\code{String} showing additional information or id for the pollutant. Default value = NULL.}
+\item{info_pollutant}{\code{Character string} showing additional information or id for the pollutant. Default value = NULL.}
 
-\item{info_outcome}{\code{String} showing additional information or id for the health outcome. Default value = NULL.}
+\item{info_outcome}{\code{Character string} showing additional information or id for the health outcome. Default value = NULL.}
 
-\item{info_exp}{\code{String} showing additional information or id for the exposure. This information will be added to all rows of the results. Default value = NULL.}
+\item{info_exp}{\code{Character string} showing additional information or id for the exposure. This information will be added to all rows of the results. Default value = NULL.}
 
-\item{info_cf}{\code{String} showing additional information or id for counter-factual scenario (cut-off). This information will be added to all rows of the results. Default value = NULL.}
+\item{info_cf}{\code{Character string} showing additional information or id for counter-factual scenario (cut-off). This information will be added to all rows of the results. Default value = NULL.}
 
-\item{info_crf}{\code{String} showing additional information or id for the concentration-response function. This information will be added to all rows of the results. Default value = NULL.}
+\item{info_crf}{\code{Character string} showing additional information or id for the concentration-response function. This information will be added to all rows of the results. Default value = NULL.}
 
-\item{info_bhd}{\code{String} showing additional information or id for the baseline health data. This information will be added to all rows of the results. Default value = NULL.}
+\item{info_bhd}{\code{Character string} showing additional information or id for the baseline health data. This information will be added to all rows of the results. Default value = NULL.}
 }
 \value{
 This function returns a \code{data.frame} with one row for each value of the
@@ -93,7 +93,7 @@ Moreover, the data frame include columns such as:
 }
 }
 \description{
-Calculates the mortality, i.e. premature deaths or years of life lost, attributed to the exposure to an environmental stressor using a life table approach. It provides as a result the mean as well as the lower and the higher bound of the impact based on the confidence interval of the concentration-response function.
+Calculates the mortality (premature deaths) or years of life lost attributable to the exposure to an environmental stressor using a life table approach. It provides the central estimate of the impact and the corresponding 95% confidence intervals (based on the 95% confidence interval exposure-response function).
 }
 \note{
 Experimental function
