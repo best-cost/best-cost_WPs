@@ -19,7 +19,7 @@ get_deaths(
 
 \item{min_age}{\code{Numeric value} with the minimal age to be considered for adults (by default 30, i.e. 30+),}
 
-\item{max_age}{\code{Numeric value} with the maximal age to be considered for infants/children (by default 0, i.e. below 1 years old)#'}
+\item{max_age}{\code{Numeric value} with the maximal age to be considered for infants/children (by default 0, i.e. below 1 year old)}
 
 \item{shifted_popOvertime}{\code{Data frame} with shifted population over time.}
 }

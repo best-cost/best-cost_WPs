@@ -12,6 +12,7 @@
 #' TBD
 #' @author Alberto Castro
 #' @note Experimental function
+#' @export
 get_popOverTime_noAP <-
 function(lifetable_withPop, year_of_analysis){
 

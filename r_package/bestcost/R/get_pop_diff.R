@@ -12,7 +12,7 @@
 #' TBD
 #' @author Alberto Castro
 #' @note Experimental function
-#'
+#' @export
 get_pop_diff <- function(popOverTime_AP, popOverTime_noAP)
   {
   popOverTime_diff <-

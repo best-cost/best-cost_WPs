@@ -182,7 +182,7 @@ assess_mortality_lifetable <-
           population = population_female))
 
     input_info_paf <-
-      input_info %>%
+      input %>%
       dplyr::mutate(
         crf_forPaf =
           bestcost::rescale_crf(crf = crf,
@@ -202,7 +202,8 @@ assess_mortality_lifetable <-
 
       # Calculate attributable fraction (AF) as well as impact
       dplyr::mutate(approach_id = paste0("singleValue_", crf_rescale_method),
-                    paf =  bestcost::get_paf(crf_conc = crf_forPaf))
+                    paf =  bestcost::get_paf(crf_conc = crf_forPaf,
+                                             prop_pop_exp = prop_pop_exp))
 
 
     # Get population impact ####

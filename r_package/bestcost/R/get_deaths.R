@@ -16,7 +16,7 @@
 #' TBD
 #' @author Alberto Castro
 #' @note Experimental function
-
+#' @export
 
 get_deaths <-
   function(shifted_popOverTime, year_of_analysis,

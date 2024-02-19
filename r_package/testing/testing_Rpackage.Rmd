@@ -50,6 +50,11 @@ library(credentials)
 library(gitcreds)
 library(devtools)
 
+# Load package
+devtools::load_all(export_all = FALSE)
+```
+
+```{r Install own package from github, eval=FALSE, include=FALSE}
 # Install own package from github as suggested here
 # https://stackoverflow.com/a/71846333/6104907
 if(!"bestcost" %in% installed.packages()[, "Package"]){
@@ -69,14 +74,12 @@ if(!"bestcost" %in% installed.packages()[, "Package"]){
 
 # to quantify and monetize health impacts (own package)
 library(bestcost)
-# loads all functions in {bestcost}
-# devtools::load_all() 
 # Update R package documentation
 # devtools::document()
 ```
 
-```{r load current version of bestcost from local source, eval=FALSE, include=FALSE}
 
+```{r load current version of bestcost from local source, eval=FALSE, include=FALSE}
 detach("package:bestcost", unload = TRUE) # detach bestcost
 # Save current state of package as .zip file (e.g. to directly test changes in functions)
 devtools::build(binary = TRUE, path = "../testing/input/") 
@@ -84,6 +87,7 @@ devtools::build(binary = TRUE, path = "../testing/input/")
 install.packages("../testing/input/bestcost_0.0.0.1.zip", repos=NULL, type='source')
 # Load updated package
 library(bestcost)
+load_all(export_all = TRUE)
 ```
 
 ```{r Test probability of dying}
@@ -272,8 +276,8 @@ impact_mortality_raw <- list()
 
 # Calculate mortality impacts using bestcost function
 
-for(i in 1:nrow(input_data_mortality)){  # Use this if you want to evaluate multiple crfs
-# for(i in 2){                           # Use this if you want to evaluate only one crfs
+#for(i in 1:nrow(input_data_mortality)){  # Use this if you want to evaluate multiple crfs
+for(i in 2){                           # Use this if you want to evaluate only one crfs
   impact_mortality_raw[[input_data_mortality$year[i]]][[input_data_mortality$crf_id[[i]]]] <-
   
     bestcost::assess_mortality_lifetable(

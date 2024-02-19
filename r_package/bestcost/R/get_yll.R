@@ -26,6 +26,7 @@
 #' TBD
 #' @author Alberto Castro
 #' @note Experimental function
+#' @export
 
 
 
