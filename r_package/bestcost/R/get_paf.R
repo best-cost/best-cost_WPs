@@ -13,7 +13,7 @@
 #' @note Experimental function
 #' @export
 get_paf <-
-  function(crf_conc, prop_pop_exp){
+  function(crf_conc, prop_pop_exp = 1){
     # Sources:
     # WHO 2003 a: Prüss-Üstün_2003_Assessing the environmental burden of disease at national and local levels)
     # WHO 2003 b: Murray_2003_Comparative quantification of health risks Conceptual framework and methodological issues
