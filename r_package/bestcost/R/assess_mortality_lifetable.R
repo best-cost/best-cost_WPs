@@ -203,7 +203,7 @@ assess_mortality_lifetable <-
       # Calculate attributable fraction (AF) as well as impact
       dplyr::mutate(approach_id = paste0("singleValue_", crf_rescale_method),
                     paf =  bestcost::get_paf(crf_conc = crf_forPaf,
-                                             prop_pop_exp = 1))
+                                             prop_pop_exp = prop_pop_exp))
 
 
     # Get population impact ####
