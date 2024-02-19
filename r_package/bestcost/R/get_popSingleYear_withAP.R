@@ -13,6 +13,7 @@
 #' TBD
 #' @author Alberto Castro
 #' @note Experimental function
+#' @export
 
 get_popSingleYear_withAP <-
   function(lifetable_withPop, year_of_analysis, paf){
