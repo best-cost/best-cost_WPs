@@ -182,7 +182,7 @@ assess_mortality_lifetable <-
           population = population_female))
 
     input_info_paf <-
-      input_info %>%
+      input %>%
       dplyr::mutate(
         crf_forPaf =
           bestcost::rescale_crf(crf = crf,
