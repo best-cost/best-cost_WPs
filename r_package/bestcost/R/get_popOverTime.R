@@ -29,7 +29,7 @@ get_popOverTime <-
     # the change in /level of air pollution
     # based on the RR
     popOverTime <-
-      bestcost::get_popSingleYear_withAP(
+      bestcost::project_pop_withExp(
         lifetable_withPop = lifetab_withPop,
         year_of_analysis = year_of_analysis,
         paf = paf)
@@ -37,7 +37,7 @@ get_popOverTime <-
     # Now calculate population over time (for the rest of years)
     # without considering air pollution
     popOverTime <-
-      bestcost::get_popOverTime_noAP(
+      bestcost::project_pop_noExp(
         lifetable_withPop = popOverTime,
         year_of_analysis = year_of_analysis)
 

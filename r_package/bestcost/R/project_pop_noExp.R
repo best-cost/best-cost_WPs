@@ -13,7 +13,7 @@
 #' @author Alberto Castro
 #' @note Experimental function
 #' @export
-get_popOverTime_noAP <-
+project_pop_noExp <-
 function(lifetable_withPop, year_of_analysis){
 
   # Start of the loop
