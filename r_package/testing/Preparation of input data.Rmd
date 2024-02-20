@@ -47,7 +47,7 @@ library(devtools)
 #Decide 
 # the target increment (increase of concentration) of the pm CRFs 
 # and PM fraction
-per_target_pm <- 10 # ug/m3
+increment_target_pm <- 10 # ug/m3
 
 # Define existing PM fractions
 pm_fractions <- c("PM2.5", "PM10")
@@ -110,9 +110,9 @@ paste_round_CI <-
 
 # Define function to re-scale the CRF regarding the considered increment
 rescale_crf_increment <- 
-  function(crf, per_original, per_target){
+  function(crf, increment_original, increment_target){
     rescaled_increment <- 
-      exp(log(crf) * per_target / per_original)
+      exp(log(crf) * increment_target / increment_original)
   }
 
 # Conversion factor for PM fraction
@@ -272,26 +272,26 @@ crf_data <-
   dplyr::mutate(
     crf_pollutant_original = pollutant,
     crf_original = crf,
-    crf_per_original = crf_per,
+    rr_increment_original = rr_increment,
   # Add the target CRF increment (default increase of concentration) 
   # for each pollutant
-    crf_per_target =
+    rr_increment_target =
       ifelse(pollutant %in% c(pm_fractions, "NO2"), 10, NA),
       # ifelse(pollutant %in% "BC", 0.44, NA))) %>%
       # ifelse(pollutant %in% "O3", , NA)))) %>% 
       # If O3 is included, the O3 increment is to be decided
   # Re-scale concentration of PM fractions in CRFs
-    crf_per_rescaled = 
+    rr_increment_rescaled = 
       rescale_conc_pmFraction(
-        conc = crf_per_original,
+        conc = rr_increment_original,
         pm_original = crf_pollutant_original,
         pm_target = pm_target),
   # Re-scale to the target increment
     crf_rescaled = 
       rescale_crf_increment(
         crf = crf,
-        per_original = crf_per_rescaled,
-        per_target = crf_per_target),
+        increment_original = rr_increment_rescaled,
+        increment_target = rr_increment_target),
     crf = crf_rescaled) %>%
   # Modify columns based on target
   dplyr::mutate(
@@ -299,10 +299,10 @@ crf_data <-
       ifelse(pollutant %in% pm_no_target, 
              pm_target, 
              crf_pollutant_original),
-    crf_per = 
-      ifelse(!crf_per %in% crf_per_target, 
-             crf_per_target, 
-             crf_per)) %>%
+    rr_increment = 
+      ifelse(!rr_increment %in% rr_increment_target, 
+             rr_increment_target, 
+             rr_increment)) %>%
 
   # Change format of source
   # Remove brackets and spaces
@@ -335,7 +335,7 @@ crf_data <-
   dplyr::distinct(., crf_id, crf, ci, 
                   .keep_all = TRUE) %>%
   # Change position of some columns
-  dplyr::relocate(c(crf_per, crf_unit), .after=crf) %>%
+  dplyr::relocate(c(rr_increment, crf_unit), .after=crf) %>%
 # Pivot wider to have ci in columns
   tidyr::pivot_wider(values_from = c(crf, crf_original, crf_rescaled), 
                      names_from = ci)

@@ -1,4 +1,4 @@
-hra;pollutant;outcome_metric;outcome_disease;outcome_group;term;crf_mean;crf_lowci;crf_highci;crf_per;crf_unit;crf_geolevel;crf_model;crf_adjusted;crf_source;type;choice_pair;choice_crf
+hra;pollutant;outcome_metric;outcome_disease;outcome_group;term;crf_mean;crf_lowci;crf_highci;rr_increment;crf_unit;crf_geolevel;crf_model;crf_adjusted;crf_source;type;choice_pair;choice_crf
 ;PM2.5;premature deaths;all causes;adults;long-term;1.06;0.977;1.15;5;ug/m3;Europe;multi-pollutant;NO2;Beelen et al. (2014);meta-analysis;;
 ;PM2.5;premature deaths;all causes;adults;long-term;1.07;1.016;1.127;5;ug/m3;Europe;single-pollutant;;Beelen et al. (2014);meta-analysis;;
 ;PM2.5;premature deaths;all causes;adults;long-term;1.12;1.06;1.19;10;ug/m3;Europe;single-pollutant;;Pope et al. (2020);meta-analysis;;

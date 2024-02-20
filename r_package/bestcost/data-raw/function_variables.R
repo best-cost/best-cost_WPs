@@ -1,6 +1,6 @@
 ## code to prepare `function_variables` data set goes here
 
-crf_per <- 10
+rr_increment <- 10
 crf_rescale_method <- "loglinear"
 first_age_pop <- 0
 last_age_pop <- 99
@@ -10,7 +10,7 @@ corrected_discount_rate <- 0
 ci <- c("mean", "lowci", "highci")
 sex <- c("female","male")
 
-usethis::use_data(crf_per,
+usethis::use_data(rr_increment,
                   first_age_pop,
                   last_age_pop,
                   interval_age_pop,

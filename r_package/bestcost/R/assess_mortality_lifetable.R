@@ -7,7 +7,7 @@
 #' @param prop_pop_exp \code{Numeric value} or {Numeric vector} Fraction (values between 0 & 1) of the total population exposed to (one or more) exposure categories, i.e., a exposure distribution, respectively. If a exposure distribution is used, the dimension of this input variable should be the same as "exp". By default, 1 for single exposure value will be assigned to this input variable assuming a single exposure value, but users can change this value.
 #' @param cutoff \code{Numeric value} showing the cut-off exposure in ug/m3 (i.e. the exposure level below which no health effects occur).
 #' @param crf \code{Numeric vector} of three numeric values referring to the central estimate of the exposure-response function and the corresponding lower and upper 95% confidence interval bounds.
-#' @param crf_per \code{Numeric value} showing the increment of the exposure-response function in ug/m3 (usually 10 or 5).
+#' @param rr_increment \code{Numeric value} showing the increment of the exposure-response function in ug/m3 (usually 10 or 5).
 #' @param crf_rescale_method \code{Character string} either "linear" or "loglinear".
 #' @param first_age_pop \code{Numeric value} starting age of the youngest age group from population and life table data
 #' @param last_age_pop \code{Numeric value} ending age of the oldest age group from population and life table data
@@ -48,7 +48,7 @@
 assess_mortality_lifetable <-
   function(exp, prop_pop_exp = 1,
            cutoff,
-           crf, crf_per, crf_rescale_method,
+           crf, rr_increment, crf_rescale_method,
            first_age_pop, last_age_pop, interval_age_pop,
            prob_natural_death_male, prob_natural_death_female,
            prob_total_death_male, prob_total_death_female,
@@ -72,7 +72,7 @@ assess_mortality_lifetable <-
     crf_data <-
       data.frame(
         crf = crf,
-        crf_per = crf_per,
+        rr_increment = rr_increment,
         crf_rescale_method = crf_rescale_method,
         # Assign mean, low and high crf values
         crf_ci = ifelse(crf %in% min(crf), "low",
@@ -113,7 +113,7 @@ assess_mortality_lifetable <-
           rescale_crf(crf = crf,
                       exp = exp,
                       cutoff = cutoff,
-                      crf_per = crf_per,
+                      rr_increment = rr_increment,
                       method ={{crf_rescale_method}}
                       #{{}} ensures that the
                       # value from the function argument is used
@@ -189,7 +189,7 @@ assess_mortality_lifetable <-
           bestcost::rescale_crf(crf = crf,
                       exp = exp,
                       cutoff = cutoff,
-                      crf_per = crf_per,
+                      rr_increment = rr_increment,
                       method ={{crf_rescale_method}}
                       #{{}} ensures that the
                       # value from the function argument is used
