@@ -8,9 +8,9 @@ assess_mortality_lifetable(
   exp,
   prop_pop_exp = 1,
   cutoff,
-  crf,
-  crf_per,
-  crf_rescale_method,
+  rr,
+  rr_increment,
+  rr_rescale_method,
   first_age_pop,
   last_age_pop,
   interval_age_pop,
@@ -28,7 +28,7 @@ assess_mortality_lifetable(
   info_outcome = NULL,
   info_exp = NULL,
   info_cutoff = NULL,
-  info_crf = NULL,
+  info_rr = NULL,
   info_bhd = NULL
 )
 }
@@ -39,11 +39,11 @@ assess_mortality_lifetable(
 
 \item{cutoff}{\code{Numeric value} showing the cut-off exposure in ug/m3 (i.e. the exposure level below which no health effects occur).}
 
-\item{crf}{\code{Numeric vector} of three numeric values referring to the central estimate of the exposure-response function and the corresponding lower and upper 95% confidence interval bounds.}
+\item{rr}{\code{Numeric vector} of three numeric values referring to the central estimate of the exposure-response function and the corresponding lower and upper 95% confidence interval bounds.}
 
-\item{crf_per}{\code{Numeric value} showing the increment of the exposure-response function in ug/m3 (usually 10 or 5).}
+\item{rr_increment}{\code{Numeric value} showing the increment of the exposure-response function in ug/m3 (usually 10 or 5).}
 
-\item{crf_rescale_method}{\code{Character string} either "linear" or "loglinear".}
+\item{rr_rescale_method}{\code{Character string} either "linear" or "loglinear".}
 
 \item{first_age_pop}{\code{Numeric value} starting age of the youngest age group from population and life table data}
 
@@ -79,7 +79,7 @@ assess_mortality_lifetable(
 
 \item{info_cutoff}{\code{Character string} showing additional information or id for counter-factual scenario (cut-off). This information will be added to all rows of the results. Default value = NULL.}
 
-\item{info_crf}{\code{Character string} showing additional information or id for the concentration-response function. This information will be added to all rows of the results. Default value = NULL.}
+\item{info_rr}{\code{Character string} showing additional information or id for the concentration-response function. This information will be added to all rows of the results. Default value = NULL.}
 
 \item{info_bhd}{\code{Character string} showing additional information or id for the baseline health data. This information will be added to all rows of the results. Default value = NULL.}
 }

@@ -1,7 +1,7 @@
 ## code to prepare `function_variables` data set goes here
 
 rr_increment <- 10
-crf_rescale_method <- "loglinear"
+rr_rescale_method <- "loglinear"
 first_age_pop <- 0
 last_age_pop <- 99
 interval_age_pop <- 1

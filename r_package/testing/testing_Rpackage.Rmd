@@ -127,15 +127,15 @@ impact_morbidity_expDistribution_raw <- list()
 
 
 for(i in 1:nrow(input_data_morbidities)){
-  impact_morbidity_expDistribution_raw[[input_data_morbidities$year[i]]][[input_data_morbidities$crf_id[[i]]]] <-
+  impact_morbidity_expDistribution_raw[[input_data_morbidities$year[i]]][[input_data_morbidities$rr_id[[i]]]] <-
   bestcost::assess_impact_single(
     exp = c(53, 57.5, 62.5, 67.5, 72.5, 77.5),# Values as example provided by NIPH
     prop_pop_exp = c(0.8187, 0.0743, 0.0549, 0.0368, 0.0138, 0.0015), # Values as example provided by NIPH
     cutoff = 53, # PM2.5=5, NO2=10, i.e. WHO AQG 2021 
     bhd = 5269.46,
-    crf = c(1.08, 1.07, 1.09),
+    rr = c(1.08, 1.07, 1.09),
     rr_increment = 10, 
-    crf_rescale_method = "loglinear", 
+    rr_rescale_method = "loglinear", 
     info_pollutant = "noise", 
     info_outcome = "YLD")
   }
@@ -150,15 +150,15 @@ impact_morbidities_raw <- list()
 
 
 for(i in 1:nrow(input_data_morbidities)){
-  impact_morbidities_raw[[input_data_morbidities$year[i]]][[input_data_morbidities$crf_id[[i]]]] <-
+  impact_morbidities_raw[[input_data_morbidities$year[i]]][[input_data_morbidities$rr_id[[i]]]] <-
   bestcost::assess_impact_single(
     exp = input_data_morbidities$exp[i],  # PM2.5=8.30=limit LRV CH, NO2=16.32=mean conc. in CH in 2019
     cutoff = input_data_morbidities$cutoff[i],    # PM2.5=5, NO2=10, i.e. WHO AQG 2021 
     bhd = input_data_morbidities$bhd_absolute[i],
-    crf = unlist(input_data_morbidities[i, 
-                            c("crf_mean", "crf_lowci", "crf_highci")]) ,
+    rr = unlist(input_data_morbidities[i, 
+                            c("rr_mean", "rr_lowci", "rr_highci")]) ,
     rr_increment = 10, 
-    crf_rescale_method = "loglinear", 
+    rr_rescale_method = "loglinear", 
     info_pollutant = input_data_morbidities$pollutant[i], 
     info_outcome = input_data_morbidities$outcome_metric[i])
   }
@@ -167,15 +167,15 @@ for(i in 1:nrow(input_data_morbidities)){
 impact_morbidities_edited <- 
   # Bind rows within the nested lists
   impact_morbidities_raw %>%
-  purrr::map(., ~ dplyr::bind_rows(., .id = "crf_id")) 
+  purrr::map(., ~ dplyr::bind_rows(., .id = "rr_id")) 
 
 impact_morbidities_comparative <- list()
 for (r in c("2019", "whoaqg21")){ 
   # Substract the impacts for the scenarios
   impact_morbidities_comparative[[paste0(r, "_whoaqg21")]] <- 
     dplyr::left_join(impact_morbidities_edited[[r]],
-                     impact_morbidities_edited[["whoaqg21"]][c("crf_id", "ci", "crf", "exp", "impact")], 
-                     by = c("crf_id", "ci", "crf"), 
+                     impact_morbidities_edited[["whoaqg21"]][c("rr_id", "ci", "rr", "exp", "impact")], 
+                     by = c("rr_id", "ci", "rr"), 
                      suffix = c("_ref", "_whoaqg21")) %>%
     dplyr::mutate(ref = r,
                   impact_diff = impact_ref - impact_whoaqg21)
@@ -186,17 +186,17 @@ impact_morbidities <-
   dplyr::bind_rows(.) %>%
 
   # Remove columns 
-  dplyr::select(-crf_forPaf) %>%
+  dplyr::select(-rr_forPaf) %>%
 
   
   # Pivot wider the ci
   tidyr::pivot_wider(
-    values_from = c(crf, paf,
+    values_from = c(rr, paf,
                     impact_ref, impact_whoaqg21, impact_diff), 
     names_from = ci) %>%
   # Paste the CIs
   dplyr::mutate(
-    crf_meanCI = paste_round_CI(crf_mean, crf_lowci, crf_highci, 3),
+    rr_meanCI = paste_round_CI(rr_mean, rr_lowci, rr_highci, 3),
     impact_ref_meanCI = paste_round_CI(impact_ref_mean, impact_ref_lowci, impact_ref_highci, 0),
     impact_whoaqg21_meanCI = paste_round_CI(impact_whoaqg21_mean, impact_whoaqg21_lowci, impact_whoaqg21_highci, 0),
     impact_diff_meanCI = paste_round_CI(impact_diff_mean, impact_diff_lowci, impact_diff_highci, 0)) %>%
@@ -207,10 +207,10 @@ impact_morbidities <-
       c(contains("_ref"),contains("_diff")),
     names_from = ref) %>%
   
-    # Left join to add further information on crf
-  dplyr::left_join(., crf_data, 
-                   by = c( "crf_id", 
-                          paste0("crf_", c("mean", "lowci", "highci"))),
+    # Left join to add further information on RR
+  dplyr::left_join(., rr_data, 
+                   by = c( "rr_id", 
+                          paste0("rr_", c("mean", "lowci", "highci"))),
                    relationship = "many-to-one") %>%
      # Left join to add further information on bhd
   dplyr::left_join(., unique(input_data_morbidities [, c("outcome_id", "bhd_absolute", "source_bhd", "choice_bhd")]), 
@@ -224,7 +224,7 @@ impact_morbidities <-
   # Order columns 
   dplyr::select(pollutant, term, 
                 bhd,
-                crf_meanCI, 
+                rr_meanCI, 
                 contains("impact_diff_meanCI"),
                 contains("impact_ref_meanCI"), 
                 impact_whoaqg21_meanCI,
@@ -240,18 +240,18 @@ impact_mortality_expDistribution_raw <- list()
 
 # Calculate mortality impacts using bestcost function
 
-#for(i in 1:nrow(input_data_mortality)){  # Use this if you want to evaluate multiple crfs
-for(i in 2){                           # Use this if you want to evaluate only one crfs
-  impact_mortality_expDistribution_raw[[input_data_mortality$year[i]]][[input_data_mortality$crf_id[[i]]]] <-
+#for(i in 1:nrow(input_data_mortality)){  # Use this if you want to evaluate multiple RRs
+for(i in 2){                           # Use this if you want to evaluate only one RR
+  impact_mortality_expDistribution_raw[[input_data_mortality$year[i]]][[input_data_mortality$rr_id[[i]]]] <-
   
     bestcost::assess_mortality_lifetable(
     exp = c(8, 9, 10), # Fake data just for testing purposes
     prop_pop_exp = c(0.2, 0.3, 0.5), # Fake data just for testing purposes
     cutoff = input_data_mortality$cutoff[i],   # PM2.5=5, NO2=10, i.e. WHO AQG 2021 
-    crf = unlist(input_data_mortality[i,
-                                      c("crf_mean", "crf_lowci", "crf_highci")]),
+    rr = unlist(input_data_mortality[i,
+                                      c("rr_mean", "rr_lowci", "rr_highci")]),
     rr_increment = 10, 
-    crf_rescale_method = "loglinear",
+    rr_rescale_method = "loglinear",
     first_age_pop = 0,
     last_age_pop = 99,
     interval_age_pop = 1,
@@ -279,18 +279,18 @@ impact_mortality_raw <- list()
 
 # Calculate mortality impacts using bestcost function
 
-#for(i in 1:nrow(input_data_mortality)){  # Use this if you want to evaluate multiple crfs
-for(i in 2){                           # Use this if you want to evaluate only one crfs
-  impact_mortality_raw[[input_data_mortality$year[i]]][[input_data_mortality$crf_id[[i]]]] <-
+#for(i in 1:nrow(input_data_mortality)){  # Use this if you want to evaluate multiple RRs
+for(i in 2){                           # Use this if you want to evaluate only one RRs
+  impact_mortality_raw[[input_data_mortality$year[i]]][[input_data_mortality$rr_id[[i]]]] <-
   
     bestcost::assess_mortality_lifetable(
 
     exp = input_data_mortality$exp[i], # PM2.5=8.30=limit LRV CH, NO2=16.32=mean conc. in CH in 2019
     cutoff = input_data_mortality$cutoff[i],   # PM2.5=5, NO2=10, i.e. WHO AQG 2021 
-    crf = unlist(input_data_mortality[i,
-                                      c("crf_mean", "crf_lowci", "crf_highci")]),
+    rr = unlist(input_data_mortality[i,
+                                      c("rr_mean", "rr_lowci", "rr_highci")]),
     rr_increment = 10, 
-    crf_rescale_method = "loglinear",
+    rr_rescale_method = "loglinear",
     first_age_pop = 0,
     last_age_pop = 99,
     interval_age_pop = 1,
@@ -318,7 +318,7 @@ impact_mortality_edited[["yll"]] <-
 
 impact_mortality_edited <- impact_mortality_edited %>%
   # Unlist assigning id
-  purrr::map(., map,  ~ dplyr::bind_rows(., .id = "crf_id")) %>%
+  purrr::map(., map,  ~ dplyr::bind_rows(., .id = "rr_id")) %>%
   purrr::map(.,  ~ dplyr::bind_rows(., .id = "case")) %>%
   dplyr::bind_rows(., .id = "outcome_metric_short") %>%
   # Now list only scenario
@@ -332,8 +332,8 @@ for (r in c("2019", "whoaqg21")){
   # Substract the impacts for the scenarios
   impact_mortality_comparative[[paste0(r, "_whoaqg21")]] <- 
     dplyr::left_join(impact_mortality_edited[[r]],
-                     impact_mortality_edited[["whoaqg21"]][c("crf_id", "ci", "impact", "impact_beforeRounding" ,"outcome_metric_short", "exp")], 
-                     by = c("outcome_metric_short", "crf_id", "ci"), 
+                     impact_mortality_edited[["whoaqg21"]][c("rr_id", "ci", "impact", "impact_beforeRounding" ,"outcome_metric_short", "exp")], 
+                     by = c("outcome_metric_short", "rr_id", "ci"), 
                      suffix = c("_ref", "_whoaqg21")) %>%
     dplyr::mutate(ref = r,
                   impact_diff = impact_ref - impact_whoaqg21,
@@ -344,17 +344,17 @@ impact_mortality <-
   impact_mortality_comparative %>%
   dplyr::bind_rows(.) %>%
   # Remove non relevant columns
-  dplyr::select(-case, -crf_ci) %>%
+  dplyr::select(-case, -rr_ci) %>%
   
   # Pivot wider CI
   tidyr::pivot_wider(
-    values_from = c(crf, crf_forPaf, paf,
+    values_from = c(rr, rr_forPaf, paf,
                     impact_ref, impact_whoaqg21, impact_diff,
                     impact_beforeRounding_ref, impact_beforeRounding_whoaqg21, impact_beforeRounding_diff), 
     names_from = ci) %>%
   # Paste the CIs
   dplyr::mutate(
-    crf_meanCI = paste_round_CI(crf_mean, crf_lowci, crf_highci, 3),
+    rr_meanCI = paste_round_CI(rr_mean, rr_lowci, rr_highci, 3),
     impact_ref_meanCI = paste_round_CI(impact_ref_mean, impact_ref_lowci, impact_ref_highci, 3),
     impact_whoaqg21_meanCI = paste_round_CI(impact_whoaqg21_mean, impact_whoaqg21_lowci, impact_whoaqg21_highci, 0),
     impact_diff_meanCI = paste_round_CI(impact_diff_mean, impact_diff_lowci, impact_diff_highci, 0),
@@ -362,10 +362,10 @@ impact_mortality <-
     bhd = NA) %>%
 
     
-  # Left join to add further information on crf
-  dplyr::left_join(., crf_data, 
-                   by = c("info_pollutant" = "pollutant", "crf_id", "rr_increment",
-                          paste0("crf_", c("mean", "lowci", "highci"))),
+  # Left join to add further information on RR
+  dplyr::left_join(., rr_data, 
+                   by = c("info_pollutant" = "pollutant", "rr_id", "rr_increment",
+                          paste0("rr_", c("mean", "lowci", "highci"))),
                    relationship = "many-to-one")%>%
   # Change outcome_id to ensure match with codebook
   dplyr::mutate(
@@ -373,14 +373,14 @@ impact_mortality <-
                         gsub("premature deaths", "yll", outcome_id),
                         outcome_id)) %>%
   # Order columns 
-  dplyr::select(info_pollutant, ref, outcome_id, crf_source, 
-                term, bhd, crf_meanCI, 
+  dplyr::select(info_pollutant, ref, outcome_id, rr_source, 
+                term, bhd, rr_meanCI, 
                 contains("impact_diff_meanCI"),
                 contains("impact_ref_meanCI"), 
                 impact_whoaqg21_meanCI,
                 everything()) %>%
   # Order rows by label
-  dplyr::arrange(desc(info_pollutant), ref, outcome_id, crf_source)
+  dplyr::arrange(desc(info_pollutant), ref, outcome_id, rr_source)
 
 ```
 

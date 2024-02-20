@@ -9,15 +9,15 @@ assess_impact_single(
   exp,
   prop_pop_exp = 1,
   cutoff,
-  crf,
-  crf_per,
-  crf_rescale_method,
+  rr,
+  rr_increment,
+  rr_rescale_method,
   bhd,
   info_pollutant = NULL,
   info_outcome = NULL,
   info_exp = NULL,
   info_cutoff = NULL,
-  info_crf = NULL,
+  info_rr = NULL,
   info_bhd = NULL
 )
 }
@@ -28,11 +28,11 @@ assess_impact_single(
 
 \item{cutoff}{\code{Numeric value} showing the cut-off exposure in ug/m3 (i.e. the exposure level below which no health effects occur).}
 
-\item{crf}{\code{Vector} of three numeric values referring to the mean as well as the lower bound and upper bound of the confidence interval.}
+\item{rr}{\code{Vector} of three numeric values referring to the mean as well as the lower bound and upper bound of the confidence interval.}
 
-\item{crf_per}{\code{Numeric value} showing the increment of the concentration-response function in ug/m3 (usually 10 or 5).}
+\item{rr_increment}{\code{Numeric value} showing the increment of the concentration-response function in ug/m3 (usually 10 or 5).}
 
-\item{crf_rescale_method}{\code{String} to choose among "linear" and "loglinear".}
+\item{rr_rescale_method}{\code{String} to choose among "linear" and "loglinear".}
 
 \item{bhd}{\code{Numeric value} showing the baseline health data (incidence of the health outcome in the population).}
 
@@ -44,7 +44,7 @@ assess_impact_single(
 
 \item{info_cutoff}{\code{String} showing additional information or id for counter-factual scenario (cut-off). This information will be added to all rows of the results. Default value = NULL.}
 
-\item{info_crf}{\code{String} showing additional information or id for the concentration-response function. This information will be added to all rows of the results. Default value = NULL.}
+\item{info_rr}{\code{String} showing additional information or id for the concentration-response function. This information will be added to all rows of the results. Default value = NULL.}
 
 \item{info_bhd}{\code{String} showing additional information or id for the baseline health data. This information will be added to all rows of the results. Default value = NULL.}
 }

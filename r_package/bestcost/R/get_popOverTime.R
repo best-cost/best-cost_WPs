@@ -27,7 +27,7 @@ get_popOverTime <-
 
     # Calculate population in the next year assuming
     # the change in /level of air pollution
-    # based on the CRF
+    # based on the RR
     popOverTime <-
       bestcost::get_popSingleYear_withAP(
         lifetable_withPop = lifetab_withPop,

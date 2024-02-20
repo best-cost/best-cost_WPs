@@ -6,9 +6,9 @@
 #' @param exp \code{Numeric values} Population-weighted mean exposure in ug/m3 or {vector} showing the exposure category in a exposure distribution (this information is linked to the proportion of population exposed).
 #' @param prop_pop_exp \code{Numeric value} or {Numeric vector} Fraction (values between 0 & 1) of the total population exposed to (one or more) exposure categories, i.e., a exposure distribution, respectively. If a exposure distribution is used, the dimension of this input variable should be the same as "exp". By default, 1 for single exposure value will be assigned to this input variable assuming a single exposure value, but users can change this value.
 #' @param cutoff \code{Numeric value} showing the cut-off exposure in ug/m3 (i.e. the exposure level below which no health effects occur).
-#' @param crf \code{Numeric vector} of three numeric values referring to the central estimate of the exposure-response function and the corresponding lower and upper 95% confidence interval bounds.
+#' @param rr \code{Numeric vector} of three numeric values referring to the central estimate of the exposure-response function and the corresponding lower and upper 95% confidence interval bounds.
 #' @param rr_increment \code{Numeric value} showing the increment of the exposure-response function in ug/m3 (usually 10 or 5).
-#' @param crf_rescale_method \code{Character string} either "linear" or "loglinear".
+#' @param rr_rescale_method \code{Character string} either "linear" or "loglinear".
 #' @param first_age_pop \code{Numeric value} starting age of the youngest age group from population and life table data
 #' @param last_age_pop \code{Numeric value} ending age of the oldest age group from population and life table data
 #' @param interval_age_pop \code{Numeric value} of the interval (in years) of each age group from population and life table data
@@ -26,7 +26,7 @@
 #' @param info_outcome \code{Character string} showing additional information or id for the health outcome. Default value = NULL.
 #' @param info_exp \code{Character string} showing additional information or id for the exposure. This information will be added to all rows of the results. Default value = NULL.
 #' @param info_cutoff \code{Character string} showing additional information or id for counter-factual scenario (cut-off). This information will be added to all rows of the results. Default value = NULL.
-#' @param info_crf \code{Character string} showing additional information or id for the concentration-response function. This information will be added to all rows of the results. Default value = NULL.
+#' @param info_rr \code{Character string} showing additional information or id for the concentration-response function. This information will be added to all rows of the results. Default value = NULL.
 #' @param info_bhd \code{Character string} showing additional information or id for the baseline health data. This information will be added to all rows of the results. Default value = NULL.
 #' @return
 #' This function returns a \code{data.frame} with one row for each value of the
@@ -48,7 +48,7 @@
 assess_mortality_lifetable <-
   function(exp, prop_pop_exp = 1,
            cutoff,
-           crf, rr_increment, crf_rescale_method,
+           rr, rr_increment, rr_rescale_method,
            first_age_pop, last_age_pop, interval_age_pop,
            prob_natural_death_male, prob_natural_death_female,
            prob_total_death_male, prob_total_death_female,
@@ -57,7 +57,7 @@ assess_mortality_lifetable <-
            corrected_discount_rate = 0,
            min_age = NULL, max_age = NULL,
            info_pollutant = NULL, info_outcome = NULL,
-           info_exp = NULL, info_cutoff = NULL, info_crf = NULL, info_bhd = NULL){
+           info_exp = NULL, info_cutoff = NULL, info_rr = NULL, info_bhd = NULL){
 
     # Check input data ####
 
@@ -68,18 +68,18 @@ assess_mortality_lifetable <-
     max_age <- ifelse(is.null(max_age), NA, max_age)
 
 
-    # Compile crf data to assign categories
-    crf_data <-
+    # Compile rr data to assign categories
+    rr_data <-
       data.frame(
-        crf = crf,
+        rr = rr,
         rr_increment = rr_increment,
-        crf_rescale_method = crf_rescale_method,
-        # Assign mean, low and high crf values
-        crf_ci = ifelse(crf %in% min(crf), "low",
-                        ifelse(crf %in% max(crf), "high",
+        rr_rescale_method = rr_rescale_method,
+        # Assign mean, low and high rr values
+        rr_ci = ifelse(rr %in% min(rr), "low",
+                        ifelse(rr %in% max(rr), "high",
                                "mean"))) %>%
       # In case of same value in mean and low or high, assign value randomly
-      dplyr::mutate(ci = ifelse(duplicated(crf), "mean", ci))
+      dplyr::mutate(ci = ifelse(duplicated(rr), "mean", ci))
 
 
     # Input data in data frame ####
@@ -89,19 +89,19 @@ assess_mortality_lifetable <-
         prop_pop_exp = prop_pop_exp,
         cutoff = cutoff,
         # Information derived from input data
-        approach_id = paste0("lifetable_", crf_rescale_method),
+        approach_id = paste0("lifetable_", rr_rescale_method),
         age_range = ifelse(!is.na(max_age), paste0("below", max_age + 1),
                            ifelse(!is.na(min_age), paste0("from", min_age),
                                   NA))) %>%
-      # Add crf with a cross join to produce all likely combinations
-      dplyr::cross_join(., crf_data) %>%
+      # Add rr with a cross join to produce all likely combinations
+      dplyr::cross_join(., rr_data) %>%
       # Add additional information (info_x variables)
       dplyr::mutate(
         info_pollutant = ifelse(is.null(info_pollutant), NA, info_pollutant),
         info_outcome = ifelse(is.null(info_outcome), NA, info_outcome),
         info_exp = ifelse(is.null(info_exp), NA, info_exp),
         info_cutoff = ifelse(is.null(info_cutoff), NA, info_cutoff),
-        info_crf = ifelse(is.null(info_crf), NA, info_crf),
+        info_rr = ifelse(is.null(info_rr), NA, info_rr),
         info_bhd = ifelse(is.null(info_bhd), NA, info_bhd))
 
     # Calculate erf estimate at the specified exposure level ####
@@ -109,12 +109,12 @@ assess_mortality_lifetable <-
     input_withPaf <-
       input %>%
       dplyr::mutate(
-        crf_forPaf =
-          rescale_crf(crf = crf,
+        rr_forPaf =
+          rescale_rr(rr = rr,
                       exp = exp,
                       cutoff = cutoff,
                       rr_increment = rr_increment,
-                      method ={{crf_rescale_method}}
+                      method ={{rr_rescale_method}}
                       #{{}} ensures that the
                       # value from the function argument is used
                       # instead of from an existing column
@@ -124,12 +124,12 @@ assess_mortality_lifetable <-
       paf <-
         input_withPaf %>%
         # Group by exp in case that there are different exposure categories
-        dplyr::group_by(crf)%>%
-        dplyr::summarize(paf = bestcost::get_paf(crf_conc = crf_forPaf,
+        dplyr::group_by(rr)%>%
+        dplyr::summarize(paf = bestcost::get_paf(rr_conc = rr_forPaf,
                                                  prop_pop_exp = prop_pop_exp))
 
       # Only if exposure distribution (multiple exposure categories)
-      # then reduce the number of rows to keep the same number as in crf
+      # then reduce the number of rows to keep the same number as in rr
       if(length(exp)>1){
         input_withPaf <-
           input_withPaf %>%
@@ -139,7 +139,7 @@ assess_mortality_lifetable <-
             # Replace the actual values with "multiple" to enable reduction of rows
             exp = paste(exp, collapse = ", "),
             prop_pop_exp = paste(prop_pop_exp, collapse = ", "),
-            crf_forPaf = paste(crf_forPaf, collapse = ", "))%>%
+            rr_forPaf = paste(rr_forPaf, collapse = ", "))%>%
           # Keep only rows that are distinct
           dplyr::distinct(.)
       }
@@ -150,7 +150,7 @@ assess_mortality_lifetable <-
         input_withPaf %>%
         dplyr::left_join(paf,
                          input_withPaf,
-                         by = "crf")
+                         by = "rr")
 
 
     # The life table has to be provided as a data.frame (by sex)
@@ -185,25 +185,25 @@ assess_mortality_lifetable <-
     input_info_paf <-
       input %>%
       dplyr::mutate(
-        crf_forPaf =
-          bestcost::rescale_crf(crf = crf,
+        rr_forPaf =
+          bestcost::rescale_rr(rr = rr,
                       exp = exp,
                       cutoff = cutoff,
                       rr_increment = rr_increment,
-                      method ={{crf_rescale_method}}
+                      method ={{rr_rescale_method}}
                       #{{}} ensures that the
                       # value from the function argument is used
                       # instead of from an existing column
                       ),
-        crf_ci = ifelse(crf %in% min(crf), "low",
-                        ifelse(crf %in% max(crf), "high",
+        rr_ci = ifelse(rr %in% min(rr), "low",
+                        ifelse(rr %in% max(rr), "high",
                                "mean"))) %>%
       # In case of same value in mean and low or high, assign value randomly
-      dplyr::mutate(ci = ifelse(duplicated(crf), "mean", ci)) %>%
+      dplyr::mutate(ci = ifelse(duplicated(rr), "mean", ci)) %>%
 
       # Calculate attributable fraction (AF) as well as impact
-      dplyr::mutate(approach_id = paste0("singleValue_", crf_rescale_method),
-                    paf =  bestcost::get_paf(crf_conc = crf_forPaf,
+      dplyr::mutate(approach_id = paste0("singleValue_", rr_rescale_method),
+                    paf =  bestcost::get_paf(rr_conc = rr_forPaf,
                                              prop_pop_exp = prop_pop_exp))
 
 

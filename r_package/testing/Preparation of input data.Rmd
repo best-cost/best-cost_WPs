@@ -45,7 +45,7 @@ library(devtools)
 
 ```{r Useful variables}
 #Decide 
-# the target increment (increase of concentration) of the pm CRFs 
+# the target increment (increase of concentration) of the pm RRs 
 # and PM fraction
 increment_target_pm <- 10 # ug/m3
 
@@ -84,7 +84,7 @@ year_hra <- "2019"
 
 ```{r Functions}
 
-# Create function to join mean CRF with the lower and upper bound
+# Create function to join mean RR with the lower and upper bound
 paste_CI <- 
   function(mean, low, high){
      paste0(mean," [", low, "; ", high, "]")
@@ -98,7 +98,7 @@ round_keeping0 <-
     sprintf(paste0("%.", decimals, "f"), value)
   }
   
-# Create function to round the values of the CRF and then paste
+# Create function to round the values of the RR and then paste
 paste_round_CI <- 
   function(mean, low, high, decimals){
     paste0(round_keeping0(mean, decimals)," [",  
@@ -106,13 +106,13 @@ paste_round_CI <-
            round_keeping0(high, decimals), "]")
   }
 
-# r Functions to rescale crf 
+# r Functions to rescale RR 
 
-# Define function to re-scale the CRF regarding the considered increment
-rescale_crf_increment <- 
-  function(crf, increment_original, increment_target){
+# Define function to re-scale the RR regarding the considered increment
+rescale_rr_increment <- 
+  function(rr, increment_original, increment_target){
     rescaled_increment <- 
-      exp(log(crf) * increment_target / increment_original)
+      exp(log(rr) * increment_target / increment_original)
   }
 
 # Conversion factor for PM fraction
@@ -129,7 +129,7 @@ get_conversionFactor_pmFraction <-
                     1))
   }
 
-# Define function to re-scale the CRF regarding the considered PM fraction
+# Define function to re-scale the RR regarding the considered PM fraction
 rescale_conc_pmFraction <- 
   function(conc, pm_original, pm_target){
   # Get conversion factor for the PM fraction
@@ -176,9 +176,9 @@ percentage_pm2.5_in_pm10 <-
   dplyr::select(value) %>%
   dplyr::pull()
 
-# CRF data (inserted manually in the csv table)
-crf_rawdata <- 
-  read.csv("../testing/input/crf.csv",
+# RR data (inserted manually in the csv table)
+rr_rawdata <- 
+  read.csv("../testing/input/rr.csv",
            sep = ";",
            na.strings=c("NA", ""))
 
@@ -257,48 +257,48 @@ airqplus_deaths_pop_singleYear <-
 
 # Edit input data
 
-## CRF data
-```{r Edit CRF (rescale inclusive)}
-crf_data <- 
-  crf_rawdata %>%
-  # Select only CRFs that are relevant 
+## RR data
+```{r Edit RR (rescale inclusive)}
+rr_data <- 
+  rr_rawdata %>%
+  # Select only rrs that are relevant 
   dplyr::filter(!is.na(choice_pair)) %>%
-  # Reshape CRFs from wide to long (to enable editing CRFs by row)
-  tidyr::pivot_longer(c(crf_mean, crf_lowci, crf_highci),
+  # Reshape RRs from wide to long (to enable editing RRs by row)
+  tidyr::pivot_longer(c(rr_mean, rr_lowci, rr_highci),
                       names_to = "ci",
-                      names_prefix = "crf_", 
-                      values_to = "crf") %>%
+                      names_prefix = "rr_", 
+                      values_to = "rr") %>%
   # Add a copy of columns with the original values (before re-scaling)
   dplyr::mutate(
-    crf_pollutant_original = pollutant,
-    crf_original = crf,
+    rr_pollutant_original = pollutant,
+    rr_original = rr,
     rr_increment_original = rr_increment,
-  # Add the target CRF increment (default increase of concentration) 
+  # Add the target RR increment (default increase of concentration) 
   # for each pollutant
     rr_increment_target =
       ifelse(pollutant %in% c(pm_fractions, "NO2"), 10, NA),
       # ifelse(pollutant %in% "BC", 0.44, NA))) %>%
       # ifelse(pollutant %in% "O3", , NA)))) %>% 
       # If O3 is included, the O3 increment is to be decided
-  # Re-scale concentration of PM fractions in CRFs
+  # Re-scale concentration of PM fractions in RRs
     rr_increment_rescaled = 
       rescale_conc_pmFraction(
         conc = rr_increment_original,
-        pm_original = crf_pollutant_original,
+        pm_original = rr_pollutant_original,
         pm_target = pm_target),
   # Re-scale to the target increment
-    crf_rescaled = 
-      rescale_crf_increment(
-        crf = crf,
+    rr_rescaled = 
+      rescale_rr_increment(
+        rr = rr,
         increment_original = rr_increment_rescaled,
         increment_target = rr_increment_target),
-    crf = crf_rescaled) %>%
+    rr = rr_rescaled) %>%
   # Modify columns based on target
   dplyr::mutate(
     pollutant = 
       ifelse(pollutant %in% pm_no_target, 
              pm_target, 
-             crf_pollutant_original),
+             rr_pollutant_original),
     rr_increment = 
       ifelse(!rr_increment %in% rr_increment_target, 
              rr_increment_target, 
@@ -307,12 +307,12 @@ crf_data <-
   # Change format of source
   # Remove brackets and spaces
   dplyr::mutate(
-    crf_source_rFormat = 
+    rr_source_rFormat = 
       paste(
         # First word
-        stringr::word(crf_source, 1),
+        stringr::word(rr_source, 1),
         # Year between brackets
-        stringr::str_extract(crf_source, "(?<=\\().*(?=\\))"),
+        stringr::str_extract(rr_source, "(?<=\\().*(?=\\))"),
         sep = "_")) %>%
   
   # Add id for outcome as single variable
@@ -325,31 +325,31 @@ crf_data <-
                pollutant, outcome_id, choice_pair,
                na.rm = TRUE,
                remove = FALSE) %>% 
-  # Add id for crf
-  tidyr::unite("crf_id",
-               pair_id, crf_source_rFormat, choice_crf,
+  # Add id for rr
+  tidyr::unite("rr_id",
+               pair_id, rr_source_rFormat, choice_rr,
                sep = "_", 
                na.rm =TRUE,
                remove = FALSE) %>%
-  # Keep only unique CRFs (id, value and CI category) to avoid duplicates
-  dplyr::distinct(., crf_id, crf, ci, 
+  # Keep only unique RRs (id, value and CI category) to avoid duplicates
+  dplyr::distinct(., rr_id, rr, ci, 
                   .keep_all = TRUE) %>%
   # Change position of some columns
-  dplyr::relocate(c(rr_increment, crf_unit), .after=crf) %>%
+  dplyr::relocate(c(rr_increment, rr_unit), .after=rr) %>%
 # Pivot wider to have ci in columns
-  tidyr::pivot_wider(values_from = c(crf, crf_original, crf_rescaled), 
+  tidyr::pivot_wider(values_from = c(rr, rr_original, rr_rescaled), 
                      names_from = ci)
 
 # Store the relevant pollutant-outcomes pairs 
 
 # Pollutant-outcome pairs to be considered in the main analysis or in the appendix
-choice_pairs_main <- crf_data %>% 
+choice_pairs_main <- rr_data %>% 
   dplyr::filter(choice_pair %in% "main") %>% 
   select(pair_id) %>% 
   unique() %>% 
   pull()
 
-choice_pairs_appendix <- crf_data %>% 
+choice_pairs_appendix <- rr_data %>% 
   dplyr::filter(choice_pair %in% "appendix") %>%
   select(pair_id) %>% 
   unique() %>% 
@@ -357,30 +357,30 @@ choice_pairs_appendix <- crf_data %>%
 
 choice_pairs_all <- c(choice_pairs_main, choice_pairs_appendix)
 
-# CRFs to be considered in the main analysis or only as sensitivity analysis
-choice_crf_main_selected <- 
-  crf_data %>% 
+# RRs to be considered in the main analysis or only as sensitivity analysis
+choice_rr_main_selected <- 
+  rr_data %>% 
   dplyr::filter(pair_id %in% choice_pairs_main & 
-                  choice_crf %in% "selected") %>% 
-  select(crf_id) %>% unique() %>% pull()
-choice_crf_main_sensitivity <- 
-  crf_data %>% 
+                  choice_rr %in% "selected") %>% 
+  select(rr_id) %>% unique() %>% pull()
+choice_rr_main_sensitivity <- 
+  rr_data %>% 
   dplyr::filter(pair_id %in% choice_pairs_main & 
-                  choice_crf %in% "sensitivity") %>% 
-  select(crf_id) %>% unique() %>% pull()
+                  choice_rr %in% "sensitivity") %>% 
+  select(rr_id) %>% unique() %>% pull()
 
 
 choice_pairs <- c("main", "appendix")
-choice_crfs <- c("selected", "sensitivity")
+choice_rrs <- c("selected", "sensitivity")
 
-# Select CRF data for all-cause mortality (removing disease specific)
-crf_data_allCauseMortality <-
-  dplyr::filter(crf_data,
+# Select RR data for all-cause mortality (removing disease specific)
+rr_data_allCauseMortality <-
+  dplyr::filter(rr_data,
     outcome_metric %in% "premature deaths" &
     outcome_disease %in% "all causes")
 
-crf_data_morbidities<- 
-   dplyr::filter(crf_data,
+rr_data_morbidities <- 
+   dplyr::filter(rr_data,
     !outcome_metric %in% "premature deaths")
 ```
 
@@ -688,8 +688,8 @@ codebook <- unique(bhd_data[, c("outcome_id", "mort_morb")])
 ```{r prepare input data for function}
 input_data <-
   # Join data sets of input data: exposure data, bhd data, counterfactual data
-  dplyr::left_join(exp_data, crf_data, by="pollutant", 
-                   suffix =c("_exp", "_crf"),
+  dplyr::left_join(exp_data, rr_data, by="pollutant", 
+                   suffix =c("_exp", "_rr"),
                    relationship = "many-to-many") %>%
   dplyr::left_join(., bhd_data, by="outcome_id",
                    suffix = c("", "_bhd"),
@@ -710,11 +710,11 @@ input_data <-
 
 input_data_morbidities <- 
   input_data %>%
-  dplyr::filter(crf_id %in% crf_data_morbidities$crf_id)
+  dplyr::filter(rr_id %in% rr_data_morbidities$rr_id)
 
 input_data_mortality <- 
   input_data %>%
-  dplyr::filter(crf_id %in% crf_data_allCauseMortality$crf_id)
+  dplyr::filter(rr_id %in% rr_data_allCauseMortality$rr_id)
 ```
 
 ```{r Export environment}

@@ -12,7 +12,7 @@ assess_impact_absolute_risk(
   info_pollutant = NULL,
   info_outcome = NULL,
   info_exp = NULL,
-  info_crf = NULL,
+  info_rr = NULL,
   info_erf = NULL,
   info_bhd = NULL
 )

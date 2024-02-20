@@ -25,10 +25,10 @@ ci <- c("mean", "lowci", "highci")
 # 
 #     exp = input_data_mortality$exp[2], # PM2.5=8.30=limit LRV CH, NO2=16.32=mean conc. in CH in 2019
 #     cutoff = input_data_mortality$cutoff[2],   # PM2.5=5, NO2=10, i.e. WHO AQG 2021 
-#     crf = unlist(input_data_mortality[2, 
-#                             c("crf_mean", "crf_lowci", "crf_highci")]) ,
+#     rr = unlist(input_data_mortality[2, 
+#                             c("rr_mean", "rr_lowci", "rr_highci")]) ,
 #     rr_increment = 10, 
-#     crf_rescale_method = "loglinear", 
+#     rr_rescale_method = "loglinear", 
 #     lifetable_withPop_male = lifetable_withPopulation[["male"]],
 #     lifetable_withPop_female = lifetable_withPopulation[["female"]],
 #     year_of_analysis = 2019, 
