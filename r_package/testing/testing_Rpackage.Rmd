@@ -16,7 +16,7 @@ Pending
 
 Load the Rdata file that contains all variables needed to run this script.
 ```{r load data & bestcost package}
-load("../testing/input/input data for testing_Rpackage.RData")
+load("../testing/input/input_data_for_testing_Rpackage.RData")
 
 # Load package
 devtools::load_all(export_all = FALSE)
@@ -267,6 +267,9 @@ for(i in 2){                           # Use this if you want to evaluate only o
     max_age = input_data_mortality$max_age[i],
     corrected_discount_rate = 0)
 }
+
+head(impact_mortality_expDistribution_raw$`2019`$`PM2.5_premature deaths_all causes_adults_main_ERS-ISEE_2022_selected`$deaths$impact) # to check results stay the same
+#4250 1537 2911
 ```
 
 

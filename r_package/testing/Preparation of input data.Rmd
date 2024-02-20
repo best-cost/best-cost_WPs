@@ -41,33 +41,9 @@ library(openxlsx)
 library(credentials)
 library(gitcreds)
 library(devtools)
-
-# Install own package from github as suggested here
-# https://stackoverflow.com/a/71846333/6104907
-if(!"bestcost" %in% installed.packages()[, "Package"]){
-  #gitcreds::gitcreds_set()
-  #usethis::use_git_config(user.name = "YourName", user.email = "your@mail.com") # run if installation doesn't work
-  credentials::set_github_pat() # paste github PAT when prompted
-  devtools::install_github(repo = "best-cost/best-cost_WPs",
-                           subdir = "/r_package/bestcost",
-                           # Branch (by default "HEAD")
-                           # Other usual branches 
-                           # "63-simplification-of-the-code"
-                           # "Variable_names"
-                           # "Small_code_changes"
-                           ref = "HEAD",
-                           force = TRUE)
-
-}
-
-# to quantify and monetize health impacts (own package)
-library(bestcost)
-# loads all functions in {bestcost}
-#devtools::load_all() 
 ```
 
 ```{r Useful variables}
-
 #Decide 
 # the target increment (increase of concentration) of the pm CRFs 
 # and PM fraction
@@ -742,6 +718,6 @@ input_data_mortality <-
 ```
 
 ```{r Export environment}
-save.image(file = "../testing/input/input data for testing_Rpackage.RData")
+save.image(file = "../testing/input/input_data_for_testing_Rpackage.RData")
 ```
 
