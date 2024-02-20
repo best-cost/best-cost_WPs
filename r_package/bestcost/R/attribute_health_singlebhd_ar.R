@@ -24,7 +24,7 @@
 #' @author Alberto Castro
 #' @note Experimental function
 #' @export
-assess_impact_absolute_risk <-
+attribute_health_singlebhd_ar <-
   function(exp,
            pop_exp,
            erf_shape,
