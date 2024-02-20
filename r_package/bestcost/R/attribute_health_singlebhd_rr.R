@@ -33,7 +33,7 @@
 #' @author Alberto Castro
 #' @note Experimental function
 #' @export
-assess_impact_single <-
+attribute_health_singlebhd_rr <-
   function(exp, prop_pop_exp = 1,
            cutoff,
            rr,

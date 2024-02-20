@@ -128,7 +128,7 @@ impact_morbidity_expDistribution_raw <- list()
 
 for(i in 1:nrow(input_data_morbidities)){
   impact_morbidity_expDistribution_raw[[input_data_morbidities$year[i]]][[input_data_morbidities$rr_id[[i]]]] <-
-  bestcost::assess_impact_single(
+  bestcost::attribute_health_singlebhd_rr(
     exp = c(53, 57.5, 62.5, 67.5, 72.5, 77.5),# Values as example provided by NIPH
     prop_pop_exp = c(0.8187, 0.0743, 0.0549, 0.0368, 0.0138, 0.0015), # Values as example provided by NIPH
     cutoff = 53, # PM2.5=5, NO2=10, i.e. WHO AQG 2021 
@@ -151,7 +151,7 @@ impact_morbidities_raw <- list()
 
 for(i in 1:nrow(input_data_morbidities)){
   impact_morbidities_raw[[input_data_morbidities$year[i]]][[input_data_morbidities$rr_id[[i]]]] <-
-  bestcost::assess_impact_single(
+  bestcost::attribute_health_singlebhd_rr(
     exp = input_data_morbidities$exp[i],  # PM2.5=8.30=limit LRV CH, NO2=16.32=mean conc. in CH in 2019
     cutoff = input_data_morbidities$cutoff[i],    # PM2.5=5, NO2=10, i.e. WHO AQG 2021 
     bhd = input_data_morbidities$bhd_absolute[i],
