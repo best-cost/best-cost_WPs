@@ -10,7 +10,7 @@ assess_mortality_lifetable(
   cutoff,
   rr,
   rr_increment,
-  rr_rescale_method,
+  erf_shape,
   first_age_pop,
   last_age_pop,
   interval_age_pop,
@@ -43,7 +43,7 @@ assess_mortality_lifetable(
 
 \item{rr_increment}{\code{Numeric value} showing the increment of the exposure-response function in ug/m3 (usually 10 or 5).}
 
-\item{rr_rescale_method}{\code{Character string} either "linear" or "loglinear".}
+\item{erf_shape}{\code{Character string} either "linear" or "loglinear".}
 
 \item{first_age_pop}{\code{Numeric value} starting age of the youngest age group from population and life table data}
 

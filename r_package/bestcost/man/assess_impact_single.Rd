@@ -11,7 +11,7 @@ assess_impact_single(
   cutoff,
   rr,
   rr_increment,
-  rr_rescale_method,
+  erf_shape,
   bhd,
   info_pollutant = NULL,
   info_outcome = NULL,
@@ -32,7 +32,7 @@ assess_impact_single(
 
 \item{rr_increment}{\code{Numeric value} showing the increment of the concentration-response function in ug/m3 (usually 10 or 5).}
 
-\item{rr_rescale_method}{\code{String} to choose among "linear" and "loglinear".}
+\item{erf_shape}{\code{String} to choose among "linear" and "loglinear".}
 
 \item{bhd}{\code{Numeric value} showing the baseline health data (incidence of the health outcome in the population).}
 
