@@ -5,7 +5,7 @@
 \title{Get years of life lost}
 \usage{
 get_yll(
-  shifted_popOverTime,
+  pop_impact,
   year_of_analysis,
   min_age = min_age,
   max_age = max_age,
@@ -14,13 +14,13 @@ get_yll(
 )
 }
 \arguments{
+\item{pop_impact}{\code{Data frame} with shifted population over time}
+
 \item{year_of_analysis}{\code{Numeric value} of the year of analysis, which corresponds to the first year of the life table,}
 
 \item{meta}{\code{Data frame} with meta-information such as input data, additional information and intermediate results.}
 
 \item{corrected_discount_rate}{\code{Numeric value}  with the annual discount rate as proportion (i.e. 0.1 instead of 10\%). It can be calculated as (1+discount_rate_beforeCorrection/1+rate_of_increase)-1}
-
-\item{shifted_popOvertime}{\code{Data frame} with shifted population over time}
 
 \item{age_min}{\code{Numeric value}  with the minimal age to be considered for adults (by default 30, i.e. 30+),}
 

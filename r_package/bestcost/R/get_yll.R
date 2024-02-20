@@ -3,7 +3,7 @@
 #' Get years of life lost
 #'
 #' Get years of life lost
-#' @param shifted_popOvertime \code{Data frame} with shifted population over time
+#' @param pop_impact \code{Data frame} with shifted population over time
 #' @param year_of_analysis \code{Numeric value} of the year of analysis, which corresponds to the first year of the life table,
 #' @param age_min \code{Numeric value}  with the minimal age to be considered for adults (by default 30, i.e. 30+),
 #' @param age_max \code{Numeric value}  with the maximal age to be considered for infants/children (by default 0, i.e. below 1 years old)
@@ -31,7 +31,7 @@
 
 
 get_yll <-
-  function(shifted_popOverTime, year_of_analysis,
+  function(pop_impact, year_of_analysis,
            min_age = min_age, max_age = max_age,
            meta,
            corrected_discount_rate){
@@ -46,7 +46,7 @@ get_yll <-
 
         # Life years by year (NO FUNCTION CALLED)
         lifeyears_byYear[[s]][[v]] <-
-          shifted_popOverTime[["shifted_popOverTime"]][[s]][[v]] %>%
+          pop_impact[["pop_impact"]][[s]][[v]] %>%
 
           # Filter keeping only the relevant age
           {if(!is.na(max_age))
@@ -99,7 +99,7 @@ get_yll <-
 
 
     # Calculate Years of Life Lost (YLLs)
-    yll_long <-
+    yll_detailed <-
       yll_by %>%
 
       # Sum among sex adding total
@@ -120,11 +120,7 @@ get_yll <-
                        by = "ci")%>%
 
       # Round the results
-      dplyr::mutate(
-        # Create new column impact (later rounded)
-        impact_beforeRounding = impact,
-        # Round column impact
-        impact = round(impact, 0))%>%
+      dplyr::mutate(impact_rounded = round(impact, 0))%>%
 
       # Order columns
       dplyr::select(discount, sex, ci, everything())%>%
@@ -132,12 +128,12 @@ get_yll <-
       dplyr::arrange(discount, sex, ci)
 
     yll <-
-      yll_long%>%
+      yll_detailed %>%
       dplyr::filter(sex %in% "total",
                     discount %in% "discounted")
 
 
-    output <- list(yll_long = yll_long, yll = yll)
+    output <- list(yll_detailed = yll_detailed, yll = yll)
 
     return(output)
   }

@@ -24,7 +24,7 @@
 #' @author Alberto Castro
 #' @note Experimental function
 #' @export
-assess_impact_absolute_risk <-
+attribute_health_singlebhd_ar <-
   function(exp,
            pop_exp,
            erf_shape,
@@ -32,7 +32,7 @@ assess_impact_absolute_risk <-
            info_pollutant = NULL,
            info_outcome = NULL,
            info_exp = NULL,
-           info_crf = NULL,
+           info_rr = NULL,
            info_erf = NULL,
            info_bhd = NULL){
 
@@ -53,10 +53,10 @@ assess_impact_absolute_risk <-
         info_pollutant = ifelse(is.null(info_pollutant), NA, info_pollutant),
         info_outcome = ifelse(is.null(info_outcome), NA, info_outcome),
         info_exp = ifelse(is.null(info_exp), NA, info_exp),
-        info_crf = ifelse(is.null(info_crf), NA, info_crf),
+        info_rr = ifelse(is.null(info_rr), NA, info_rr),
         info_bhd = ifelse(is.null(info_bhd), NA, info_bhd))
 
-    # Create the crf ####
+    # Create the erf ####
     if(erf_shape == "linear"){
       erf <- function(exp){
         erf_parameters[1] + erf_parameters[2]*exp
@@ -82,7 +82,7 @@ assess_impact_absolute_risk <-
       dplyr::group_by(exp,
                       erf_shape, erf_parameters,
                       approach_id,
-                      info_pollutant, info_outcome, info_exp, info_crf, info_bhd) %>%
+                      info_pollutant, info_outcome, info_exp, info_rr, info_bhd) %>%
       dplyr::summarize(
         across(c(pop_exp, absolute_risk_as_percent, population_affected),
                sum),
