@@ -15,7 +15,7 @@
 #' @author Alberto Castro
 #' @note Experimental function
 #' @export
-get_popOverTime <-
+project_pop <-
   function(lifetab_withPop, year_of_analysis, paf){
 
 

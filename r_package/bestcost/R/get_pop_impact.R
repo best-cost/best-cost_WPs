@@ -36,7 +36,7 @@ get_pop_impact <-
     for(s in sex){
       for(v in ci){
         popOverTime[[s]][[v]] <-
-          bestcost::get_popOverTime(
+          bestcost::project_pop(
             lifetab_withPop = lifetab_withPop[[s]],
             year_of_analysis = year_of_analysis,
             paf = paf$paf[paf$ci %in% v])
