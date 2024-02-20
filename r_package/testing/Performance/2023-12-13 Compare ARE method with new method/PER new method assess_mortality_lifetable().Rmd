@@ -21,7 +21,7 @@ library(profvis)
 #     rr = unlist(input_data_mortality[2,
 #                                       c("rr_mean", "rr_lowci", "rr_highci")]),
 #     rr_increment = 10, 
-#     rr_rescale_method = "loglinear",
+#     erf_shape = "loglinear",
 #     first_age_pop = 0,
 #     last_age_pop = 99,
 #     interval_age_pop = 1,

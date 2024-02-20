@@ -8,7 +8,7 @@
 #' @param cutoff \code{Numeric value} showing the cut-off exposure in ug/m3 (i.e. the exposure level below which no health effects occur).
 #' @param rr \code{Vector} of three numeric values referring to the mean as well as the lower bound and upper bound of the confidence interval.
 #' @param rr_increment \code{Numeric value} showing the increment of the concentration-response function in ug/m3 (usually 10 or 5).
-#' @param rr_rescale_method \code{String} to choose among "linear" and "loglinear".
+#' @param erf_shape \code{String} to choose among "linear" and "loglinear".
 #' @param bhd \code{Numeric value} showing the baseline health data (incidence of the health outcome in the population).
 #' @param info_pollutant \code{String} showing additional information or id for the pollutant. Default value = NULL.
 #' @param info_outcome \code{String} showing additional information or id for the health outcome. Default value = NULL.
@@ -37,7 +37,7 @@ assess_impact_single <-
   function(exp, prop_pop_exp = 1,
            cutoff,
            rr,
-           rr_increment, rr_rescale_method,
+           rr_increment, erf_shape,
            bhd,
            info_pollutant = NULL,
            info_outcome = NULL,
@@ -55,7 +55,7 @@ assess_impact_single <-
       data.frame(
         rr = rr,
         rr_increment = rr_increment,
-        rr_rescale_method = rr_rescale_method,
+        erf_shape = erf_shape,
         # Assign mean, low and high rr values
         rr_ci = ifelse(rr %in% min(rr), "low",
                         ifelse(rr %in% max(rr), "high",
@@ -69,7 +69,7 @@ assess_impact_single <-
         prop_pop_exp = prop_pop_exp,
         cutoff = cutoff,
         bhd = bhd,
-        approach_id = paste0("lifetable_", rr_rescale_method)) %>%
+        approach_id = paste0("lifetable_", erf_shape)) %>%
       # Add rr with a cross join to produce all likely combinations
       dplyr::cross_join(., rr_data) %>%
       # Add additional information (info_x variables)
@@ -91,7 +91,7 @@ assess_impact_single <-
                       exp = exp,
                       cutoff = cutoff,
                       rr_increment = rr_increment,
-                      method = {{rr_rescale_method}}
+                      method = {{erf_shape}}
                       #{{}} ensures that the
                       # value from the function argument is used
                       # instead of from an existing column
@@ -136,7 +136,7 @@ assess_impact_single <-
                     impact_rounded = round(impact, 0)) %>%
       # Order columns
       dplyr::select(exp, cutoff, bhd,
-                    rr, rr_forPaf, rr_increment, ci, rr_rescale_method,
+                    rr, rr_forPaf, rr_increment, ci, erf_shape,
                     paf, impact, impact_rounded,
                     starts_with("info_"))
 

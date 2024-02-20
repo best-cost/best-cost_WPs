@@ -8,7 +8,7 @@
 #' @param cutoff \code{Numeric value} showing the cut-off exposure in ug/m3 (i.e. the exposure level below which no health effects occur).
 #' @param rr \code{Numeric vector} of three numeric values referring to the central estimate of the exposure-response function and the corresponding lower and upper 95% confidence interval bounds.
 #' @param rr_increment \code{Numeric value} showing the increment of the exposure-response function in ug/m3 (usually 10 or 5).
-#' @param rr_rescale_method \code{Character string} either "linear" or "loglinear".
+#' @param erf_shape \code{Character string} either "linear" or "loglinear".
 #' @param first_age_pop \code{Numeric value} starting age of the youngest age group from population and life table data
 #' @param last_age_pop \code{Numeric value} ending age of the oldest age group from population and life table data
 #' @param interval_age_pop \code{Numeric value} of the interval (in years) of each age group from population and life table data
@@ -48,7 +48,7 @@
 assess_mortality_lifetable <-
   function(exp, prop_pop_exp = 1,
            cutoff,
-           rr, rr_increment, rr_rescale_method,
+           rr, rr_increment, erf_shape,
            first_age_pop, last_age_pop, interval_age_pop,
            prob_natural_death_male, prob_natural_death_female,
            prob_total_death_male, prob_total_death_female,
@@ -73,7 +73,7 @@ assess_mortality_lifetable <-
       data.frame(
         rr = rr,
         rr_increment = rr_increment,
-        rr_rescale_method = rr_rescale_method,
+        erf_shape = erf_shape,
         # Assign mean, low and high rr values
         rr_ci = ifelse(rr %in% min(rr), "low",
                         ifelse(rr %in% max(rr), "high",
@@ -89,7 +89,7 @@ assess_mortality_lifetable <-
         prop_pop_exp = prop_pop_exp,
         cutoff = cutoff,
         # Information derived from input data
-        approach_id = paste0("lifetable_", rr_rescale_method),
+        approach_id = paste0("lifetable_", erf_shape),
         age_range = ifelse(!is.na(max_age), paste0("below", max_age + 1),
                            ifelse(!is.na(min_age), paste0("from", min_age),
                                   NA))) %>%
@@ -114,7 +114,7 @@ assess_mortality_lifetable <-
                       exp = exp,
                       cutoff = cutoff,
                       rr_increment = rr_increment,
-                      method ={{rr_rescale_method}}
+                      method ={{erf_shape}}
                       #{{}} ensures that the
                       # value from the function argument is used
                       # instead of from an existing column
@@ -190,7 +190,7 @@ assess_mortality_lifetable <-
                       exp = exp,
                       cutoff = cutoff,
                       rr_increment = rr_increment,
-                      method ={{rr_rescale_method}}
+                      method ={{erf_shape}}
                       #{{}} ensures that the
                       # value from the function argument is used
                       # instead of from an existing column
@@ -202,7 +202,7 @@ assess_mortality_lifetable <-
       dplyr::mutate(ci = ifelse(duplicated(rr), "mean", ci)) %>%
 
       # Calculate attributable fraction (AF) as well as impact
-      dplyr::mutate(approach_id = paste0("singleValue_", rr_rescale_method),
+      dplyr::mutate(approach_id = paste0("singleValue_", erf_shape),
                     paf =  bestcost::get_paf(rr_conc = rr_forPaf,
                                              prop_pop_exp = prop_pop_exp))
 

@@ -135,7 +135,7 @@ for(i in 1:nrow(input_data_morbidities)){
     bhd = 5269.46,
     rr = c(1.08, 1.07, 1.09),
     rr_increment = 10, 
-    rr_rescale_method = "loglinear", 
+    erf_shape = "loglinear", 
     info_pollutant = "noise", 
     info_outcome = "YLD")
   }
@@ -158,7 +158,7 @@ for(i in 1:nrow(input_data_morbidities)){
     rr = unlist(input_data_morbidities[i, 
                             c("rr_mean", "rr_lowci", "rr_highci")]) ,
     rr_increment = 10, 
-    rr_rescale_method = "loglinear", 
+    erf_shape = "loglinear", 
     info_pollutant = input_data_morbidities$pollutant[i], 
     info_outcome = input_data_morbidities$outcome_metric[i])
   }
@@ -251,7 +251,7 @@ for(i in 2){                           # Use this if you want to evaluate only o
     rr = unlist(input_data_mortality[i,
                                       c("rr_mean", "rr_lowci", "rr_highci")]),
     rr_increment = 10, 
-    rr_rescale_method = "loglinear",
+    erf_shape = "loglinear",
     first_age_pop = 0,
     last_age_pop = 99,
     interval_age_pop = 1,
@@ -290,7 +290,7 @@ for(i in 2){                           # Use this if you want to evaluate only o
     rr = unlist(input_data_mortality[i,
                                       c("rr_mean", "rr_lowci", "rr_highci")]),
     rr_increment = 10, 
-    rr_rescale_method = "loglinear",
+    erf_shape = "loglinear",
     first_age_pop = 0,
     last_age_pop = 99,
     interval_age_pop = 1,

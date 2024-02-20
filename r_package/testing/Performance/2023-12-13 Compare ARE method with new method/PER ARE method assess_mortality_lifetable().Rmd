@@ -28,7 +28,7 @@ ci <- c("mean", "lowci", "highci")
 #     rr = unlist(input_data_mortality[2, 
 #                             c("rr_mean", "rr_lowci", "rr_highci")]) ,
 #     rr_increment = 10, 
-#     rr_rescale_method = "loglinear", 
+#     erf_shape = "loglinear", 
 #     lifetable_withPop_male = lifetable_withPopulation[["male"]],
 #     lifetable_withPop_female = lifetable_withPopulation[["female"]],
 #     year_of_analysis = 2019, 
