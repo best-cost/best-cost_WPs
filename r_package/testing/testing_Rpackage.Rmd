@@ -15,8 +15,11 @@ Pending
 # Load packages
 
 Load the Rdata file that contains all variables needed to run this script.
-```{r load data}
+```{r load data & bestcost package}
 load("../testing/input/input data for testing_Rpackage.RData")
+
+# Load package
+devtools::load_all(export_all = FALSE)
 ```
 
 
@@ -49,9 +52,6 @@ library(openxlsx)
 library(credentials)
 library(gitcreds)
 library(devtools)
-
-# Load package
-devtools::load_all(export_all = FALSE)
 ```
 
 ```{r Install own package from github, eval=FALSE, include=FALSE}
@@ -131,7 +131,7 @@ for(i in 1:nrow(input_data_morbidities)){
   bestcost::assess_impact_single(
     exp = c(53, 57.5, 62.5, 67.5, 72.5, 77.5),# Values as example provided by NIPH
     prop_pop_exp = c(0.8187, 0.0743, 0.0549, 0.0368, 0.0138, 0.0015), # Values as example provided by NIPH
-    cf = 53, # PM2.5=5, NO2=10, i.e. WHO AQG 2021 
+    cutoff = 53, # PM2.5=5, NO2=10, i.e. WHO AQG 2021 
     bhd = 5269.46,
     crf = c(1.08, 1.07, 1.09),
     crf_per = 10, 
@@ -153,7 +153,7 @@ for(i in 1:nrow(input_data_morbidities)){
   impact_morbidities_raw[[input_data_morbidities$year[i]]][[input_data_morbidities$crf_id[[i]]]] <-
   bestcost::assess_impact_single(
     exp = input_data_morbidities$exp[i],  # PM2.5=8.30=limit LRV CH, NO2=16.32=mean conc. in CH in 2019
-    cf = input_data_morbidities$cf[i],    # PM2.5=5, NO2=10, i.e. WHO AQG 2021 
+    cutoff = input_data_morbidities$cutoff[i],    # PM2.5=5, NO2=10, i.e. WHO AQG 2021 
     bhd = input_data_morbidities$bhd_absolute[i],
     crf = unlist(input_data_morbidities[i, 
                             c("crf_mean", "crf_lowci", "crf_highci")]) ,
@@ -247,7 +247,7 @@ for(i in 2){                           # Use this if you want to evaluate only o
     bestcost::assess_mortality_lifetable(
     exp = c(8, 9, 10), # Fake data just for testing purposes
     prop_pop_exp = c(0.2, 0.3, 0.5), # Fake data just for testing purposes
-    cf = input_data_mortality$cf[i],   # PM2.5=5, NO2=10, i.e. WHO AQG 2021 
+    cutoff = input_data_mortality$cutoff[i],   # PM2.5=5, NO2=10, i.e. WHO AQG 2021 
     crf = unlist(input_data_mortality[i,
                                       c("crf_mean", "crf_lowci", "crf_highci")]),
     crf_per = 10, 
@@ -283,7 +283,7 @@ for(i in 2){                           # Use this if you want to evaluate only o
     bestcost::assess_mortality_lifetable(
 
     exp = input_data_mortality$exp[i], # PM2.5=8.30=limit LRV CH, NO2=16.32=mean conc. in CH in 2019
-    cf = input_data_mortality$cf[i],   # PM2.5=5, NO2=10, i.e. WHO AQG 2021 
+    cutoff = input_data_mortality$cutoff[i],   # PM2.5=5, NO2=10, i.e. WHO AQG 2021 
     crf = unlist(input_data_mortality[i,
                                       c("crf_mean", "crf_lowci", "crf_highci")]),
     crf_per = 10, 

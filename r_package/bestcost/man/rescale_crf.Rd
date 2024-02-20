@@ -4,14 +4,14 @@
 \alias{rescale_crf}
 \title{Re-scale the concentration-response function}
 \usage{
-rescale_crf(crf, exp, cf, crf_per, method)
+rescale_crf(crf, exp, cutoff, crf_per, method)
 }
 \arguments{
 \item{crf}{Data frame containing the concentration-response function as in the epidemiological study, i.e. per the usual concentration increase. The data frame must contain the mean, lower and upper bound of the concentration-response function.}
 
 \item{exp}{Population exposure to the stressor (e.g. annual population-weighted mean).}
 
-\item{cf}{Counterfactual scenario, i.e. minimum cut-off concentration from where the health impact is quantified.}
+\item{cutoff}{\code{Numeric value} showing the cut-off exposure in ug/m3 (i.e. the exposure level below which no health effects occur).}
 
 \item{crf_per}{Increment of the concentration-response function as in the literature (e.g. for PM2.5 10 or 5 ug/m3).}
 

@@ -7,7 +7,7 @@
 assess_mortality_lifetable(
   exp,
   prop_pop_exp = 1,
-  cf,
+  cutoff,
   crf,
   crf_per,
   crf_rescale_method,
@@ -27,7 +27,7 @@ assess_mortality_lifetable(
   info_pollutant = NULL,
   info_outcome = NULL,
   info_exp = NULL,
-  info_cf = NULL,
+  info_cutoff = NULL,
   info_crf = NULL,
   info_bhd = NULL
 )
@@ -36,6 +36,8 @@ assess_mortality_lifetable(
 \item{exp}{\code{Numeric values} Population-weighted mean exposure in ug/m3 or {vector} showing the exposure category in a exposure distribution (this information is linked to the proportion of population exposed).}
 
 \item{prop_pop_exp}{\code{Numeric value} or {Numeric vector} Fraction (values between 0 & 1) of the total population exposed to (one or more) exposure categories, i.e., a exposure distribution, respectively. If a exposure distribution is used, the dimension of this input variable should be the same as "exp". By default, 1 for single exposure value will be assigned to this input variable assuming a single exposure value, but users can change this value.}
+
+\item{cutoff}{\code{Numeric value} showing the cut-off exposure in ug/m3 (i.e. the exposure level below which no health effects occur).}
 
 \item{crf}{\code{Numeric vector} of three numeric values referring to the central estimate of the exposure-response function and the corresponding lower and upper 95% confidence interval bounds.}
 
@@ -75,7 +77,7 @@ assess_mortality_lifetable(
 
 \item{info_exp}{\code{Character string} showing additional information or id for the exposure. This information will be added to all rows of the results. Default value = NULL.}
 
-\item{info_cf}{\code{Character string} showing additional information or id for counter-factual scenario (cut-off). This information will be added to all rows of the results. Default value = NULL.}
+\item{info_cutoff}{\code{Character string} showing additional information or id for counter-factual scenario (cut-off). This information will be added to all rows of the results. Default value = NULL.}
 
 \item{info_crf}{\code{Character string} showing additional information or id for the concentration-response function. This information will be added to all rows of the results. Default value = NULL.}
 

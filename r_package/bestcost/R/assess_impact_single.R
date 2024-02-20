@@ -5,7 +5,7 @@
 #' Calculates the health impacts, mortality or morbidity, of an environmental stressor using a single value for baseline heath data, i.e. without life table. It provides as a result the mean as well as the lower and the higher bound of the impact based on the confidence interval of the concentration-response function.
 #' @param exp \code{Numeric value} showing the population-weighted mean exposure in ug/m3 or {vector} showing the exposure category in a exposure distribution (this information is linked to the proportion of population exposed).
 #' @param prop_pop_exp \code{Numeric value} or {vector} showing the proportion of population exposed (as a fraction, i.e. values between 0 and 1) for a single exposure value or for multiple categories, i.e., a exposure distribution, respectively. If a exposure distribution is used, the dimension of this input variable should be the same as "exp". By default, 1 for single exposure value will be assigned to this input variable assuming a single exposure value, but users can change this value.
-#' @param cf \code{Numeric value} showing the counter-factual scenario (i.e. minimum cut-off concentration) in ug/m3.
+#' @param cutoff \code{Numeric value} showing the cut-off exposure in ug/m3 (i.e. the exposure level below which no health effects occur).
 #' @param crf \code{Vector} of three numeric values referring to the mean as well as the lower bound and upper bound of the confidence interval.
 #' @param crf_per \code{Numeric value} showing the increment of the concentration-response function in ug/m3 (usually 10 or 5).
 #' @param crf_rescale_method \code{String} to choose among "linear" and "loglinear".
@@ -13,7 +13,7 @@
 #' @param info_pollutant \code{String} showing additional information or id for the pollutant. Default value = NULL.
 #' @param info_outcome \code{String} showing additional information or id for the health outcome. Default value = NULL.
 #' @param info_exp \code{String} showing additional information or id for the exposure. This information will be added to all rows of the results. Default value = NULL.
-#' @param info_cf \code{String} showing additional information or id for counter-factual scenario (cut-off). This information will be added to all rows of the results. Default value = NULL.
+#' @param info_cutoff \code{String} showing additional information or id for counter-factual scenario (cut-off). This information will be added to all rows of the results. Default value = NULL.
 #' @param info_crf \code{String} showing additional information or id for the concentration-response function. This information will be added to all rows of the results. Default value = NULL.
 #' @param info_bhd \code{String} showing additional information or id for the baseline health data. This information will be added to all rows of the results. Default value = NULL.
 #' @return
@@ -35,14 +35,14 @@
 #' @export
 assess_impact_single <-
   function(exp, prop_pop_exp = 1,
-           cf,
+           cutoff,
            crf,
            crf_per, crf_rescale_method,
            bhd,
            info_pollutant = NULL,
            info_outcome = NULL,
            info_exp = NULL,
-           info_cf = NULL,
+           info_cutoff = NULL,
            info_crf = NULL,
            info_bhd = NULL){
 
@@ -67,7 +67,7 @@ assess_impact_single <-
       data.frame(
         exp = exp,
         prop_pop_exp = prop_pop_exp,
-        cf = cf,
+        cutoff = cutoff,
         bhd = bhd,
         approach_id = paste0("lifetable_", crf_rescale_method)) %>%
       # Add crf with a cross join to produce all likely combinations
@@ -77,7 +77,7 @@ assess_impact_single <-
         info_pollutant = ifelse(is.null(info_pollutant), NA, info_pollutant),
         info_outcome = ifelse(is.null(info_outcome), NA, info_outcome),
         info_exp = ifelse(is.null(info_exp), NA, info_exp),
-        info_cf = ifelse(is.null(info_cf), NA, info_cf),
+        info_cutoff = ifelse(is.null(info_cutoff), NA, info_cutoff),
         info_crf = ifelse(is.null(info_crf), NA, info_crf),
         info_bhd = ifelse(is.null(info_bhd), NA, info_bhd))
 
@@ -89,7 +89,7 @@ assess_impact_single <-
         crf_forPaf =
           rescale_crf(crf = crf,
                       exp = exp,
-                      cf = cf,
+                      cutoff = cutoff,
                       crf_per = crf_per,
                       method = {{crf_rescale_method}}
                       #{{}} ensures that the
@@ -135,7 +135,7 @@ assess_impact_single <-
       dplyr::mutate(impact = paf * bhd,
                     impact_rounded = round(impact, 0)) %>%
       # Order columns
-      dplyr::select(exp, cf, bhd,
+      dplyr::select(exp, cutoff, bhd,
                     crf, crf_forPaf, crf_per, ci, crf_rescale_method,
                     paf, impact, impact_rounded,
                     starts_with("info_"))

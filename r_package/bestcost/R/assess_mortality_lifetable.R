@@ -5,6 +5,7 @@
 #' Calculates the mortality (premature deaths) or years of life lost attributable to the exposure to an environmental stressor using a life table approach. It provides the central estimate of the impact and the corresponding 95% confidence intervals (based on the 95% confidence interval exposure-response function).
 #' @param exp \code{Numeric values} Population-weighted mean exposure in ug/m3 or {vector} showing the exposure category in a exposure distribution (this information is linked to the proportion of population exposed).
 #' @param prop_pop_exp \code{Numeric value} or {Numeric vector} Fraction (values between 0 & 1) of the total population exposed to (one or more) exposure categories, i.e., a exposure distribution, respectively. If a exposure distribution is used, the dimension of this input variable should be the same as "exp". By default, 1 for single exposure value will be assigned to this input variable assuming a single exposure value, but users can change this value.
+#' @param cutoff \code{Numeric value} showing the cut-off exposure in ug/m3 (i.e. the exposure level below which no health effects occur).
 #' @param crf \code{Numeric vector} of three numeric values referring to the central estimate of the exposure-response function and the corresponding lower and upper 95% confidence interval bounds.
 #' @param crf_per \code{Numeric value} showing the increment of the exposure-response function in ug/m3 (usually 10 or 5).
 #' @param crf_rescale_method \code{Character string} either "linear" or "loglinear".
@@ -24,7 +25,7 @@
 #' @param info_pollutant \code{Character string} showing additional information or id for the pollutant. Default value = NULL.
 #' @param info_outcome \code{Character string} showing additional information or id for the health outcome. Default value = NULL.
 #' @param info_exp \code{Character string} showing additional information or id for the exposure. This information will be added to all rows of the results. Default value = NULL.
-#' @param info_cf \code{Character string} showing additional information or id for counter-factual scenario (cut-off). This information will be added to all rows of the results. Default value = NULL.
+#' @param info_cutoff \code{Character string} showing additional information or id for counter-factual scenario (cut-off). This information will be added to all rows of the results. Default value = NULL.
 #' @param info_crf \code{Character string} showing additional information or id for the concentration-response function. This information will be added to all rows of the results. Default value = NULL.
 #' @param info_bhd \code{Character string} showing additional information or id for the baseline health data. This information will be added to all rows of the results. Default value = NULL.
 #' @return
@@ -46,7 +47,7 @@
 #' @export
 assess_mortality_lifetable <-
   function(exp, prop_pop_exp = 1,
-           cf,
+           cutoff,
            crf, crf_per, crf_rescale_method,
            first_age_pop, last_age_pop, interval_age_pop,
            prob_natural_death_male, prob_natural_death_female,
@@ -56,7 +57,7 @@ assess_mortality_lifetable <-
            corrected_discount_rate = 0,
            min_age = NULL, max_age = NULL,
            info_pollutant = NULL, info_outcome = NULL,
-           info_exp = NULL, info_cf = NULL, info_crf = NULL, info_bhd = NULL){
+           info_exp = NULL, info_cutoff = NULL, info_crf = NULL, info_bhd = NULL){
 
     # Check input data ####
 
@@ -86,7 +87,7 @@ assess_mortality_lifetable <-
       data.frame(
         exp = exp,
         prop_pop_exp = prop_pop_exp,
-        cf = cf,
+        cutoff = cutoff,
         # Information derived from input data
         approach_id = paste0("lifetable_", crf_rescale_method),
         age_range = ifelse(!is.na(max_age), paste0("below", max_age + 1),
@@ -99,7 +100,7 @@ assess_mortality_lifetable <-
         info_pollutant = ifelse(is.null(info_pollutant), NA, info_pollutant),
         info_outcome = ifelse(is.null(info_outcome), NA, info_outcome),
         info_exp = ifelse(is.null(info_exp), NA, info_exp),
-        info_cf = ifelse(is.null(info_cf), NA, info_cf),
+        info_cutoff = ifelse(is.null(info_cutoff), NA, info_cutoff),
         info_crf = ifelse(is.null(info_crf), NA, info_crf),
         info_bhd = ifelse(is.null(info_bhd), NA, info_bhd))
 
@@ -111,7 +112,7 @@ assess_mortality_lifetable <-
         crf_forPaf =
           rescale_crf(crf = crf,
                       exp = exp,
-                      cf = cf,
+                      cutoff = cutoff,
                       crf_per = crf_per,
                       method ={{crf_rescale_method}}
                       #{{}} ensures that the
@@ -187,7 +188,7 @@ assess_mortality_lifetable <-
         crf_forPaf =
           bestcost::rescale_crf(crf = crf,
                       exp = exp,
-                      cf = cf,
+                      cutoff = cutoff,
                       crf_per = crf_per,
                       method ={{crf_rescale_method}}
                       #{{}} ensures that the

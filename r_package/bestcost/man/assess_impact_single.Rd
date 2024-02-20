@@ -8,7 +8,7 @@ Calculates the health impacts, mortality or morbidity, of an environmental stres
 assess_impact_single(
   exp,
   prop_pop_exp = 1,
-  cf,
+  cutoff,
   crf,
   crf_per,
   crf_rescale_method,
@@ -16,7 +16,7 @@ assess_impact_single(
   info_pollutant = NULL,
   info_outcome = NULL,
   info_exp = NULL,
-  info_cf = NULL,
+  info_cutoff = NULL,
   info_crf = NULL,
   info_bhd = NULL
 )
@@ -26,7 +26,7 @@ assess_impact_single(
 
 \item{prop_pop_exp}{\code{Numeric value} or {vector} showing the proportion of population exposed (as a fraction, i.e. values between 0 and 1) for a single exposure value or for multiple categories, i.e., a exposure distribution, respectively. If a exposure distribution is used, the dimension of this input variable should be the same as "exp". By default, 1 for single exposure value will be assigned to this input variable assuming a single exposure value, but users can change this value.}
 
-\item{cf}{\code{Numeric value} showing the counter-factual scenario (i.e. minimum cut-off concentration) in ug/m3.}
+\item{cutoff}{\code{Numeric value} showing the cut-off exposure in ug/m3 (i.e. the exposure level below which no health effects occur).}
 
 \item{crf}{\code{Vector} of three numeric values referring to the mean as well as the lower bound and upper bound of the confidence interval.}
 
@@ -42,7 +42,7 @@ assess_impact_single(
 
 \item{info_exp}{\code{String} showing additional information or id for the exposure. This information will be added to all rows of the results. Default value = NULL.}
 
-\item{info_cf}{\code{String} showing additional information or id for counter-factual scenario (cut-off). This information will be added to all rows of the results. Default value = NULL.}
+\item{info_cutoff}{\code{String} showing additional information or id for counter-factual scenario (cut-off). This information will be added to all rows of the results. Default value = NULL.}
 
 \item{info_crf}{\code{String} showing additional information or id for the concentration-response function. This information will be added to all rows of the results. Default value = NULL.}
 

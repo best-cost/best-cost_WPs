@@ -264,10 +264,10 @@ exp_rawdata <-
            sep = ";",
            na.strings=c("NA", ""))
 
-# Counterfactual
-cf_rawdata <- 
+# cutoff
+cutoff_rawdata <- 
   # Read data
-  read.csv("../testing/input/cf.csv",
+  read.csv("../testing/input/cutoff.csv",
            sep = ";",
            na.strings=c("NA", ""))
 
@@ -686,16 +686,16 @@ exp_data_forLoop <-
   purrr::map(function(x) split(x, x$year))
 ```
 
-```{r Counterfactual scenario}
+```{r cutoff scenario}
 
-cf_data <-
-  cf_rawdata %>%
+cutoff_data <-
+  cutoff_rawdata %>%
   # Take the relevant columns and rows 
   dplyr::filter(pollutant %in% c("PM2.5", "NO2")) %>%
-  dplyr::select(pollutant, cf_mean, cf_unit) %>%
-  # Rename cf_mean to cf 
-  # TODO: to be changed if we used cf with CI
-  dplyr::rename(cf = cf_mean)
+  dplyr::select(pollutant, cutoff_mean, cutoff_unit) %>%
+  # Rename cutoff_mean to cutoff 
+  # TODO: to be changed if we used cutoff with CI
+  dplyr::rename(cutoff = cutoff_mean)
   
 ```
 
@@ -718,7 +718,7 @@ input_data <-
   dplyr::left_join(., bhd_data, by="outcome_id",
                    suffix = c("", "_bhd"),
                    relationship = "many-to-many") %>%
-  dplyr::left_join(., cf_data, by="pollutant",
+  dplyr::left_join(., cutoff_data, by="pollutant",
                    relationship = "many-to-one")%>%
   # Add the minimum age and maximum age for each row 
   # (only relevant for mortality with lifetable)

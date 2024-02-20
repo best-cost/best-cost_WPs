@@ -24,7 +24,7 @@ ci <- c("mean", "lowci", "highci")
 # profvis(bestcost::assess_mortality_lifetable(
 # 
 #     exp = input_data_mortality$exp[2], # PM2.5=8.30=limit LRV CH, NO2=16.32=mean conc. in CH in 2019
-#     cf = input_data_mortality$cf[2],   # PM2.5=5, NO2=10, i.e. WHO AQG 2021 
+#     cutoff = input_data_mortality$cutoff[2],   # PM2.5=5, NO2=10, i.e. WHO AQG 2021 
 #     crf = unlist(input_data_mortality[2, 
 #                             c("crf_mean", "crf_lowci", "crf_highci")]) ,
 #     crf_per = 10, 
