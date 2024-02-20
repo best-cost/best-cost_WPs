@@ -45,7 +45,7 @@
 #' @author Alberto Castro
 #' @note Experimental function
 #' @export
-assess_mortality_lifetable <-
+attribute_mortality_lifetable_rr <-
   function(exp, prop_pop_exp = 1,
            cutoff,
            rr, rr_increment, erf_shape,

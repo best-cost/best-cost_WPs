@@ -244,7 +244,7 @@ impact_mortality_expDistribution_raw <- list()
 for(i in 2){                           # Use this if you want to evaluate only one RR
   impact_mortality_expDistribution_raw[[input_data_mortality$year[i]]][[input_data_mortality$rr_id[[i]]]] <-
   
-    bestcost::assess_mortality_lifetable(
+    bestcost::attribute_mortality_lifetable_rr(
     exp = c(8, 9, 10), # Fake data just for testing purposes
     prop_pop_exp = c(0.2, 0.3, 0.5), # Fake data just for testing purposes
     cutoff = input_data_mortality$cutoff[i],   # PM2.5=5, NO2=10, i.e. WHO AQG 2021 
@@ -283,7 +283,7 @@ for(i in 1:nrow(input_data_mortality)){  # Use this if you want to evaluate mult
 #for(i in 2){                           # Use this if you want to evaluate only one RRs
   impact_mortality_raw[[input_data_mortality$year[i]]][[input_data_mortality$rr_id[[i]]]] <-
   
-    bestcost::assess_mortality_lifetable(
+    bestcost::attribute_mortality_lifetable_rr(
 
     exp = input_data_mortality$exp[i], # PM2.5=8.30=limit LRV CH, NO2=16.32=mean conc. in CH in 2019
     cutoff = input_data_mortality$cutoff[i],   # PM2.5=5, NO2=10, i.e. WHO AQG 2021 
