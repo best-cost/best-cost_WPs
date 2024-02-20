@@ -3,7 +3,7 @@
 #' Get deaths
 #'
 #' Get deaths
-#' @param shifted_popOvertime \code{Data frame} with shifted population over time.
+#' @param pop_impact \code{Data frame} with shifted population over time.
 #' @param year_of_analysis \code{Numeric value} of the year of analysis, which corresponds to the first year of the life table,
 #' @param min_age \code{Numeric value} with the minimal age to be considered for adults (by default 30, i.e. 30+),
 #' @param max_age \code{Numeric value} with the maximal age to be considered for infants/children (by default 0, i.e. below 1 year old)
@@ -19,7 +19,7 @@
 #' @export
 
 get_deaths <-
-  function(shifted_popOverTime, year_of_analysis,
+  function(pop_impact, year_of_analysis,
            meta,
            min_age = min_age, max_age = max_age){
 
@@ -35,7 +35,7 @@ get_deaths <-
           paste0("population_", year_of_analysis+1)
 
         deaths_by_list[[s]][[v]]<-
-          shifted_popOverTime[["shifted_popOverTime"]][[s]][[v]] %>%
+          pop_impact[["pop_impact"]][[s]][[v]] %>%
           # Select only relevant columns
           dplyr::select(., age, all_of(population_secondYear_lifetable)) %>%
           # Filter keeping only the relevant age

@@ -208,7 +208,7 @@ assess_mortality_lifetable <-
 
 
     # Get population impact ####
-    shifted_popOverTime <-
+    pop_impact <-
       bestcost::get_pop_impact(
         lifetab_withPop = lifetable_withPop,
         year_of_analysis = year_of_analysis,
@@ -218,7 +218,7 @@ assess_mortality_lifetable <-
     # Calculate deaths ####
     deaths <-
       bestcost::get_deaths(
-        shifted_popOverTime = shifted_popOverTime,
+        pop_impact = pop_impact,
         year_of_analysis = year_of_analysis,
         min_age = min_age,
         max_age = max_age,
@@ -227,7 +227,7 @@ assess_mortality_lifetable <-
     # Calculate years of life lost (yll) ####
     yll <-
       bestcost::get_yll(
-        shifted_popOverTime = shifted_popOverTime,
+        pop_impact = pop_impact,
         year_of_analysis = year_of_analysis,
         min_age = min_age,
         max_age = max_age,
@@ -237,7 +237,7 @@ assess_mortality_lifetable <-
     # Calculate output ####
     output <-
       list(
-        shifted_popOverTime = shifted_popOverTime,
+        pop_impact = pop_impact,
         deaths_detailed = deaths[["deaths_detailed"]],
         deaths = deaths[["deaths"]],
         yll_detailed = yll[["yll_detailed"]],

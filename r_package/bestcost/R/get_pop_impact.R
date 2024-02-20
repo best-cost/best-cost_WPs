@@ -44,13 +44,13 @@ get_pop_impact <-
     }
 
 
-    # Get shifted_popOverTime
+    # Get pop_impact
 
-    shifted_popOverTime <- list()
+    pop_impact <- list()
 
     for(s in sex){
       for(v in ci){
-        shifted_popOverTime[[s]][[v]] <-
+        pop_impact[[s]][[v]] <-
 
           bestcost::move_rows_up(popOTime = popOverTime[[s]][[v]],
                                  year_of_analysis = year_of_analysis)
@@ -60,7 +60,7 @@ get_pop_impact <-
     output <-
       list(paf = paf,
            popOverTime = popOverTime,
-           shifted_popOverTime = shifted_popOverTime)
+           pop_impact = pop_impact)
 
 
     return(output)
