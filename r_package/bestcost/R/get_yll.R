@@ -120,11 +120,7 @@ get_yll <-
                        by = "ci")%>%
 
       # Round the results
-      dplyr::mutate(
-        # Create new column impact (later rounded)
-        impact_beforeRounding = impact,
-        # Round column impact
-        impact = round(impact, 0))%>%
+      dplyr::mutate(impact_rounded = round(impact, 0))%>%
 
       # Order columns
       dplyr::select(discount, sex, ci, everything())%>%

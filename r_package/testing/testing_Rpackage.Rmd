@@ -279,8 +279,8 @@ impact_mortality_raw <- list()
 
 # Calculate mortality impacts using bestcost function
 
-#for(i in 1:nrow(input_data_mortality)){  # Use this if you want to evaluate multiple RRs
-for(i in 2){                           # Use this if you want to evaluate only one RRs
+for(i in 1:nrow(input_data_mortality)){  # Use this if you want to evaluate multiple RRs
+#for(i in 2){                           # Use this if you want to evaluate only one RRs
   impact_mortality_raw[[input_data_mortality$year[i]]][[input_data_mortality$rr_id[[i]]]] <-
   
     bestcost::assess_mortality_lifetable(
@@ -332,12 +332,12 @@ for (r in c("2019", "whoaqg21")){
   # Substract the impacts for the scenarios
   impact_mortality_comparative[[paste0(r, "_whoaqg21")]] <- 
     dplyr::left_join(impact_mortality_edited[[r]],
-                     impact_mortality_edited[["whoaqg21"]][c("rr_id", "ci", "impact", "impact_beforeRounding" ,"outcome_metric_short", "exp")], 
+                     impact_mortality_edited[["whoaqg21"]][c("rr_id", "ci", "impact", "impact_rounded" ,"outcome_metric_short", "exp")], 
                      by = c("outcome_metric_short", "rr_id", "ci"), 
                      suffix = c("_ref", "_whoaqg21")) %>%
     dplyr::mutate(ref = r,
                   impact_diff = impact_ref - impact_whoaqg21,
-                  impact_beforeRounding_diff = impact_beforeRounding_ref - impact_beforeRounding_whoaqg21)
+                  impact_rounded_diff = impact_rounded_ref - impact_rounded_whoaqg21)
   }
 
 impact_mortality <- 
@@ -350,8 +350,7 @@ impact_mortality <-
   tidyr::pivot_wider(
     values_from = c(rr, rr_forPaf, paf,
                     impact_ref, impact_whoaqg21, impact_diff,
-                    impact_beforeRounding_ref, impact_beforeRounding_whoaqg21, impact_beforeRounding_diff), 
-    names_from = ci) %>%
+                    impact_rounded_ref, impact_rounded_whoaqg21, impact_rounded_diff), names_from = ci) %>%
   # Paste the CIs
   dplyr::mutate(
     rr_meanCI = paste_round_CI(rr_mean, rr_lowci, rr_highci, 3),
