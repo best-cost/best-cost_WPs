@@ -237,9 +237,9 @@ assess_mortality_lifetable <-
     output <-
       list(
         shifted_popOverTime = shifted_popOverTime,
-        deaths_long = deaths[["deaths_long"]],
+        deaths_detailed = deaths[["deaths_detailed"]],
         deaths = deaths[["deaths"]],
-        yll_long = yll[["yll_long"]],
+        yll_detailed = yll[["yll_detailed"]],
         yll = yll[["yll"]])
 
     return(output)

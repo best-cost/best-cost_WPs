@@ -99,7 +99,7 @@ get_yll <-
 
 
     # Calculate Years of Life Lost (YLLs)
-    yll_long <-
+    yll_detailed <-
       yll_by %>%
 
       # Sum among sex adding total
@@ -132,12 +132,12 @@ get_yll <-
       dplyr::arrange(discount, sex, ci)
 
     yll <-
-      yll_long%>%
+      yll_detailed %>%
       dplyr::filter(sex %in% "total",
                     discount %in% "discounted")
 
 
-    output <- list(yll_long = yll_long, yll = yll)
+    output <- list(yll_detailed = yll_detailed, yll = yll)
 
     return(output)
   }

@@ -59,7 +59,7 @@ get_deaths <-
                           names_to = "ci",
                           values_to = "impact")
     # Add up deaths ####
-    deaths_long <-
+    deaths_detailed <-
       deaths_by %>%
       # Sum among age groups
       # Sum among sex
@@ -91,11 +91,11 @@ get_deaths <-
 
 
     deaths <-
-      deaths_long%>%
+      deaths_detailed %>%
       dplyr::filter(sex %in% "total")
 
 
-    output <- list(deaths_long = deaths_long, deaths = deaths)
+    output <- list(deaths_detailed = deaths_detailed, deaths = deaths)
 
     return(output)
 
