@@ -25,7 +25,6 @@ devtools::load_all(export_all = FALSE)
 
 The R script required the loading of certain R packages. 
 ```{r Load packages, include=FALSE}
-
 # Load required packages
 
 # to assess performance
@@ -55,39 +54,48 @@ library(devtools)
 ```
 
 ```{r Install own package from github, eval=FALSE, include=FALSE}
-# Install own package from github as suggested here
-# https://stackoverflow.com/a/71846333/6104907
+# Install own package from github as suggested here: https://stackoverflow.com/a/71846333/6104907
 if(!"bestcost" %in% installed.packages()[, "Package"]){
   #gitcreds::gitcreds_set()
   #usethis::use_git_config(user.name = "YourName", user.email = "your@mail.com") # run if installation doesn't work
-  credentials::set_github_pat() # paste github PAT when prompted
+  credentials::set_github_pat() # paste github PAT if prompted
   devtools::install_github(repo = "best-cost/best-cost_WPs",
                            subdir = "/r_package/bestcost",
-                           # Branch (by default "HEAD")
-                           # Other usual branches 
-                           # "63-simplification-of-the-code"
-                           # "Variable_names"
-                           # "Small_code_changes"
-                           ref = "HEAD",
+                           ref = "HEAD", # Branch name (by default "HEAD") as a string
                            force = TRUE)
 }
-
-# to quantify and monetize health impacts (own package)
 library(bestcost)
-# Update R package documentation
-# devtools::document()
 ```
 
 
 ```{r load current version of bestcost from local source, eval=FALSE, include=FALSE}
 detach("package:bestcost", unload = TRUE) # detach bestcost
-# Save current state of package as .zip file (e.g. to directly test changes in functions)
-devtools::build(binary = TRUE, path = "../testing/input/") 
-# Install package from source
-install.packages("../testing/input/bestcost_0.0.0.1.zip", repos=NULL, type='source')
-# Load updated package
+devtools::build(binary = TRUE, path = "../testing/input/") # Save current state of package as .zip file (e.g. to directly test changes in functions)
+install.packages("../testing/input/bestcost_0.0.0.1.zip", repos=NULL, type='source') # Install package from source
 library(bestcost)
-load_all(export_all = TRUE)
+```
+
+
+
+# Calculate health impacts
+
+```{r Test attribute_yld_rr single input value}
+test <- bestcost::attribute_yld_rr(
+  dw = 0.133, # for health state "Asthma, uncontrolled" (cf. bestcost::disability_weights)
+  exp = c(input_data_morbidities$exp[12], input_data_morbidities$exp[12]+20, input_data_morbidities$exp[12]+30),
+  prop_pop_exp = c(0.2, 0.2, 0.6),
+  cutoff = input_data_morbidities$cutoff[12],    # PM2.5=5, NO2=10, i.e. WHO AQG 2021 
+  bhd = input_data_morbidities$bhd_absolute[12],
+  rr = unlist(input_data_morbidities[12, c("rr_mean", "rr_lowci", "rr_highci")]), # RR for asthma incidence for adults
+  rr_increment = 10, 
+  erf_shape = "loglinear", 
+  info_pollutant = input_data_morbidities$pollutant[12], 
+  info_outcome = input_data_morbidities$outcome_metric[12]
+)
+
+
+# Ref 2783  583 4719 
+# Ref * 0.133: 370  78  628
 ```
 
 ```{r Test probability of dying}
@@ -103,9 +111,6 @@ prob_dying_airqplus <-
   )
 ```
 
-
-# Calculate health impacts
-
 ```{r absolute risk}
 
 impact_annoyance_expDistribution_raw <- 
@@ -116,15 +121,11 @@ impact_annoyance_expDistribution_raw <-
     erf_parameters = c(78.9270, -3.1162, 0.0342),
     info_pollutant = "road_noise", 
     info_outcome = "highly_annoyance")
-
-
 ```
-
 
 ```{r morbidity using exposure distribution}
 
 impact_morbidity_expDistribution_raw <- list()
-
 
 for(i in 1:nrow(input_data_morbidities)){
   impact_morbidity_expDistribution_raw[[input_data_morbidities$year[i]]][[input_data_morbidities$rr_id[[i]]]] <-
@@ -139,24 +140,21 @@ for(i in 1:nrow(input_data_morbidities)){
     info_pollutant = "noise", 
     info_outcome = "YLD")
   }
-
-
 ```
-
-
 
 ```{r impact morbidity}
 impact_morbidities_raw <- list()
 
-
-for(i in 1:nrow(input_data_morbidities)){
+#for(i in 1:nrow(input_data_morbidities)){
+for(i in 12){ # asthma incidence 20+
   impact_morbidities_raw[[input_data_morbidities$year[i]]][[input_data_morbidities$rr_id[[i]]]] <-
   bestcost::attribute_health_singlebhd_rr(
+    #dw = 0.133, # for health state "Asthma, uncontrolled" (cf. bestcost::disability_weights)
     exp = input_data_morbidities$exp[i],  # PM2.5=8.30=limit LRV CH, NO2=16.32=mean conc. in CH in 2019
     cutoff = input_data_morbidities$cutoff[i],    # PM2.5=5, NO2=10, i.e. WHO AQG 2021 
     bhd = input_data_morbidities$bhd_absolute[i],
     rr = unlist(input_data_morbidities[i, 
-                            c("rr_mean", "rr_lowci", "rr_highci")]) ,
+                            c("rr_mean", "rr_lowci", "rr_highci")]),
     rr_increment = 10, 
     erf_shape = "loglinear", 
     info_pollutant = input_data_morbidities$pollutant[i], 
@@ -232,11 +230,8 @@ impact_morbidities <-
 
 ```
 
-
-
 ```{r mortality using exposure distribution}
 impact_mortality_expDistribution_raw <- list()
-
 
 # Calculate mortality impacts using bestcost function
 
@@ -272,15 +267,14 @@ head(impact_mortality_expDistribution_raw$`2019`$`PM2.5_premature deaths_all cau
 #4250 1537 2911
 ```
 
-
 ```{r impact mortality}
 impact_mortality_raw <- list()
 
 
 # Calculate mortality impacts using bestcost function
 
-for(i in 1:nrow(input_data_mortality)){  # Use this if you want to evaluate multiple RRs
-#for(i in 2){                           # Use this if you want to evaluate only one RRs
+#for(i in 1:nrow(input_data_mortality)){  # Use this if you want to evaluate multiple RRs
+for(i in 2){                           # Use this if you want to evaluate only one RRs
   impact_mortality_raw[[input_data_mortality$year[i]]][[input_data_mortality$rr_id[[i]]]] <-
   
     bestcost::attribute_mortality_lifetable_rr(
@@ -306,6 +300,8 @@ for(i in 1:nrow(input_data_mortality)){  # Use this if you want to evaluate mult
     max_age = input_data_mortality$max_age[i],
     corrected_discount_rate = 0)
 }
+
+head(impact_mortality_raw$`2019`$`PM2.5_premature deaths_all causes_adults_main_ERS-ISEE_2022_selected`$deaths$impact)
 
 impact_mortality_edited <- list()
 
