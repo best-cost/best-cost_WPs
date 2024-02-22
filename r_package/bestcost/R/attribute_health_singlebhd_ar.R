@@ -52,7 +52,6 @@ attribute_health_singlebhd_ar <-
         info_pollutant = ifelse(is.null(info_pollutant), NA, info_pollutant),
         info_outcome = ifelse(is.null(info_outcome), NA, info_outcome),
         info_exp = ifelse(is.null(info_exp), NA, info_exp),
-        info_rr = ifelse(is.null(info_rr), NA, info_rr),
         info_bhd = ifelse(is.null(info_bhd), NA, info_bhd))
 
     # Create the erf ####
@@ -81,7 +80,7 @@ attribute_health_singlebhd_ar <-
       dplyr::group_by(exp,
                       erf_shape, erf_parameters,
                       approach_id,
-                      info_pollutant, info_outcome, info_exp, info_rr, info_bhd) %>%
+                      info_pollutant, info_outcome, info_exp, info_erf, info_bhd) %>%
       dplyr::summarize(
         across(c(pop_exp, absolute_risk_as_percent, population_affected),
                sum),
