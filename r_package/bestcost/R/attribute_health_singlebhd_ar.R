@@ -32,7 +32,6 @@ attribute_health_singlebhd_ar <-
            info_pollutant = NULL,
            info_outcome = NULL,
            info_exp = NULL,
-           info_rr = NULL,
            info_erf = NULL,
            info_bhd = NULL){
 
