@@ -28,4 +28,4 @@ for (i in 1:nrow(disability_weights)){
   #disability_weights$dw_highci[i] <- as.numeric(str_sub(temp[1], end = -2))
 }
 
-save(disability_weights, file = "../bestcost/data/disability_weights.rda")
+save(disability_weights, file = "../bestcost/data/disability_weights.rda", version = 2)
