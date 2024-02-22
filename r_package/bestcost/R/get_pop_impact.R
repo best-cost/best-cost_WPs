@@ -7,7 +7,6 @@
 #' @param year_of_analysis \code{Numeric value} of the year of analysis, which corresponds to the first year of the life table
 #' @param paf \code{Data frame} with three rows (mean, lower bound and upper bound)
 #'
-
 #' @return
 #' This function returns a \code{data.frame} with one row for each value of the
 #' concentration-response function (i.e. mean, lower and upper bound confidence interval.
@@ -24,8 +23,7 @@
 #' TBD
 #' @author Alberto Castro
 #' @note Experimental function
-
-
+#' @export
 get_pop_impact <-
   function(lifetab_withPop, year_of_analysis, paf){
 
@@ -38,7 +36,7 @@ get_pop_impact <-
     for(s in sex){
       for(v in ci){
         popOverTime[[s]][[v]] <-
-          bestcost::get_popOverTime(
+          bestcost::project_pop(
             lifetab_withPop = lifetab_withPop[[s]],
             year_of_analysis = year_of_analysis,
             paf = paf$paf[paf$ci %in% v])
@@ -46,13 +44,13 @@ get_pop_impact <-
     }
 
 
-    # Get shifted_popOverTime
+    # Get pop_impact
 
-    shifted_popOverTime <- list()
+    pop_impact <- list()
 
     for(s in sex){
       for(v in ci){
-        shifted_popOverTime[[s]][[v]] <-
+        pop_impact[[s]][[v]] <-
 
           bestcost::move_rows_up(popOTime = popOverTime[[s]][[v]],
                                  year_of_analysis = year_of_analysis)
@@ -62,7 +60,7 @@ get_pop_impact <-
     output <-
       list(paf = paf,
            popOverTime = popOverTime,
-           shifted_popOverTime = shifted_popOverTime)
+           pop_impact = pop_impact)
 
 
     return(output)

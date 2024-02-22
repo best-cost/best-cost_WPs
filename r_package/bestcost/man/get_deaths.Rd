@@ -5,7 +5,7 @@
 \title{Get deaths}
 \usage{
 get_deaths(
-  shifted_popOverTime,
+  pop_impact,
   year_of_analysis,
   meta,
   min_age = min_age,
@@ -13,15 +13,15 @@ get_deaths(
 )
 }
 \arguments{
+\item{pop_impact}{\code{Data frame} with shifted population over time.}
+
 \item{year_of_analysis}{\code{Numeric value} of the year of analysis, which corresponds to the first year of the life table,}
 
 \item{meta}{\code{Data frame} with meta-information such as input data, additional information and intermediate results.}
 
 \item{min_age}{\code{Numeric value} with the minimal age to be considered for adults (by default 30, i.e. 30+),}
 
-\item{max_age}{\code{Numeric value} with the maximal age to be considered for infants/children (by default 0, i.e. below 1 years old)#'}
-
-\item{shifted_popOvertime}{\code{Data frame} with shifted population over time.}
+\item{max_age}{\code{Numeric value} with the maximal age to be considered for infants/children (by default 0, i.e. below 1 year old)}
 }
 \value{
 This function returns a \code{data.frame} with the number of deaths based on the life table
