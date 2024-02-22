@@ -9,8 +9,8 @@
 #' @param erf_parameters \code{Vector} of numeric values as in order of appearance in the exposure response function.
 #' @param info_pollutant \code{String} showing additional information or id for the pollutant. Default value = NULL.
 #' @param info_outcome \code{String} showing additional information or id for the health outcome. Default value = NULL.
-#' @param info_exp \code{String} showing additional information or id for the exposure. This information will be added to all rows of the results. Default value = NULL.
-#' @param info_ar \code{String} showing additional information or id for the concentration-response function. This information will be added to all rows of the results. Default value = NULL.
+#' @param info_erf \code{String} showing additional information or id for the exposure-response function. Default value = NULL.
+#' @param info_exp \code{String} showing additional information or id for the exposure. Default value = NULL.
 #' @param info_bhd \code{String} showing additional information or id for the baseline health data. Default = NULL.
 #' @return
 #' This function returns a \code{list} with two \code{data.frames}, one with the total health impact and the second one with a row for each category of the exposure distribution.
