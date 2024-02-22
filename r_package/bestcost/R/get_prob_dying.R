@@ -9,7 +9,7 @@
 #' @param interval_age_pop \code{Vector} containing the interval of the age sequence from population and death data.
 #' @param population_midyear \code{Vector} containing the mid-year population by age range.
 #' @param deaths \code{Vector} containing deaths of the year of analysis by age range.
-#' @param fraction_of_year_lived \code{Numeric value} or \code{Vector} containing the fraction of the age interval that was lived by those who died for each age interval. Default value = 0.5 (i.e. 50%) for all age intervals.
+#' @param fraction_of_year_lived \code{Numeric value} or \code{Vector} containing the fraction of the age interval that was lived by those who died for each age interval. Default value = 0.5, i.e. 50\%, for all age intervals.
 #'
 #' @return
 #' This function returns a \code{data frame} showing the probability of dying by age interval.
