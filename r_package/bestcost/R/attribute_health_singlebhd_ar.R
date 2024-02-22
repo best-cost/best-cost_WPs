@@ -52,6 +52,7 @@ attribute_health_singlebhd_ar <-
         info_pollutant = ifelse(is.null(info_pollutant), NA, info_pollutant),
         info_outcome = ifelse(is.null(info_outcome), NA, info_outcome),
         info_exp = ifelse(is.null(info_exp), NA, info_exp),
+        info_erf = ifelse(is.null(info_erf), NA, info_erf),
         info_bhd = ifelse(is.null(info_bhd), NA, info_bhd))
 
     # Create the erf ####
