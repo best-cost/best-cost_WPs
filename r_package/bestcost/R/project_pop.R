@@ -16,12 +16,12 @@
 #' @note Experimental function
 #' @export
 project_pop <-
-  function(lifetab_withPop, year_of_analysis, paf){
+  function(lifetable_withPop, year_of_analysis, paf){
 
 
     # Add the first year of the lifetable to the column name of population
-    lifetab_withPop <-
-      lifetab_withPop %>%
+    lifetable_withPop <-
+      lifetable_withPop %>%
       dplyr::rename(!!paste0("population_", year_of_analysis) := population)
 
 
@@ -30,7 +30,7 @@ project_pop <-
     # based on the RR
     popOverTime <-
       bestcost::project_pop_withExp(
-        lifetable_withPop = lifetab_withPop,
+        lifetable_withPop = lifetable_withPop,
         year_of_analysis = year_of_analysis,
         paf = paf)
 

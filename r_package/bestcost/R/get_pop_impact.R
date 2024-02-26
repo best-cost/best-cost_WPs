@@ -25,7 +25,7 @@
 #' @note Experimental function
 #' @export
 get_pop_impact <-
-  function(lifetab_withPop, year_of_analysis, paf){
+  function(lifetable_withPop, year_of_analysis, paf){
 
     ci <- c("mean", "lowci", "highci") # variable used in code
     sex <- c("female","male")
@@ -37,7 +37,7 @@ get_pop_impact <-
       for(v in ci){
         popOverTime[[s]][[v]] <-
           bestcost::project_pop(
-            lifetab_withPop = lifetab_withPop[[s]],
+            lifetable_withPop = lifetable_withPop[[s]],
             year_of_analysis = year_of_analysis,
             paf = paf$paf[paf$ci %in% v])
       }

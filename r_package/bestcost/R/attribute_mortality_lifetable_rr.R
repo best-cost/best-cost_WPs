@@ -210,7 +210,7 @@ attribute_mortality_lifetable_rr <-
     # Get population impact ####
     pop_impact <-
       bestcost::get_pop_impact(
-        lifetab_withPop = lifetable_withPop,
+        lifetable_withPop = lifetable_withPop,
         year_of_analysis = year_of_analysis,
         paf = input_withPaf[, c("ci", "paf")])
 
