@@ -39,7 +39,7 @@ attribute_mortality_lifetable_rr(
 
 \item{cutoff}{\code{Numeric value} showing the cut-off exposure in ug/m3 (i.e. the exposure level below which no health effects occur).}
 
-\item{rr}{\code{Numeric vector} of three numeric values referring to the central estimate of the exposure-response function and the corresponding lower and upper 95% confidence interval bounds.}
+\item{rr}{\code{Numeric vector} of three numeric values referring to the central estimate of the exposure-response function and the corresponding lower and upper 95\% confidence interval bounds.}
 
 \item{rr_increment}{\code{Numeric value} showing the increment of the exposure-response function in ug/m3 (usually 10 or 5).}
 
@@ -95,7 +95,7 @@ Moreover, the data frame include columns such as:
 }
 }
 \description{
-Calculates the mortality (premature deaths) or years of life lost attributable to the exposure to an environmental stressor using a life table approach. It provides the central estimate of the impact and the corresponding 95% confidence intervals (based on the 95% confidence interval exposure-response function).
+Calculates the mortality (premature deaths) or years of life lost attributable to the exposure to an environmental stressor using a life table approach. It provides the central estimate of the impact and the corresponding 95\% confidence intervals (based on the 95\% confidence interval exposure-response function).
 }
 \note{
 Experimental function

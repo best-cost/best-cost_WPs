@@ -17,7 +17,10 @@ Pending
 Load the Rdata file that contains all variables needed to run this script.
 ```{r load data & bestcost package}
 load("../testing/input/input_data_for_testing_Rpackage.RData")
+```
 
+
+```{r load data & bestcost package}
 # Load package
 devtools::load_all(export_all = FALSE)
 ```
