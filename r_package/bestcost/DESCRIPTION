@@ -6,7 +6,10 @@ Maintainer: Alberto Castro <alberto.castrofernandez@swisstph.ch>
 Description: This R package was developed within the framework of the EU project BEST-COST. It aims to quantify and monetize health impacts of environmental stressors focusing on air pollution and noise.
 License: GPL
 Encoding: UTF-8
-RoxygenNote: 7.2.3
+RoxygenNote: 7.3.1
 Depends: 
     R (>= 2.10)
 LazyData: true
+Suggests: 
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3

@@ -1,0 +1,145 @@
+# Title and description
+
+#' Determine years lived with disability (YLD) attributable to the incidence of a specific morbidity health outcome
+
+#' Calculates the YLDs using a single value for baseline heath data, i.e. without life table. It provides as a result the mean as well as the lower and the higher bounds of the morbidity impact based on the confidence interval of the exposure-response function.
+#' @param dw \code{Numeric value} showing the disability weight associated with the morbidity health outcome population-weighted mean exposure in ug/m3 or {vector} showing the exposure category in a exposure distribution (this information is linked to the proportion of population exposed).
+#' @param exp \code{Numeric value} showing the population-weighted mean exposure in ug/m3 or \code{vector} showing the exposure category in a exposure distribution (this information is linked to the proportion of population exposed).
+#' @param prop_pop_exp \code{Numeric value} or \code{Numeric vector} showing the proportion of population exposed (as a fraction, i.e. values between 0 and 1) for a single exposure value or for multiple categories, i.e., a exposure distribution, respectively. If a exposure distribution is used, the dimension of this input must match that of "exp". By default, 1 if a single exposure value is inputted
+#' @param cutoff \code{Numeric value} showing the cut-off exposure in ug/m3 (i.e. the exposure level below which no health effects occur).
+#' @param rr \code{Numeric vector} of three numeric values referring to the mean as well as the lower bound and upper bound of the confidence interval.
+#' @param rr_increment \code{Numeric value} showing the increment of the concentration-response function in ug/m3 (usually 10 or 5).
+#' @param erf_shape \code{String} to choose among "linear" and "loglinear".
+#' @param bhd \code{Numeric value} showing the baseline health data (incidence of the health outcome in the population).
+#' @param info_pollutant \code{String} showing additional information or id for the pollutant. Default value = NULL.
+#' @param info_outcome \code{String} showing additional information or id for the health outcome. Default value = NULL.
+#' @param info_exp \code{String} showing additional information or id for the exposure. This information will be added to all rows of the results. Default value = NULL.
+#' @param info_cutoff \code{String} showing additional information or id for counter-factual scenario (cut-off). This information will be added to all rows of the results. Default value = NULL.
+#' @param info_rr \code{String} showing additional information or id for the concentration-response function. This information will be added to all rows of the results. Default value = NULL.
+#' @param info_bhd \code{String} showing additional information or id for the baseline health data. This information will be added to all rows of the results. Default value = NULL.
+#' @return
+#' This function returns a \code{data.frame} with one row for each value of the
+#' concentration-response function (i.e. mean, lower and upper bound confidence interval.
+#' The YLDs are listed in the columns:
+#' \itemize{
+#'  \item yld
+#'  \item yld_rounded
+#'  }
+#' @import dplyr
+#' @import purrr
+#' @examples
+#' TBD
+#' @author Axel Luyten
+#' @note Experimental function
+#' @export
+attribute_yld_rr <-
+  function(dw,
+           exp,
+           prop_pop_exp = 1,
+           cutoff,
+           rr,
+           rr_increment,
+           erf_shape,
+           bhd,
+           info_pollutant = NULL,
+           info_outcome = NULL,
+           info_exp = NULL,
+           info_cutoff = NULL,
+           info_rr = NULL,
+           info_bhd = NULL){
+
+    # Check input data ####
+    # To be added
+
+    # Input data in data frame ####
+    # Compile rr data to assign categories
+    rr_data <-
+      data.frame(
+        rr = rr,
+        rr_increment = rr_increment,
+        erf_shape = erf_shape,
+        # Assign mean, low and high rr values
+        rr_ci = ifelse(rr %in% min(rr), "low",
+                       ifelse(rr %in% max(rr), "high",
+                              "mean"))) %>%
+      # In case of same value in mean and low or high, assign value randomly
+      dplyr::mutate(ci = ifelse(duplicated(rr), "mean", ci))
+
+    dat <-
+      data.frame(
+        dw = dw,
+        exp = exp,
+        prop_pop_exp = prop_pop_exp,
+        cutoff = cutoff,
+        bhd = bhd,
+        approach_id = paste0("lifetable_", erf_shape)) %>%
+      dplyr::cross_join(.,
+                        rr_data) %>%
+      # Add additional information (info_x variables)
+      dplyr::mutate(
+        info_pollutant = ifelse(is.null(info_pollutant), NA, info_pollutant),
+        info_outcome = ifelse(is.null(info_outcome), NA, info_outcome),
+        info_exp = ifelse(is.null(info_exp), NA, info_exp),
+        info_cutoff = ifelse(is.null(info_cutoff), NA, info_cutoff),
+        info_rr = ifelse(is.null(info_rr), NA, info_rr),
+        info_bhd = ifelse(is.null(info_bhd), NA, info_bhd))
+    #return(dat) #yld
+
+    # Calculate population attributable fraction (PAF) ####
+
+    # Add column "rr_forPaf" with rescaled relative risk
+    dat <-
+      dat %>%
+      dplyr::mutate(
+        rr_forPaf =
+          rescale_rr(rr = rr,
+                     exp = exp,
+                     cutoff = cutoff,
+                     rr_increment = rr_increment,
+                     method = {{erf_shape}}))  #{{}} ensures that the value from the function argument is used instead of from an existing column
+    #return(dat) #yld2
+
+    # Add column with "paf" with the PAF
+    paf <-
+      dat %>%
+      # Group by exp in case that there are different exposure categories
+      dplyr::group_by(rr) %>%
+      dplyr::summarize(paf = bestcost::get_paf(rr_conc = rr_forPaf, prop_pop_exp = prop_pop_exp))
+    #return(paf) #yld3
+
+    if(length(exp)>1){ # if input is exposure distribution (multiple exposure categories): reduce the number of rows to keep the same number as in rr
+      dat <-
+        dat %>%
+        dplyr::mutate(
+          exp_mean = mean(exp), # Add a column for the average exp (way to summarize exposure)
+          # Replace the actual values with "multiple" to enable reduction of rows
+          exp = paste(exp, collapse = ", "),
+          prop_pop_exp = paste(prop_pop_exp, collapse = ", "),
+          rr_forPaf = paste(rr_forPaf, collapse = ", ")) %>%
+        dplyr::distinct(.) # Keep only rows that are distinct
+    }
+    #return(dat)
+
+
+    # Data wrangling ####
+    # Join the input table with paf values
+    dat <-
+      dat %>%
+      dplyr::left_join(paf,
+                       dat,
+                       by = "rr")
+    #return(dat)
+
+    dat <-
+      dat %>%
+      dplyr::mutate(yld = paf * bhd * dw,
+                    yld_rounded = round(yld, 0)) %>%
+      dplyr::select(exp, yld, yld_rounded, cutoff, bhd,
+                    rr, rr_forPaf, rr_increment, ci, erf_shape,
+                    paf, prop_pop_exp,
+                    starts_with("info_")) %>%
+      dplyr::relocate(yld_rounded, yld, prop_pop_exp, .before = cutoff)
+
+    return(dat)
+
+  }
