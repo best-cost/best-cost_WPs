@@ -305,6 +305,7 @@ for(i in 2){                           # Use this if you want to evaluate only o
 }
 
 head(impact_mortality_raw$`2019`$`PM2.5_premature deaths_all causes_adults_main_ERS-ISEE_2022_selected`$deaths$impact)
+# 3814.889 1377.668 2610.444
 
 impact_mortality_edited <- list()
 
