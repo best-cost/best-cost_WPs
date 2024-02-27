@@ -21,9 +21,8 @@ load("../testing/input/input_data_for_testing_Rpackage.RData")
 
 
 ```{r load data & bestcost package}
-# Load package (either current version or installed version)
+# Load package
 devtools::load_all(export_all = FALSE)
-library(bestcost)
 ```
 
 
