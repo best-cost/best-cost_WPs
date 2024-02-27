@@ -57,7 +57,7 @@ attribute_health_singlebhd_ar <-
     output_byExposureCategory <-
       input %>%
       dplyr::mutate(
-        absolute_risk_as_percent = rescale_rr(exp = exp, erf_c = erf_c, erf_full = TRUE) ,
+        absolute_risk_as_percent = get_risk(exp = exp, erf_c = erf_c, erf_full = TRUE) ,
         population_affected = absolute_risk_as_percent/100 * pop_exp,
         population_affected_rounded = round(population_affected, 0))
 

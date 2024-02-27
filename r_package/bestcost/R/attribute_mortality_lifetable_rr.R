@@ -110,7 +110,7 @@ attribute_mortality_lifetable_rr <-
       input %>%
       dplyr::mutate(
         rr_forPaf =
-          rescale_rr(rr = rr,
+          get_risk(rr = rr,
                       exp = exp,
                       cutoff = cutoff,
                       rr_increment = rr_increment,
@@ -186,7 +186,7 @@ attribute_mortality_lifetable_rr <-
       input %>%
       dplyr::mutate(
         rr_forPaf =
-          bestcost::rescale_rr(rr = rr,
+          bestcost::get_risk(rr = rr,
                       exp = exp,
                       cutoff = cutoff,
                       rr_increment = rr_increment,

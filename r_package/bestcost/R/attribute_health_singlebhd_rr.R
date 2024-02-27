@@ -89,7 +89,7 @@ attribute_health_singlebhd_rr <-
       input %>%
       dplyr::mutate(
         rr_forPaf =
-          rescale_rr(rr = rr,
+          get_risk(rr = rr,
                       exp = exp,
                       cutoff = cutoff,
                       rr_increment = rr_increment,

@@ -19,11 +19,11 @@
 #' @return
 #' This function returns three \code{values} corresponding to mean, lower bound and upper bound of the exposure-response function.
 #' @examples
-#' rescale_rr(rr=1.05, exp=10, cutoff=5, erf_shape="linear" )
+#' get_risk(rr=1.05, exp=10, cutoff=5, erf_shape="linear" )
 #' @author Alberto Castro
 #' @note Experimental function
 #' @export
-rescale_rr <-
+get_risk <-
   function(rr,
            exp,
            cutoff,
