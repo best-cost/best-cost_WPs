@@ -12,6 +12,7 @@ attribute_health_singlebhd_ar(
   info_pollutant = NULL,
   info_outcome = NULL,
   info_exp = NULL,
+  info_rr = NULL,
   info_erf = NULL,
   info_bhd = NULL
 )
@@ -29,11 +30,11 @@ attribute_health_singlebhd_ar(
 
 \item{info_outcome}{\code{String} showing additional information or id for the health outcome. Default value = NULL.}
 
-\item{info_exp}{\code{String} showing additional information or id for the exposure. Default value = NULL.}
-
-\item{info_erf}{\code{String} showing additional information or id for the exposure-response function. Default value = NULL.}
+\item{info_exp}{\code{String} showing additional information or id for the exposure. This information will be added to all rows of the results. Default value = NULL.}
 
 \item{info_bhd}{\code{String} showing additional information or id for the baseline health data. Default = NULL.}
+
+\item{info_ar}{\code{String} showing additional information or id for the concentration-response function. This information will be added to all rows of the results. Default value = NULL.}
 }
 \value{
 This function returns a \code{list} with two \code{data.frames}, one with the total health impact and the second one with a row for each category of the exposure distribution.

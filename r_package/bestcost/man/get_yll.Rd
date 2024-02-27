@@ -14,7 +14,7 @@ get_yll(
 )
 }
 \arguments{
-\item{pop_impact}{\code{Data frame} with projected population impact over time}
+\item{pop_impact}{\code{Data frame} with shifted population over time}
 
 \item{year_of_analysis}{\code{Numeric value} of the year of analysis, which corresponds to the first year of the life table,}
 
