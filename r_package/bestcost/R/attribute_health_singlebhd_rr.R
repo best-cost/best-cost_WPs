@@ -47,7 +47,11 @@ attribute_health_singlebhd_rr <-
            info_bhd = NULL){
 
     # Check input data ####
-    # TBA: checks
+    # If EXPRESSION is not fulfilled gives "Error: {EXPRESSION} is not TRUE" (see below)
+    stopifnot(exprs = {
+      length(exp) == length(prop_pop_exp)
+      length(rr) == 3 # "Error: length(rr) == 3 is not TRUE"
+    })
 
     # Input data in data frame ####
     # Compile rr data to assign categories
@@ -56,38 +60,35 @@ attribute_health_singlebhd_rr <-
         rr = rr,
         rr_increment = rr_increment,
         erf_shape = erf_shape,
-        # Assign mean, low and high rr values
-        rr_ci = ifelse(rr %in% min(rr), "low",
+        # Assigns "mean", "low" or "high" to row with corresponding rr value
+        ci = ifelse(rr %in% min(rr), "low",
                         ifelse(rr %in% max(rr), "high",
                                "mean"))) %>%
-      # In case of same value in mean and low or high, assign value randomly
+      # In case of same value in column rr assign "mean" to all 3 rows
       dplyr::mutate(ci = ifelse(duplicated(rr), "mean", ci))
 
     input <-
+      # Creates df of 1 row by combining specified input data
       data.frame(
         exp = exp,
         prop_pop_exp = prop_pop_exp,
         cutoff = cutoff,
         bhd = bhd,
         approach_id = paste0("lifetable_", erf_shape)) %>%
-      # Add rr with a cross join to produce all likely combinations
+      # Creates df with 3 rows by matching every row in x (1 row) to every row in y (here: rr_data, 3 rows)
       dplyr::cross_join(., rr_data) %>%
-      # Add additional information (info_x variables)
+      # Add "info_x" input variables as additional columns
       dplyr::mutate(
         info_pollutant = ifelse(is.null(info_pollutant), NA, info_pollutant),
         info_outcome = ifelse(is.null(info_outcome), NA, info_outcome),
         info_exp = ifelse(is.null(info_exp), NA, info_exp),
         info_cutoff = ifelse(is.null(info_cutoff), NA, info_cutoff),
         info_rr = ifelse(is.null(info_rr), NA, info_rr),
-        info_bhd = ifelse(is.null(info_bhd), NA, info_bhd))
-
-
-    # Calculate health impact attributable to exposure ####
-    input_withPaf <-
-      input %>%
+        info_bhd = ifelse(is.null(info_bhd), NA, info_bhd)) %>%
+      # Add column ("rr_forPaf") with the rr to be used for PAF calculation
       dplyr::mutate(
         rr_forPaf =
-          rescale_rr(rr = rr,
+          bestcost::rescale_rr(rr = rr,
                       exp = exp,
                       cutoff = cutoff,
                       rr_increment = rr_increment,

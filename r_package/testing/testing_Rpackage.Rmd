@@ -148,11 +148,10 @@ for(i in 1:nrow(input_data_morbidities)){
 ```{r impact morbidity}
 impact_morbidities_raw <- list()
 
-for(i in 1:nrow(input_data_morbidities)){
-#for(i in 12){ # runs loop only for HO "asthma incidence 20+"
+#for(i in 1:nrow(input_data_morbidities)){
+for(i in 12){ # runs loop only for HO "asthma incidence 20+"
   impact_morbidities_raw[[input_data_morbidities$year[i]]][[input_data_morbidities$rr_id[[i]]]] <-
   bestcost::attribute_health_singlebhd_rr(
-    #dw = 0.133, # for health state "Asthma, uncontrolled" (cf. bestcost::disability_weights)
     exp = input_data_morbidities$exp[i],  # PM2.5=8.30=limit LRV CH, NO2=16.32=mean conc. in CH in 2019
     cutoff = input_data_morbidities$cutoff[i],    # PM2.5=5, NO2=10, i.e. WHO AQG 2021 
     bhd = input_data_morbidities$bhd_absolute[i],
