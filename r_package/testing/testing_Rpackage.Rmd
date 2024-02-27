@@ -120,8 +120,7 @@ impact_annoyance_expDistribution_raw <-
   bestcost::attribute_health_singlebhd_ar(
     exp = c(57.5, 62.5, 67.5, 72.5, 77.5),# Values as example provided by NIPH
     pop_exp = c(387500, 286000, 191800, 72200, 7700), # Values as example provided by NIPH
-    erf_shape = "quadratic",
-    erf_parameters = c(78.9270, -3.1162, 0.0342),
+    erf_C = "78.9270-3.1162C+0.0342C^2",
     info_pollutant = "road_noise", 
     info_outcome = "highly_annoyance")
 ```

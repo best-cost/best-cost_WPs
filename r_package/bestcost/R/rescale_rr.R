@@ -45,7 +45,7 @@ rescale_rr <-
     # the shape of the function (erf_shape) and
     # the relative risk from the literature
 
-    if(erf_full = FALSE){
+    if(erf_full == FALSE){
 
 
       if(erf_shape == "linear"){
