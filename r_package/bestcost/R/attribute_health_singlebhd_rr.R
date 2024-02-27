@@ -91,7 +91,7 @@ attribute_health_singlebhd_rr <-
                       exp = exp,
                       cutoff = cutoff,
                       rr_increment = rr_increment,
-                      method = {{erf_shape}}
+                      erf_shape = {{erf_shape}}
                       #{{}} ensures that the
                       # value from the function argument is used
                       # instead of from an existing column
