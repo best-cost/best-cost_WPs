@@ -5,8 +5,7 @@
 #' Calculates the health impacts, of an environmental stressor (e.g. noise) using the absolute risk instead of the relative risk
 #' @param exp \code{Vector} showing the mid-point exposure in the exposure categories (average of the exposure ranges) in a exposure distribution referring only to the exposed population. The length of exp and pop_exp must be the same.
 #' @param pop_exp \code{Numeric value} or {vector} showing the population exposed for each of the exposure categories. The length of this input variable must be the same as "exp".
-#' @param erf_shape \code{String} to choose among "linear", "loglinear" and "quadratic".
-#' @param erf_parameters \code{Vector} of numeric values as in order of appearance in the exposure response function.
+#' @param erf_c \code{String} showing the user-defined function that puts the relative risk in relation with concentration. The function must have only one variable: c, which means concentration. E.g. "3+c+c^2". Default value = NULL.
 #' @param info_pollutant \code{String} showing additional information or id for the pollutant. Default value = NULL.
 #' @param info_outcome \code{String} showing additional information or id for the health outcome. Default value = NULL.
 #' @param info_erf \code{String} showing additional information or id for the exposure-response function. Default value = NULL.
@@ -27,8 +26,7 @@
 attribute_health_singlebhd_ar <-
   function(exp,
            pop_exp,
-           erf_shape,
-           erf_parameters,
+           erf_c,
            info_pollutant = NULL,
            info_outcome = NULL,
            info_exp = NULL,
@@ -44,8 +42,7 @@ attribute_health_singlebhd_ar <-
       data.frame(
         exp = exp,
         pop_exp = pop_exp,
-        erf_shape = erf_shape,
-        erf_parameters = paste(erf_parameters, collapse = ", "),
+        erf_c = erf_c,
         approach_id = paste0("absolute risk")) %>%
       # Add additional information (info_x variables)
       dplyr::mutate(
@@ -55,23 +52,12 @@ attribute_health_singlebhd_ar <-
         info_erf = ifelse(is.null(info_erf), NA, info_erf),
         info_bhd = ifelse(is.null(info_bhd), NA, info_bhd))
 
-    # Create the erf ####
-    if(erf_shape == "linear"){
-      erf <- function(exp){
-        erf_parameters[1] + erf_parameters[2]*exp
-      }
-    }
-    if(erf_shape == "quadratic"){
-      erf <- function(exp){
-        erf_parameters[1] + erf_parameters[2]*exp + erf_parameters[3]*exp^2 # Equation based on Guski et al., 2017 (cf. example calculation Excel AKB sent)
-      }
-    }
 
     # Calculate absolute risk for each exposure category ####
     output_byExposureCategory <-
       input %>%
       dplyr::mutate(
-        absolute_risk_as_percent = erf(exp),
+        absolute_risk_as_percent = get_risk(exp = exp, erf_c = erf_c, erf_full = TRUE) ,
         population_affected = absolute_risk_as_percent/100 * pop_exp,
         population_affected_rounded = round(population_affected, 0))
 
@@ -79,7 +65,7 @@ attribute_health_singlebhd_ar <-
       output_byExposureCategory %>%
       dplyr::mutate(exp = paste(exp, collapse = ", ")) %>%
       dplyr::group_by(exp,
-                      erf_shape, erf_parameters,
+                      erf_c,
                       approach_id,
                       info_pollutant, info_outcome, info_exp, info_erf, info_bhd) %>%
       dplyr::summarize(

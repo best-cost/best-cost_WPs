@@ -92,7 +92,7 @@ test <- bestcost::attribute_yld_rr(
   bhd = input_data_morbidities$bhd_absolute[12],
   rr = unlist(input_data_morbidities[12, c("rr_mean", "rr_lowci", "rr_highci")]), # RR for asthma incidence for adults
   rr_increment = 10, 
-  erf_shape = "loglinear", 
+  erf_shape = "log_linear", 
   info_pollutant = input_data_morbidities$pollutant[12], 
   info_outcome = input_data_morbidities$outcome_metric[12]
 )
@@ -121,8 +121,7 @@ impact_annoyance_expDistribution_raw <-
   bestcost::attribute_health_singlebhd_ar(
     exp = c(57.5, 62.5, 67.5, 72.5, 77.5),# Values as example provided by NIPH
     pop_exp = c(387500, 286000, 191800, 72200, 7700), # Values as example provided by NIPH
-    erf_shape = "quadratic",
-    erf_parameters = c(78.9270, -3.1162, 0.0342),
+    erf_c = "78.9270-3.1162*c+0.0342*c^2",
     info_pollutant = "road_noise", 
     info_outcome = "highly_annoyance")
 ```
@@ -140,7 +139,7 @@ for(i in 1:nrow(input_data_morbidities)){
     bhd = 5269.46,
     rr = c(1.08, 1.07, 1.09),
     rr_increment = 10, 
-    erf_shape = "loglinear", 
+    erf_shape = "log_linear", 
     info_pollutant = "noise", 
     info_outcome = "YLD")
   }
@@ -160,7 +159,7 @@ for(i in 1:nrow(input_data_morbidities)){
     rr = unlist(input_data_morbidities[i, 
                             c("rr_mean", "rr_lowci", "rr_highci")]),
     rr_increment = 10, 
-    erf_shape = "loglinear", 
+    erf_shape = "log_linear", 
     info_pollutant = input_data_morbidities$pollutant[i], 
     info_outcome = input_data_morbidities$outcome_metric[i])
   }
@@ -250,7 +249,7 @@ for(i in 1:nrow(input_data_mortality)){  # Use this if you want to evaluate mult
     rr = unlist(input_data_mortality[i,
                                       c("rr_mean", "rr_lowci", "rr_highci")]),
     rr_increment = 10, 
-    erf_shape = "loglinear",
+    erf_shape = "log_linear",
     first_age_pop = 0,
     last_age_pop = 99,
     interval_age_pop = 1,
@@ -288,7 +287,7 @@ for(i in 1:nrow(input_data_mortality)){  # Use this if you want to evaluate mult
     rr = unlist(input_data_mortality[i,
                                       c("rr_mean", "rr_lowci", "rr_highci")]),
     rr_increment = 10, 
-    erf_shape = "loglinear",
+    erf_shape = "log_linear",
     first_age_pop = 0,
     last_age_pop = 99,
     interval_age_pop = 1,

@@ -7,12 +7,10 @@
 attribute_health_singlebhd_ar(
   exp,
   pop_exp,
-  erf_shape,
-  erf_parameters,
+  erf_c,
   info_pollutant = NULL,
   info_outcome = NULL,
   info_exp = NULL,
-  info_rr = NULL,
   info_erf = NULL,
   info_bhd = NULL
 )
@@ -22,19 +20,17 @@ attribute_health_singlebhd_ar(
 
 \item{pop_exp}{\code{Numeric value} or {vector} showing the population exposed for each of the exposure categories. The length of this input variable must be the same as "exp".}
 
-\item{erf_shape}{\code{String} to choose among "linear", "loglinear" and "quadratic".}
-
-\item{erf_parameters}{\code{Vector} of numeric values as in order of appearance in the exposure response function.}
+\item{erf_c}{\code{String} showing the user-defined function that puts the relative risk in relation with concentration. The function must have only one variable: c, which means concentration. E.g. "3+c+c^2". Default value = NULL.}
 
 \item{info_pollutant}{\code{String} showing additional information or id for the pollutant. Default value = NULL.}
 
 \item{info_outcome}{\code{String} showing additional information or id for the health outcome. Default value = NULL.}
 
-\item{info_exp}{\code{String} showing additional information or id for the exposure. This information will be added to all rows of the results. Default value = NULL.}
+\item{info_exp}{\code{String} showing additional information or id for the exposure. Default value = NULL.}
+
+\item{info_erf}{\code{String} showing additional information or id for the exposure-response function. Default value = NULL.}
 
 \item{info_bhd}{\code{String} showing additional information or id for the baseline health data. Default = NULL.}
-
-\item{info_ar}{\code{String} showing additional information or id for the concentration-response function. This information will be added to all rows of the results. Default value = NULL.}
 }
 \value{
 This function returns a \code{list} with two \code{data.frames}, one with the total health impact and the second one with a row for each category of the exposure distribution.

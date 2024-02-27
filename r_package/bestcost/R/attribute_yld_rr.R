@@ -92,7 +92,7 @@ attribute_yld_rr <-
       dat %>%
       dplyr::mutate(
         rr_forPaf =
-          rescale_rr(rr = rr,
+          get_risk(rr = rr,
                      exp = exp,
                      cutoff = cutoff,
                      rr_increment = rr_increment,

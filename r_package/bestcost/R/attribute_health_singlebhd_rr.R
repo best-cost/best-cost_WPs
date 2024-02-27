@@ -34,10 +34,12 @@
 #' @note Experimental function
 #' @export
 attribute_health_singlebhd_rr <-
-  function(exp, prop_pop_exp = 1,
+  function(exp,
+           prop_pop_exp = 1,
            cutoff,
            rr,
-           rr_increment, erf_shape,
+           rr_increment,
+           erf_shape,
            bhd,
            info_pollutant = NULL,
            info_outcome = NULL,
@@ -51,11 +53,12 @@ attribute_health_singlebhd_rr <-
 
     # Input data in data frame ####
     # Compile rr data to assign categories
-    rr_data <-
+    erf_data <-
       data.frame(
-        rr = rr,
         rr_increment = rr_increment,
         erf_shape = erf_shape,
+        cutoff = cutoff,
+        rr = rr,
         # Assign mean, low and high rr values
         rr_ci = ifelse(rr %in% min(rr), "low",
                         ifelse(rr %in% max(rr), "high",
@@ -67,11 +70,10 @@ attribute_health_singlebhd_rr <-
       data.frame(
         exp = exp,
         prop_pop_exp = prop_pop_exp,
-        cutoff = cutoff,
         bhd = bhd,
         approach_id = paste0("lifetable_", erf_shape)) %>%
       # Add rr with a cross join to produce all likely combinations
-      dplyr::cross_join(., rr_data) %>%
+      dplyr::cross_join(., erf_data) %>%
       # Add additional information (info_x variables)
       dplyr::mutate(
         info_pollutant = ifelse(is.null(info_pollutant), NA, info_pollutant),
@@ -87,11 +89,11 @@ attribute_health_singlebhd_rr <-
       input %>%
       dplyr::mutate(
         rr_forPaf =
-          rescale_rr(rr = rr,
+          get_risk(rr = rr,
                       exp = exp,
                       cutoff = cutoff,
                       rr_increment = rr_increment,
-                      method = {{erf_shape}}
+                      erf_shape = {{erf_shape}}
                       #{{}} ensures that the
                       # value from the function argument is used
                       # instead of from an existing column

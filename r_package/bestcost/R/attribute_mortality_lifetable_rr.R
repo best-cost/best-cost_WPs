@@ -105,16 +105,16 @@ attribute_mortality_lifetable_rr <-
         info_bhd = ifelse(is.null(info_bhd), NA, info_bhd))
 
     # Calculate erf estimate at the specified exposure level ####
-    # depending on the method
+    # depending on the erf_shape
     input_withPaf <-
       input %>%
       dplyr::mutate(
         rr_forPaf =
-          rescale_rr(rr = rr,
+          get_risk(rr = rr,
                       exp = exp,
                       cutoff = cutoff,
                       rr_increment = rr_increment,
-                      method ={{erf_shape}}
+                      erf_shape ={{erf_shape}}
                       #{{}} ensures that the
                       # value from the function argument is used
                       # instead of from an existing column
@@ -186,11 +186,11 @@ attribute_mortality_lifetable_rr <-
       input %>%
       dplyr::mutate(
         rr_forPaf =
-          bestcost::rescale_rr(rr = rr,
+          bestcost::get_risk(rr = rr,
                       exp = exp,
                       cutoff = cutoff,
                       rr_increment = rr_increment,
-                      method ={{erf_shape}}
+                      erf_shape ={{erf_shape}}
                       #{{}} ensures that the
                       # value from the function argument is used
                       # instead of from an existing column
