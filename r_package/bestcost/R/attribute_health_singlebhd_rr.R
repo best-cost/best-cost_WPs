@@ -49,35 +49,27 @@ attribute_health_singlebhd_rr <-
     # Check input data ####
     # If EXPRESSION is not fulfilled gives "Error: {EXPRESSION} is not TRUE" (see below)
     stopifnot(exprs = {
-      length(exp) == length(prop_pop_exp)
-      length(rr) == 3 # "Error: length(rr) == 3 is not TRUE"
+      length(exp) == length(prop_pop_exp) # "Error: length(exp) == length(prop_pop_exp) is not TRUE"
     })
 
-    # Input data in data frame ####
-    # Compile rr data to assign categories
-    rr_data <-
+    ## Input data in data frame ####
+    input <-
       data.frame(
         rr = rr,
         rr_increment = rr_increment,
+        # Assign "mean", "low" or "high" to row with corresponding rr value
+        ci =  ifelse(rr %in% min(rr), "low",
+                     ifelse(rr %in% max(rr), "high",
+                            "mean")),
         erf_shape = erf_shape,
-        # Assigns "mean", "low" or "high" to row with corresponding rr value
-        ci = ifelse(rr %in% min(rr), "low",
-                        ifelse(rr %in% max(rr), "high",
-                               "mean"))) %>%
-      # In case of same value in column rr assign "mean" to all 3 rows
-      dplyr::mutate(ci = ifelse(duplicated(rr), "mean", ci))
-
-    input <-
-      # Creates df of 1 row by combining specified input data
-      data.frame(
         exp = exp,
         prop_pop_exp = prop_pop_exp,
         cutoff = cutoff,
         bhd = bhd,
         approach_id = paste0("lifetable_", erf_shape)) %>%
-      # Creates df with 3 rows by matching every row in x (1 row) to every row in y (here: rr_data, 3 rows)
-      dplyr::cross_join(., rr_data) %>%
-      # Add "info_x" input variables as additional columns
+      # In case of same value in rr assign "mean" to first row
+      dplyr::mutate(ci = ifelse(duplicated(rr), "mean", ci)) %>%
+      # Add additional information (info_x variables)
       dplyr::mutate(
         info_pollutant = ifelse(is.null(info_pollutant), NA, info_pollutant),
         info_outcome = ifelse(is.null(info_outcome), NA, info_outcome),
@@ -85,22 +77,21 @@ attribute_health_singlebhd_rr <-
         info_cutoff = ifelse(is.null(info_cutoff), NA, info_cutoff),
         info_rr = ifelse(is.null(info_rr), NA, info_rr),
         info_bhd = ifelse(is.null(info_bhd), NA, info_bhd)) %>%
-      # Add column ("rr_forPaf") with the rr to be used for PAF calculation
       dplyr::mutate(
         rr_forPaf =
-          bestcost::rescale_rr(rr = rr,
-                      exp = exp,
-                      cutoff = cutoff,
-                      rr_increment = rr_increment,
-                      method = {{erf_shape}}
-                      #{{}} ensures that the
-                      # value from the function argument is used
-                      # instead of from an existing column
-                      ))
+          rescale_rr(rr = rr,
+                     exp = exp,
+                     cutoff = cutoff,
+                     rr_increment = rr_increment,
+                     method = {{erf_shape}}
+                     #{{}} ensures that the
+                     # value from the function argument is used
+                     # instead of from an existing column
+          ))
 
     # Calculate population attributable fraction (PAF) ####
     paf <-
-      input_withPaf %>%
+      input %>%
       # Group by exp in case that there are different exposure categories
       dplyr::group_by(rr) %>%
       dplyr::summarize(paf = bestcost::get_paf(rr_conc = rr_forPaf,
@@ -110,8 +101,8 @@ attribute_health_singlebhd_rr <-
     # Only if exposure distribution (multiple exposure categories)
     # then reduce the number of rows to keep the same number as in rr
     if(length(exp)>1){
-      input_withPaf <-
-        input_withPaf %>%
+      input <-
+        input %>%
         dplyr::mutate(
           # Add a column for the average exp (way to summarize exposure)
           exp_mean = mean(exp),
@@ -124,15 +115,15 @@ attribute_health_singlebhd_rr <-
     }
 
     # Join the input table with paf values
-    input_withPaf <-
-      input_withPaf %>%
+    input <-
+      input %>%
       dplyr::left_join(paf,
-                       input_withPaf,
+                       input,
                        by = "rr")
 
-  # Build the result table adding the paf to the input_withPaf table
+  # Build the result table adding the paf to the input table
    output <-
-      input_withPaf %>%
+      input %>%
       dplyr::mutate(impact = paf * bhd,
                     impact_rounded = round(impact, 0)) %>%
       # Order columns

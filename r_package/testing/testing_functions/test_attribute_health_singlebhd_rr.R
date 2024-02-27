@@ -2,7 +2,7 @@ devtools::load_all()
 
 # Load data ####
 data("input_data_morbidities")
-load("R/sysdata.rda")
+#load("R/sysdata.rda")
 
 # Function call ####
 # Run function only for row 12 of "input_data_morbidities", which is the HO "asthma incidence 20+"
@@ -42,30 +42,23 @@ stopifnot(exprs = {
   length(rr) == 3
                         })
 
-
 ## Input data in data frame ####
-# Compile rr data to assign categories
-rr_data <-
+input <-
   data.frame(
     rr = rr,
     rr_increment = rr_increment,
-    erf_shape = erf_shape,
-    # Assigns "mean", "low" or "high" to row with corresponding rr value
+    # Assign "mean", "low" or "high" to row with corresponding rr value
     ci =  ifelse(rr %in% min(rr), "low",
-                ifelse(rr %in% max(rr), "high",
-                       "mean"))) %>%
-  # In case of same value in rr assign "mean" to first row
-  dplyr::mutate(ci = ifelse(duplicated(rr), "mean", ci))
-
-input <-
-  data.frame(
+                 ifelse(rr %in% max(rr), "high",
+                        "mean")),
+    erf_shape = erf_shape,
     exp = exp,
     prop_pop_exp = prop_pop_exp,
     cutoff = cutoff,
     bhd = bhd,
     approach_id = paste0("lifetable_", erf_shape)) %>%
-  # Add rr with a cross join to produce all likely combinations (cross_join() matches each row in x to every row in y)
-  dplyr::cross_join(., rr_data) %>%
+  # In case of same value in rr assign "mean" to first row
+  dplyr::mutate(ci = ifelse(duplicated(rr), "mean", ci)) %>%
   # Add additional information (info_x variables)
   dplyr::mutate(
     info_pollutant = ifelse(is.null(info_pollutant), NA, info_pollutant),
@@ -73,7 +66,7 @@ input <-
     info_exp = ifelse(is.null(info_exp), NA, info_exp),
     info_cutoff = ifelse(is.null(info_cutoff), NA, info_cutoff),
     info_rr = ifelse(is.null(info_rr), NA, info_rr),
-    info_bhd = ifelse(is.null(info_bhd), NA, info_bhd)) %>% 
+    info_bhd = ifelse(is.null(info_bhd), NA, info_bhd)) %>%
   dplyr::mutate(
     rr_forPaf =
       rescale_rr(rr = rr,
@@ -84,7 +77,7 @@ input <-
                  #{{}} ensures that the
                  # value from the function argument is used
                  # instead of from an existing column
-      )) 
+      ))
 
 ## Calculate population attributable fraction (PAF) ####
 paf <-
