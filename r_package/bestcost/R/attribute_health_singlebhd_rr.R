@@ -1,21 +1,21 @@
-# Title and description
+# Health impacts based on absolute risk
 
 #' Health impacts based on absolute risk
 
-#' Calculates the health impacts, mortality or morbidity, of an environmental stressor using a single value for baseline heath data, i.e. without life table. It provides as a result the mean as well as the lower and the higher bound of the impact based on the confidence interval of the concentration-response function.
+#' Calculates the health impacts, mortality or morbidity, of an environmental stressor using a single value for baseline heath data, i.e. without life table. It outputs the central impact estimate as well as the lower and the higher confidence interval bounds, based on the confidence interval of the concentration-response function.
 #' @param exp \code{Numeric value} showing the population-weighted mean exposure in ug/m3 or {vector} showing the exposure category in a exposure distribution (this information is linked to the proportion of population exposed).
-#' @param prop_pop_exp \code{Numeric value} or {vector} showing the proportion of population exposed (as a fraction, i.e. values between 0 and 1) for a single exposure value or for multiple categories, i.e., a exposure distribution, respectively. If a exposure distribution is used, the dimension of this input variable should be the same as "exp". By default, 1 for single exposure value will be assigned to this input variable assuming a single exposure value, but users can change this value.
-#' @param cutoff \code{Numeric value} showing the cut-off exposure in ug/m3 (i.e. the exposure level below which no health effects occur).
-#' @param rr \code{Vector} of three numeric values referring to the mean as well as the lower bound and upper bound of the confidence interval.
-#' @param rr_increment \code{Numeric value} showing the increment of the concentration-response function in ug/m3 (usually 10 or 5).
+#' @param prop_pop_exp \code{Numeric value} (if single exposure value) or {Numeric vector} (if exposure distribution with multiple exposure catecories) showing the population exposed as a fraction of the total population (i.e. values between 0 and 1). The dimension of this input variable must be the same as "exp". By default, 1 (i.e. whole population exposed) for single exposure value will be assigned to this input variable.
+#' @param cutoff \code{Numeric value} () showing the cut-off exposure in ug/m3 (i.e. the exposure level below which there is no risk for the corresponding health outcome).
+#' @param rr \code{Numeric vector} of three numeric values representing the central relative risk estimate, as well as the lower bound and upper bounds of the confidence interval. Order must be: central estimate, lower CI boud, upper CI bound.
+#' @param rr_increment \code{Numeric value} showing the increment of the exposure-response function in ug/m3 (usually 10 or 5).
 #' @param erf_shape \code{String} to choose among "linear" and "loglinear".
 #' @param bhd \code{Numeric value} showing the baseline health data (incidence of the health outcome in the population).
-#' @param info_pollutant \code{String} showing additional information or id for the pollutant. Default value = NULL.
-#' @param info_outcome \code{String} showing additional information or id for the health outcome. Default value = NULL.
-#' @param info_exp \code{String} showing additional information or id for the exposure. This information will be added to all rows of the results. Default value = NULL.
-#' @param info_cutoff \code{String} showing additional information or id for counter-factual scenario (cut-off). This information will be added to all rows of the results. Default value = NULL.
-#' @param info_rr \code{String} showing additional information or id for the concentration-response function. This information will be added to all rows of the results. Default value = NULL.
-#' @param info_bhd \code{String} showing additional information or id for the baseline health data. This information will be added to all rows of the results. Default value = NULL.
+#' @param info_pollutant \code{String} showing additional information or id for the pollutant (added to all rows of the results). Default value = NULL.
+#' @param info_outcome \code{String} showing additional information or id for the health outcome (added to all rows of the results). Default value = NULL.
+#' @param info_exp \code{String} showing additional information or id for the exposure (added to all rows of the results). Default value = NULL.
+#' @param info_cutoff \code{String} showing additional information or id for the cut-off (added to all rows of the results). Default value = NULL.
+#' @param info_rr \code{String} showing additional information or id for the exposure-response function (added to all rows of the results). Default value = NULL.
+#' @param info_bhd \code{String} showing additional information or id for the baseline health data (added to all rows of the results). Default value = NULL.
 #' @return
 #' This function returns a \code{data.frame} with one row for each value of the
 #' concentration-response function (i.e. mean, lower and upper bound confidence interval.
@@ -47,31 +47,28 @@ attribute_health_singlebhd_rr <-
            info_bhd = NULL){
 
     # Check input data ####
-    # TBA: checks
+    # If EXPRESSION is not fulfilled gives "Error: {EXPRESSION} is not TRUE" (see below)
+    stopifnot(exprs = {
+      length(exp) == length(prop_pop_exp) # "Error: length(exp) == length(prop_pop_exp) is not TRUE"
+    })
 
-    # Input data in data frame ####
-    # Compile rr data to assign categories
-    rr_data <-
+    ## Input data in data frame ####
+    input <-
       data.frame(
         rr = rr,
         rr_increment = rr_increment,
+        # Assign "mean", "low" or "high" to row with corresponding rr value
+        ci =  ifelse(rr %in% min(rr), "low",
+                     ifelse(rr %in% max(rr), "high",
+                            "mean")),
         erf_shape = erf_shape,
-        # Assign mean, low and high rr values
-        rr_ci = ifelse(rr %in% min(rr), "low",
-                        ifelse(rr %in% max(rr), "high",
-                               "mean"))) %>%
-      # In case of same value in mean and low or high, assign value randomly
-      dplyr::mutate(ci = ifelse(duplicated(rr), "mean", ci))
-
-    input <-
-      data.frame(
         exp = exp,
         prop_pop_exp = prop_pop_exp,
         cutoff = cutoff,
         bhd = bhd,
         approach_id = paste0("lifetable_", erf_shape)) %>%
-      # Add rr with a cross join to produce all likely combinations
-      dplyr::cross_join(., rr_data) %>%
+      # In case of same value in rr assign "mean" to first row
+      dplyr::mutate(ci = ifelse(duplicated(rr), "mean", ci)) %>%
       # Add additional information (info_x variables)
       dplyr::mutate(
         info_pollutant = ifelse(is.null(info_pollutant), NA, info_pollutant),
@@ -79,27 +76,22 @@ attribute_health_singlebhd_rr <-
         info_exp = ifelse(is.null(info_exp), NA, info_exp),
         info_cutoff = ifelse(is.null(info_cutoff), NA, info_cutoff),
         info_rr = ifelse(is.null(info_rr), NA, info_rr),
-        info_bhd = ifelse(is.null(info_bhd), NA, info_bhd))
-
-
-    # Calculate health impact attributable to exposure ####
-    input_withPaf <-
-      input %>%
+        info_bhd = ifelse(is.null(info_bhd), NA, info_bhd)) %>%
       dplyr::mutate(
         rr_forPaf =
           rescale_rr(rr = rr,
-                      exp = exp,
-                      cutoff = cutoff,
-                      rr_increment = rr_increment,
-                      method = {{erf_shape}}
-                      #{{}} ensures that the
-                      # value from the function argument is used
-                      # instead of from an existing column
-                      ))
+                     exp = exp,
+                     cutoff = cutoff,
+                     rr_increment = rr_increment,
+                     method = {{erf_shape}}
+                     #{{}} ensures that the
+                     # value from the function argument is used
+                     # instead of from an existing column
+          ))
 
     # Calculate population attributable fraction (PAF) ####
     paf <-
-      input_withPaf %>%
+      input %>%
       # Group by exp in case that there are different exposure categories
       dplyr::group_by(rr) %>%
       dplyr::summarize(paf = bestcost::get_paf(rr_conc = rr_forPaf,
@@ -109,8 +101,8 @@ attribute_health_singlebhd_rr <-
     # Only if exposure distribution (multiple exposure categories)
     # then reduce the number of rows to keep the same number as in rr
     if(length(exp)>1){
-      input_withPaf <-
-        input_withPaf %>%
+      input <-
+        input %>%
         dplyr::mutate(
           # Add a column for the average exp (way to summarize exposure)
           exp_mean = mean(exp),
@@ -123,15 +115,15 @@ attribute_health_singlebhd_rr <-
     }
 
     # Join the input table with paf values
-    input_withPaf <-
-      input_withPaf %>%
+    input <-
+      input %>%
       dplyr::left_join(paf,
-                       input_withPaf,
+                       input,
                        by = "rr")
 
-  # Build the result table adding the paf to the input_withPaf table
+  # Build the result table adding the paf to the input table
    output <-
-      input_withPaf %>%
+      input %>%
       dplyr::mutate(impact = paf * bhd,
                     impact_rounded = round(impact, 0)) %>%
       # Order columns

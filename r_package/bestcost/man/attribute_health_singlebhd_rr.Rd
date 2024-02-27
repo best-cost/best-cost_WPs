@@ -3,7 +3,7 @@
 \name{attribute_health_singlebhd_rr}
 \alias{attribute_health_singlebhd_rr}
 \title{Health impacts based on absolute risk
-Calculates the health impacts, mortality or morbidity, of an environmental stressor using a single value for baseline heath data, i.e. without life table. It provides as a result the mean as well as the lower and the higher bound of the impact based on the confidence interval of the concentration-response function.}
+Calculates the health impacts, mortality or morbidity, of an environmental stressor using a single value for baseline heath data, i.e. without life table. It outputs the central impact estimate as well as the lower and the higher confidence interval bounds, based on the confidence interval of the concentration-response function.}
 \usage{
 attribute_health_singlebhd_rr(
   exp,
@@ -24,29 +24,29 @@ attribute_health_singlebhd_rr(
 \arguments{
 \item{exp}{\code{Numeric value} showing the population-weighted mean exposure in ug/m3 or {vector} showing the exposure category in a exposure distribution (this information is linked to the proportion of population exposed).}
 
-\item{prop_pop_exp}{\code{Numeric value} or {vector} showing the proportion of population exposed (as a fraction, i.e. values between 0 and 1) for a single exposure value or for multiple categories, i.e., a exposure distribution, respectively. If a exposure distribution is used, the dimension of this input variable should be the same as "exp". By default, 1 for single exposure value will be assigned to this input variable assuming a single exposure value, but users can change this value.}
+\item{prop_pop_exp}{\code{Numeric value} (if single exposure value) or {Numeric vector} (if exposure distribution with multiple exposure catecories) showing the population exposed as a fraction of the total population (i.e. values between 0 and 1). The dimension of this input variable must be the same as "exp". By default, 1 (i.e. whole population exposed) for single exposure value will be assigned to this input variable.}
 
-\item{cutoff}{\code{Numeric value} showing the cut-off exposure in ug/m3 (i.e. the exposure level below which no health effects occur).}
+\item{cutoff}{\code{Numeric value} () showing the cut-off exposure in ug/m3 (i.e. the exposure level below which there is no risk for the corresponding health outcome).}
 
-\item{rr}{\code{Vector} of three numeric values referring to the mean as well as the lower bound and upper bound of the confidence interval.}
+\item{rr}{\code{Numeric vector} of three numeric values representing the central relative risk estimate, as well as the lower bound and upper bounds of the confidence interval. Order must be: central estimate, lower CI boud, upper CI bound.}
 
-\item{rr_increment}{\code{Numeric value} showing the increment of the concentration-response function in ug/m3 (usually 10 or 5).}
+\item{rr_increment}{\code{Numeric value} showing the increment of the exposure-response function in ug/m3 (usually 10 or 5).}
 
 \item{erf_shape}{\code{String} to choose among "linear" and "loglinear".}
 
 \item{bhd}{\code{Numeric value} showing the baseline health data (incidence of the health outcome in the population).}
 
-\item{info_pollutant}{\code{String} showing additional information or id for the pollutant. Default value = NULL.}
+\item{info_pollutant}{\code{String} showing additional information or id for the pollutant (added to all rows of the results). Default value = NULL.}
 
-\item{info_outcome}{\code{String} showing additional information or id for the health outcome. Default value = NULL.}
+\item{info_outcome}{\code{String} showing additional information or id for the health outcome (added to all rows of the results). Default value = NULL.}
 
-\item{info_exp}{\code{String} showing additional information or id for the exposure. This information will be added to all rows of the results. Default value = NULL.}
+\item{info_exp}{\code{String} showing additional information or id for the exposure (added to all rows of the results). Default value = NULL.}
 
-\item{info_cutoff}{\code{String} showing additional information or id for counter-factual scenario (cut-off). This information will be added to all rows of the results. Default value = NULL.}
+\item{info_cutoff}{\code{String} showing additional information or id for the cut-off (added to all rows of the results). Default value = NULL.}
 
-\item{info_rr}{\code{String} showing additional information or id for the concentration-response function. This information will be added to all rows of the results. Default value = NULL.}
+\item{info_rr}{\code{String} showing additional information or id for the exposure-response function (added to all rows of the results). Default value = NULL.}
 
-\item{info_bhd}{\code{String} showing additional information or id for the baseline health data. This information will be added to all rows of the results. Default value = NULL.}
+\item{info_bhd}{\code{String} showing additional information or id for the baseline health data (added to all rows of the results). Default value = NULL.}
 }
 \value{
 This function returns a \code{data.frame} with one row for each value of the
@@ -61,7 +61,7 @@ Moreover, the data frame includes columns such as:
 }
 \description{
 Health impacts based on absolute risk
-Calculates the health impacts, mortality or morbidity, of an environmental stressor using a single value for baseline heath data, i.e. without life table. It provides as a result the mean as well as the lower and the higher bound of the impact based on the confidence interval of the concentration-response function.
+Calculates the health impacts, mortality or morbidity, of an environmental stressor using a single value for baseline heath data, i.e. without life table. It outputs the central impact estimate as well as the lower and the higher confidence interval bounds, based on the confidence interval of the concentration-response function.
 }
 \note{
 Experimental function

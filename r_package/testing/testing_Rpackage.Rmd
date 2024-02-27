@@ -21,9 +21,8 @@ load("../testing/input/input_data_for_testing_Rpackage.RData")
 
 
 ```{r load data & bestcost package}
-# Load package (either current version or installed version)
+# Load package
 devtools::load_all(export_all = FALSE)
-library(bestcost)
 ```
 
 
@@ -131,9 +130,7 @@ impact_annoyance_expDistribution_raw <-
 
 impact_morbidity_expDistribution_raw <- list()
 
-for(i in 1:nrow(input_data_morbidities)){
-  impact_morbidity_expDistribution_raw[[input_data_morbidities$year[i]]][[input_data_morbidities$rr_id[[i]]]] <-
-  bestcost::attribute_health_singlebhd_rr(
+impact_morbidity_expDistribution_raw <- bestcost::attribute_health_singlebhd_rr(
     exp = c(53, 57.5, 62.5, 67.5, 72.5, 77.5),# Values as example provided by NIPH
     prop_pop_exp = c(0.8187, 0.0743, 0.0549, 0.0368, 0.0138, 0.0015), # Values as example provided by NIPH
     cutoff = 53, # PM2.5=5, NO2=10, i.e. WHO AQG 2021 
@@ -141,19 +138,18 @@ for(i in 1:nrow(input_data_morbidities)){
     rr = c(1.08, 1.07, 1.09),
     rr_increment = 10, 
     erf_shape = "loglinear", 
-    info_pollutant = "noise", 
-    info_outcome = "YLD")
-  }
+    info_pollutant = "noise")
+
+View(impact_morbidity_expDistribution_raw)
 ```
 
 ```{r impact morbidity}
 impact_morbidities_raw <- list()
 
-for(i in 1:nrow(input_data_morbidities)){
-#for(i in 12){ # runs loop only for HO "asthma incidence 20+"
+#for(i in 1:nrow(input_data_morbidities)){
+for(i in 12){ # runs loop only for HO "asthma incidence 20+"
   impact_morbidities_raw[[input_data_morbidities$year[i]]][[input_data_morbidities$rr_id[[i]]]] <-
   bestcost::attribute_health_singlebhd_rr(
-    #dw = 0.133, # for health state "Asthma, uncontrolled" (cf. bestcost::disability_weights)
     exp = input_data_morbidities$exp[i],  # PM2.5=8.30=limit LRV CH, NO2=16.32=mean conc. in CH in 2019
     cutoff = input_data_morbidities$cutoff[i],    # PM2.5=5, NO2=10, i.e. WHO AQG 2021 
     bhd = input_data_morbidities$bhd_absolute[i],
