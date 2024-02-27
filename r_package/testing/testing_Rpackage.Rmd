@@ -17,6 +17,20 @@ Pending
 Load the Rdata file that contains all variables needed to run this script.
 ```{r load data & bestcost package}
 load("../testing/input/input_data_for_testing_Rpackage.RData")
+# Keep only variables/functions that will be used in "testing_Rpackage.Rmd"
+rm(list=setdiff(ls(), c(
+                        # Data
+                        "airqplus_deaths_pop_multipleYear",
+                        "codebook",
+                        "input_data_morbidities",
+                        "input_data_mortality",
+                        "lifetable_airqplus",
+                        "lifetable_withPopulation",
+                        "rr_data",
+                        # Values (none)
+                        # Functions
+                        "paste_round_CI"
+                        )))
 ```
 
 

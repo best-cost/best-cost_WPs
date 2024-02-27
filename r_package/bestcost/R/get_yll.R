@@ -3,7 +3,7 @@
 #' Get years of life lost
 #'
 #' Get years of life lost
-#' @param pop_impact \code{Data frame} with shifted population over time
+#' @param pop_impact \code{Data frame} with projected population impact over time
 #' @param year_of_analysis \code{Numeric value} of the year of analysis, which corresponds to the first year of the life table,
 #' @param age_min \code{Numeric value}  with the minimal age to be considered for adults (by default 30, i.e. 30+),
 #' @param age_max \code{Numeric value}  with the maximal age to be considered for infants/children (by default 0, i.e. below 1 years old)
