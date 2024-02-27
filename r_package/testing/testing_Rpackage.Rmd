@@ -21,8 +21,9 @@ load("../testing/input/input_data_for_testing_Rpackage.RData")
 
 
 ```{r load data & bestcost package}
-# Load package
+# Load package (either current version or installed version)
 devtools::load_all(export_all = FALSE)
+library(bestcost)
 ```
 
 
@@ -148,8 +149,8 @@ for(i in 1:nrow(input_data_morbidities)){
 ```{r impact morbidity}
 impact_morbidities_raw <- list()
 
-#for(i in 1:nrow(input_data_morbidities)){
-for(i in 12){ # asthma incidence 20+
+for(i in 1:nrow(input_data_morbidities)){
+#for(i in 12){ # runs loop only for HO "asthma incidence 20+"
   impact_morbidities_raw[[input_data_morbidities$year[i]]][[input_data_morbidities$rr_id[[i]]]] <-
   bestcost::attribute_health_singlebhd_rr(
     #dw = 0.133, # for health state "Asthma, uncontrolled" (cf. bestcost::disability_weights)
@@ -238,8 +239,8 @@ impact_mortality_expDistribution_raw <- list()
 
 # Calculate mortality impacts using bestcost function
 
-#for(i in 1:nrow(input_data_mortality)){  # Use this if you want to evaluate multiple RRs
-for(i in 2){                           # Use this if you want to evaluate only one RR
+for(i in 1:nrow(input_data_mortality)){  # Use this if you want to evaluate multiple RRs
+#for(i in 2){                           # Use this if you want to evaluate only one RR
   impact_mortality_expDistribution_raw[[input_data_mortality$year[i]]][[input_data_mortality$rr_id[[i]]]] <-
   
     bestcost::attribute_mortality_lifetable_rr(
@@ -276,8 +277,8 @@ impact_mortality_raw <- list()
 
 # Calculate mortality impacts using bestcost function
 
-#for(i in 1:nrow(input_data_mortality)){  # Use this if you want to evaluate multiple RRs
-for(i in 2){                           # Use this if you want to evaluate only one RRs
+for(i in 1:nrow(input_data_mortality)){  # Use this if you want to evaluate multiple RRs
+#for(i in 2){                           # Use this if you want to evaluate only one RRs
   impact_mortality_raw[[input_data_mortality$year[i]]][[input_data_mortality$rr_id[[i]]]] <-
   
     bestcost::attribute_mortality_lifetable_rr(
