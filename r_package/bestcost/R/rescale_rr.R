@@ -1,47 +1,103 @@
 # Title and description
 
-#' Re-scale the concentration-response function
+#' Re-scale the relative risk
 #'
-#' Re-scale the concentration-response function from the increment value in the epidemiological study (e.g. for PM2.5 10 or 5 ug/m3) to the actual population exposure)
+#' Re-scale the relative risk from the increment value in the epidemiological study (e.g. for PM2.5 10 or 5 ug/m3) to the actual population exposure)
 #' @param rr
-#' Data frame containing the concentration-response function as in the epidemiological study, i.e. per the usual concentration increase. The data frame must contain the mean, lower and upper bound of the concentration-response function.
+#' Data frame containing the exposure-response function as in the epidemiological study, i.e. per the usual concentration increase. The data frame must contain the mean, lower and upper bound of the exposure-response function.
 #' @param exp
 #' Population exposure to the stressor (e.g. annual population-weighted mean).
 #' @param cutoff \code{Numeric value} showing the cut-off exposure in ug/m3 (i.e. the exposure level below which no health effects occur).
 #' @param rr_increment
-#' Increment of the concentration-response function as in the literature (e.g. for PM2.5 10 or 5 ug/m3).
-#' @param method
-#' Method to re-scale the concentration-response function based on the assumed form of the function. Likely values: "log-linear" or "linear".
+#' Size of the increment in concentration related to the relative risk provided in the literature (e.g. for 10 ug/m3 PM2.5).
+#' @param erf_shape
+#' Shape of the exposure-response function to be assumed using the relative risk from the literature as support point. Options: "linear", log-linear", "linear-log", "log-log".
+#' @param erf_full
+#' \code{Boolean value} to show if the exposure-response function is entirely defined by the user  with the argument erf_c (erf_full = TRUE) or by the arguments exp, cutoff, rr_increment and erf_shape (erf_full = TRUE). Default value = FALSE.
+#' @param erf_c
+#' \code{String} showing the user-defined function that puts the relative risk in relation with concentration. The function must have only one variable: c, which means concentration. E.g. "3+c+c^2". Default value = NULL.
 #' @return
-#' This function returns three \code{values} corresponding to mean, lower bound and upper bound of the concentration-response function.
+#' This function returns three \code{values} corresponding to mean, lower bound and upper bound of the exposure-response function.
 #' @examples
-#' rescale_rr(rr = pep = 1, metric = "Premature deaths")
+#' rescale_rr(rr=1.05, exp=10, cutoff=5, erf_shape="linear" )
 #' @author Alberto Castro
 #' @note Experimental function
 #' @export
 rescale_rr <-
-  function(rr, exp, cutoff, rr_increment, method){
-    if(method == "loglinear"){
-      # rr for the specific concentration
-      # (exposure minus counterfactural)
-      # as in EKL study (Castro et al. 2020)
-      # and CITIES study (Khomenko 2021, suppl. Materials)
-      rr_conc <-
-        exp(log(rr) * (exp-cutoff)/rr_increment)
+  function(rr,
+           exp,
+           cutoff,
+           rr_increment,
+           erf_shape,
+           erf_full = FALSE,
+           erf_c = NULL){
+
+    # The function assumes that the user of the package does not define the function entirely,
+    # but using arguments such as exp, cutoff, rr_increment and erf_shape
+    # Therefore, the default value of the argument erf_full is FALSE
+    # If the user enter a TRUE, erf_c is read. Otherwise the arguments
+    # exp, cutoff, rr_increment and erf_shape.
+
+    # Let's write the exposure-response function (erf)
+    # based on c (concentration) as single argument
+
+    # A first (and most usual) option is to define the erf using
+    # the shape of the function (erf_shape) and
+    # the relative risk from the literature
+
+    if(erf_full = FALSE){
+
+
+      if(erf_shape == "linear"){
+        erf <-
+          function(c){
+            1+( (rr-1) * (c-cutoff)/rr_increment )
+          }
+      }
+
+
+      if(erf_shape == "log_linear"){
+        erf <-
+          function(c){
+            exp(log(rr) *(c-cutoff)/rr_increment)
+          }
+      }
+
+
+      if(erf_shape == "linear_log"){
+        erf <-
+          function(c){
+            1+( (rr-1) * (log(c)-log(cutoff))/log(rr_increment) )
+          }
+      }
+
+      if(erf_shape == "log_log"){
+        erf <-
+          function(c){
+            exp( log(rr) *(log(c)-log(cutoff))/log(rr_increment) )
+          }
+      }
+
     }
 
-    if(method == "linear"){
-      # Different way to obtain the rr corresponding to a specific exposure
-      # STE-2000 used this approach
-      rr_conc <-
-        1+( (rr-1) * (exp-cutoff)/rr_increment )
+
+    # A second (and less usual) option is to define the erf using
+    # an own defined option
+
+    if(erf_full == TRUE){
+
+      erf <- function(c){
+        # eval() and parse() convert the string into a function
+        eval(parse(text = erf_c))
+
+      }
+
     }
 
-    return(rr_conc)
+    # rr for the specific concentration
+    rr_c <-
+      erf(c = exp)
+
+    return(rr_c)
 
   }
-
-# Comment line 5 ####
-# from "Re-scale the concentration-response function" it is not clear to me what the output is: RR or OR?
-# Comment line 13 ####
-# the term "Increment of the concentration-response function" is unclear to me. Is the SIZE of the increment meant (e.g. 5 or 10 ug/m3) or the RR CHANGE per air pollution increment?
