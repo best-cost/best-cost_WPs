@@ -10,12 +10,8 @@
 #' @param rr_increment \code{Numeric value} showing the increment of the concentration-response function in ug/m3 (usually 10 or 5).
 #' @param erf_shape \code{String} to choose among "linear" and "loglinear".
 #' @param bhd \code{Numeric value} showing the baseline health data (incidence of the health outcome in the population).
-#' @param info_pollutant \code{String} showing additional information or id for the pollutant. Default value = NULL.
-#' @param info_outcome \code{String} showing additional information or id for the health outcome. Default value = NULL.
-#' @param info_exp \code{String} showing additional information or id for the exposure. This information will be added to all rows of the results. Default value = NULL.
-#' @param info_cutoff \code{String} showing additional information or id for counter-factual scenario (cut-off). This information will be added to all rows of the results. Default value = NULL.
-#' @param info_rr \code{String} showing additional information or id for the concentration-response function. This information will be added to all rows of the results. Default value = NULL.
-#' @param info_bhd \code{String} showing additional information or id for the baseline health data. This information will be added to all rows of the results. Default value = NULL.
+#' @param info \code{String} showing additional information or id for the pollutant. The suffix "info" will be added to the column name. Default value = NULL.
+
 #' @return
 #' This function returns a \code{data.frame} with one row for each value of the
 #' concentration-response function (i.e. mean, lower and upper bound confidence interval.
@@ -41,12 +37,7 @@ attribute_health_singlebhd_rr <-
            rr_increment,
            erf_shape,
            bhd,
-           info_pollutant = NULL,
-           info_outcome = NULL,
-           info_exp = NULL,
-           info_cutoff = NULL,
-           info_rr = NULL,
-           info_bhd = NULL){
+           info = NULL){
 
     # Check input data ####
     # TBA: checks
@@ -66,22 +57,19 @@ attribute_health_singlebhd_rr <-
       # In case of same value in mean and low or high, assign value randomly
       dplyr::mutate(ci = ifelse(duplicated(rr), "mean", ci))
 
-    input <-
+    # Compile input data except meta-info
+    input_wo_info <-
       data.frame(
         exp = exp,
         prop_pop_exp = prop_pop_exp,
         bhd = bhd,
         approach_id = paste0("lifetable_", erf_shape)) %>%
       # Add rr with a cross join to produce all likely combinations
-      dplyr::cross_join(., erf_data) %>%
-      # Add additional information (info_x variables)
-      dplyr::mutate(
-        info_pollutant = ifelse(is.null(info_pollutant), NA, info_pollutant),
-        info_outcome = ifelse(is.null(info_outcome), NA, info_outcome),
-        info_exp = ifelse(is.null(info_exp), NA, info_exp),
-        info_cutoff = ifelse(is.null(info_cutoff), NA, info_cutoff),
-        info_rr = ifelse(is.null(info_rr), NA, info_rr),
-        info_bhd = ifelse(is.null(info_bhd), NA, info_bhd))
+      dplyr::cross_join(., erf_data)
+
+    # Add additional (meta-)information
+    input <-
+      bestcost::add_info(df=input_wo_info, info=info)
 
 
     # Calculate health impact attributable to exposure ####
@@ -140,7 +128,7 @@ attribute_health_singlebhd_rr <-
       dplyr::select(exp, cutoff, bhd,
                     rr, rr_forPaf, rr_increment, ci, erf_shape,
                     paf, impact, impact_rounded,
-                    starts_with("info_"))
+                    starts_with("info"))
 
 
     return(output)

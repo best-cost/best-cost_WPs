@@ -22,12 +22,7 @@
 #' @param min_age \code{Numberic value} of the minimal age to be considered for adults (by default 30, i.e. 30+).
 #' @param max_age \code{Numberic value} of the maximal age to be considered for infants/children (by default 0, i.e. below 1 year old).
 #' @param corrected_discount_rate \code{Numeric value} of the corrected discount rate as proportion (i.e. 0.1 instead of 10\%).
-#' @param info_pollutant \code{Character string} showing additional information or id for the pollutant. Default value = NULL.
-#' @param info_outcome \code{Character string} showing additional information or id for the health outcome. Default value = NULL.
-#' @param info_exp \code{Character string} showing additional information or id for the exposure. This information will be added to all rows of the results. Default value = NULL.
-#' @param info_cutoff \code{Character string} showing additional information or id for counter-factual scenario (cut-off). This information will be added to all rows of the results. Default value = NULL.
-#' @param info_rr \code{Character string} showing additional information or id for the concentration-response function. This information will be added to all rows of the results. Default value = NULL.
-#' @param info_bhd \code{Character string} showing additional information or id for the baseline health data. This information will be added to all rows of the results. Default value = NULL.
+#' @param info \code{String} showing additional information or id for the pollutant. The suffix "info" will be added to the column name. Default value = NULL.
 #' @return
 #' This function returns a \code{data.frame} with one row for each value of the
 #' concentration-response function (i.e. mean, lower and upper bound confidence interval.
@@ -56,8 +51,7 @@ attribute_mortality_lifetable_rr <-
            year_of_analysis,
            corrected_discount_rate = 0,
            min_age = NULL, max_age = NULL,
-           info_pollutant = NULL, info_outcome = NULL,
-           info_exp = NULL, info_cutoff = NULL, info_rr = NULL, info_bhd = NULL){
+           info = NULL){
 
     # Check input data ####
 
@@ -83,7 +77,8 @@ attribute_mortality_lifetable_rr <-
 
 
     # Input data in data frame ####
-    input <-
+    # Compile input data except meta-info
+    input_wo_info <-
       data.frame(
         exp = exp,
         prop_pop_exp = prop_pop_exp,
@@ -94,15 +89,12 @@ attribute_mortality_lifetable_rr <-
                            ifelse(!is.na(min_age), paste0("from", min_age),
                                   NA))) %>%
       # Add rr with a cross join to produce all likely combinations
-      dplyr::cross_join(., rr_data) %>%
-      # Add additional information (info_x variables)
-      dplyr::mutate(
-        info_pollutant = ifelse(is.null(info_pollutant), NA, info_pollutant),
-        info_outcome = ifelse(is.null(info_outcome), NA, info_outcome),
-        info_exp = ifelse(is.null(info_exp), NA, info_exp),
-        info_cutoff = ifelse(is.null(info_cutoff), NA, info_cutoff),
-        info_rr = ifelse(is.null(info_rr), NA, info_rr),
-        info_bhd = ifelse(is.null(info_bhd), NA, info_bhd))
+      dplyr::cross_join(., rr_data)
+
+    # Add additional (meta-)information
+    input <-
+      bestcost::add_info(df=input_wo_info, info=info)
+
 
     # Calculate erf estimate at the specified exposure level ####
     # depending on the erf_shape

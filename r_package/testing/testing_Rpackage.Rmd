@@ -140,8 +140,7 @@ for(i in 1:nrow(input_data_morbidities)){
     rr = c(1.08, 1.07, 1.09),
     rr_increment = 10, 
     erf_shape = "log_linear", 
-    info_pollutant = "noise", 
-    info_outcome = "YLD")
+    info = data.frame(pollutant = "road_noise", outcome = "YLD"))
   }
 ```
 
@@ -160,8 +159,8 @@ for(i in 1:nrow(input_data_morbidities)){
                             c("rr_mean", "rr_lowci", "rr_highci")]),
     rr_increment = 10, 
     erf_shape = "log_linear", 
-    info_pollutant = input_data_morbidities$pollutant[i], 
-    info_outcome = input_data_morbidities$outcome_metric[i])
+    info = data.frame(pollutant = input_data_morbidities$pollutant[i], 
+                      outcome = input_data_morbidities$outcome_metric[i]))
   }
 
 
