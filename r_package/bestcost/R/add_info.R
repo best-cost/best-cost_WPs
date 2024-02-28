@@ -23,14 +23,15 @@ add_info <- function(df, info){
   if(is.null(info)){
     output <-
       dplyr::mutate(df, info = NA)
-  }
 
-  if(is.vector(info) & length(info) == 1){
+  } else if(is.vector(info) & length(info) == 1) {
     output <-
       dplyr::mutate(df, info = info)
-  }
 
-  if(is.data.frame(info) & nrow(info) == 1){
+    # nrow(vector) = NULL
+    # Use sum() to avoid NULL in case of vectors sum(NULL)=0
+  } else if(is.data.frame(info) & sum(nrow(info)) == 1){
+
     output <-
       setNames(info, paste0("info_", names(info))) %>%
       dplyr::bind_cols(df, .)

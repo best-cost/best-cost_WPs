@@ -73,7 +73,7 @@ attribute_mortality_lifetable_rr <-
                         ifelse(rr %in% max(rr), "high",
                                "mean"))) %>%
       # In case of same value in mean and low or high, assign value randomly
-      dplyr::mutate(ci = ifelse(duplicated(rr), "mean", ci))
+      dplyr::mutate(ci = ifelse(duplicated(rr), "mean", rr_ci))
 
 
     # Input data in data frame ####
