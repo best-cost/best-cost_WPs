@@ -53,7 +53,7 @@ if(!"bestcost" %in% installed.packages()[, "Package"]){
   credentials::set_github_pat() # paste github PAT if prompted
   devtools::install_github(repo = "best-cost/best-cost_WPs",
                            subdir = "/r_package/bestcost",
-                           ref = "HEAD", # Branch name (by default "HEAD") as a string
+                           ref = "info_as_single_argument", # Branch name (by default "HEAD") as a string
                            force = TRUE)
 }
 library(bestcost)

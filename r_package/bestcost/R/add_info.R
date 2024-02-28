@@ -33,7 +33,7 @@ add_info <- function(df, info){
   if(is.data.frame(info) & nrow(info) == 1){
     output <-
       setNames(info, paste0("info_", names(info))) %>%
-      dplyr::bind_cols(df, info)
+      dplyr::bind_cols(df, .)
 
   }else{
 

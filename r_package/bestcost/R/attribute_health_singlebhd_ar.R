@@ -40,7 +40,7 @@ attribute_health_singlebhd_ar <-
         erf_c = erf_c,
         approach_id = paste0("absolute risk"))
 
-       # Add additional (meta-)information (info_x variables)
+       # Add additional (meta-)information
     input <-
       add_info(df=input_wo_info, info=info)
 
@@ -58,7 +58,7 @@ attribute_health_singlebhd_ar <-
       dplyr::group_by(exp,
                       erf_c,
                       approach_id,
-                      info_pollutant, info_outcome, info_exp, info_erf, info_bhd) %>%
+                      across(starts_with("info"))) %>%
       dplyr::summarize(
         across(c(pop_exp, absolute_risk_as_percent, population_affected),
                sum),
