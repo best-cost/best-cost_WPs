@@ -4,16 +4,7 @@
 \alias{attribute_health_singlebhd_ar}
 \title{Health impacts based on single baseline health value}
 \usage{
-attribute_health_singlebhd_ar(
-  exp,
-  pop_exp,
-  erf_c,
-  info_pollutant = NULL,
-  info_outcome = NULL,
-  info_exp = NULL,
-  info_erf = NULL,
-  info_bhd = NULL
-)
+attribute_health_singlebhd_ar(exp, pop_exp, erf_c, info = NULL)
 }
 \arguments{
 \item{exp}{\code{Vector} showing the mid-point exposure in the exposure categories (average of the exposure ranges) in a exposure distribution referring only to the exposed population. The length of exp and pop_exp must be the same.}
@@ -22,15 +13,7 @@ attribute_health_singlebhd_ar(
 
 \item{erf_c}{\code{String} showing the user-defined function that puts the relative risk in relation with concentration. The function must have only one variable: c, which means concentration. E.g. "3+c+c^2". Default value = NULL.}
 
-\item{info_pollutant}{\code{String} showing additional information or id for the pollutant. Default value = NULL.}
-
-\item{info_outcome}{\code{String} showing additional information or id for the health outcome. Default value = NULL.}
-
-\item{info_exp}{\code{String} showing additional information or id for the exposure. Default value = NULL.}
-
-\item{info_erf}{\code{String} showing additional information or id for the exposure-response function. Default value = NULL.}
-
-\item{info_bhd}{\code{String} showing additional information or id for the baseline health data. Default = NULL.}
+\item{info}{\code{String} showing additional information or id for the pollutant. The suffix "info" will be added to the column name. Default value = NULL.}
 }
 \value{
 This function returns a \code{list} with two \code{data.frames}, one with the total health impact and the second one with a row for each category of the exposure distribution.

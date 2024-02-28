@@ -13,12 +13,7 @@ attribute_health_singlebhd_rr(
   rr_increment,
   erf_shape,
   bhd,
-  info_pollutant = NULL,
-  info_outcome = NULL,
-  info_exp = NULL,
-  info_cutoff = NULL,
-  info_rr = NULL,
-  info_bhd = NULL
+  info = NULL
 )
 }
 \arguments{
@@ -36,17 +31,7 @@ attribute_health_singlebhd_rr(
 
 \item{bhd}{\code{Numeric value} showing the baseline health data (incidence of the health outcome in the population).}
 
-\item{info_pollutant}{\code{String} showing additional information or id for the pollutant. Default value = NULL.}
-
-\item{info_outcome}{\code{String} showing additional information or id for the health outcome. Default value = NULL.}
-
-\item{info_exp}{\code{String} showing additional information or id for the exposure. This information will be added to all rows of the results. Default value = NULL.}
-
-\item{info_cutoff}{\code{String} showing additional information or id for counter-factual scenario (cut-off). This information will be added to all rows of the results. Default value = NULL.}
-
-\item{info_rr}{\code{String} showing additional information or id for the concentration-response function. This information will be added to all rows of the results. Default value = NULL.}
-
-\item{info_bhd}{\code{String} showing additional information or id for the baseline health data. This information will be added to all rows of the results. Default value = NULL.}
+\item{info}{\code{String} showing additional information or id for the pollutant. The suffix "info" will be added to the column name. Default value = NULL.}
 }
 \value{
 This function returns a \code{data.frame} with one row for each value of the
