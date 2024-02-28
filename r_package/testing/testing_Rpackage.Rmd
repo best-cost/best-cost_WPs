@@ -14,18 +14,6 @@ Pending
 
 # Load packages
 
-Load the Rdata file that contains all variables needed to run this script.
-```{r load data & bestcost package}
-load("../testing/input/input_data_for_testing_Rpackage.RData")
-```
-
-
-```{r load data & bestcost package}
-# Load package (either current version or installed version)
-devtools::load_all(export_all = FALSE)
-library(bestcost)
-```
-
 
 The R script required the loading of certain R packages. 
 ```{r Load packages, include=FALSE}
@@ -72,6 +60,14 @@ library(bestcost)
 ```
 
 
+```{r load data & bestcost package}
+# Load package (either current version or installed version)
+devtools::load_all(export_all = FALSE)
+library(bestcost)
+```
+
+
+
 ```{r load current version of bestcost from local source, eval=FALSE, include=FALSE}
 detach("package:bestcost", unload = TRUE) # detach bestcost
 devtools::build(binary = TRUE, path = "../testing/input/") # Save current state of package as .zip file (e.g. to directly test changes in functions)
@@ -79,6 +75,11 @@ install.packages("../testing/input/bestcost_0.0.0.1.zip", repos=NULL, type='sour
 library(bestcost)
 ```
 
+
+Load the Rdata file that contains all variables needed to run this script.
+```{r load data }
+load("../testing/input/input_data_for_testing_Rpackage.RData")
+```
 
 
 # Calculate health impacts
@@ -122,8 +123,7 @@ impact_annoyance_expDistribution_raw <-
     exp = c(57.5, 62.5, 67.5, 72.5, 77.5),# Values as example provided by NIPH
     pop_exp = c(387500, 286000, 191800, 72200, 7700), # Values as example provided by NIPH
     erf_c = "78.9270-3.1162*c+0.0342*c^2",
-    info_pollutant = "road_noise", 
-    info_outcome = "highly_annoyance")
+    info = data.frame(pollutant = "road_noise", outcome = "highly_annoyance"))
 ```
 
 ```{r morbidity using exposure distribution}
