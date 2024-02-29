@@ -11,7 +11,6 @@
 #' @param erf_shape \code{String} to choose among "linear" and "loglinear".
 #' @param bhd \code{Numeric value} showing the baseline health data (incidence of the health outcome in the population).
 #' @param info \code{String} showing additional information or id for the pollutant. The suffix "info" will be added to the column name. Default value = NULL.
-
 #' @return
 #' This function returns a \code{data.frame} with one row for each value of the
 #' concentration-response function (i.e. mean, lower and upper bound confidence interval.
@@ -44,54 +43,43 @@ attribute_health_singlebhd_rr <-
 
     # Input data in data frame ####
     # Compile rr data to assign categories
-    erf_data <-
+    input <-
       data.frame(
+        # Compile input data
+        rr = rr,
         rr_increment = rr_increment,
         erf_shape = erf_shape,
         cutoff = cutoff,
-        rr = rr,
+        bhd = bhd,
+        approach_id = paste0("lifetable_", erf_shape),
         # Assign mean, low and high rr values
         rr_ci = ifelse(rr %in% min(rr), "low",
-                        ifelse(rr %in% max(rr), "high",
-                               "mean"))) %>%
+                       ifelse(rr %in% max(rr), "high",
+                              "mean"))) %>%
       # In case of same value in mean and low or high, assign value randomly
-      dplyr::mutate(ci = ifelse(duplicated(rr), "mean", ci))
-
-    # Compile input data except meta-info
-    input_wo_info <-
-      data.frame(
-        exp = exp,
-        prop_pop_exp = prop_pop_exp,
-        bhd = bhd,
-        approach_id = paste0("lifetable_", erf_shape)) %>%
-      # Add rr with a cross join to produce all likely combinations
-      dplyr::cross_join(., erf_data)
-
-    # Add additional (meta-)information
-    input <-
-      bestcost::add_info(df=input_wo_info, info=info)
-
-
-    # Calculate health impact attributable to exposure ####
-    input_withPaf <-
-      input %>%
+      dplyr::mutate(ci = ifelse(duplicated(rr), "mean", ci)) %>%
+      # Add exposure categories to rr's with a cross join to produce all likely combinations between exp categories and rr estimates (central, upper & lower CI)
+      dplyr::cross_join(.,
+                        data.frame(exp = exp,
+                                   prop_pop_exp = prop_pop_exp)) %>%
+      # rescale rr's for PAF
       dplyr::mutate(
         rr_forPaf =
-          get_risk(rr = rr,
-                      exp = exp,
-                      cutoff = cutoff,
-                      rr_increment = rr_increment,
-                      erf_shape = {{erf_shape}}
-                      #{{}} ensures that the
-                      # value from the function argument is used
-                      # instead of from an existing column
-                      ))
+          bestcost::get_risk(rr = rr,
+                               exp = exp,
+                               cutoff = cutoff,
+                               rr_increment = rr_increment,
+                               method = {{erf_shape}}))
+    #{{}} ensures that the
+    # value from the function argument is used
+    # instead of from an existing column
 
     # Calculate population attributable fraction (PAF) ####
     paf <-
-      input_withPaf %>%
-      # Group by exp in case that there are different exposure categories
+      input %>%
+      # Group by increasing exp in case that there are different exposure categories
       dplyr::group_by(rr) %>%
+      # Calculate PAFs per row & then reduce nrow by summing PAFs belonging to same rr
       dplyr::summarize(paf = bestcost::get_paf(rr_conc = rr_forPaf,
                                                prop_pop_exp = prop_pop_exp))
 
@@ -99,12 +87,12 @@ attribute_health_singlebhd_rr <-
     # Only if exposure distribution (multiple exposure categories)
     # then reduce the number of rows to keep the same number as in rr
     if(length(exp)>1){
-      input_withPaf <-
-        input_withPaf %>%
+      input <-
+        input %>%
         dplyr::mutate(
           # Add a column for the average exp (way to summarize exposure)
           exp_mean = mean(exp),
-          # Replace the actual values with "multiple" to enable reduction of rows
+          # Replace the actual values with "multiple" (i.e. vector) to enable reduction of rows
           exp = paste(exp, collapse = ", "),
           prop_pop_exp = paste(prop_pop_exp, collapse = ", "),
           rr_forPaf = paste(rr_forPaf, collapse = ", ")) %>%
@@ -113,23 +101,25 @@ attribute_health_singlebhd_rr <-
     }
 
     # Join the input table with paf values
-    input_withPaf <-
-      input_withPaf %>%
+    input <-
+      input %>%
       dplyr::left_join(paf,
-                       input_withPaf,
+                       input,
                        by = "rr")
 
-  # Build the result table adding the paf to the input_withPaf table
+  # Build the result table adding the paf to the input table
    output <-
-      input_withPaf %>%
+      input %>%
       dplyr::mutate(impact = paf * bhd,
                     impact_rounded = round(impact, 0)) %>%
+     # Add additional information (info_x variables)
+     dplyr::mutate(
+       info = ifelse(is.null(info), NA, info)) %>%
       # Order columns
-      dplyr::select(exp, cutoff, bhd,
-                    rr, rr_forPaf, rr_increment, ci, erf_shape,
-                    paf, impact, impact_rounded,
+      dplyr::select(exp, prop_pop_exp, exp_mean, impact, impact_rounded,
+                    cutoff, bhd, rr, rr_forPaf, rr_increment, ci, erf_shape,
+                    paf,
                     starts_with("info"))
-
 
     return(output)
   }
