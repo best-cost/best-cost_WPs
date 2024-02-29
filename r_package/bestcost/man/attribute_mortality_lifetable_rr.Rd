@@ -24,12 +24,7 @@ attribute_mortality_lifetable_rr(
   corrected_discount_rate = 0,
   min_age = NULL,
   max_age = NULL,
-  info_pollutant = NULL,
-  info_outcome = NULL,
-  info_exp = NULL,
-  info_cutoff = NULL,
-  info_rr = NULL,
-  info_bhd = NULL
+  info = NULL
 )
 }
 \arguments{
@@ -71,17 +66,7 @@ attribute_mortality_lifetable_rr(
 
 \item{max_age}{\code{Numberic value} of the maximal age to be considered for infants/children (by default 0, i.e. below 1 year old).}
 
-\item{info_pollutant}{\code{Character string} showing additional information or id for the pollutant. Default value = NULL.}
-
-\item{info_outcome}{\code{Character string} showing additional information or id for the health outcome. Default value = NULL.}
-
-\item{info_exp}{\code{Character string} showing additional information or id for the exposure. This information will be added to all rows of the results. Default value = NULL.}
-
-\item{info_cutoff}{\code{Character string} showing additional information or id for counter-factual scenario (cut-off). This information will be added to all rows of the results. Default value = NULL.}
-
-\item{info_rr}{\code{Character string} showing additional information or id for the concentration-response function. This information will be added to all rows of the results. Default value = NULL.}
-
-\item{info_bhd}{\code{Character string} showing additional information or id for the baseline health data. This information will be added to all rows of the results. Default value = NULL.}
+\item{info}{\code{String} showing additional information or id for the pollutant. The suffix "info" will be added to the column name. Default value = NULL.}
 }
 \value{
 This function returns a \code{data.frame} with one row for each value of the
