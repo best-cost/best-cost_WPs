@@ -65,7 +65,7 @@ attribute_health_singlebhd_rr <-
       # rescale rr's for PAF
       dplyr::mutate(
         rr_forPaf =
-          bestcost::rescale_rr(rr = rr,
+          bestcost::get_risk(rr = rr,
                                exp = exp,
                                cutoff = cutoff,
                                rr_increment = rr_increment,
