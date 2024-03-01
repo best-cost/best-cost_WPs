@@ -1,0 +1,46 @@
+# Function call ####
+output_function_call <- attribute_mortality_lifetable_rr(
+  exp = input_data_mortality$exp[2], # PM2.5=8.30=limit LRV CH, NO2=16.32=mean conc. in CH in 2019
+  cutoff = input_data_mortality$cutoff[2],   # PM2.5=5, NO2=10, i.e. WHO AQG 2021 
+  rr = unlist(input_data_mortality[2,
+                                 c("rr_mean", "rr_lowci", "rr_highci")]),
+  rr_increment = 10, 
+  erf_shape = "log_linear",
+  first_age_pop = 0,
+  last_age_pop = 99,
+  interval_age_pop = 1,
+  prob_natural_death_male = lifetable_withPopulation[["male"]]$death_probability_natural,
+  prob_natural_death_female = lifetable_withPopulation[["female"]]$death_probability_natural,
+  prob_total_death_male = lifetable_withPopulation[["male"]]$death_probability_total,
+  prob_total_death_female = lifetable_withPopulation[["female"]]$death_probability_total,
+  population_male = lifetable_withPopulation[["male"]]$population, 
+  population_female = lifetable_withPopulation[["female"]]$population, 
+  year_of_analysis = 2019, 
+  info = input_data_mortality$pollutant[2], 
+  min_age = input_data_mortality$min_age[2],
+  max_age = input_data_mortality$max_age[2],
+  corrected_discount_rate = 0)
+
+# Test function ####
+exp <- input_data_mortality$exp[2]
+cutoff <- input_data_mortality$cutoff[2] 
+rr <- unlist(input_data_mortality[2,
+                                 c("rr_mean", "rr_lowci", "rr_highci")])
+rr_increment <- 10 
+erf_shape <- "log_linear"
+first_age_pop <- 0
+last_age_pop <- 99
+interval_age_pop <- 1
+prob_natural_death_male <- lifetable_withPopulation[["male"]]$death_probability_natural
+prob_natural_death_female <- lifetable_withPopulation[["female"]]$death_probability_natural
+prob_total_death_male <- lifetable_withPopulation[["male"]]$death_probability_total
+prob_total_death_female <- lifetable_withPopulation[["female"]]$death_probability_total
+population_male <- lifetable_withPopulation[["male"]]$population 
+population_female <- lifetable_withPopulation[["female"]]$population 
+year_of_analysis <- 2019 
+info <- input_data_mortality$pollutant[2] 
+min_age <- input_data_mortality$min_age[2]
+max_age <- input_data_mortality$max_age[2]
+corrected_discount_rate <- 0
+
+# Function code copied below
