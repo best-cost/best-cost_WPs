@@ -39,7 +39,9 @@ attribute_health_singlebhd_rr <-
            info = NULL){
 
     # Check input data ####
-    # TBA: checks
+    stopifnot(exprs = {
+      length(exp) == length(prop_pop_exp)
+    })
 
     # Input data in data frame ####
     # Compile rr data to assign categories
@@ -69,10 +71,13 @@ attribute_health_singlebhd_rr <-
                                exp = exp,
                                cutoff = cutoff,
                                rr_increment = rr_increment,
-                               erf_shape = {{erf_shape}}))
-    #{{}} ensures that the
-    # value from the function argument is used
-    # instead of from an existing column
+                               erf_shape = {{erf_shape}}),
+        #{{}} ensures that the
+        # value from the function argument is used
+        # instead of from an existing column
+        # Add a column for the average exp (way to summarize exposure)
+        exp_mean = mean(exp))
+
 
     # Calculate population attributable fraction (PAF) ####
     paf <-
@@ -90,8 +95,6 @@ attribute_health_singlebhd_rr <-
       input <-
         input %>%
         dplyr::mutate(
-          # Add a column for the average exp (way to summarize exposure)
-          exp_mean = mean(exp),
           # Replace the actual values with "multiple" (i.e. vector) to enable reduction of rows
           exp = paste(exp, collapse = ", "),
           prop_pop_exp = paste(prop_pop_exp, collapse = ", "),
