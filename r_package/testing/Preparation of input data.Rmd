@@ -718,6 +718,21 @@ input_data_mortality <-
 ```
 
 ```{r Export environment}
+# Keep only variables/functions that will be used in "testing_Rpackage.Rmd"
+rm(list=setdiff(ls(), c(
+                        # Data
+                        "airqplus_deaths_pop_multipleYear",
+                        "codebook",
+                        "input_data_morbidities",
+                        "input_data_mortality",
+                        "lifetable_airqplus",
+                        "lifetable_withPopulation",
+                        "rr_data",
+                        # Values (keep none)
+                        # Functions
+                        "paste_round_CI",
+                        "round_keeping0"
+                        )))
 save.image(file = "../testing/input/input_data_for_testing_Rpackage.RData")
 ```
 

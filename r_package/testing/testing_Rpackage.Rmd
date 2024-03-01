@@ -14,17 +14,6 @@ Pending
 
 # Load packages
 
-Load the Rdata file that contains all variables needed to run this script.
-```{r load data & bestcost package}
-load("../testing/input/input_data_for_testing_Rpackage.RData")
-```
-
-
-```{r load data & bestcost package}
-# Load package
-devtools::load_all(export_all = FALSE)
-```
-
 
 The R script required the loading of certain R packages. 
 ```{r Load packages, include=FALSE}
@@ -64,11 +53,19 @@ if(!"bestcost" %in% installed.packages()[, "Package"]){
   credentials::set_github_pat() # paste github PAT if prompted
   devtools::install_github(repo = "best-cost/best-cost_WPs",
                            subdir = "/r_package/bestcost",
-                           ref = "HEAD", # Branch name (by default "HEAD") as a string
+                           ref = "info_as_single_argument", # Branch name (by default "HEAD") as a string
                            force = TRUE)
 }
 library(bestcost)
 ```
+
+
+```{r load data & bestcost package}
+# Load package (either current version or installed version)
+devtools::load_all(export_all = FALSE)
+library(bestcost)
+```
+
 
 
 ```{r load current version of bestcost from local source, eval=FALSE, include=FALSE}
@@ -78,6 +75,11 @@ install.packages("../testing/input/bestcost_0.0.0.1.zip", repos=NULL, type='sour
 library(bestcost)
 ```
 
+
+Load the Rdata file that contains all variables needed to run this script.
+```{r load data }
+load("../testing/input/input_data_for_testing_Rpackage.RData")
+```
 
 
 # Calculate health impacts
@@ -91,7 +93,7 @@ test <- bestcost::attribute_yld_rr(
   bhd = input_data_morbidities$bhd_absolute[12],
   rr = unlist(input_data_morbidities[12, c("rr_mean", "rr_lowci", "rr_highci")]), # RR for asthma incidence for adults
   rr_increment = 10, 
-  erf_shape = "loglinear", 
+  erf_shape = "log_linear", 
   info_pollutant = input_data_morbidities$pollutant[12], 
   info_outcome = input_data_morbidities$outcome_metric[12]
 )
@@ -120,10 +122,8 @@ impact_annoyance_expDistribution_raw <-
   bestcost::attribute_health_singlebhd_ar(
     exp = c(57.5, 62.5, 67.5, 72.5, 77.5),# Values as example provided by NIPH
     pop_exp = c(387500, 286000, 191800, 72200, 7700), # Values as example provided by NIPH
-    erf_shape = "quadratic",
-    erf_parameters = c(78.9270, -3.1162, 0.0342),
-    info_pollutant = "road_noise", 
-    info_outcome = "highly_annoyance")
+    erf_c = "78.9270-3.1162*c+0.0342*c^2",
+    info = data.frame(pollutant = "road_noise", outcome = "highly_annoyance"))
 ```
 
 ```{r morbidity using exposure distribution}
@@ -139,17 +139,16 @@ for(i in 1:nrow(input_data_morbidities)){
     bhd = 5269.46,
     rr = c(1.08, 1.07, 1.09),
     rr_increment = 10, 
-    erf_shape = "loglinear", 
-    info_pollutant = "noise", 
-    info_outcome = "YLD")
+    erf_shape = "log_linear", 
+    info = data.frame(pollutant = "road_noise", outcome = "YLD"))
   }
 ```
 
 ```{r impact morbidity}
 impact_morbidities_raw <- list()
 
-#for(i in 1:nrow(input_data_morbidities)){
-for(i in 12){ # asthma incidence 20+
+for(i in 1:nrow(input_data_morbidities)){
+#for(i in 12){ # runs loop only for HO "asthma incidence 20+"
   impact_morbidities_raw[[input_data_morbidities$year[i]]][[input_data_morbidities$rr_id[[i]]]] <-
   bestcost::attribute_health_singlebhd_rr(
     #dw = 0.133, # for health state "Asthma, uncontrolled" (cf. bestcost::disability_weights)
@@ -159,9 +158,9 @@ for(i in 12){ # asthma incidence 20+
     rr = unlist(input_data_morbidities[i, 
                             c("rr_mean", "rr_lowci", "rr_highci")]),
     rr_increment = 10, 
-    erf_shape = "loglinear", 
-    info_pollutant = input_data_morbidities$pollutant[i], 
-    info_outcome = input_data_morbidities$outcome_metric[i])
+    erf_shape = "log_linear", 
+    info = data.frame(pollutant = input_data_morbidities$pollutant[i], 
+                      outcome = input_data_morbidities$outcome_metric[i]))
   }
 
 
@@ -238,8 +237,8 @@ impact_mortality_expDistribution_raw <- list()
 
 # Calculate mortality impacts using bestcost function
 
-#for(i in 1:nrow(input_data_mortality)){  # Use this if you want to evaluate multiple RRs
-for(i in 2){                           # Use this if you want to evaluate only one RR
+for(i in 1:nrow(input_data_mortality)){  # Use this if you want to evaluate multiple RRs
+#for(i in 2){                           # Use this if you want to evaluate only one RR
   impact_mortality_expDistribution_raw[[input_data_mortality$year[i]]][[input_data_mortality$rr_id[[i]]]] <-
   
     bestcost::attribute_mortality_lifetable_rr(
@@ -249,7 +248,7 @@ for(i in 2){                           # Use this if you want to evaluate only o
     rr = unlist(input_data_mortality[i,
                                       c("rr_mean", "rr_lowci", "rr_highci")]),
     rr_increment = 10, 
-    erf_shape = "loglinear",
+    erf_shape = "log_linear",
     first_age_pop = 0,
     last_age_pop = 99,
     interval_age_pop = 1,
@@ -260,7 +259,7 @@ for(i in 2){                           # Use this if you want to evaluate only o
     population_male = lifetable_withPopulation[["male"]]$population, 
     population_female = lifetable_withPopulation[["female"]]$population, 
     year_of_analysis = 2019, 
-    info_pollutant = input_data_mortality$pollutant[i], 
+    info = input_data_mortality$pollutant[i], 
     min_age = input_data_mortality$min_age[i],
     max_age = input_data_mortality$max_age[i],
     corrected_discount_rate = 0)
@@ -276,8 +275,8 @@ impact_mortality_raw <- list()
 
 # Calculate mortality impacts using bestcost function
 
-#for(i in 1:nrow(input_data_mortality)){  # Use this if you want to evaluate multiple RRs
-for(i in 2){                           # Use this if you want to evaluate only one RRs
+for(i in 1:nrow(input_data_mortality)){  # Use this if you want to evaluate multiple RRs
+#for(i in 2){                           # Use this if you want to evaluate only one RRs
   impact_mortality_raw[[input_data_mortality$year[i]]][[input_data_mortality$rr_id[[i]]]] <-
   
     bestcost::attribute_mortality_lifetable_rr(
@@ -287,7 +286,7 @@ for(i in 2){                           # Use this if you want to evaluate only o
     rr = unlist(input_data_mortality[i,
                                       c("rr_mean", "rr_lowci", "rr_highci")]),
     rr_increment = 10, 
-    erf_shape = "loglinear",
+    erf_shape = "log_linear",
     first_age_pop = 0,
     last_age_pop = 99,
     interval_age_pop = 1,
@@ -298,7 +297,7 @@ for(i in 2){                           # Use this if you want to evaluate only o
     population_male = lifetable_withPopulation[["male"]]$population, 
     population_female = lifetable_withPopulation[["female"]]$population, 
     year_of_analysis = 2019, 
-    info_pollutant = input_data_mortality$pollutant[i], 
+    info = input_data_mortality$pollutant[i], 
     min_age = input_data_mortality$min_age[i],
     max_age = input_data_mortality$max_age[i],
     corrected_discount_rate = 0)
