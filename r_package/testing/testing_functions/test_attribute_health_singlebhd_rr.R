@@ -1,9 +1,8 @@
 # Load data ####
 data("input_data_morbidities")
-#load("R/sysdata.rda")
+load("R/sysdata.rda")
 
 # Function call ####
-#devtools::load_all()
 # Run function only for row 12 of "input_data_morbidities", which is the HO "asthma incidence 20+"
 # output_function_call <- attribute_health_singlebhd_rr(
 #   exp = input_data_morbidities$exp[12],

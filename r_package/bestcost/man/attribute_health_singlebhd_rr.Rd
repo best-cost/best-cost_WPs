@@ -27,7 +27,7 @@ attribute_health_singlebhd_rr(
 
 \item{rr_increment}{\code{Numeric value} showing the increment of the concentration-response function in ug/m3 (usually 10 or 5).}
 
-\item{erf_shape}{\code{String} to choose among "linear" and "loglinear".}
+\item{erf_shape}{\code{String} to choose among "linear" and "log_linear".}
 
 \item{bhd}{\code{Numeric value} showing the baseline health data (incidence of the health outcome in the population).}
 
