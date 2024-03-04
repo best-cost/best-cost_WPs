@@ -161,31 +161,6 @@ attribute_mortality_lifetable_rr <-
           death_probability_total = prob_total_death_female,
           population = population_female))
 
-    input_info_paf <-
-      input %>%
-      dplyr::mutate(
-        rr_forPaf =
-          bestcost::get_risk(rr = rr,
-                      exp = exp,
-                      cutoff = cutoff,
-                      rr_increment = rr_increment,
-                      erf_shape ={{erf_shape}}
-                      #{{}} ensures that the
-                      # value from the function argument is used
-                      # instead of from an existing column
-                      ),
-        rr_ci = ifelse(rr %in% min(rr), "low",
-                        ifelse(rr %in% max(rr), "high",
-                               "mean"))) %>%
-      # In case of same value in mean and low or high, assign value randomly
-      dplyr::mutate(ci = ifelse(duplicated(rr), "mean", ci)) %>%
-
-      # Calculate attributable fraction (AF) as well as impact
-      dplyr::mutate(approach_id = paste0("singleValue_", erf_shape),
-                    paf =  bestcost::get_paf(rr_conc = rr_forPaf,
-                                             prop_pop_exp = prop_pop_exp))
-
-
     # Get population impact ####
     pop_impact <-
       bestcost::get_pop_impact(
