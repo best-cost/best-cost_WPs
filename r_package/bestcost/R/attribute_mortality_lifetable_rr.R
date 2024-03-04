@@ -97,15 +97,19 @@ attribute_mortality_lifetable_rr <-
         # value from the function argument is used
         # instead of from an existing column
         # Add a column for the average exp (way to summarize exposure)
-        exp_mean = mean(exp))
+         exp_mean = mean(exp)) #%>%
+      # # Group by exp in case that there are different exposure categories
+      # dplyr::group_by(rr) %>%
+      # dplyr::mutate(paf = bestcost::get_paf(rr_conc = rr_forPaf,
+      #                                       prop_pop_exp = prop_pop_exp))
 
       # Calculate population attributable fraction (PAF) ####
       paf <-
         input_withPaf %>%
         # Group by exp in case that there are different exposure categories
-        dplyr::group_by(rr)%>%
-      # Calculate PAFs per row & then reduce nrow by summing PAFs belonging to same rr
-      dplyr::summarize(paf = bestcost::get_paf(rr_conc = rr_forPaf,
+        dplyr::group_by(rr) %>%
+        # Calculate PAFs per row & then reduce nrow by summing PAFs belonging to same rr
+        dplyr::summarize(paf = bestcost::get_paf(rr_conc = rr_forPaf,
                                                  prop_pop_exp = prop_pop_exp))
 
       # Only if exposure distribution (multiple exposure categories)
