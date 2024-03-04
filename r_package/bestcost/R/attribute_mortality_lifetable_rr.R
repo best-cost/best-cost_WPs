@@ -54,70 +54,58 @@ attribute_mortality_lifetable_rr <-
            info = NULL){
 
     # Check input data ####
-
-    # Digest input data ####
+    stopifnot(exprs = {
+      length(exp) == length(prop_pop_exp)
+    })
 
     # Convert NULL into NA in min_age and max_age
     min_age <- ifelse(is.null(min_age), NA, min_age)
     max_age <- ifelse(is.null(max_age), NA, max_age)
 
-
+    # Input data in data frame ####
     # Compile rr data to assign categories
-    rr_data <-
+    input_withPaf <-
       data.frame(
+        info = info,
         rr = rr,
         rr_increment = rr_increment,
         erf_shape = erf_shape,
         # Assign mean, low and high rr values
         rr_ci = ifelse(rr %in% min(rr), "low",
-                        ifelse(rr %in% max(rr), "high",
-                               "mean"))) %>%
-      # In case of same value in mean and low or high, assign value randomly
-      dplyr::mutate(ci = ifelse(duplicated(rr), "mean", ci))
-
-
-    # Input data in data frame ####
-    # Compile input data except meta-info
-    input_wo_info <-
-      data.frame(
-        exp = exp,
-        prop_pop_exp = prop_pop_exp,
+                       ifelse(rr %in% max(rr), "high",
+                              "mean")),
         cutoff = cutoff,
         # Information derived from input data
         approach_id = paste0("lifetable_", erf_shape),
         age_range = ifelse(!is.na(max_age), paste0("below", max_age + 1),
                            ifelse(!is.na(min_age), paste0("from", min_age),
                                   NA))) %>%
-      # Add rr with a cross join to produce all likely combinations
-      dplyr::cross_join(., rr_data)
-
-    # Add additional (meta-)information
-    input <-
-      bestcost::add_info(df=input_wo_info, info=info)
-
-
-    # Calculate erf estimate at the specified exposure level ####
-    # depending on the erf_shape
-    input_withPaf <-
-      input %>%
+      # In case of same value in mean and low or high, assign value randomly
+      dplyr::mutate(ci = ifelse(duplicated(rr), "mean", ci)) %>%
+      # Add exposure categories to rr's with a cross join to produce all likely combinations between exp categories and rr estimates (central, upper & lower CI)
+      dplyr::cross_join(., data.frame(exp = exp,
+                                      prop_pop_exp = prop_pop_exp)) %>%
+      # rescale rr's for PAF
       dplyr::mutate(
         rr_forPaf =
-          get_risk(rr = rr,
-                      exp = exp,
-                      cutoff = cutoff,
-                      rr_increment = rr_increment,
-                      erf_shape ={{erf_shape}}
-                      #{{}} ensures that the
-                      # value from the function argument is used
-                      # instead of from an existing column
-                      ))
+          bestcost::get_risk(rr = rr,
+                             exp = exp,
+                             cutoff = cutoff,
+                             rr_increment = rr_increment,
+                             erf_shape = {{erf_shape}}),
+        #{{}} ensures that the
+        # value from the function argument is used
+        # instead of from an existing column
+        # Add a column for the average exp (way to summarize exposure)
+        exp_mean = mean(exp))
 
       # Calculate population attributable fraction (PAF) ####
       paf <-
         input_withPaf %>%
         # Group by exp in case that there are different exposure categories
         dplyr::group_by(rr)%>%
-        dplyr::summarize(paf = bestcost::get_paf(rr_conc = rr_forPaf,
+      # Calculate PAFs per row & then reduce nrow by summing PAFs belonging to same rr
+      dplyr::summarize(paf = bestcost::get_paf(rr_conc = rr_forPaf,
                                                  prop_pop_exp = prop_pop_exp))
 
       # Only if exposure distribution (multiple exposure categories)
@@ -136,7 +124,6 @@ attribute_mortality_lifetable_rr <-
           dplyr::distinct(.)
       }
 
-    # Data wrangling ####
     # Join the input table with paf values
       input_withPaf <-
         input_withPaf %>%
@@ -226,7 +213,7 @@ attribute_mortality_lifetable_rr <-
         meta = input_withPaf,
         corrected_discount_rate = corrected_discount_rate)
 
-    # Calculate output ####
+    # Compile output ####
     output <-
       list(
         pop_impact = pop_impact,

@@ -53,7 +53,7 @@ if(!"bestcost" %in% installed.packages()[, "Package"]){
   credentials::set_github_pat() # paste github PAT if prompted
   devtools::install_github(repo = "best-cost/best-cost_WPs",
                            subdir = "/r_package/bestcost",
-                           ref = "info_as_single_argument", # Branch name (by default "HEAD") as a string
+                           ref = "HEAD", # Branch name (by default "HEAD") as a string
                            force = TRUE)
 }
 library(bestcost)
@@ -237,8 +237,8 @@ impact_mortality_expDistribution_raw <- list()
 
 # Calculate mortality impacts using bestcost function
 
-for(i in 1:nrow(input_data_mortality)){  # Use this if you want to evaluate multiple RRs
-#for(i in 2){                           # Use this if you want to evaluate only one RR
+#for(i in 1:nrow(input_data_mortality)){  # Use this if you want to evaluate multiple RRs
+for(i in 2){                           # Use this if you want to evaluate only one RR
   impact_mortality_expDistribution_raw[[input_data_mortality$year[i]]][[input_data_mortality$rr_id[[i]]]] <-
   
     bestcost::attribute_mortality_lifetable_rr(
