@@ -8,7 +8,8 @@
 #' @param cutoff \code{Numeric value} showing the cut-off exposure in ug/m3 (i.e. the exposure level below which no health effects occur).
 #' @param rr \code{Numeric vector} of three numeric values referring to the central estimate of the exposure-response function and the corresponding lower and upper 95\% confidence interval bounds.
 #' @param rr_increment \code{Numeric value} showing the increment of the exposure-response function in ug/m3 (usually 10 or 5).
-#' @param erf_shape \code{Character string} either "linear" or "loglinear".
+#' @param erf_shape \code{String} showing the shape of the exposure-response function to be assumed using the relative risk from the literature as support point. Options: "linear", log_linear", "linear_log", "log_log".
+#' @param erf_c \code{String} showing the user-defined function that puts the relative risk in relation with concentration. The function must have only one variable: c, which means concentration. E.g. "3+c+c^2". Default value = NULL.
 #' @param first_age_pop \code{Numeric value} starting age of the youngest age group from population and life table data
 #' @param last_age_pop \code{Numeric value} ending age of the oldest age group from population and life table data
 #' @param interval_age_pop \code{Numeric value} of the interval (in years) of each age group from population and life table data
@@ -43,7 +44,8 @@
 attribute_mortality_lifetable_rr <-
   function(exp, prop_pop_exp = 1,
            cutoff,
-           rr, rr_increment, erf_shape,
+           rr, rr_increment,
+           erf_shape, erf_c = NULL,
            first_age_pop, last_age_pop, interval_age_pop,
            prob_natural_death_male, prob_natural_death_female,
            prob_total_death_male, prob_total_death_female,

@@ -1,13 +1,14 @@
 # Title and description
 
-#' Get input data and PAF
+#' Compile input
 
 #' Compiles the input data of the main function and calculates the population attributable fraction based on the input data (all in one data frame)
 #' @param prop_pop_exp \code{Numeric value} or {vector} showing the proportion of population exposed (as a fraction, i.e. values between 0 and 1) for a single exposure value or for multiple categories, i.e., a exposure distribution, respectively. If a exposure distribution is used, the dimension of this input variable should be the same as "exp". By default, 1 for single exposure value will be assigned to this input variable assuming a single exposure value, but users can change this value.
 #' @param cutoff \code{Numeric value} showing the cut-off exposure in ug/m3 (i.e. the exposure level below which no health effects occur).
 #' @param rr \code{Vector} of three numeric values referring to the mean as well as the lower bound and upper bound of the confidence interval.
 #' @param rr_increment \code{Numeric value} showing the increment of the concentration-response function in ug/m3 (usually 10 or 5).
-#' @param erf_shape \code{String} to choose among "linear" and "loglinear".
+#' @param erf_shape \code{String} showing the shape of the exposure-response function to be assumed using the relative risk from the literature as support point. Options: "linear", log_linear", "linear_log", "log_log".
+#' erf_c \code{String} showing the user-defined function that puts the relative risk in relation with concentration. The function must have only one variable: c, which means concentration. E.g. "3+c+c^2". Default value = NULL.
 #' @param bhd \code{Numeric value} showing the baseline health data (incidence of the health outcome in the population).
 #' @param info \code{String} showing additional information or id for the pollutant. The suffix "info" will be added to the column name. Default value = NULL.
 
@@ -28,7 +29,7 @@
 #' @author Alberto Castro
 #' @note Experimental function
 #' @export
-get_input_and_paf <-
+compile_input <-
   function(exp,
            prop_pop_exp,
            cutoff,
@@ -46,6 +47,7 @@ get_input_and_paf <-
       data.frame(
         rr_increment = rr_increment,
         erf_shape = erf_shape,
+        erf_c = erf_c,
         cutoff = cutoff,
         rr = rr,
         # Assign mean, low and high rr values
