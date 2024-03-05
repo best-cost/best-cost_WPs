@@ -36,13 +36,13 @@ attribute_health_singlebhd_rr <-
            cutoff,
            rr,
            rr_increment,
-           erf_shape, erf_c = NULL,
+           erf_shape,
+           erf_c = NULL,
            bhd,
            info = NULL){
-
-  # Compile input data and calculate paf putting all into a data frame
-    input_and_paf <-
-      bestcost::get_input_and_paf(
+    # Compile input data and calculate paf putting all into a data frame
+    input <-
+      bestcost::compile_input(
         exp = exp,
         prop_pop_exp = prop_pop_exp,
         cutoff = cutoff,
@@ -52,7 +52,13 @@ attribute_health_singlebhd_rr <-
         erf_c = erf_c,
         bhd = bhd,
         info = info
-      )
+      ) %>%
+      # Add the method that refer to the function
+      mutate(method = "singlebhd_rr")
+
+    # Get PAF and added to the input data frame
+    input_and_paf <-
+      bestcost::get_paf_from_input(input = input)
 
   # Build the result table adding the paf to the input_and_paf table
    output <-

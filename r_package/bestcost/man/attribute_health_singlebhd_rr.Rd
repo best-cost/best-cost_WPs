@@ -12,6 +12,7 @@ attribute_health_singlebhd_rr(
   rr,
   rr_increment,
   erf_shape,
+  erf_c = NULL,
   bhd,
   info = NULL
 )
@@ -27,11 +28,13 @@ attribute_health_singlebhd_rr(
 
 \item{rr_increment}{\code{Numeric value} showing the increment of the concentration-response function in ug/m3 (usually 10 or 5).}
 
-\item{erf_shape}{\code{String} to choose among "linear" and "loglinear".}
+\item{erf_c}{\code{String} showing the user-defined function that puts the relative risk in relation with concentration. The function must have only one variable: c, which means concentration. E.g. "3+c+c^2". Default value = NULL.}
 
 \item{bhd}{\code{Numeric value} showing the baseline health data (incidence of the health outcome in the population).}
 
 \item{info}{\code{String} showing additional information or id for the pollutant. The suffix "info" will be added to the column name. Default value = NULL.}
+
+\item{\code{String}}{showing the shape of the exposure-response function to be assumed using the relative risk from the literature as support point. Options: "linear", log_linear", "linear_log", "log_log".}
 }
 \value{
 This function returns a \code{data.frame} with one row for each value of the

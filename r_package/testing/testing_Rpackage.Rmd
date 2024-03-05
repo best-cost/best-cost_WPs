@@ -139,7 +139,7 @@ for(i in 1:nrow(input_data_morbidities)){
     bhd = 5269.46,
     rr = c(1.08, 1.07, 1.09),
     rr_increment = 10, 
-    erf_shape = "log_linear", 
+    erf_shape = "log_linear",
     info = data.frame(pollutant = "road_noise", outcome = "YLD"))
   }
 ```
@@ -261,7 +261,7 @@ for(i in 1:nrow(input_data_mortality)){  # Use this if you want to evaluate mult
     year_of_analysis = 2019, 
     info = input_data_mortality$pollutant[i], 
     min_age = input_data_mortality$min_age[i],
-    max_age = input_data_mortality$max_age[i],
+    max_age = if(is.na(input_data_mortality$max_age[i])) NULL else input_data_mortality$max_age[i],
     corrected_discount_rate = 0)
 }
 

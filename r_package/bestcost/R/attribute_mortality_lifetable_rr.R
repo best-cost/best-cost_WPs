@@ -59,92 +59,30 @@ attribute_mortality_lifetable_rr <-
 
     # Digest input data ####
 
-    # Convert NULL into NA in min_age and max_age
-    min_age <- ifelse(is.null(min_age), NA, min_age)
-    max_age <- ifelse(is.null(max_age), NA, max_age)
-
-
-    # Compile rr data to assign categories
-    erf_data <-
-      data.frame(
-        rr = rr,
-        rr_increment = rr_increment,
-        erf_shape = erf_shape,
-        # Assign mean, low and high rr values
-        rr_ci = ifelse(rr %in% min(rr), "low",
-                        ifelse(rr %in% max(rr), "high",
-                               "mean"))) %>%
-      # In case of same value in mean and low or high, assign value randomly
-      dplyr::mutate(ci = ifelse(duplicated(rr), "mean", ci))
-
-
-    # Input data in data frame ####
-    # Compile input data except meta-info
+    # Compile input data and calculate paf putting all into a data frame
     input <-
-      data.frame(
+      bestcost::compile_input(
         exp = exp,
         prop_pop_exp = prop_pop_exp,
         cutoff = cutoff,
-        # Information derived from input data
-        age_range = ifelse(!is.na(max_age), paste0("below", max_age + 1),
-                           ifelse(!is.na(min_age), paste0("from", min_age),
-                                  NA))) %>%
-      # Add rr with a cross join to produce all likely combinations
-      dplyr::cross_join(., erf_data)%>%
+        rr = rr,
+        rr_increment = rr_increment,
+        erf_shape = erf_shape,
+        erf_c = erf_c,
+        bhd = NULL,
+        info = info)%>%
 
-    # Add additional (meta-)information
-
-      bestcost::add_info(df=., info=info)
-
-
-    # Calculate erf estimate at the specified exposure level ####
-    # depending on the erf_shape
-    input_withPaf <-
-      input %>%
+      # Information derived from input data
       dplyr::mutate(
-        rr_forPaf =
-          bestcost::get_risk(rr = rr,
-                             exp = exp,
-                             cutoff = cutoff,
-                             rr_increment = rr_increment,
-                             erf_shape ={{erf_shape}}
-                      #{{}} ensures that the
-                      # value from the function argument is used
-                      # instead of from an existing column
-                      ))
-
-      # Calculate population attributable fraction (PAF) ####
-      paf <-
-        input_withPaf %>%
-        # Group by exp in case that there are different exposure categories
-        dplyr::group_by(rr)%>%
-        dplyr::summarize(paf = bestcost::get_paf(rr_conc = rr_forPaf,
-                                                 prop_pop_exp = prop_pop_exp))
-
-      # Only if exposure distribution (multiple exposure categories)
-      # then reduce the number of rows to keep the same number as in rr
-      if(length(exp)>1){
-        input_withPaf <-
-          input_withPaf %>%
-          dplyr::mutate(
-            # Add a column for the average exp (way to summarize exposure)
-            exp_mean = mean(exp),
-            # Replace the actual values with "multiple" to enable reduction of rows
-            exp = paste(exp, collapse = ", "),
-            prop_pop_exp = paste(prop_pop_exp, collapse = ", "),
-            rr_forPaf = paste(rr_forPaf, collapse = ", "))%>%
-          # Keep only rows that are distinct
-          dplyr::distinct(.)
-      }
-
-    # Data wrangling ####
-    # Join the input table with paf values
-      input_withPaf <-
-        input_withPaf %>%
-        dplyr::left_join(paf,
-                         input_withPaf,
-                         by = "rr")
-
+        # Add age_max and age_min (not needed without life table)
+        age_range = ifelse(!is.null(max_age), paste0("below", max_age + 1),
+                         ifelse(!is.null(min_age), paste0("from", min_age),
+                                NA)),
+        # Add the method that refer to the function
+        method = "lifetable_rr")
+    # Get PAF and added to the input data frame
+    input_and_paf <-
+      bestcost::get_paf_from_input(input = input)
 
 
     # The life table has to be provided as a data.frame (by sex)
@@ -183,7 +121,7 @@ attribute_mortality_lifetable_rr <-
       bestcost::get_pop_impact(
         lifetab_withPop = lifetable_withPop,
         year_of_analysis = year_of_analysis,
-        paf = input_withPaf[, c("ci", "paf")])
+        paf = input_and_paf[, c("ci", "paf")])
 
 
     # Calculate deaths ####
@@ -193,7 +131,7 @@ attribute_mortality_lifetable_rr <-
         year_of_analysis = year_of_analysis,
         min_age = min_age,
         max_age = max_age,
-        meta = input_withPaf)
+        meta = input_and_paf)
 
     # Calculate years of life lost (yll) ####
     yll <-
@@ -202,7 +140,7 @@ attribute_mortality_lifetable_rr <-
         year_of_analysis = year_of_analysis,
         min_age = min_age,
         max_age = max_age,
-        meta = input_withPaf,
+        meta = input_and_paf,
         corrected_discount_rate = corrected_discount_rate)
 
     # Calculate output ####
