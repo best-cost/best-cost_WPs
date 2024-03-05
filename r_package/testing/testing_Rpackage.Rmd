@@ -53,7 +53,7 @@ if(!"bestcost" %in% installed.packages()[, "Package"]){
   credentials::set_github_pat() # paste github PAT if prompted
   devtools::install_github(repo = "best-cost/best-cost_WPs",
                            subdir = "/r_package/bestcost",
-                           ref = "info_as_single_argument", # Branch name (by default "HEAD") as a string
+                           ref = "paf_pif", # Branch name (by default "HEAD") as a string
                            force = TRUE)
 }
 library(bestcost)
@@ -240,29 +240,29 @@ impact_mortality_expDistribution_raw <- list()
 for(i in 1:nrow(input_data_mortality)){  # Use this if you want to evaluate multiple RRs
 #for(i in 2){                           # Use this if you want to evaluate only one RR
   impact_mortality_expDistribution_raw[[input_data_mortality$year[i]]][[input_data_mortality$rr_id[[i]]]] <-
-  
+    
     bestcost::attribute_mortality_lifetable_rr(
-    exp = c(8, 9, 10), # Fake data just for testing purposes
-    prop_pop_exp = c(0.2, 0.3, 0.5), # Fake data just for testing purposes
-    cutoff = input_data_mortality$cutoff[i],   # PM2.5=5, NO2=10, i.e. WHO AQG 2021 
-    rr = unlist(input_data_mortality[i,
-                                      c("rr_mean", "rr_lowci", "rr_highci")]),
-    rr_increment = 10, 
-    erf_shape = "log_linear",
-    first_age_pop = 0,
-    last_age_pop = 99,
-    interval_age_pop = 1,
-    prob_natural_death_male = lifetable_withPopulation[["male"]]$death_probability_natural,
-    prob_natural_death_female = lifetable_withPopulation[["female"]]$death_probability_natural,
-    prob_total_death_male = lifetable_withPopulation[["male"]]$death_probability_total,
-    prob_total_death_female = lifetable_withPopulation[["female"]]$death_probability_total,
-    population_male = lifetable_withPopulation[["male"]]$population, 
-    population_female = lifetable_withPopulation[["female"]]$population, 
-    year_of_analysis = 2019, 
-    info = input_data_mortality$pollutant[i], 
-    min_age = input_data_mortality$min_age[i],
-    max_age = if(is.na(input_data_mortality$max_age[i])) NULL else input_data_mortality$max_age[i],
-    corrected_discount_rate = 0)
+      exp = c(8, 9, 10), # Fake data just for testing purposes
+      prop_pop_exp = c(0.2, 0.3, 0.5), # Fake data just for testing purposes
+      cutoff = input_data_mortality$cutoff[i],   # PM2.5=5, NO2=10, i.e. WHO AQG 2021 
+      rr = unlist(input_data_mortality[i,
+                                        c("rr_mean", "rr_lowci", "rr_highci")]),
+      rr_increment = 10, 
+      erf_shape = "log_linear",
+      first_age_pop = 0,
+      last_age_pop = 99,
+      interval_age_pop = 1,
+      prob_natural_death_male = lifetable_withPopulation[["male"]]$death_probability_natural,
+      prob_natural_death_female = lifetable_withPopulation[["female"]]$death_probability_natural,
+      prob_total_death_male = lifetable_withPopulation[["male"]]$death_probability_total,
+      prob_total_death_female = lifetable_withPopulation[["female"]]$death_probability_total,
+      population_male = lifetable_withPopulation[["male"]]$population, 
+      population_female = lifetable_withPopulation[["female"]]$population, 
+      year_of_analysis = 2019, 
+      info = input_data_mortality$pollutant[i], 
+      min_age = if(is.na(input_data_mortality$min_age[i])) NULL else input_data_mortality$min_age[i],
+      max_age = if(is.na(input_data_mortality$max_age[i])) NULL else input_data_mortality$max_age[i],
+      corrected_discount_rate = 0)
 }
 
 head(impact_mortality_expDistribution_raw$`2019`$`PM2.5_premature deaths_all causes_adults_main_ERS-ISEE_2022_selected`$deaths$impact) # to check results stay the same

@@ -46,7 +46,7 @@ get_paf_from_input <-
     # Data wrangling ####
     # Only if exposure distribution (multiple exposure categories)
     # then reduce the number of rows to keep the same number as in rr
-    if(length(exp)>1){
+    if(length(unique(input_and_paf$exp))>1){
       input_and_paf <-
         input_and_paf %>%
         dplyr::mutate(

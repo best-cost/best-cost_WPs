@@ -80,6 +80,7 @@ attribute_mortality_lifetable_rr <-
                                 NA)),
         # Add the method that refer to the function
         method = "lifetable_rr")
+
     # Get PAF and added to the input data frame
     input_and_paf <-
       bestcost::get_paf_from_input(input = input)
