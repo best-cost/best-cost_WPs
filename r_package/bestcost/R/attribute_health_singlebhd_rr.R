@@ -39,83 +39,18 @@ attribute_health_singlebhd_rr <-
            bhd,
            info = NULL){
 
-    # Check input data ####
-    # TBA: checks
-
-    # Input data in data frame ####
-    # Compile rr data to assign categories
-    erf_data <-
-      data.frame(
-        rr_increment = rr_increment,
-        erf_shape = erf_shape,
-        cutoff = cutoff,
-        rr = rr,
-        # Assign mean, low and high rr values
-        rr_ci = ifelse(rr %in% min(rr), "low",
-                        ifelse(rr %in% max(rr), "high",
-                               "mean"))) %>%
-      # In case of same value in mean and low or high, assign value randomly
-      dplyr::mutate(ci = ifelse(duplicated(rr), "mean", ci))
-
-    # Compile input data except meta-info
-    input <-
-      data.frame(
+  # Compile input data and calculate paf putting all into a data frame
+    input_and_paf <-
+      bestcost::get_input_and_paf(
         exp = exp,
         prop_pop_exp = prop_pop_exp,
-        bhd = bhd)
-      # Add rr with a cross join to produce all likely combinations
-      dplyr::cross_join(., erf_data)
-      # Add additional (meta-)information
-    input <-
-      bestcost::add_info(df=input, info=info)
-
-
-    # Calculate health impact attributable to exposure ####
-    input_and_paf <-
-      input %>%
-      dplyr::mutate(
-        rr_forPaf =
-          get_risk(rr = rr,
-                   exp = exp,
-                   cutoff = cutoff,
-                   rr_increment = rr_increment,
-                   erf_shape = {{erf_shape}}
-                   #{{}} ensures that the
-                   # value from the function argument is used
-                   # instead of from an existing column
-                   ))
-
-    # Calculate population attributable fraction (PAF) ####
-    paf <-
-      input_and_paf %>%
-      # Group by exp in case that there are different exposure categories
-      dplyr::group_by(rr) %>%
-      dplyr::summarize(paf = bestcost::get_paf(rr_conc = rr_forPaf,
-                                               prop_pop_exp = prop_pop_exp))
-
-    # Data wrangling ####
-    # Only if exposure distribution (multiple exposure categories)
-    # then reduce the number of rows to keep the same number as in rr
-    if(length(exp)>1){
-      input_and_paf <-
-        input_and_paf %>%
-        dplyr::mutate(
-          # Add a column for the average exp (way to summarize exposure)
-          exp_mean = mean(exp),
-          # Replace the actual values with "multiple" to enable reduction of rows
-          exp = paste(exp, collapse = ", "),
-          prop_pop_exp = paste(prop_pop_exp, collapse = ", "),
-          rr_forPaf = paste(rr_forPaf, collapse = ", ")) %>%
-        # Keep only rows that are distinct
-        dplyr::distinct(.)
-    }
-
-    # Join the input table with paf values
-    input_and_paf <-
-      input_and_paf %>%
-      dplyr::left_join(paf,
-                       input_and_paf,
-                       by = "rr")
+        cutoff = cutoff,
+        rr = rr,
+        rr_increment = rr_increment,
+        erf_shape = erf_shape,
+        bhd = bhd,
+        info = info
+      )
 
   # Build the result table adding the paf to the input_and_paf table
    output <-

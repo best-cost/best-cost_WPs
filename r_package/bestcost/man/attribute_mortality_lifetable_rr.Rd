@@ -2,7 +2,7 @@
 % Please edit documentation in R/attribute_mortality_lifetable_rr.R
 \name{attribute_mortality_lifetable_rr}
 \alias{attribute_mortality_lifetable_rr}
-\title{Health impacts based on life tables}
+\title{Attributable health cases based on life tables}
 \usage{
 attribute_mortality_lifetable_rr(
   exp,

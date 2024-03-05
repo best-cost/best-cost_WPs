@@ -2,8 +2,8 @@
 
 #' Get input data and PAF
 
-#' Compiles the input data of the main function and calculates the population attributable fraction based on the input data (all in one data frame)
-#' @param prop_pop_exp \code{Numeric value} or {vector} showing the proportion of population exposed (as a fraction, i.e. values between 0 and 1) for a single exposure value or for multiple categories, i.e., a exposure distribution, respectively. If a exposure distribution is used, the dimension of this input variable should be the same as "exp". By default, 1 for single exposure value will be assigned to this input variable assuming a single exposure value, but users can change this value.
+#' Calculates the population attributable fraction (PAF) based on the input data and puts the results in additional columns joined to the input data frame.
+#' @param input \code{Data frame} with the input data including proportion of population exposed (prop_pop_exp), the cut-off (cutoff), the exposure-response data (rr_increment)
 #' @param cutoff \code{Numeric value} showing the cut-off exposure in ug/m3 (i.e. the exposure level below which no health effects occur).
 #' @param rr \code{Vector} of three numeric values referring to the mean as well as the lower bound and upper bound of the confidence interval.
 #' @param rr_increment \code{Numeric value} showing the increment of the concentration-response function in ug/m3 (usually 10 or 5).
@@ -61,9 +61,54 @@ get_input_and_paf <-
         exp = exp,
         prop_pop_exp = prop_pop_exp,
         bhd = bhd)%>%
-    # Add rr with a cross join to produce all likely combinations
-    dplyr::cross_join(., erf_data) %>%
+      # Add rr with a cross join to produce all likely combinations
+      dplyr::cross_join(., erf_data)
     # Add additional (meta-)information
-      bestcost::add_info(df=., info=info)
+    input <-
+      bestcost::add_info(df=input, info=info)
 
+
+    # Calculate health impact attributable to exposure ####
+    input_and_paf <-
+      input %>%
+      dplyr::mutate(
+        rr_forPaf =
+          get_risk(rr = rr,
+                   exp = exp,
+                   cutoff = cutoff,
+                   rr_increment = rr_increment,
+                   erf_shape = unique(erf_shape)
+          ))
+
+    # Calculate population attributable fraction (PAF) ####
+    paf <-
+      input_and_paf %>%
+      # Group by exp in case that there are different exposure categories
+      dplyr::group_by(rr) %>%
+      dplyr::summarize(paf = bestcost::get_paf(rr_conc = rr_forPaf,
+                                               prop_pop_exp = prop_pop_exp))
+
+    # Data wrangling ####
+    # Only if exposure distribution (multiple exposure categories)
+    # then reduce the number of rows to keep the same number as in rr
+    if(length(exp)>1){
+      input_and_paf <-
+        input_and_paf %>%
+        dplyr::mutate(
+          # Add a column for the average exp (way to summarize exposure)
+          exp_mean = mean(exp),
+          # Replace the actual values with "multiple" to enable reduction of rows
+          exp = paste(exp, collapse = ", "),
+          prop_pop_exp = paste(prop_pop_exp, collapse = ", "),
+          rr_forPaf = paste(rr_forPaf, collapse = ", ")) %>%
+        # Keep only rows that are distinct
+        dplyr::distinct(.)
+    }
+
+    # Join the input table with paf values
+    input_and_paf <-
+      input_and_paf %>%
+      dplyr::left_join(paf,
+                       input_and_paf,
+                       by = "rr")
   }
