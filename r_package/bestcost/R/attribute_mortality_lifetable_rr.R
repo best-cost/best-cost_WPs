@@ -1,6 +1,6 @@
 # Title and description
 
-#' Health impacts based on life tables
+#' Attributable health cases based on life tables
 #'
 #' Calculates the mortality (premature deaths) or years of life lost attributable to the exposure to an environmental stressor using a life table approach. It provides the central estimate of the impact and the corresponding 95\% confidence intervals (based on the 95\% confidence interval exposure-response function).
 #' @param exp \code{Numeric values} Population-weighted mean exposure in ug/m3 or {vector} showing the exposure category in a exposure distribution (this information is linked to the proportion of population exposed).
@@ -63,7 +63,7 @@ attribute_mortality_lifetable_rr <-
 
 
     # Compile rr data to assign categories
-    rr_data <-
+    erf_data <-
       data.frame(
         rr = rr,
         rr_increment = rr_increment,
@@ -78,22 +78,21 @@ attribute_mortality_lifetable_rr <-
 
     # Input data in data frame ####
     # Compile input data except meta-info
-    input_wo_info <-
+    input <-
       data.frame(
         exp = exp,
         prop_pop_exp = prop_pop_exp,
         cutoff = cutoff,
         # Information derived from input data
-        approach_id = paste0("lifetable_", erf_shape),
         age_range = ifelse(!is.na(max_age), paste0("below", max_age + 1),
                            ifelse(!is.na(min_age), paste0("from", min_age),
                                   NA))) %>%
       # Add rr with a cross join to produce all likely combinations
-      dplyr::cross_join(., rr_data)
+      dplyr::cross_join(., erf_data)%>%
 
     # Add additional (meta-)information
-    input <-
-      bestcost::add_info(df=input_wo_info, info=info)
+
+      bestcost::add_info(df=., info=info)
 
 
     # Calculate erf estimate at the specified exposure level ####
@@ -102,11 +101,11 @@ attribute_mortality_lifetable_rr <-
       input %>%
       dplyr::mutate(
         rr_forPaf =
-          get_risk(rr = rr,
-                      exp = exp,
-                      cutoff = cutoff,
-                      rr_increment = rr_increment,
-                      erf_shape ={{erf_shape}}
+          bestcost::get_risk(rr = rr,
+                             exp = exp,
+                             cutoff = cutoff,
+                             rr_increment = rr_increment,
+                             erf_shape ={{erf_shape}}
                       #{{}} ensures that the
                       # value from the function argument is used
                       # instead of from an existing column
@@ -145,6 +144,7 @@ attribute_mortality_lifetable_rr <-
                          by = "rr")
 
 
+
     # The life table has to be provided as a data.frame (by sex)
     # The first column has to be the age. Second, probability of death. Third, population.
     # Rename column names to standard names
@@ -174,29 +174,6 @@ attribute_mortality_lifetable_rr <-
           death_probability_total = prob_total_death_female,
           population = population_female))
 
-    input_info_paf <-
-      input %>%
-      dplyr::mutate(
-        rr_forPaf =
-          bestcost::get_risk(rr = rr,
-                      exp = exp,
-                      cutoff = cutoff,
-                      rr_increment = rr_increment,
-                      erf_shape ={{erf_shape}}
-                      #{{}} ensures that the
-                      # value from the function argument is used
-                      # instead of from an existing column
-                      ),
-        rr_ci = ifelse(rr %in% min(rr), "low",
-                        ifelse(rr %in% max(rr), "high",
-                               "mean"))) %>%
-      # In case of same value in mean and low or high, assign value randomly
-      dplyr::mutate(ci = ifelse(duplicated(rr), "mean", ci)) %>%
-
-      # Calculate attributable fraction (AF) as well as impact
-      dplyr::mutate(approach_id = paste0("singleValue_", erf_shape),
-                    paf =  bestcost::get_paf(rr_conc = rr_forPaf,
-                                             prop_pop_exp = prop_pop_exp))
 
 
     # Get population impact ####

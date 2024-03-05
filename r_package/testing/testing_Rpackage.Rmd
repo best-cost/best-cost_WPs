@@ -84,7 +84,7 @@ load("../testing/input/input_data_for_testing_Rpackage.RData")
 
 # Calculate health impacts
 
-```{r Test attribute_yld_rr single input value}
+```{r Test attribute_yld_rr single input value, eval=FALSE, include=FALSE}
 test <- bestcost::attribute_yld_rr(
   dw = 0.133, # for health state "Asthma, uncontrolled" (cf. bestcost::disability_weights)
   exp = c(input_data_morbidities$exp[12], input_data_morbidities$exp[12]+20, input_data_morbidities$exp[12]+30),

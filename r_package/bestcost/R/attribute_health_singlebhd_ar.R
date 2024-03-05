@@ -1,6 +1,6 @@
 # Title and description
 
-#' Health impacts based on single baseline health value
+#' Attributable health cases based on single baseline health value
 #'
 #' Calculates the health impacts, of an environmental stressor (e.g. noise) using the absolute risk instead of the relative risk
 #' @param exp \code{Vector} showing the mid-point exposure in the exposure categories (average of the exposure ranges) in a exposure distribution referring only to the exposed population. The length of exp and pop_exp must be the same.
@@ -33,7 +33,7 @@ attribute_health_singlebhd_ar <-
 
     # Input data in data frame
     # Compile input data except meta-info
-    input_wo_info <-
+    input <-
       data.frame(
         exp = exp,
         pop_exp = pop_exp,
@@ -42,7 +42,7 @@ attribute_health_singlebhd_ar <-
 
     # Add additional (meta-)information
     input <-
-      bestcost::add_info(df=input_wo_info, info=info)
+      bestcost::add_info(df=input, info=info)
 
     # Calculate absolute risk for each exposure category ####
     output_byExposureCategory <-
@@ -63,11 +63,12 @@ attribute_health_singlebhd_ar <-
         across(c(pop_exp, absolute_risk_as_percent, population_affected),
                sum),
                .groups = "drop") %>%
-      dplyr::mutate(population_affected_rounded = round(population_affected, 0))
+      dplyr::mutate(attributable_cases = population_affected,
+                    attributable_cases_rounded = round(attributable_cases, 0))
 
     output <-
       list(total = output_total,
-           byExposureCategory = output_byExposureCategory)
+           disaggregated = list(by_exp_category = output_byExposureCategory))
 
     return(output)
   }

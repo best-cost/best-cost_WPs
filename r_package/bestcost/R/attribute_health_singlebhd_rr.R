@@ -1,6 +1,6 @@
 # Title and description
 
-#' Health impacts based on absolute risk
+#' Attributable health cases based on absolute risk
 
 #' Calculates the health impacts, mortality or morbidity, of an environmental stressor using a single value for baseline heath data, i.e. without life table. It provides as a result the mean as well as the lower and the higher bound of the impact based on the confidence interval of the concentration-response function.
 #' @param exp \code{Numeric value} showing the population-weighted mean exposure in ug/m3 or {vector} showing the exposure category in a exposure distribution (this information is linked to the proportion of population exposed).
@@ -58,38 +58,36 @@ attribute_health_singlebhd_rr <-
       dplyr::mutate(ci = ifelse(duplicated(rr), "mean", ci))
 
     # Compile input data except meta-info
-    input_wo_info <-
+    input <-
       data.frame(
         exp = exp,
         prop_pop_exp = prop_pop_exp,
-        bhd = bhd,
-        approach_id = paste0("lifetable_", erf_shape)) %>%
+        bhd = bhd)
       # Add rr with a cross join to produce all likely combinations
       dplyr::cross_join(., erf_data)
-
-    # Add additional (meta-)information
+      # Add additional (meta-)information
     input <-
-      bestcost::add_info(df=input_wo_info, info=info)
+      bestcost::add_info(df=input, info=info)
 
 
     # Calculate health impact attributable to exposure ####
-    input_withPaf <-
+    input_and_paf <-
       input %>%
       dplyr::mutate(
         rr_forPaf =
           get_risk(rr = rr,
-                      exp = exp,
-                      cutoff = cutoff,
-                      rr_increment = rr_increment,
-                      erf_shape = {{erf_shape}}
-                      #{{}} ensures that the
-                      # value from the function argument is used
-                      # instead of from an existing column
-                      ))
+                   exp = exp,
+                   cutoff = cutoff,
+                   rr_increment = rr_increment,
+                   erf_shape = {{erf_shape}}
+                   #{{}} ensures that the
+                   # value from the function argument is used
+                   # instead of from an existing column
+                   ))
 
     # Calculate population attributable fraction (PAF) ####
     paf <-
-      input_withPaf %>%
+      input_and_paf %>%
       # Group by exp in case that there are different exposure categories
       dplyr::group_by(rr) %>%
       dplyr::summarize(paf = bestcost::get_paf(rr_conc = rr_forPaf,
@@ -99,8 +97,8 @@ attribute_health_singlebhd_rr <-
     # Only if exposure distribution (multiple exposure categories)
     # then reduce the number of rows to keep the same number as in rr
     if(length(exp)>1){
-      input_withPaf <-
-        input_withPaf %>%
+      input_and_paf <-
+        input_and_paf %>%
         dplyr::mutate(
           # Add a column for the average exp (way to summarize exposure)
           exp_mean = mean(exp),
@@ -113,21 +111,21 @@ attribute_health_singlebhd_rr <-
     }
 
     # Join the input table with paf values
-    input_withPaf <-
-      input_withPaf %>%
+    input_and_paf <-
+      input_and_paf %>%
       dplyr::left_join(paf,
-                       input_withPaf,
+                       input_and_paf,
                        by = "rr")
 
-  # Build the result table adding the paf to the input_withPaf table
+  # Build the result table adding the paf to the input_and_paf table
    output <-
-      input_withPaf %>%
-      dplyr::mutate(impact = paf * bhd,
-                    impact_rounded = round(impact, 0)) %>%
+      input_and_paf %>%
+      dplyr::mutate(attributable_cases = paf * bhd,
+                    attributable_cases_rounded = round(attributable_cases, 0)) %>%
       # Order columns
       dplyr::select(exp, cutoff, bhd,
                     rr, rr_forPaf, rr_increment, ci, erf_shape,
-                    paf, impact, impact_rounded,
+                    paf, attributable_cases, attributable_cases_rounded,
                     starts_with("info"))
 
 
