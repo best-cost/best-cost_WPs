@@ -51,6 +51,8 @@ attribute_health_singlebhd_rr <-
         erf_shape = erf_shape,
         erf_c = erf_c,
         bhd = bhd,
+        min_age = NULL,
+        max_age = NULL,
         info = info,
         method = "singlebhd_rr")
 

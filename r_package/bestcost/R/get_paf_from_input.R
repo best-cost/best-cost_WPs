@@ -24,11 +24,11 @@ get_paf_from_input <-
   function(input){
 
     # Calculate health impact attributable to exposure ####
-    input_and_paf <-
+    input_and_risk <-
       input %>%
       dplyr::mutate(
         rr_forPaf =
-          get_risk(rr = rr,
+          bestcost::get_risk(rr = rr,
                    exp = exp,
                    cutoff = cutoff,
                    rr_increment = rr_increment,
@@ -37,7 +37,7 @@ get_paf_from_input <-
 
     # Calculate population attributable fraction (PAF) ####
     paf <-
-      input_and_paf %>%
+      input_and_risk %>%
       # Group by exp in case that there are different exposure categories
       dplyr::group_by(rr) %>%
       dplyr::summarize(paf = bestcost::get_paf(rr_conc = rr_forPaf,
@@ -46,9 +46,9 @@ get_paf_from_input <-
     # Data wrangling ####
     # Only if exposure distribution (multiple exposure categories)
     # then reduce the number of rows to keep the same number as in rr
-    if(length(unique(input_and_paf$exp))>1){
-      input_and_paf <-
-        input_and_paf %>%
+    if(length(unique(input_and_risk$exp))>1){
+      input_and_risk <-
+        input_and_risk %>%
         dplyr::mutate(
           # Add a column for the average exp (way to summarize exposure)
           exp_mean = mean(exp),
@@ -62,9 +62,8 @@ get_paf_from_input <-
 
     # Join the input table with paf values
     input_and_paf <-
-      input_and_paf %>%
       dplyr::left_join(paf,
-                       input_and_paf,
+                       input_and_risk,
                        by = "rr")
 
     return(input_and_paf)

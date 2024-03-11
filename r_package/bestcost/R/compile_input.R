@@ -11,6 +11,8 @@
 #' @param erf_c \code{String} showing the user-defined function that puts the relative risk in relation with concentration. The function must have only one variable: c, which means concentration. E.g. "3+c+c^2". Default value = NULL.
 #' @param bhd \code{Numeric value} showing the baseline health data (incidence of the health outcome in the population).
 #' @param info \code{String} showing additional information or id for the pollutant. The suffix "info" will be added to the column name. Default value = NULL.
+#' @param min_age \code{Numberic value} of the minimal age to be considered for adults (by default 30, i.e. 30+).
+#' @param max_age \code{Numberic value} of the maximal age to be considered for infants/children (by default 0, i.e. below 1 year old).
 #' @param method \code{String} showing the calculation methods.
 
 #' @return
@@ -38,6 +40,8 @@ compile_input <-
            erf_shape,
            erf_c,
            bhd,
+           min_age = NULL,
+           max_age = NULL,
            info,
            method){
     # Check input data ####
@@ -73,7 +77,13 @@ compile_input <-
     dplyr::cross_join(., erf_data) %>%
     # Add additional (meta-)information
       bestcost::add_info(df=., info=info) %>%
-      # Add the method that refer to the function
-      mutate(method = method)
+      # Information derived from input data
+      dplyr::mutate(
+        # Add age_max and age_min (not needed without life table)
+        age_range = ifelse(!is.null(max_age) & is.null(min_age), paste0("below", max_age + 1),
+                           ifelse(!is.null(min_age) & is.null(max_age), paste0("from", min_age),
+                                  NA)),
+        # Add the method that refer to the function
+        method = method)
 
   }

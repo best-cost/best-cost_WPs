@@ -70,16 +70,11 @@ attribute_mortality_lifetable_rr <-
         erf_shape = erf_shape,
         erf_c = erf_c,
         bhd = NULL,
-        info = info)%>%
+        min_age = min_age,
+        max_age = max_age,
+        info = info,
+        method = paste0("lifetable_rr_corrected_discount_rate_", corrected_discount_rate))%>%
 
-      # Information derived from input data
-      dplyr::mutate(
-        # Add age_max and age_min (not needed without life table)
-        age_range = ifelse(!is.null(max_age), paste0("below", max_age + 1),
-                         ifelse(!is.null(min_age), paste0("from", min_age),
-                                NA)),
-        # Add the method that refer to the function
-        method = "lifetable_rr")
 
     # Get PAF and added to the input data frame
     input_and_paf <-
