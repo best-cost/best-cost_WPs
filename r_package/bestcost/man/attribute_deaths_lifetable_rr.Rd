@@ -2,7 +2,7 @@
 % Please edit documentation in R/attribute_deaths_lifetable_rr.R
 \name{attribute_deaths_lifetable_rr}
 \alias{attribute_deaths_lifetable_rr}
-\title{Attributable health cases based on life tables}
+\title{Attributable deaths based on life tables}
 \usage{
 attribute_deaths_lifetable_rr(
   exp,
@@ -80,7 +80,7 @@ Moreover, the data frame include columns such as:
 }
 }
 \description{
-Calculates the mortality (premature deaths) or years of life lost attributable to the exposure to an environmental stressor using a life table approach. It provides the central estimate of the impact and the corresponding 95\% confidence intervals (based on the 95\% confidence interval exposure-response function).
+Calculates the premature deaths attributable to the exposure to an environmental stressor using a life table approach. It provides the central estimate of the impact and the corresponding 95\% confidence intervals (based on the 95\% confidence interval exposure-response function).
 }
 \note{
 Experimental function

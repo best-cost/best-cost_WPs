@@ -239,7 +239,7 @@ impact_deaths_expDistribution_raw <- list()
 
 for(i in 1:nrow(input_data_mortality)){  # Use this if you want to evaluate multiple RRs
 #for(i in 2){                           # Use this if you want to evaluate only one RR
-  impact_mortality_expDistribution_raw[[input_data_mortality$year[i]]][[input_data_mortality$rr_id[[i]]]] <-
+  impact_deaths_expDistribution_raw[[input_data_mortality$year[i]]][[input_data_mortality$rr_id[[i]]]] <-
     
     bestcost::attribute_deaths_lifetable_rr(
       exp = c(8, 9, 10), # Fake data just for testing purposes
@@ -264,11 +264,11 @@ for(i in 1:nrow(input_data_mortality)){  # Use this if you want to evaluate mult
       max_age = if(is.na(input_data_mortality$max_age[i])) NULL else input_data_mortality$max_age[i])
 }
 
-head(impact_mortality_expDistribution_raw$`2019`$`PM2.5_premature deaths_all causes_adults_main_ERS-ISEE_2022_selected`$total$impact) # to check results stay the same
+head(impact_deaths_expDistribution_raw$`2019`$`PM2.5_premature deaths_all causes_adults_main_ERS-ISEE_2022_selected`$total$impact) # to check results stay the same
 #4250 1537 2911
 
 
-impact_mortality_expDistribution_raw <- list()
+impact_yll_expDistribution_raw <- list()
 
 # Calculate mortality impacts using bestcost function
 

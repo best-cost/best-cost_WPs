@@ -133,7 +133,7 @@ get_yll <-
                     discount %in% "discounted")
 
 
-    output <- list(total = yll, detailed = yll_detailed,)
+    output <- list(total = yll, detailed = yll_detailed)
 
     return(output)
   }
