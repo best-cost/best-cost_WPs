@@ -78,7 +78,7 @@ attribute_mortality_lifetable_rr <-
 
     # Get PAF and added to the input data frame
     input_and_paf <-
-      bestcost::get_paf_from_input(input = input)
+      bestcost::get_risk_and_paf(input = input)
 
 
     # The life table has to be provided as a data.frame (by sex)

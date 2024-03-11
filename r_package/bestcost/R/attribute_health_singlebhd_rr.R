@@ -58,7 +58,7 @@ attribute_health_singlebhd_rr <-
 
     # Get PAF and added to the input data frame
     calculation <-
-      bestcost::get_paf_from_input(input = input) %>%
+      bestcost::get_risk_and_paf(input = input) %>%
       # Build the result table adding the paf to the input_and_paf table
         dplyr::mutate(attributable_cases = paf * bhd,
                       attributable_cases_rounded = round(attributable_cases, 0)) %>%

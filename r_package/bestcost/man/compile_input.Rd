@@ -14,7 +14,10 @@ compile_input(
   erf_shape,
   erf_c,
   bhd,
-  info
+  min_age = NULL,
+  max_age = NULL,
+  info,
+  method
 )
 }
 \arguments{
@@ -32,7 +35,13 @@ compile_input(
 
 \item{bhd}{\code{Numeric value} showing the baseline health data (incidence of the health outcome in the population).}
 
+\item{min_age}{\code{Numberic value} of the minimal age to be considered for adults (by default 30, i.e. 30+).}
+
+\item{max_age}{\code{Numberic value} of the maximal age to be considered for infants/children (by default 0, i.e. below 1 year old).}
+
 \item{info}{\code{String} showing additional information or id for the pollutant. The suffix "info" will be added to the column name. Default value = NULL.}
+
+\item{method}{\code{String} showing the calculation methods.}
 }
 \value{
 This function returns a \code{data.frame} with all input data together
