@@ -77,7 +77,7 @@ attribute_mortality_lifetable_rr <-
 
 
     # Get PAF and added to the input data frame
-    input_and_paf <-
+    input_risk_paf <-
       bestcost::get_risk_and_paf(input = input)
 
 
@@ -117,7 +117,7 @@ attribute_mortality_lifetable_rr <-
       bestcost::get_pop_impact(
         lifetab_withPop = lifetable_withPop,
         year_of_analysis = year_of_analysis,
-        paf = input_and_paf[, c("ci", "paf")])
+        paf = input_risk_paf[, c("ci", "paf")])
 
 
     # Calculate deaths ####
@@ -127,7 +127,7 @@ attribute_mortality_lifetable_rr <-
         year_of_analysis = year_of_analysis,
         min_age = min_age,
         max_age = max_age,
-        meta = input_and_paf)
+        meta = input_risk_paf)
 
     # Calculate years of life lost (yll) ####
     yll <-
@@ -136,7 +136,7 @@ attribute_mortality_lifetable_rr <-
         year_of_analysis = year_of_analysis,
         min_age = min_age,
         max_age = max_age,
-        meta = input_and_paf,
+        meta = input_risk_paf,
         corrected_discount_rate = corrected_discount_rate)
 
     # Calculate output ####

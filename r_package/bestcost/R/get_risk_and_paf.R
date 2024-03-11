@@ -36,7 +36,7 @@ get_risk_and_paf <-
                              ))
 
     # Calculate population attributable fraction (PAF) ####
-    input_and_paf <-
+    input_risk_paf <-
       input_and_risk %>%
       # Group by exp in case that there are different exposure categories
       dplyr::group_by(rr) %>%
@@ -50,8 +50,8 @@ get_risk_and_paf <-
     # Only if exposure distribution (multiple exposure categories)
     # then reduce the number of rows to keep the same number as in rr
     if(length(unique(input_and_risk$exp))>1){
-      input_and_paf <-
-        input_and_paf %>%
+      input_risk_paf <-
+        input_risk_paf %>%
         dplyr::mutate(
           # Add a column for the average exp (way to summarize exposure)
           exp_mean = mean(exp),
@@ -63,5 +63,5 @@ get_risk_and_paf <-
         dplyr::distinct(.)
     }
 
-    return(input_and_paf)
+    return(input_risk_paf)
   }
