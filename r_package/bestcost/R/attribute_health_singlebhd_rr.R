@@ -51,25 +51,22 @@ attribute_health_singlebhd_rr <-
         erf_shape = erf_shape,
         erf_c = erf_c,
         bhd = bhd,
-        info = info
-      ) %>%
-      # Add the method that refer to the function
-      mutate(method = "singlebhd_rr")
+        info = info,
+        method = "singlebhd_rr")
 
     # Get PAF and added to the input data frame
-    input_and_paf <-
-      bestcost::get_paf_from_input(input = input)
+    calculation <-
+      bestcost::get_paf_from_input(input = input) %>%
+      # Build the result table adding the paf to the input_and_paf table
+        dplyr::mutate(attributable_cases = paf * bhd,
+                      attributable_cases_rounded = round(attributable_cases, 0)) %>%
+        # Order columns
+        dplyr::select(exp, cutoff, bhd,
+                      rr, rr_forPaf, rr_increment, ci, erf_shape,
+                      paf, attributable_cases, attributable_cases_rounded,
+                      starts_with("info"))
 
-  # Build the result table adding the paf to the input_and_paf table
-   output <-
-      input_and_paf %>%
-      dplyr::mutate(attributable_cases = paf * bhd,
-                    attributable_cases_rounded = round(attributable_cases, 0)) %>%
-      # Order columns
-      dplyr::select(exp, cutoff, bhd,
-                    rr, rr_forPaf, rr_increment, ci, erf_shape,
-                    paf, attributable_cases, attributable_cases_rounded,
-                    starts_with("info"))
+   output <- list(total = calculation)
 
 
     return(output)

@@ -146,12 +146,10 @@ attribute_mortality_lifetable_rr <-
 
     # Calculate output ####
     output <-
-      list(
-        pop_impact = pop_impact,
-        deaths_detailed = deaths[["deaths_detailed"]],
-        deaths = deaths[["deaths"]],
-        yll_detailed = yll[["yll_detailed"]],
-        yll = yll[["yll"]])
+      list(deaths_total = deaths[["total"]],
+           deaths_detailed = deaths[["detailed"]],
+           yll_total = yll[["total"]],
+           yll_detailed = yll[["detailed"]])
 
     return(output)
 

@@ -68,7 +68,7 @@ attribute_health_singlebhd_ar <-
 
     output <-
       list(total = output_total,
-           disaggregated = list(by_exp_category = output_byExposureCategory))
+           detailed = list(by_exp_category = output_byExposureCategory))
 
     return(output)
   }

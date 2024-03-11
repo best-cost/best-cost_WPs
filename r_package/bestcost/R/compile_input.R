@@ -11,6 +11,7 @@
 #' @param erf_c \code{String} showing the user-defined function that puts the relative risk in relation with concentration. The function must have only one variable: c, which means concentration. E.g. "3+c+c^2". Default value = NULL.
 #' @param bhd \code{Numeric value} showing the baseline health data (incidence of the health outcome in the population).
 #' @param info \code{String} showing additional information or id for the pollutant. The suffix "info" will be added to the column name. Default value = NULL.
+#' @param method \code{String} showing the calculation methods.
 
 #' @return
 #' This function returns a \code{data.frame} with all input data together
@@ -37,7 +38,8 @@ compile_input <-
            erf_shape,
            erf_c,
            bhd,
-           info){
+           info,
+           method){
     # Check input data ####
     # TBA: checks
 
@@ -70,6 +72,8 @@ compile_input <-
     # Add rr with a cross join to produce all likely combinations
     dplyr::cross_join(., erf_data) %>%
     # Add additional (meta-)information
-      bestcost::add_info(df=., info=info)
+      bestcost::add_info(df=., info=info) %>%
+      # Add the method that refer to the function
+      mutate(method = method)
 
   }

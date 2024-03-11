@@ -63,7 +63,6 @@ get_deaths <-
       deaths_by %>%
       # Sum among age groups
       # Sum among sex
-      # Add row for total by age group (infants+adults)
       dplyr::bind_rows(
         group_by(., ci) %>%
           summarise(.,
@@ -94,7 +93,7 @@ get_deaths <-
       dplyr::filter(sex %in% "total")
 
 
-    output <- list(deaths_detailed = deaths_detailed, deaths = deaths)
+    output <- list(total = deaths, detailed = deaths_detailed)
 
     return(output)
 
