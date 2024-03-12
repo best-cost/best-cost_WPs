@@ -40,6 +40,7 @@ attribute_health_singlebhd_rr <-
            erf_c = NULL,
            bhd,
            info = NULL){
+
     # Compile input data and calculate paf putting all into a data frame
     input <-
       bestcost::compile_input(
