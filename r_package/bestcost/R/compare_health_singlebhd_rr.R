@@ -34,7 +34,7 @@
 #' @author Alberto Castro
 #' @note Experimental function
 #' @export
-attribute_health_singlebhd_rr <-
+compare_health_singlebhd_rr <-
   function(comparison_method = "delta",
            exp_1, exp_2,
            prop_pop_exp_1 = 1, prop_pop_exp_2 = 1,
