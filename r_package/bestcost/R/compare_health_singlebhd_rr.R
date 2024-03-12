@@ -81,7 +81,7 @@ attribute_health_singlebhd_rr <-
 
 
     # If "delta" is chosen as comparison method
-    if(comparison_method = "delta"){
+    if(comparison_method == "delta"){
       # Merge the result tables by common columns
       att_health <-
         dplyr::left_join(
