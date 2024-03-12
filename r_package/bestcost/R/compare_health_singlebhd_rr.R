@@ -58,10 +58,7 @@ compare_health_singlebhd_rr <-
         erf_shape = erf_shape,
         erf_c = erf_c,
         bhd = bhd_1,
-        min_age = NULL,
-        max_age = NULL,
-        info_1, NULL, info_2 = NULL,
-        method = "singlebhd_rr")
+        info = info_1)
 
     # Calculate attributable health impacts in the scenario 2
     att_health_2 <-
@@ -74,20 +71,22 @@ compare_health_singlebhd_rr <-
         erf_shape = erf_shape,
         erf_c = erf_c,
         bhd = bhd_2,
-        min_age = NULL,
-        max_age = NULL,
-        info_1, NULL, info_2 = NULL,
-        method = "singlebhd_rr")
+        info = info_2)
 
 
     # If "delta" is chosen as comparison method
     if(comparison_method == "delta"){
+
+      joining_variables <-
+        names(att_health_1[["total"]])[! names(att_health_1[["total"]]) %in%
+                                  c("exp_1", "paf", "impact", "impact_rounded")]
+
       # Merge the result tables by common columns
       att_health <-
         dplyr::left_join(
           att_health_1[["total"]],
           att_health_2[["total"]],
-          by = c(rr, rr_increment, erf_shape, erf_c),
+          by = joining_variables,
           suffix = c("_1", "_2"))%>%
         # Calculate the delta (difference) between scenario 1 and 2
         dplyr::mutate(impact = impact_1 - impact_2)

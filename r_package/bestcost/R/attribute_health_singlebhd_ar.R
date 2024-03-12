@@ -63,8 +63,8 @@ attribute_health_singlebhd_ar <-
         across(c(pop_exp, absolute_risk_as_percent, population_affected),
                sum),
                .groups = "drop") %>%
-      dplyr::mutate(attributable_cases = population_affected,
-                    attributable_cases_rounded = round(attributable_cases, 0))
+      dplyr::mutate(impact = population_affected,
+                    impact_rounded = round(impact, 0))
 
     output <-
       list(total = output_total,
