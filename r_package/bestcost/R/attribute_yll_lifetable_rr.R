@@ -23,7 +23,7 @@
 #' @param min_age \code{Numberic value} of the minimal age to be considered for adults (by default 30, i.e. 30+).
 #' @param max_age \code{Numberic value} of the maximal age to be considered for infants/children (by default 0, i.e. below 1 year old).
 #' @param corrected_discount_rate \code{Numeric value} of the corrected discount rate as proportion (i.e. 0.1 instead of 10\%).
-#' @param info \code{String} showing additional information or id for the pollutant. The suffix "info" will be added to the column name. Default value = NULL.
+#' @param info \code{String} or {data frame} showing additional information or id. The suffix "info" will be added to the column name. Default value = NULL.
 #' @return
 #' TBD. E.g. This function returns a \code{data.frame} with one row for each value of the
 #' concentration-response function (i.e. mean, lower and upper bound confidence interval.

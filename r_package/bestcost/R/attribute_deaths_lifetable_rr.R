@@ -22,7 +22,7 @@
 #' @param year_of_analysis \code{Numeric value} of the year of analysis, which corresponds to the first year of the life table.
 #' @param min_age \code{Numberic value} of the minimal age to be considered for adults (by default 30, i.e. 30+).
 #' @param max_age \code{Numberic value} of the maximal age to be considered for infants/children (by default 0, i.e. below 1 year old).
-#' @param info \code{String} showing additional information or id for the pollutant. The suffix "info" will be added to the column name. Default value = NULL.
+#' @param info \code{String} or {data frame} showing additional information or id. The suffix "info" will be added to the column name. Default value = NULL.
 #' @return
 #' TBD. E.g. This function returns a \code{data.frame} with one row for each value of the
 #' concentration-response function (i.e. mean, lower and upper bound confidence interval.
