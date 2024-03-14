@@ -39,10 +39,10 @@ get_deaths <-
           # Select only relevant columns
           dplyr::select(., age, all_of(population_secondYear_lifetable)) %>%
           # Filter keeping only the relevant age
-          {if(!is.na(max_age))
+          {if(!is.null(max_age))
             dplyr::filter(., age <= max_age)
             else .} %>%
-          {if(!is.na(min_age))
+          {if(!is.null(min_age))
             dplyr::filter(., age >= min_age)
             else .} %>%
           dplyr::select(all_of(population_secondYear_lifetable)) %>%
@@ -63,7 +63,6 @@ get_deaths <-
       deaths_by %>%
       # Sum among age groups
       # Sum among sex
-      # Add row for total by age group (infants+adults)
       dplyr::bind_rows(
         group_by(., ci) %>%
           summarise(.,
@@ -94,7 +93,7 @@ get_deaths <-
       dplyr::filter(sex %in% "total")
 
 
-    output <- list(deaths_detailed = deaths_detailed, deaths = deaths)
+    output <- list(total = deaths, detailed = deaths_detailed)
 
     return(output)
 
