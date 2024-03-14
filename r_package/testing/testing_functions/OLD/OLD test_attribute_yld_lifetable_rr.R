@@ -1,9 +1,10 @@
-# YLD incidence approach based on life table
-
-exp = input_data_mortality$exp[2]
+# Test function ####
+#exp <- c(input_data_mortality$exp[2], input_data_mortality$exp[2]+5, input_data_mortality$exp[2]+10)
+exp <- input_data_mortality$exp[2]
+#prop_pop_exp <- c(0.2, 0.2, 0.6)
 prop_pop_exp <- 1
 cutoff <- input_data_mortality$cutoff[2] 
-rr <- unlist(input_data_mortality[2, c("rr_mean", "rr_lowci", "rr_highci")])
+rr <- unlist(input_data_morbidities[12, c("rr_mean", "rr_lowci", "rr_highci")]) # rr for asthma
 rr_increment <- 10 
 erf_shape <- "log_linear"
 first_age_pop <- 0
@@ -20,15 +21,16 @@ info <- input_data_mortality$pollutant[2]
 min_age <- input_data_mortality$min_age[2]
 max_age <- input_data_mortality$max_age[2]
 corrected_discount_rate <- 0
-#cases <- c(rep(0, 49), 100, rep(0, 50))
-dw <- 0.5 # 0.133 = Asthma, uncontrolled
-# duration <- # TBA
+cases <- c(rep(0, 49), 100, rep(0, 50))
+dw <- 0.133 # Asthma, uncontrolled
 
-# Compile input data ####
+# Calculate PAF ####
 # Convert NULL into NA in min_age and max_age
 min_age <- ifelse(is.null(min_age), NA, min_age)
 max_age <- ifelse(is.null(max_age), NA, max_age)
 
+
+# Compile rr data to assign categories
 input_withPaf <-
   data.frame(
     info = info,
@@ -68,6 +70,23 @@ input_withPaf <-
   dplyr::mutate(paf = bestcost::get_paf(rr_conc = rr_forPaf,
                                         prop_pop_exp = prop_pop_exp))
 
+# Only if exposure distribution (multiple exposure categories)
+# then reduce the number of rows to keep the same number as in rr
+if(length(exp)>1){
+  input_withPaf <-
+    input_withPaf %>%
+    dplyr::mutate(
+      # Add a column for the average exp (way to summarize exposure)
+      exp_mean = mean(exp),
+      # Replace the actual values with "multiple" to enable reduction of rows
+      exp = paste(exp, collapse = ", "),
+      prop_pop_exp = paste(prop_pop_exp, collapse = ", "),
+      rr_forPaf = paste(rr_forPaf, collapse = ", "))%>%
+    # Keep only rows that are distinct
+    dplyr::distinct(.)
+}
+
+# Compile life table ####
 lifetable_withPop <- list(
   male =
     data.frame(
@@ -75,8 +94,8 @@ lifetable_withPop <- list(
                 to = last_age_pop,
                 by = interval_age_pop),
       age_end = seq(from = first_age_pop + interval_age_pop,
-                    to = last_age_pop + interval_age_pop, #to = last_age_pop,
-                    by = interval_age_pop), #by = interval_age_pop + interval_age_pop),
+                    to = last_age_pop,
+                    by = interval_age_pop + interval_age_pop),
       death_probability_natural = prob_natural_death_male,
       death_probability_total = prob_total_death_male,
       population = population_male),
@@ -87,45 +106,41 @@ lifetable_withPop <- list(
                 to = last_age_pop,
                 by = interval_age_pop),
       age_end = seq(from = first_age_pop + interval_age_pop,
-                    to = last_age_pop + interval_age_pop, #to = last_age_pop,
-                    by = interval_age_pop), #by = interval_age_pop + interval_age_pop),
+                    to = last_age_pop,
+                    by = interval_age_pop + interval_age_pop),
       death_probability_natural = prob_natural_death_female,
       death_probability_total = prob_total_death_female,
       population = population_female))
 
-# Get attributed cases in YOA + 1 ####
+for (i in c("male", "female")){
+  lifetable_withPop[[i]] <- lifetable_withPop[[i]] %>% 
+    mutate(deaths = population * death_probability_natural, # TAKE NATURAL OR TOTAL p(DEATH)? ####
+           person_years_lived = (population-deaths), # * 0.5, OR NOT? ####
+           total_person_years_lived = NA)
+  # Compute total_person_years_lived as the sum of all rows below + current row 
+  for (n in 1:nrow(lifetable_withPop[[i]])){
+    lifetable_withPop[[i]][n,"total_person_years_lived"] <- sum(lifetable_withPop[[i]][n:nrow(lifetable_withPop[[i]]),"person_years_lived"])
+  }
+  lifetable_withPop[[i]] <- lifetable_withPop[[i]] %>% 
+    mutate(life_expectancy = total_person_years_lived / population,
+           cases = cases,
+           attributable_cases = cases * as.numeric(input_withPaf[input_withPaf$ci=="mean","paf"]),
+           yld = attributable_cases * dw * life_expectancy) # attributable_burden anstatt yld
+}
 
-pop_impact <-
-  bestcost::get_pop_impact(
-    lifetab_withPop = lifetable_withPop,
-    year_of_analysis = year_of_analysis,
-    paf = input_withPaf[, c("ci", "paf")])
+lifetable_withPop[["male"]][["yld"]]
+head(lifetable_withPop$male)
+head(lifetable_withPop$female)
+
+# For validation of total person years lived column
+# dat <- lifetable_withPopulation[["female"]] %>% 
+#   dplyr::mutate(deaths = population_2019 * death_probability_total,
+#                 person_years_lived = (population_2019-deaths) * 0.5,
+#                 total_person_years_lived = NA)
+# for (i in 1:nrow(dat)) {
+#   dat[i,"total_person_years_lived"] <- sum(dat[i:nrow(dat),"person_years_lived"])
+# }
+
+# Attributable cases
 
 
-# Get YLL ####
-yll <-
-  bestcost::get_yll(
-    pop_impact = pop_impact,
-    year_of_analysis = year_of_analysis,
-    min_age = min_age,
-    max_age = max_age,
-    meta = input_withPaf,
-    corrected_discount_rate = corrected_discount_rate)
-
-# Apply disability weight ####
-yll$yll <- yll$yll %>% 
-  mutate(impact = impact * dw,
-         impact_rounded = round(impact),
-         impact_metric = "Years lived with disability"
-         ) %>% 
-  select(impact, impact_rounded, impact_metric, everything())
-
-# Compile output ####
-output <-
-  list(
-    pop_impact = pop_impact,
-    yld = yll[["yll"]])
-
-head(output$yld$impact_rounded)
-# Reference impact (from "testing_Rpackage")
-print("Reference impact: 40542 (high), 14641 (low), 27742 (mean)")

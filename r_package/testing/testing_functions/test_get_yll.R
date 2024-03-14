@@ -1,20 +1,35 @@
 # Input data ####
 load("../testing/testing_functions/test_get_yll.rda")
+input_withPaf <- meta
 min_age <- NA # before: 20
-max_age <- NA # before: also NA
+max_age <- 80 # before: also NA
 
+# Function call ####
+# output_function_call <- bestcost::get_yll(
+#   pop_impact = pop_impact,
+#   year_of_analysis = year_of_analysis,
+#   min_age = min_age,
+#   max_age = max_age,
+#   meta = input_withPaf,
+#   corrected_discount_rate = corrected_discount_rate)
+# 
+# print(output_function_call[["yll"]][["impact"]])
+
+# Function code ####
 lifeyears_byYear <- list()
 yll_by_list<-list()
 
 discount_factor <- corrected_discount_rate + 1
 
+# Calculate YLL ####
 for(s in sex){
   for (v in ci){
     
-    # Life years by year (NO FUNCTION CALLED)
+    ## Sum life years by year (result is data frame with 2 columns "year" & "impact" [which contains YLL]) ####
     lifeyears_byYear[[s]][[v]] <-
-      pop_impact[["pop_impact"]][[s]][[v]] %>%
-      
+       pop_impact[["pop_impact"]][[s]][[v]] %>% 
+       #pop_impact[["popOverTime"]][[s]][[v]] %>%
+    
       # Filter keeping only the relevant age
       {if(!is.na(max_age))
         dplyr::filter(., age <= max_age)
@@ -27,36 +42,47 @@ for(s in sex){
       dplyr::select(., contains("population_")) %>%
       # Remove the year of analysis (we are only interested in the following ones)
       dplyr::select(., -contains(as.character(year_of_analysis))) %>%
-      # Sum over ages
-      dplyr::summarize_all(sum, na.rm = TRUE) %>%
-      # Reshape to long format
-      tidyr::pivot_longer(cols = starts_with("population_"),
-                          names_to = "year",
-                          values_to = "impact",
-                          names_prefix = "population_")
-    
-    # Years of life lost
-    yll_by_list[[s]][[v]][["noDiscount"]] <-
-      lifeyears_byYear[[s]][[v]]%>%
-      # Sum among years
-      dplyr::summarise(impact = sum(impact), .groups = 'drop')
-    
-    
-    
-    # Discounted life years
-    yll_by_list[[s]][[v]][["discounted"]] <-
-      lifeyears_byYear[[s]][[v]]%>%
-      # Convert year to numeric
-      dplyr::mutate(year = as.numeric(year))%>%
-      # Calculate discount
-      dplyr::mutate(discount = 1/(discount_factor^(year-(year_of_analysis+1))))%>%
-      # Calculate life years discounted
-      dplyr::mutate(discounted_impact = impact*discount)%>%
-      # Sum among years
-      dplyr::summarise(impact = sum(discounted_impact), .groups = 'drop')
+      # Sum over all ages (i.e. vertically) that fulfill inputted "max_age" and "min_age" criteria
+      dplyr::summarize_all(sum, na.rm = TRUE) #%>% # The rows in each column are summed and the sum replaces the existing columns values (output is data frame with 1 row)
+      # Reshape data frame to long format (output is data frame with 2 columns "year" & "impact")
+      # tidyr::pivot_longer(cols = starts_with("population_"),
+      #                     names_to = "year",
+      #                     values_to = "impact", # Summed YLLs are saved in the column "impact"
+      #                     names_prefix = "population_")
+
+    ## Calculate total, not discounted YLL (single number) per sex & ci ####
+    # yll_by_list[[s]][[v]][["noDiscount"]] <-
+    #   lifeyears_byYear[[s]][[v]] %>%
+    #   # Sum among years to obtain the total impact (single value)
+    #   dplyr::summarise(impact = sum(impact), .groups = 'drop')
+    # 
+    # 
+    # 
+    # ## Calculate total, discounted life years (single value) per sex & ci ####
+    # yll_by_list[[s]][[v]][["discounted"]] <-
+    #   lifeyears_byYear[[s]][[v]]%>%
+    #   # Convert year to numeric
+    #   dplyr::mutate(year = as.numeric(year)) %>%
+    #   # Calculate discount rate for each year
+    #   dplyr::mutate(discount = 1/(discount_factor^(year-(year_of_analysis+1)))) %>%
+    #   # Calculate life years discounted
+    #   dplyr::mutate(discounted_impact = impact*discount) %>%
+    #   # Sum among years to obtain the total impact (single value)
+    #   dplyr::summarise(impact = sum(discounted_impact), .groups = 'drop')
   }
 }
+print(lifeyears_byYear[["female"]][["mean"]][1])
 
+# Filtering gives the same results
+test_popOverTime <- pop_impact[["popOverTime"]][["female"]][["mean"]] %>% filter(age >= min_age) %>% dplyr::select(., contains("population_")) %>%
+  # Remove the year of analysis (we are only interested in the following ones)
+  dplyr::select(., -contains(as.character(year_of_analysis)))
+
+test_pop_impact <- pop_impact[["pop_impact"]][["female"]][["mean"]] %>%  filter(age >= min_age) %>% dplyr::select(., contains("population_")) %>%
+  # Remove the year of analysis (we are only interested in the following ones)
+  dplyr::select(., -contains(as.character(year_of_analysis)))
+
+# Data wrangling ####
 # Convert list into data frame
 yll_by <-
   yll_by_list%>%
@@ -65,7 +91,7 @@ yll_by <-
   dplyr::bind_rows(., .id = "sex")
 
 
-# Calculate Years of Life Lost (YLLs)
+## Compile information needed for detailed YLL results ####
 yll_detailed <-
   yll_by %>%
   
@@ -101,3 +127,5 @@ yll <-
 
 
 output <- list(yll_detailed = yll_detailed, yll = yll)
+print(output[["yll"]][["impact"]])
+

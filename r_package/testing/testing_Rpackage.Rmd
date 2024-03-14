@@ -275,8 +275,8 @@ impact_mortality_raw <- list()
 
 # Calculate mortality impacts using bestcost function
 
-for(i in 1:nrow(input_data_mortality)){  # Use this if you want to evaluate multiple RRs
-#for(i in 2){                           # Use this if you want to evaluate only one RRs
+#for(i in 1:nrow(input_data_mortality)){  # Use this if you want to evaluate multiple RRs
+for(i in 2){                           # Use this if you want to evaluate only one RRs
   impact_mortality_raw[[input_data_mortality$year[i]]][[input_data_mortality$rr_id[[i]]]] <-
   
     bestcost::attribute_mortality_lifetable_rr(
@@ -304,80 +304,81 @@ for(i in 1:nrow(input_data_mortality)){  # Use this if you want to evaluate mult
 }
 
 head(impact_mortality_raw$`2019`$`PM2.5_premature deaths_all causes_adults_main_ERS-ISEE_2022_selected`$deaths$impact)
+head(impact_mortality_raw$`2019`$`PM2.5_premature deaths_all causes_adults_main_ERS-ISEE_2022_selected`$yll$impact_rounded)
 
-impact_mortality_edited <- list()
-
-impact_mortality_edited[["deaths"]] <- 
-  # Extract only nested  lists with the name "deaths"  
-  purrr::map_depth(impact_mortality_raw, 2, "deaths")
-# Same with "yll"  
-impact_mortality_edited[["yll"]] <- 
-  purrr::map_depth(impact_mortality_raw, 2, "yll")
-
-impact_mortality_edited <- impact_mortality_edited %>%
-  # Unlist assigning id
-  purrr::map(., map,  ~ dplyr::bind_rows(., .id = "rr_id")) %>%
-  purrr::map(.,  ~ dplyr::bind_rows(., .id = "case")) %>%
-  dplyr::bind_rows(., .id = "outcome_metric_short") %>%
-  # Now list only scenario
-  split(., .$case) 
-
-
-# Put together the different scenarios
-impact_mortality_comparative <- list()
-
-for (r in c("2019", "whoaqg21")){ 
-  # Substract the impacts for the scenarios
-  impact_mortality_comparative[[paste0(r, "_whoaqg21")]] <- 
-    dplyr::left_join(impact_mortality_edited[[r]],
-                     impact_mortality_edited[["whoaqg21"]][c("rr_id", "ci", "impact", "impact_rounded" ,"outcome_metric_short", "exp")], 
-                     by = c("outcome_metric_short", "rr_id", "ci"), 
-                     suffix = c("_ref", "_whoaqg21")) %>%
-    dplyr::mutate(ref = r,
-                  impact_diff = impact_ref - impact_whoaqg21,
-                  impact_rounded_diff = impact_rounded_ref - impact_rounded_whoaqg21)
-  }
-
-impact_mortality <- 
-  impact_mortality_comparative %>%
-  dplyr::bind_rows(.) %>%
-  # Remove non relevant columns
-  dplyr::select(-case, -rr_ci) %>%
-  
-  # Pivot wider CI
-  tidyr::pivot_wider(
-    values_from = c(rr, rr_forPaf, paf,
-                    impact_ref, impact_whoaqg21, impact_diff,
-                    impact_rounded_ref, impact_rounded_whoaqg21, impact_rounded_diff), names_from = ci) %>%
-  # Paste the CIs
-  dplyr::mutate(
-    rr_meanCI = paste_round_CI(rr_mean, rr_lowci, rr_highci, 3),
-    impact_ref_meanCI = paste_round_CI(impact_ref_mean, impact_ref_lowci, impact_ref_highci, 3),
-    impact_whoaqg21_meanCI = paste_round_CI(impact_whoaqg21_mean, impact_whoaqg21_lowci, impact_whoaqg21_highci, 0),
-    impact_diff_meanCI = paste_round_CI(impact_diff_mean, impact_diff_lowci, impact_diff_highci, 0),
-    # bhd as NA just to match with structure of morbidities
-    bhd = NA) %>%
-
-    
-  # Left join to add further information on RR
-  dplyr::left_join(., rr_data, 
-                   by = c("info_pollutant" = "pollutant", "rr_id", "rr_increment",
-                          paste0("rr_", c("mean", "lowci", "highci"))),
-                   relationship = "many-to-one")%>%
-  # Change outcome_id to ensure match with codebook
-  dplyr::mutate(
-    outcome_id = ifelse(outcome_metric_short %in% "yll",
-                        gsub("premature deaths", "yll", outcome_id),
-                        outcome_id)) %>%
-  # Order columns 
-  dplyr::select(info_pollutant, ref, outcome_id, rr_source, 
-                term, bhd, rr_meanCI, 
-                contains("impact_diff_meanCI"),
-                contains("impact_ref_meanCI"), 
-                impact_whoaqg21_meanCI,
-                everything()) %>%
-  # Order rows by label
-  dplyr::arrange(desc(info_pollutant), ref, outcome_id, rr_source)
+# impact_mortality_edited <- list()
+# 
+# impact_mortality_edited[["deaths"]] <- 
+#   # Extract only nested  lists with the name "deaths"  
+#   purrr::map_depth(impact_mortality_raw, 2, "deaths")
+# # Same with "yll"  
+# impact_mortality_edited[["yll"]] <- 
+#   purrr::map_depth(impact_mortality_raw, 2, "yll")
+# 
+# impact_mortality_edited <- impact_mortality_edited %>%
+#   # Unlist assigning id
+#   purrr::map(., map,  ~ dplyr::bind_rows(., .id = "rr_id")) %>%
+#   purrr::map(.,  ~ dplyr::bind_rows(., .id = "case")) %>%
+#   dplyr::bind_rows(., .id = "outcome_metric_short") %>%
+#   # Now list only scenario
+#   split(., .$case) 
+# 
+# 
+# # Put together the different scenarios
+# impact_mortality_comparative <- list()
+# 
+# for (r in c("2019", "whoaqg21")){ 
+#   # Substract the impacts for the scenarios
+#   impact_mortality_comparative[[paste0(r, "_whoaqg21")]] <- 
+#     dplyr::left_join(impact_mortality_edited[[r]],
+#                      impact_mortality_edited[["whoaqg21"]][c("rr_id", "ci", "impact", "impact_rounded" ,"outcome_metric_short", "exp")], 
+#                      by = c("outcome_metric_short", "rr_id", "ci"), 
+#                      suffix = c("_ref", "_whoaqg21")) %>%
+#     dplyr::mutate(ref = r,
+#                   impact_diff = impact_ref - impact_whoaqg21,
+#                   impact_rounded_diff = impact_rounded_ref - impact_rounded_whoaqg21)
+#   }
+# 
+# impact_mortality <- 
+#   impact_mortality_comparative %>%
+#   dplyr::bind_rows(.) %>%
+#   # Remove non relevant columns
+#   dplyr::select(-case, -rr_ci) %>%
+#   
+#   # Pivot wider CI
+#   tidyr::pivot_wider(
+#     values_from = c(rr, rr_forPaf, paf,
+#                     impact_ref, impact_whoaqg21, impact_diff,
+#                     impact_rounded_ref, impact_rounded_whoaqg21, impact_rounded_diff), names_from = ci) %>%
+#   # Paste the CIs
+#   dplyr::mutate(
+#     rr_meanCI = paste_round_CI(rr_mean, rr_lowci, rr_highci, 3),
+#     impact_ref_meanCI = paste_round_CI(impact_ref_mean, impact_ref_lowci, impact_ref_highci, 3),
+#     impact_whoaqg21_meanCI = paste_round_CI(impact_whoaqg21_mean, impact_whoaqg21_lowci, impact_whoaqg21_highci, 0),
+#     impact_diff_meanCI = paste_round_CI(impact_diff_mean, impact_diff_lowci, impact_diff_highci, 0),
+#     # bhd as NA just to match with structure of morbidities
+#     bhd = NA) %>%
+# 
+#     
+#   # Left join to add further information on RR
+#   dplyr::left_join(., rr_data, 
+#                    by = c("info_pollutant" = "pollutant", "rr_id", "rr_increment",
+#                           paste0("rr_", c("mean", "lowci", "highci"))),
+#                    relationship = "many-to-one")%>%
+#   # Change outcome_id to ensure match with codebook
+#   dplyr::mutate(
+#     outcome_id = ifelse(outcome_metric_short %in% "yll",
+#                         gsub("premature deaths", "yll", outcome_id),
+#                         outcome_id)) %>%
+#   # Order columns 
+#   dplyr::select(info_pollutant, ref, outcome_id, rr_source, 
+#                 term, bhd, rr_meanCI, 
+#                 contains("impact_diff_meanCI"),
+#                 contains("impact_ref_meanCI"), 
+#                 impact_whoaqg21_meanCI,
+#                 everything()) %>%
+#   # Order rows by label
+#   dplyr::arrange(desc(info_pollutant), ref, outcome_id, rr_source)
 
 ```
 

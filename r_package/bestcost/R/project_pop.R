@@ -19,7 +19,7 @@ project_pop <-
   function(lifetab_withPop, year_of_analysis, paf){
 
 
-    # Add the first year of the lifetable to the column name of population
+    # Add the first year of the life table to the column name of population
     lifetab_withPop <-
       lifetab_withPop %>%
       dplyr::rename(!!paste0("population_", year_of_analysis) := population)
