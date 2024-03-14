@@ -77,7 +77,8 @@ compare_health_singlebhd_rr <-
     # If "delta" is chosen as comparison method
     if(comparison_method == "delta"){
 
-      joining_variables <-
+      # Identify the columns that are common for scenario 1 and 2
+      joining_columns <-
         names(att_health_1[["total"]])[! names(att_health_1[["total"]]) %in%
                                   c("exp", "bhd", "rr_forPaf", "paf", "impact", "impact_rounded", "info")]
       binding_variables <-  c("exp", "bhd", "rr_forPaf", "paf", "impact", "impact_rounded", "info")
@@ -87,7 +88,7 @@ compare_health_singlebhd_rr <-
         dplyr::left_join(
           att_health_1[["total"]],
           att_health_2[["total"]],
-          by = joining_variables,
+          by = joining_columns,
           suffix = c("_1", "_2"))%>%
         # Calculate the delta (difference) between scenario 1 and 2
         dplyr::mutate(impact = impact_1 - impact_2,
@@ -95,6 +96,13 @@ compare_health_singlebhd_rr <-
 
     }
 
+
+    # If "pif" is chosen as comparison method
+    if(comparison_method == "pif"){
+
+
+
+    }
 
 
    output <- list(total = att_health,
