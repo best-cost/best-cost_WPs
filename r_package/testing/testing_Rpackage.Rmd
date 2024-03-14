@@ -316,7 +316,7 @@ impact_mortality_raw <- list()
 for(i in 2){                           # Use this if you want to evaluate only one RRs
   impact_mortality_raw[[input_data_mortality$year[i]]][[input_data_mortality$rr_id[[i]]]] <-
   
-    bestcost::attribute_mortality_lifetable_rr(
+    bestcost::attribute_deaths_lifetable_rr(
 
     exp = input_data_mortality$exp[i], # PM2.5=8.30=limit LRV CH, NO2=16.32=mean conc. in CH in 2019
     cutoff = input_data_mortality$cutoff[i],   # PM2.5=5, NO2=10, i.e. WHO AQG 2021 
@@ -336,12 +336,11 @@ for(i in 2){                           # Use this if you want to evaluate only o
     year_of_analysis = 2019, 
     info = input_data_mortality$pollutant[i], 
     min_age = input_data_mortality$min_age[i],
-    max_age = input_data_mortality$max_age[i],
-    corrected_discount_rate = 0)
+    max_age = 99)
+    #max_age = input_data_mortality$max_age[i])
 }
 
-head(impact_mortality_raw$`2019`$`PM2.5_premature deaths_all causes_adults_main_ERS-ISEE_2022_selected`$deaths$impact)
-head(impact_mortality_raw$`2019`$`PM2.5_premature deaths_all causes_adults_main_ERS-ISEE_2022_selected`$yll$impact_rounded)
+head(impact_mortality_raw[["2019"]][["PM2.5_premature deaths_all causes_adults_main_ERS-ISEE_2022_selected"]][["total"]]$impact)
 
 # impact_mortality_edited <- list()
 # 
