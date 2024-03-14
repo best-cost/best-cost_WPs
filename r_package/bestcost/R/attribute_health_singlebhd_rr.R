@@ -12,7 +12,6 @@
 #' @param erf_c \code{String} showing the user-defined function that puts the relative risk in relation with concentration. The function must have only one variable: c, which means concentration. E.g. "3+c+c^2". Default value = NULL.
 #' @param bhd \code{Numeric value} showing the baseline health data (incidence of the health outcome in the population).
 #' @param info \code{String} or {data frame} showing additional information or id. The suffix "info" will be added to the column name. Default value = NULL.
-
 #' @return
 #' TBD. E.g. This function returns a \code{data.frame} with one row for each value of the
 #' concentration-response function (i.e. mean, lower and upper bound confidence interval.
@@ -70,7 +69,6 @@ attribute_health_singlebhd_rr <-
                       starts_with("info"))
 
    output <- list(total = calculation)
-
 
     return(output)
   }

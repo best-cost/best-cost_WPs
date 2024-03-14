@@ -46,7 +46,9 @@ compile_input <-
            info,
            method){
     # Check input data ####
-    # TBA: checks
+    stopifnot(exprs = {
+      length(exp) == length(prop_pop_exp)
+    })
 
     # Input data in data frame ####
     # Compile rr data to assign categories
