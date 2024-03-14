@@ -27,7 +27,7 @@ get_risk_and_paf <-
     input_and_risk <-
       input %>%
       dplyr::mutate(
-        rr_forPaf =
+        rr_conc =
           bestcost::get_risk(rr = rr,
                              exp = exp,
                              cutoff = cutoff,
@@ -40,7 +40,7 @@ get_risk_and_paf <-
       input_and_risk %>%
       # Group by exp in case that there are different exposure categories
       dplyr::group_by(rr) %>%
-      dplyr::summarize(paf = bestcost::get_paf(rr_conc = rr_forPaf,
+      dplyr::summarize(paf = bestcost::get_paf(rr_conc = rr_conc,
                                                prop_pop_exp = prop_pop_exp))%>%
       # Join the input table with paf values
       dplyr::left_join(., input_and_risk,
@@ -58,7 +58,7 @@ get_risk_and_paf <-
           # Replace the actual values with "multiple" to enable reduction of rows
           exp = paste(exp, collapse = ", "),
           prop_pop_exp = paste(prop_pop_exp, collapse = ", "),
-          rr_forPaf = paste(rr_forPaf, collapse = ", ")) %>%
+          rr_conc = paste(rr_conc, collapse = ", ")) %>%
         # Keep only rows that are distinct
         dplyr::distinct(.)
     }

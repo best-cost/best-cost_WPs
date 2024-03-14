@@ -6,7 +6,8 @@
 #' @param comparison_method \code{String} showing the method of comparison. Options: "delta" or "pif".
 #' @param exp_1 \code{Numeric value} showing the population-weighted mean exposure in ug/m3 or {vector} showing the exposure category in a exposure distribution in the scenario 1.
 #' @param exp_2 \code{Numeric value} showing the population-weighted mean exposure in ug/m3 or {vector} showing the exposure category in a exposure distribution in the scenario 2.
-#' @param prop_pop_exp \code{Numeric value} or {vector} showing the proportion of population exposed (as a fraction, i.e. values between 0 and 1) for a single exposure value or for multiple categories, i.e., a exposure distribution, respectively. If a exposure distribution is used, the dimension of this input variable should be the same as "exp". By default, 1 for single exposure value will be assigned to this input variable assuming a single exposure value, but users can change this value.
+#' @param prop_pop_exp_1 \code{Numeric value} or {vector} showing the proportion of population exposed in the scenario 1. The value is a fraction, i.e. values between 0 and 1) for a single exposure value or for multiple categories, i.e., a exposure distribution, respectively. If a exposure distribution is used, the dimension of this input variable should be the same as "exp". By default, 1 for single exposure value will be assigned to this input variable assuming a single exposure value, but users can change this value.
+#' @param prop_pop_exp_2 \code{Numeric value} or {vector} showing the proportion of population exposed in the scenario 2. The value is a fraction, i.e. values between 0 and 1) for a single exposure value or for multiple categories, i.e., a exposure distribution, respectively. If a exposure distribution is used, the dimension of this input variable should be the same as "exp". By default, 1 for single exposure value will be assigned to this input variable assuming a single exposure value, but users can change this value.
 #' @param cutoff \code{Numeric value} showing the cut-off exposure in ug/m3 (i.e. the exposure level below which no health effects occur).
 #' @param rr \code{Vector} of three numeric values referring to the mean as well as the lower bound and upper bound of the confidence interval.
 #' @param rr_increment \code{Numeric value} showing the increment of the concentration-response function in ug/m3 (usually 10 or 5).
@@ -47,6 +48,7 @@ compare_health_singlebhd_rr <-
            info_1 = NULL, info_2 = NULL){
 
 
+
     # Calculate attributable health impacts in the scenario 1
     att_health_1 <-
       bestcost::attribute_health_singlebhd_rr(
@@ -73,37 +75,45 @@ compare_health_singlebhd_rr <-
         bhd = bhd_2,
         info = info_2)
 
+    # Identify the columns that are common for scenario 1 and 2
+    joining_columns <-
+      names(att_health_1[["total"]])[! names(att_health_1[["total"]]) %in%
+                                c("exp", "bhd", "rr_conc", "paf", "impact", "impact_rounded", "info")]
 
-    # If "delta" is chosen as comparison method
-    if(comparison_method == "delta"){
+    # Merge the result tables by common columns
+    att_health <-
+      dplyr::left_join(
+        att_health_1[["total"]],
+        att_health_2[["total"]],
+        by = joining_columns,
+        suffix = c("_1", "_2"))%>%
+      # Calculate the delta (difference) between scenario 1 and 2
+      dplyr::mutate(impact = impact_1 - impact_2)
 
-      # Identify the columns that are common for scenario 1 and 2
-      joining_columns <-
-        names(att_health_1[["total"]])[! names(att_health_1[["total"]]) %in%
-                                  c("exp", "bhd", "rr_forPaf", "paf", "impact", "impact_rounded", "info")]
-      binding_variables <-  c("exp", "bhd", "rr_forPaf", "paf", "impact", "impact_rounded", "info")
 
-      # Merge the result tables by common columns
+
+    # If the user choose "pif"  as comparison method
+    # pif is additonally calculated
+    # impact is overwritten with the new values that refer to pif instead of paf
+    if(comparison_method == "pif" & bhd_1 == bhd_2){
       att_health <-
-        dplyr::left_join(
-          att_health_1[["total"]],
-          att_health_2[["total"]],
-          by = joining_columns,
-          suffix = c("_1", "_2"))%>%
-        # Calculate the delta (difference) between scenario 1 and 2
-        dplyr::mutate(impact = impact_1 - impact_2,
-                      impact_rounded = round(impact, 0))
+        att_health %>%
+        rowwise(.) %>%
+        dplyr::mutate(
+          pif = bestcost::get_pif(
+            rr_conc_1 = rr_conc_1,
+            rr_conc_2 = rr_conc_2,
+            prop_pop_exp_1 = prop_pop_exp_1,
+            prop_pop_exp_2 = prop_pop_exp_1),
+          impact = bhd_1 * pif)
 
     }
 
 
-    # If "pif" is chosen as comparison method
-    if(comparison_method == "pif"){
-
-
-
-    }
-
+      # Round results
+      att_health <-
+        att_health %>%
+        mutate(impact_rounded = round(impact, 0))
 
    output <- list(total = att_health,
                   detailed = list(scenario_1 = att_health_1,

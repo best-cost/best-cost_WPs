@@ -65,7 +65,7 @@ attribute_health_singlebhd_rr <-
                       impact_rounded = round(impact, 0)) %>%
         # Order columns
         dplyr::select(exp, cutoff, bhd,
-                      rr, rr_forPaf, rr_increment, ci, erf_shape,
+                      rr, rr_conc, rr_increment, ci, erf_shape,
                       paf, impact, impact_rounded,
                       starts_with("info"))
 
