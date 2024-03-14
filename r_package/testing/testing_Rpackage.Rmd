@@ -169,7 +169,7 @@ for(i in 12){ # runs loop only for HO "asthma incidence 20+"
 
 ```{r}
 # Test delta comparison function with fake values
-  test_delta_singlebhd_rr <-
+test_delta_singlebhd_rr <-
   bestcost::compare_health_singlebhd_rr(
     comparison_method = "delta",
     exp_1 = 8.85, 
@@ -185,7 +185,7 @@ for(i in 12){ # runs loop only for HO "asthma incidence 20+"
 
 
 # Test pif comparison function with fake values
-  test_pif_singlebhd_rr <-
+test_pif_singlebhd_rr <-
   bestcost::compare_health_singlebhd_rr(
     comparison_method = "pif",
     exp_1 = 8.85,  

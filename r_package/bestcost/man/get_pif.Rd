@@ -4,7 +4,7 @@
 \alias{get_pif}
 \title{Get population impact fraction}
 \usage{
-get_pif(rr_conc, prop_pop_exp)
+get_pif(rr_conc_1, rr_conc_2, prop_pop_exp_1, prop_pop_exp_2)
 }
 \arguments{
 \item{rr_conc_1}{\code{Numerical value} showing the risk estimate of the concentration response function for a specific concentration in the scenario 1. The population attributable fraction is normally calculated using the risk estimate that refers to the concentration that reflects the population exposure and the cut-off. This risk estimate is obtained after re-scaling from the epidemiological study with a particular increment (e.g. for PM2.5 10 or 5 ug/m3) to the aimed concentration.}
@@ -19,7 +19,7 @@ get_pif(rr_conc, prop_pop_exp)
 This function returns a \code{value} corresponding to the population attributable fraction
 }
 \description{
-Calculates the population attributable fraction of a health outcome due to exposure to an environmental stressor
+Calculates the population impact fraction of a health outcome due to exposure to an environmental stressor
 }
 \note{
 Experimental function
