@@ -51,7 +51,7 @@ compare_health_singlebhd_rr <-
     att_health_1 <-
       bestcost::attribute_health_singlebhd_rr(
         exp = exp_1,
-        prop_pop_exp = prop_pop_exp,
+        prop_pop_exp = prop_pop_exp_1,
         cutoff = cutoff,
         rr = rr,
         rr_increment = rr_increment,
@@ -64,7 +64,7 @@ compare_health_singlebhd_rr <-
     att_health_2 <-
       bestcost::attribute_health_singlebhd_rr(
         exp = exp_2,
-        prop_pop_exp = prop_pop_exp,
+        prop_pop_exp = prop_pop_exp_2,
         cutoff = cutoff,
         rr = rr,
         rr_increment = rr_increment,
@@ -79,7 +79,8 @@ compare_health_singlebhd_rr <-
 
       joining_variables <-
         names(att_health_1[["total"]])[! names(att_health_1[["total"]]) %in%
-                                  c("exp_1", "paf", "impact", "impact_rounded")]
+                                  c("exp", "bhd", "rr_forPaf", "paf", "impact", "impact_rounded", "info")]
+      binding_variables <-  c("exp", "bhd", "rr_forPaf", "paf", "impact", "impact_rounded", "info")
 
       # Merge the result tables by common columns
       att_health <-
@@ -89,7 +90,8 @@ compare_health_singlebhd_rr <-
           by = joining_variables,
           suffix = c("_1", "_2"))%>%
         # Calculate the delta (difference) between scenario 1 and 2
-        dplyr::mutate(impact = impact_1 - impact_2)
+        dplyr::mutate(impact = impact_1 - impact_2,
+                      impact_rounded = round(impact, 0))
 
     }
 
