@@ -21,9 +21,9 @@ get_risk(
 
 \item{cutoff}{\code{Numeric value} showing the cut-off exposure in ug/m3 (i.e. the exposure level below which no health effects occur).}
 
-\item{rr_increment}{Size of the increment in concentration related to the relative risk provided in the literature (e.g. for 10 ug/m3 PM2.5).}
+\item{rr_increment}{\code{Numeric value} showing the size of the increment in concentration related to the relative risk provided in the literature (e.g. for 10 ug/m3 PM2.5).}
 
-\item{erf_shape}{Shape of the exposure-response function to be assumed using the relative risk from the literature as support point. Options: "linear", log-linear", "linear-log", "log-log".}
+\item{erf_shape}{\code{String} showing the shape of the exposure-response function to be assumed using the relative risk from the literature as support point. Options: "linear", log_linear", "linear_log", "log_log".}
 
 \item{erf_full}{\code{Boolean value} to show if the exposure-response function is entirely defined by the user  with the argument erf_c (erf_full = TRUE) or by the arguments exp, cutoff, rr_increment and erf_shape (erf_full = TRUE). Default value = FALSE.}
 

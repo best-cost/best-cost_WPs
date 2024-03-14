@@ -7,11 +7,12 @@
 #' Data frame containing the exposure-response function as in the epidemiological study, i.e. per the usual concentration increase. The data frame must contain the mean, lower and upper bound of the exposure-response function.
 #' @param exp
 #' Population exposure to the stressor (e.g. annual population-weighted mean).
-#' @param cutoff \code{Numeric value} showing the cut-off exposure in ug/m3 (i.e. the exposure level below which no health effects occur).
+#' @param cutoff
+#' \code{Numeric value} showing the cut-off exposure in ug/m3 (i.e. the exposure level below which no health effects occur).
 #' @param rr_increment
-#' Size of the increment in concentration related to the relative risk provided in the literature (e.g. for 10 ug/m3 PM2.5).
+#' \code{Numeric value} showing the size of the increment in concentration related to the relative risk provided in the literature (e.g. for 10 ug/m3 PM2.5).
 #' @param erf_shape
-#' Shape of the exposure-response function to be assumed using the relative risk from the literature as support point. Options: "linear", log-linear", "linear-log", "log-log".
+#' \code{String} showing the shape of the exposure-response function to be assumed using the relative risk from the literature as support point. Options: "linear", log_linear", "linear_log", "log_log".
 #' @param erf_full
 #' \code{Boolean value} to show if the exposure-response function is entirely defined by the user  with the argument erf_c (erf_full = TRUE) or by the arguments exp, cutoff, rr_increment and erf_shape (erf_full = TRUE). Default value = FALSE.
 #' @param erf_c
