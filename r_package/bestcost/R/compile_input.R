@@ -41,13 +41,15 @@ compile_input <-
            erf_shape,
            erf_c,
            bhd,
-           min_age = NULL,
-           max_age = NULL,
+           min_age = 0,
+           max_age = 99,
            info,
            method){
     # Check input data ####
     stopifnot(exprs = {
       length(exp) == length(prop_pop_exp)
+      is.na(min_age) == FALSE
+      is.na(max_age) == FALSE
     })
 
     # Input data in data frame ####

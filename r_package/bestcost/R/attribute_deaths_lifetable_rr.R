@@ -4,7 +4,7 @@
 #'
 #' Calculates the premature deaths attributable to the exposure to an environmental stressor using a life table approach. It provides the central estimate of the impact and the corresponding 95\% confidence intervals (based on the 95\% confidence interval exposure-response function).
 #' @param exp \code{Numeric values} Population-weighted mean exposure in ug/m3 or {vector} showing the exposure category in a exposure distribution (this information is linked to the proportion of population exposed).
-#' @param prop_pop_exp \code{Numeric value} or {Numeric vector} with the fraction (values between 0 & 1) of the total population exposed to (one or more) exposure categories, i.e., a exposure distribution, respectively. If a exposure distribution is used, the dimension of this input variable should be the same as "exp". By default, 1 for single exposure value will be assigned to this input variable assuming a single exposure value, but users can change this value.
+#' @param prop_pop_exp \code{Numeric value} or {Numeric vector} Fraction (values between 0 & 1) of the total population exposed to (one or more) exposure categories, i.e., a exposure distribution, respectively. If a exposure distribution is used, the dimension of this input variable should be the same as "exp". By default, 1 for single exposure value will be assigned to this input variable assuming a single exposure value, but users can change this value.
 #' @param cutoff \code{Numeric value} showing the cut-off exposure in ug/m3 (i.e. the exposure level below which no health effects occur).
 #' @param rr \code{Numeric vector} of three numeric values referring to the central estimate of the exposure-response function and the corresponding lower and upper 95\% confidence interval bounds.
 #' @param rr_increment \code{Numeric value} showing the increment of the exposure-response function in ug/m3 (usually 10 or 5).
@@ -74,7 +74,7 @@ attribute_deaths_lifetable_rr <-
         method = paste0("lifetable_rr_corrected"))
 
 
-    # Get PAF and added to the input data frame
+    # Get PAF and add to the input data frame
     input_risk_paf <-
       bestcost::get_risk_and_paf(input = input)
 
@@ -128,7 +128,7 @@ attribute_deaths_lifetable_rr <-
         meta = input_risk_paf)
 
 
-    # Calculate output ####
+    # Compile output ####
     output <-
       list(total = deaths[["total"]],
            detailed = deaths[["detailed"]])

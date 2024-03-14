@@ -3,7 +3,7 @@
 \name{attribute_yld_singlebhd_rr}
 \alias{attribute_yld_singlebhd_rr}
 \title{Determine years lived with disability (YLD) attributable to the incidence of a specific morbidity health outcome
-Calculates the YLDs using a single value for baseline heath data, i.e. without life table. It provides as a result the mean as well as the lower and the higher bounds of the morbidity impact based on the confidence interval of the exposure-response function.}
+Calculates the YLDs using a single value for baseline heath data, i.e. without life table. It provides as a result the mean as well as the lower and the higher bounds of the morbidity impact based on the confidence interval of the exposure-response function. Assumption: cases happen at the start of the year.}
 \usage{
 attribute_yld_singlebhd_rr(
   dw,
@@ -18,7 +18,7 @@ attribute_yld_singlebhd_rr(
 )
 }
 \arguments{
-\item{dw}{\code{Numeric value} showing the disability weight associated with the morbidity health outcome population-weighted mean exposure in ug/m3 or {vector} showing the exposure category in a exposure distribution (this information is linked to the proportion of population exposed).}
+\item{dw}{\code{Numeric value} showing the disability weight associated with the morbidity health outcome}
 
 \item{exp}{\code{Numeric value} showing the population-weighted mean exposure in ug/m3 or \code{vector} showing the exposure category in a exposure distribution (this information is linked to the proportion of population exposed).}
 
@@ -47,7 +47,7 @@ The YLDs are listed in the columns:
 }
 \description{
 Determine years lived with disability (YLD) attributable to the incidence of a specific morbidity health outcome
-Calculates the YLDs using a single value for baseline heath data, i.e. without life table. It provides as a result the mean as well as the lower and the higher bounds of the morbidity impact based on the confidence interval of the exposure-response function.
+Calculates the YLDs using a single value for baseline heath data, i.e. without life table. It provides as a result the mean as well as the lower and the higher bounds of the morbidity impact based on the confidence interval of the exposure-response function. Assumption: cases happen at the start of the year.
 }
 \note{
 Experimental function

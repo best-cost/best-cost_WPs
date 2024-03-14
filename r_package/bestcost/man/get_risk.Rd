@@ -15,7 +15,7 @@ get_risk(
 )
 }
 \arguments{
-\item{rr}{Data frame containing the exposure-response function as in the epidemiological study, i.e. per the usual concentration increase. The data frame must contain the mean, lower and upper bound of the exposure-response function.}
+\item{rr}{\code{Numeric vector} containing the relative risk. The data frame must contain the mean, lower and upper bound of the exposure-response function.}
 
 \item{exp}{Population exposure to the stressor (e.g. annual population-weighted mean).}
 
