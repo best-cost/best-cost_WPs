@@ -171,8 +171,10 @@ for(i in 12){ # runs loop only for HO "asthma incidence 20+"
 
 ```{r morbidity yld lifetable}
 yld <- attribute_yld_lifetable_rr(
-  exp = input_data_mortality$exp[2],
-  prop_pop_exp = 1,
+  # exp = input_data_mortality$exp[2],
+  exp = c(8, 9, 10), # Fake data just for testing purposes
+  # prop_pop_exp = 1,
+  prop_pop_exp = c(0.2, 0.3, 0.5), # Fake data just for testing purposes
   cutoff = input_data_mortality$cutoff[2],
   rr = unlist(input_data_mortality[2, c("rr_mean", "rr_lowci", "rr_highci")]),
   rr_increment = 10, 
@@ -196,7 +198,34 @@ yld <- attribute_yld_lifetable_rr(
   corrected_discount_rate = 0,
   dw = 0.5)
 
-head(yld$yld$impact_rounded)
+print(paste("YLD", head(yld$yld$impact_rounded)))
+print("YLL (not discounted, as comparison) 45165.79 16337.49 30931.30")
+
+impact_yll_expDistribution_raw <- list()
+impact_yll_expDistribution_raw[[input_data_mortality$year[2]]][[input_data_mortality$rr_id[[2]]]] <-
+    bestcost::attribute_yll_lifetable_rr(
+      exp = c(8, 9, 10), # Fake data just for testing purposes
+      prop_pop_exp = c(0.2, 0.3, 0.5), # Fake data just for testing purposes
+      cutoff = input_data_mortality$cutoff[2], # WHO AQG 2021 
+      rr = unlist(input_data_mortality[2, c("rr_mean", "rr_lowci", "rr_highci")]),
+      rr_increment = 10, 
+      erf_shape = "log_linear",
+      first_age_pop = 0,
+      last_age_pop = 99,
+      interval_age_pop = 1,
+      prob_natural_death_male = lifetable_withPopulation[["male"]]$death_probability_natural,
+      prob_natural_death_female = lifetable_withPopulation[["female"]]$death_probability_natural,
+      prob_total_death_male = lifetable_withPopulation[["male"]]$death_probability_total,
+      prob_total_death_female = lifetable_withPopulation[["female"]]$death_probability_total,
+      population_male = lifetable_withPopulation[["male"]]$population, 
+      population_female = lifetable_withPopulation[["female"]]$population, 
+      year_of_analysis = 2019, 
+      info = input_data_mortality$pollutant[2], 
+      min_age = if(is.na(input_data_mortality$min_age[2])) NULL else input_data_mortality$min_age[i],
+      max_age = 99)
+      #max_age = if(is.na(input_data_mortality$max_age[2])) NULL else input_data_mortality$max_age[2])
+
+head(impact_yll_expDistribution_raw$`2019`$`PM2.5_premature deaths_all causes_adults_main_ERS-ISEE_2022_selected`$total$impact) 
 ```
 
 
@@ -205,8 +234,8 @@ impact_deaths_expDistribution_raw <- list()
 
 # Calculate mortality impacts using bestcost function
 
-for(i in 1:nrow(input_data_mortality)){  # Use this if you want to evaluate multiple RRs
-#for(i in 2){                           # Use this if you want to evaluate only one RR
+#for(i in 1:nrow(input_data_mortality)){  # Use this if you want to evaluate multiple RRs
+for(i in 2){                           # Use this if you want to evaluate only one RR
   impact_deaths_expDistribution_raw[[input_data_mortality$year[i]]][[input_data_mortality$rr_id[[i]]]] <-
     
     bestcost::attribute_deaths_lifetable_rr(
@@ -229,7 +258,8 @@ for(i in 1:nrow(input_data_mortality)){  # Use this if you want to evaluate mult
       year_of_analysis = 2019, 
       info = input_data_mortality$pollutant[i], 
       min_age = if(is.na(input_data_mortality$min_age[i])) NULL else input_data_mortality$min_age[i],
-      max_age = if(is.na(input_data_mortality$max_age[i])) NULL else input_data_mortality$max_age[i])
+      max_age = 99)
+      # max_age = if(is.na(input_data_mortality$max_age[i])) NULL else input_data_mortality$max_age[i])
 
 }
 
@@ -241,16 +271,15 @@ impact_yll_expDistribution_raw <- list()
 
 # Calculate mortality impacts using bestcost function
 
-for(i in 1:nrow(input_data_mortality)){  # Use this if you want to evaluate multiple RRs
-#for(i in 2){                           # Use this if you want to evaluate only one RR
+#for(i in 1:nrow(input_data_mortality)){  # Use this if you want to evaluate multiple RRs
+for(i in 2){                           # Use this if you want to evaluate only one RR
   impact_yll_expDistribution_raw[[input_data_mortality$year[i]]][[input_data_mortality$rr_id[[i]]]] <-
     
     bestcost::attribute_yll_lifetable_rr(
       exp = c(8, 9, 10), # Fake data just for testing purposes
       prop_pop_exp = c(0.2, 0.3, 0.5), # Fake data just for testing purposes
-      cutoff = input_data_mortality$cutoff[i],   # PM2.5=5, NO2=10, i.e. WHO AQG 2021 
-      rr = unlist(input_data_mortality[i,
-                                        c("rr_mean", "rr_lowci", "rr_highci")]),
+      cutoff = input_data_mortality$cutoff[i], # WHO AQG 2021 
+      rr = unlist(input_data_mortality[i, c("rr_mean", "rr_lowci", "rr_highci")]),
       rr_increment = 10, 
       erf_shape = "log_linear",
       first_age_pop = 0,
@@ -265,18 +294,17 @@ for(i in 1:nrow(input_data_mortality)){  # Use this if you want to evaluate mult
       year_of_analysis = 2019, 
       info = input_data_mortality$pollutant[i], 
       min_age = if(is.na(input_data_mortality$min_age[i])) NULL else input_data_mortality$min_age[i],
-      max_age = if(is.na(input_data_mortality$max_age[i])) NULL else input_data_mortality$max_age[i])
+      max_age = 99)
+      #max_age = if(is.na(input_data_mortality$max_age[i])) NULL else input_data_mortality$max_age[i])
 }
 head(impact_yll_expDistribution_raw$`2019`$`PM2.5_premature deaths_all causes_adults_main_ERS-ISEE_2022_selected`$total$impact) 
 
 ```
 
 ```{r impact mortality}
-impact_mortality_raw <- list()
-
-
 # Calculate mortality impacts using bestcost function
 
+impact_mortality_raw <- list()
 #for(i in 1:nrow(input_data_mortality)){  # Use this if you want to evaluate multiple RRs
 for(i in 2){                           # Use this if you want to evaluate only one RRs
   impact_mortality_raw[[input_data_mortality$year[i]]][[input_data_mortality$rr_id[[i]]]] <-

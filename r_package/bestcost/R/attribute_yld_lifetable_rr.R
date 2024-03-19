@@ -20,7 +20,7 @@
 #' @param min_age \code{Numberic value} of the minimal age to be considered for adults (by default 30, i.e. 30+).
 #' @param max_age \code{Numberic value} of the maximal age to be considered for infants/children (by default 0, i.e. below 1 year old).
 #' @param corrected_discount_rate \code{Numeric value} of the corrected discount rate as proportion (i.e. 0.1 instead of 10\%).
-#' @param dw \code{Numeric value} showing the disability weight associated with the morbidity health outcome
+#' @param disbility_weight \code{Numeric value} showing the disability weight associated with the morbidity health outcome
 #' @param info \code{String} showing additional information or id for the pollutant. The suffix "info" will be added to the column name. Default value = NULL.
 #' @return
 #' This function returns a \code{data.frame}
@@ -38,7 +38,7 @@ attribute_yld_lifetable_rr <-
            year_of_analysis,
            corrected_discount_rate = 0, min_age = NULL, max_age = NULL,
            erf_c = NULL,
-           dw,
+           disbility_weight,
            info = NULL){
 
     # Check input data ####
@@ -48,6 +48,7 @@ attribute_yld_lifetable_rr <-
       bestcost::compile_input(
         exp = exp,
         prop_pop_exp = prop_pop_exp,
+        disability_weight = disability_weight,
         cutoff = cutoff,
         rr = rr,
         rr_increment = rr_increment,
@@ -64,10 +65,8 @@ attribute_yld_lifetable_rr <-
     input_risk_paf <-
       bestcost::get_risk_and_paf(input = input)
 
-
-    # The life table has to be provided as a data.frame (by sex)
-    # The first column has to be the age. Second, probability of death. Third, population.
-    # Rename column names to standard names
+    # Compile list of life table data frame (by sex)
+    # Col 1: age; col 2: probability of death; col 3: population
 
     lifetable_withPop <- list(
       male =
@@ -115,7 +114,7 @@ attribute_yld_lifetable_rr <-
 
     # Apply disability weight ####
     yll$total <- yll$total %>%
-      mutate(impact = impact * dw,
+      mutate(impact = impact * disbility_weight,
              impact_rounded = round(impact),
              impact_metric = "Years lived with disability"
       ) %>%
