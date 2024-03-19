@@ -24,6 +24,7 @@ attribute_yld_lifetable_rr(
   corrected_discount_rate = 0,
   min_age = NULL,
   max_age = NULL,
+  erf_c = NULL,
   dw,
   info = NULL
 )
