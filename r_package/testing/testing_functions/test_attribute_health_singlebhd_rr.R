@@ -20,14 +20,15 @@ load("R/sysdata.rda")
 #   info_bhd = NULL)
 
 # Function code ####
-#exp <- input_data_morbidities$exp[12]
-exp <- c(8, 9, 10)
-prop_pop_exp <- c(0.2,0.3,0.5)
+exp <- input_data_morbidities$exp[12]
+# exp <- c(8, 9, 10)
+prop_pop_exp <- 1
+# prop_pop_exp <- c(0.2,0.3,0.5)
 cutoff <- input_data_morbidities$cutoff[12]
 bhd <- input_data_morbidities$bhd_absolute[12]
 rr <- unlist(input_data_morbidities[12, c("rr_mean", "rr_lowci", "rr_highci")])
 rr_increment <- 10 
-erf_shape <- "loglinear"
+erf_shape <- "log_linear"
 info_pollutant <- input_data_morbidities$pollutant[12] 
 info_outcome <- input_data_morbidities$outcome_metric[12]
 info_exp <- NULL
@@ -101,11 +102,11 @@ input <-
   # rescale rr's for PAF
   dplyr::mutate(
     rr_forPaf =
-      bestcost::rescale_rr(rr = rr,
+      bestcost::get_risk(rr = rr,
                  exp = exp,
                  cutoff = cutoff,
                  rr_increment = rr_increment,
-                 method = {{erf_shape}}))
+                 erf_shape = {{erf_shape}}))
                  #{{}} ensures that the
                  # value from the function argument is used
                  # instead of from an existing column

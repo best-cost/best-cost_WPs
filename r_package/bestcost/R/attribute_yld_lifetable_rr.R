@@ -1,15 +1,12 @@
-# Title and description
-
-#' Attributable deaths based on life tables
+#' Health impacts based on life tables
 #'
-#' Calculates the premature deaths attributable to the exposure to an environmental stressor using a life table approach. It provides the central estimate of the impact and the corresponding 95\% confidence intervals (based on the 95\% confidence interval exposure-response function).
+#' Calculates the years lived with disability attributable to the exposure to an environmental stressor using a life table approach. It provides the central estimate of the impact and the corresponding 95\% confidence intervals (based on the 95\% confidence interval exposure-response function).
 #' @param exp \code{Numeric values} Population-weighted mean exposure in ug/m3 or {vector} showing the exposure category in a exposure distribution (this information is linked to the proportion of population exposed).
 #' @param prop_pop_exp \code{Numeric value} or {Numeric vector} Fraction (values between 0 & 1) of the total population exposed to (one or more) exposure categories, i.e., a exposure distribution, respectively. If a exposure distribution is used, the dimension of this input variable should be the same as "exp". By default, 1 for single exposure value will be assigned to this input variable assuming a single exposure value, but users can change this value.
 #' @param cutoff \code{Numeric value} showing the cut-off exposure in ug/m3 (i.e. the exposure level below which no health effects occur).
 #' @param rr \code{Numeric vector} of three numeric values referring to the central estimate of the exposure-response function and the corresponding lower and upper 95\% confidence interval bounds.
 #' @param rr_increment \code{Numeric value} showing the increment of the exposure-response function in ug/m3 (usually 10 or 5).
-#' @param erf_shape \code{String} showing the shape of the exposure-response function to be assumed using the relative risk from the literature as support point. Options: "linear", log_linear", "linear_log", "log_log".
-#' @param erf_c \code{String} showing the user-defined function that puts the relative risk in relation with concentration. The function must have only one variable: c, which means concentration. E.g. "3+c+c^2". Default value = NULL.
+#' @param erf_shape \code{Character string} either "linear" or "loglinear".
 #' @param first_age_pop \code{Numeric value} starting age of the youngest age group from population and life table data
 #' @param last_age_pop \code{Numeric value} ending age of the oldest age group from population and life table data
 #' @param interval_age_pop \code{Numeric value} of the interval (in years) of each age group from population and life table data
@@ -22,40 +19,29 @@
 #' @param year_of_analysis \code{Numeric value} of the year of analysis, which corresponds to the first year of the life table.
 #' @param min_age \code{Numberic value} of the minimal age to be considered for adults (by default 30, i.e. 30+).
 #' @param max_age \code{Numberic value} of the maximal age to be considered for infants/children (by default 0, i.e. below 1 year old).
-#' @param info \code{String} or {data frame} showing additional information or id. The suffix "info" will be added to the column name. Default value = NULL.
+#' @param corrected_discount_rate \code{Numeric value} of the corrected discount rate as proportion (i.e. 0.1 instead of 10\%).
+#' @param dw \code{Numeric value} showing the disability weight associated with the morbidity health outcome
+#' @param info \code{String} showing additional information or id for the pollutant. The suffix "info" will be added to the column name. Default value = NULL.
 #' @return
-#' TBD. E.g. This function returns a \code{data.frame} with one row for each value of the
-#' concentration-response function (i.e. mean, lower and upper bound confidence interval.
-#' Moreover, the data frame include columns such as:
-#' \itemize{
-#'  \item Attributable fraction
-#'  \item Health impact
-#'  \item Outcome metric
-#'  \item And many more.
-#' }
+#' This function returns a \code{data.frame}
 #' @import dplyr
 #' @import purrr
-#' @examples
-#' TBD
-#' @author Alberto Castro
+#' @author Axel Luyten
 #' @note Experimental function
 #' @export
-attribute_deaths_lifetable_rr <-
+attribute_yld_lifetable_rr <-
   function(exp, prop_pop_exp = 1,
-           cutoff,
-           rr, rr_increment,
-           erf_shape, erf_c = NULL,
+           rr, rr_increment, erf_shape, cutoff,
            first_age_pop, last_age_pop, interval_age_pop,
-           prob_natural_death_male, prob_natural_death_female,
-           prob_total_death_male, prob_total_death_female,
+           prob_natural_death_male, prob_natural_death_female, prob_total_death_male, prob_total_death_female,
            population_male, population_female,
            year_of_analysis,
-           min_age = NULL, max_age = NULL,
+           corrected_discount_rate = 0, min_age = NULL, max_age = NULL,
+           erf_c = NULL,
+           dw,
            info = NULL){
 
     # Check input data ####
-
-    # Digest input data ####
 
     # Compile input data and calculate paf putting all into a data frame
     input <-
@@ -108,9 +94,8 @@ attribute_deaths_lifetable_rr <-
           death_probability_total = prob_total_death_female,
           population = population_female))
 
+    # Get attributable cases in YOA + 1 ####
 
-
-    # Get population impact ####
     pop_impact <-
       bestcost::get_pop_impact(
         lifetab_withPop = lifetable_withPop,
@@ -118,26 +103,30 @@ attribute_deaths_lifetable_rr <-
         paf = input_risk_paf[, c("ci", "paf")])
 
 
-    # Calculate deaths ####
-    deaths <-
-      bestcost::get_deaths(
+    # Get YLL ####
+    yll <-
+      bestcost::get_yll(
         pop_impact = pop_impact,
         year_of_analysis = year_of_analysis,
         min_age = min_age,
         max_age = max_age,
-        meta = input_risk_paf)
+        meta = input_risk_paf,
+        corrected_discount_rate = corrected_discount_rate)
 
+    # Apply disability weight ####
+    yll$total <- yll$total %>%
+      mutate(impact = impact * dw,
+             impact_rounded = round(impact),
+             impact_metric = "Years lived with disability"
+      ) %>%
+      select(impact, impact_rounded, impact_metric, everything())
 
     # Compile output ####
     output <-
-      list(total = deaths[["total"]],
-           detailed = deaths[["detailed"]])
+      list(
+        pop_impact = pop_impact,
+        yld = yll[["total"]])
 
     return(output)
 
   }
-
-
-
-
-

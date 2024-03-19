@@ -66,7 +66,7 @@ attribute_health_singlebhd_rr <-
         dplyr::select(exp, cutoff, bhd,
                       rr, rr_conc, rr_increment, ci, erf_shape,
                       paf, impact, impact_rounded,
-                      starts_with("info"))
+                      info)
 
    output <- list(total = calculation)
 
