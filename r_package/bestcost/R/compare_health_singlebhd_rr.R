@@ -1,6 +1,6 @@
 # Title and description
 
-#' Compare attributable health cases based
+#' Compare attributable health cases based on single baseline health value and relative risk
 
 #' Calculates the health impacts between two scenarios (e.g. before and after a intervention in a health impact assessments). It provides as a result the central estimate as well as the lower and the higher bound of the confidence interval based on the uncertainty of the exposure-response function.
 #' @param comparison_method \code{String} showing the method of comparison. Options: "delta" or "pif".
@@ -77,8 +77,9 @@ compare_health_singlebhd_rr <-
 
     # Identify the columns that are common for scenario 1 and 2
     joining_columns <-
-      names(att_health_1[["total"]])[! names(att_health_1[["total"]]) %in%
-                                c("exp", "bhd", "rr_conc", "paf", "impact", "impact_rounded", "info")]
+      names(att_health_1[["total"]])[! grepl(c("exp|bhd|paf|rr_conc|impact|impact_rounded|info"),
+                                             names(att_health_1[["total"]]))]
+
 
     # Merge the result tables by common columns
     att_health <-

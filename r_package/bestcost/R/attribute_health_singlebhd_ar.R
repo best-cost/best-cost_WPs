@@ -1,6 +1,6 @@
 # Title and description
 
-#' Attributable health cases based on single baseline health value
+#' Attributable health cases based on absolute risk
 #'
 #' Calculates the health impacts, of an environmental stressor (e.g. noise) using the absolute risk instead of the relative risk
 #' @param exp \code{Vector} showing the mid-point exposure in the exposure categories (average of the exposure ranges) in a exposure distribution referring only to the exposed population. The length of exp and pop_exp must be the same.
