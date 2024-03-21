@@ -25,8 +25,9 @@ attribute_yld_lifetable_rr(
   min_age = NULL,
   max_age = NULL,
   erf_c = NULL,
-  dw,
-  info = NULL
+  disability_weight,
+  info = NULL,
+  duration = NULL
 )
 }
 \arguments{
@@ -68,7 +69,7 @@ attribute_yld_lifetable_rr(
 
 \item{max_age}{\code{Numberic value} of the maximal age to be considered for infants/children (by default 0, i.e. below 1 year old).}
 
-\item{dw}{\code{Numeric value} showing the disability weight associated with the morbidity health outcome}
+\item{disability_weight}{\code{Numeric value} showing the disability weight associated with the morbidity health outcome}
 
 \item{info}{\code{String} showing additional information or id for the pollutant. The suffix "info" will be added to the column name. Default value = NULL.}
 }

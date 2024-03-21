@@ -21,11 +21,10 @@ info <- input_data_mortality$pollutant[2]
 min_age <- 20
 #max_age <- input_data_mortality$max_age[2]
 max_age <- 99
-
 corrected_discount_rate <- 0
-dw <- 0.5 # 0.133 = Asthma, uncontrolled
+disability_weight <- 0.5 # 0.133 = Asthma, uncontrolled
 erf_c = NULL
-# duration <- # TBA
+duration <- 5
 
 # Compile input data ####
 input <-
@@ -33,6 +32,8 @@ input <-
     exp = exp,
     prop_pop_exp = prop_pop_exp,
     cutoff = cutoff,
+    disability_weight = disability_weight,
+    duration = duration,
     rr = rr,
     rr_increment = rr_increment,
     erf_shape = erf_shape,
@@ -99,7 +100,7 @@ yll <-
 
 # Apply disability weight ####
 yll$total <- yll$total %>%
-  mutate(impact = impact * dw,
+  mutate(impact = impact * disability_weight,
          impact_rounded = round(impact),
          impact_metric = "Years lived with disability"
   ) %>%
