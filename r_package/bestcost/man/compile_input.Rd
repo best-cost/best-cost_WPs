@@ -14,10 +14,12 @@ compile_input(
   erf_shape,
   erf_c,
   bhd,
-  min_age = NULL,
-  max_age = NULL,
+  min_age = 0,
+  max_age = 99,
   info,
-  method
+  method,
+  disability_weight,
+  duration
 )
 }
 \arguments{

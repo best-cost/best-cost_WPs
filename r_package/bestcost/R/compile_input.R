@@ -44,7 +44,9 @@ compile_input <-
            min_age = 0,
            max_age = 99,
            info,
-           method){
+           method,
+           disability_weight,
+           duration){
     # Check input data ####
     stopifnot(exprs = {
       length(exp) == length(prop_pop_exp)
@@ -67,8 +69,10 @@ compile_input <-
       # In case of same value in mean and low or high, assign value randomly
       dplyr::mutate(ci = ifelse(duplicated(rr), "mean", ci)) %>%
 
-      # If erf_c is not NULL add it to the data frame. Otherwise, leave it out
-      {if(!is.null(erf_c)) mutate(., erf_c = erf_c) else .}
+      # If variable is not NULL add it to the data frame. Otherwise, leave it out
+      {if(!is.null(erf_c)) mutate(., erf_c = erf_c) else .} %>%
+      {if(!is.null(disability_weight)) mutate(., disability_weight = disability_weight) else .} %>%
+      {if(!is.null(duration)) mutate(., duration = duration) else .}
 
     # Compile input data except meta-info
     input <-
@@ -77,6 +81,7 @@ compile_input <-
         prop_pop_exp = prop_pop_exp)%>%
       # If bhd is not NULL, add it to the data frame. Otherwise (e.g. in life table approach), leave it out.
       {if(!is.null(bhd)) mutate(., bhd = bhd) else .} %>%
+
 
     # Add rr with a cross join to produce all likely combinations
     dplyr::cross_join(., erf_data) %>%
