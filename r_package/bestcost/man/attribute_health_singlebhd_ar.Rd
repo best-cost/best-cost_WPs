@@ -2,7 +2,7 @@
 % Please edit documentation in R/attribute_health_singlebhd_ar.R
 \name{attribute_health_singlebhd_ar}
 \alias{attribute_health_singlebhd_ar}
-\title{Attributable health cases based on single baseline health value}
+\title{Attributable health cases based on absolute risk}
 \usage{
 attribute_health_singlebhd_ar(exp, pop_exp, erf_c, info = NULL)
 }
