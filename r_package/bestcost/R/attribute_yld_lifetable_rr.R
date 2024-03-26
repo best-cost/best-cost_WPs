@@ -20,7 +20,7 @@
 #' @param min_age \code{Numberic value} of the minimal age to be considered for adults (by default 30, i.e. 30+).
 #' @param max_age \code{Numberic value} of the maximal age to be considered for infants/children (by default 0, i.e. below 1 year old).
 #' @param corrected_discount_rate \code{Numeric value} of the corrected discount rate as proportion (i.e. 0.1 instead of 10\%).
-#' @param dw \code{Numeric value} showing the disability weight associated with the morbidity health outcome
+#' @param disability_weight \code{Numeric value} showing the disability weight associated with the morbidity health outcome
 #' @param info \code{String} showing additional information or id for the pollutant. The suffix "info" will be added to the column name. Default value = NULL.
 #' @return
 #' This function returns a \code{data.frame}
@@ -38,8 +38,9 @@ attribute_yld_lifetable_rr <-
            year_of_analysis,
            corrected_discount_rate = 0, min_age = NULL, max_age = NULL,
            erf_c = NULL,
-           dw,
-           info = NULL){
+           disability_weight,
+           info = NULL,
+           duration = NULL){
 
     # Check input data ####
 
@@ -48,6 +49,8 @@ attribute_yld_lifetable_rr <-
       bestcost::compile_input(
         exp = exp,
         prop_pop_exp = prop_pop_exp,
+        disability_weight = disability_weight,
+        duration = duration,
         cutoff = cutoff,
         rr = rr,
         rr_increment = rr_increment,
@@ -64,10 +67,8 @@ attribute_yld_lifetable_rr <-
     input_risk_paf <-
       bestcost::get_risk_and_paf(input = input)
 
-
-    # The life table has to be provided as a data.frame (by sex)
-    # The first column has to be the age. Second, probability of death. Third, population.
-    # Rename column names to standard names
+    # Compile list of life table data frame (by sex)
+    # Col 1: age; col 2: probability of death; col 3: population
 
     lifetable_withPop <- list(
       male =
@@ -102,30 +103,44 @@ attribute_yld_lifetable_rr <-
         year_of_analysis = year_of_analysis,
         paf = input_risk_paf[, c("ci", "paf")])
 
+    # OLD CODE
+    # # Get YLL ####
+    # yld <-
+    #   bestcost::get_yll(
+    #     pop_impact = pop_impact,
+    #     year_of_analysis = year_of_analysis,
+    #     min_age = min_age,
+    #     max_age = max_age,
+    #     meta = input_risk_paf,
+    #     corrected_discount_rate = corrected_discount_rate)
+    #
+    # # Apply disability weight ####
+    # yld$total <- yld$total %>%
+    #   mutate(impact = impact * disability_weight,
+    #          impact_rounded = round(impact),
+    #          impact_metric = "Years lived with disability"
+    #   ) %>%
+    #   select(impact, impact_rounded, impact_metric, everything())
 
-    # Get YLL ####
-    yll <-
-      bestcost::get_yll(
-        pop_impact = pop_impact,
-        year_of_analysis = year_of_analysis,
-        min_age = min_age,
-        max_age = max_age,
-        meta = input_risk_paf,
-        corrected_discount_rate = corrected_discount_rate)
-
-    # Apply disability weight ####
-    yll$total <- yll$total %>%
-      mutate(impact = impact * dw,
-             impact_rounded = round(impact),
-             impact_metric = "Years lived with disability"
-      ) %>%
-      select(impact, impact_rounded, impact_metric, everything())
+    # NEW CODE
+    yld <-
+        bestcost::get_yld(
+          pop_impact = pop_impact,
+          year_of_analysis = year_of_analysis,
+          min_age = min_age,
+          max_age = max_age,
+          meta = input_risk_paf,
+          corrected_discount_rate = corrected_discount_rate,
+          disability_weight = disability_weight,
+          duration = duration)
 
     # Compile output ####
     output <-
       list(
         pop_impact = pop_impact,
-        yld = yll[["total"]])
+        total = yld[["yld"]],
+        detailed = yld[["yld_detailed"]]
+        )
 
     return(output)
 

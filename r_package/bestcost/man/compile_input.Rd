@@ -17,7 +17,9 @@ compile_input(
   min_age = 0,
   max_age = 99,
   info,
-  method
+  method,
+  disability_weight,
+  duration
 )
 }
 \arguments{

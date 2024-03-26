@@ -73,7 +73,9 @@ attribute_yll_lifetable_rr <-
         min_age = min_age,
         max_age = max_age,
         info = info,
-        method = paste0("lifetable_rr_corrected_discount_rate_", corrected_discount_rate))
+        method = paste0("lifetable_rr_corrected_discount_rate_", corrected_discount_rate),
+        disability_weight = NULL,
+        duration = NULL)
 
 
     # Get PAF and added to the input data frame

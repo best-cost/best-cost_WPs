@@ -64,10 +64,10 @@ output_function_call <- attribute_mortality_lifetable_rr(
   corrected_discount_rate = 0)
 
 # Function test ####
-# exp <- c(input_data_mortality$exp[2], input_data_mortality$exp[2]+5, input_data_mortality$exp[2]+10)
-exp = input_data_mortality$exp[2]
-# prop_pop_exp <- c(0.2, 0.2, 0.6)
-prop_pop_exp <- 1
+exp <- c(input_data_mortality$exp[2], input_data_mortality$exp[2]+5, input_data_mortality$exp[2]+10)
+# exp = input_data_mortality$exp[2]
+prop_pop_exp <- c(0.2, 0.2, 0.6)
+# prop_pop_exp <- 1
 cutoff <- input_data_mortality$cutoff[2] 
 rr <- unlist(input_data_mortality[2, c("rr_mean", "rr_lowci", "rr_highci")])
 rr_increment <- 10 
