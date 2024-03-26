@@ -54,7 +54,9 @@ attribute_health_singlebhd_rr <-
         min_age = NULL,
         max_age = NULL,
         info = info,
-        method = "singlebhd_rr")
+        method = "singlebhd_rr",
+        disability_weight = NULL,
+        duration = NULL)
 
     # Get PAF and added to the input data frame
     calculation <-
