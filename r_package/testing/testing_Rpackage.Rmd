@@ -473,6 +473,43 @@ comparison_delta_singlebhd_ar <-
 ```
 
 
+```{r comparison deaths lifetable}
+ bestcost::compare_deaths_lifetable_rr(
+      exp = c(8, 9, 10), # Fake data just for testing purposes
+      prop_pop_exp = c(0.2, 0.3, 0.5), # Fake data just for testing purposes
+      cutoff = input_data_mortality$cutoff[i],   # PM2.5=5, NO2=10, i.e. WHO AQG 2021 
+      rr = unlist(input_data_mortality[i,
+                                        c("rr_mean", "rr_lowci", "rr_highci")]),
+      rr_increment = 10, 
+      erf_shape = "log_linear",
+      first_age_pop_1 = 0,
+      last_age_pop_1 = 99,
+      interval_age_pop_1 = 1,
+      prob_natural_death_male_1 = lifetable_withPopulation[["male"]]$death_probability_natural,
+      prob_natural_death_female_1 = lifetable_withPopulation[["female"]]$death_probability_natural,
+      prob_total_death_male_1 = lifetable_withPopulation[["male"]]$death_probability_total,
+      prob_total_death_female_1 = lifetable_withPopulation[["female"]]$death_probability_total,
+      population_male_1 = lifetable_withPopulation[["male"]]$population, 
+      population_female_1 = lifetable_withPopulation[["female"]]$population, 
+      year_of_analysis_1 = 2019, 
+      first_age_pop_2 = 0,
+      last_age_pop_2 = 99,
+      interval_age_pop_2 = 1,
+      prob_natural_death_male_2 = lifetable_withPopulation[["male"]]$death_probability_natural+0.01,
+      prob_natural_death_female_2 = lifetable_withPopulation[["female"]]$death_probability_natural+0.02,
+      prob_total_death_male_2 = lifetable_withPopulation[["male"]]$death_probability_total+0.03,
+      prob_total_death_female_2 = lifetable_withPopulation[["female"]]$death_probability_total+0.04,
+      population_male_2 = lifetable_withPopulation[["male"]]$population+200, 
+      population_female_2 = lifetable_withPopulation[["female"]]$population+300, 
+      year_of_analysis_2 = 2021, 
+      info_1 = input_data_mortality$pollutant[i],
+      info_2 = input_data_mortality$pollutant[i], 
+      min_age = if(is.na(input_data_mortality$min_age[i])) NULL else input_data_mortality$min_age[i],
+      max_age = 99)
+      # max_age = if(is.na(input_data_mortality$max_age[i])) NULL else input_data_mortality$max_age[i])
+```
+
+
 
 # Export 
 
