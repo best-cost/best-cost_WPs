@@ -27,13 +27,20 @@ get_risk_and_pif <-
     input_and_risk <-
       input %>%
       dplyr::mutate(
-        rr_conc =
+        rr_conc_1 =
           bestcost::get_risk(rr = rr,
-                             exp = exp,
+                             exp = exp_1,
                              cutoff = cutoff,
                              rr_increment = rr_increment,
                              erf_shape = unique(erf_shape)
-                             ))
+                             ),
+        rr_conc_2 =
+          bestcost::get_risk(rr = rr,
+                             exp = exp_2,
+                             cutoff = cutoff,
+                             rr_increment = rr_increment,
+                             erf_shape = unique(erf_shape)
+          ))
 
     # Calculate population impact fraction (PIF) ####
     input_risk_pif <-
@@ -41,7 +48,7 @@ get_risk_and_pif <-
       # Group by exp in case that there are different exposure categories
       dplyr::group_by(rr) %>%
       dplyr::summarize(pif = bestcost::get_pif(rr_conc_1 = rr_conc_1,
-                                               rr_conc_1 = rr_conc_1,
+                                               rr_conc_2 = rr_conc_2,
                                                prop_pop_exp_1 = prop_pop_exp_1,
                                                prop_pop_exp_2 = prop_pop_exp_2))%>%
       # Join the input table with pif values
@@ -51,16 +58,30 @@ get_risk_and_pif <-
     # Data wrangling ####
     # Only if exposure distribution (multiple exposure categories)
     # then reduce the number of rows to keep the same number as in rr
-    if(length(unique(input_and_risk$exp))>1){
+    if(length(unique(input_and_risk$exp_1))>1){
       input_risk_pif <-
         input_risk_pif %>%
         dplyr::mutate(
           # Add a column for the average exp (way to summarize exposure)
-          exp_mean = mean(exp),
+          exp_1_mean = mean(exp_1),
           # Replace the actual values with "multiple" to enable reduction of rows
-          exp = paste(exp, collapse = ", "),
-          prop_pop_exp = paste(prop_pop_exp, collapse = ", "),
-          rr_conc = paste(rr_conc, collapse = ", ")) %>%
+          exp_1 = paste(exp_1, collapse = ", "),
+          prop_pop_exp_1 = paste(prop_pop_exp_1, collapse = ", "),
+          rr_conc_1 = paste(rr_conc_1, collapse = ", ")) %>%
+        # Keep only rows that are distinct
+        dplyr::distinct(.)
+    }
+
+    if(length(unique(input_and_risk$exp_2))>1){
+      input_risk_pif <-
+        input_risk_pif %>%
+        dplyr::mutate(
+          # Add a column for the average exp (way to summarize exposure)
+          exp_2_mean = mean(exp_2),
+          # Replace the actual values with "multiple" to enable reduction of rows
+          exp_2 = paste(exp_2, collapse = ", "),
+          prop_pop_exp_2 = paste(prop_pop_exp_2, collapse = ", "),
+          rr_conc_2 = paste(rr_conc_2, collapse = ", ")) %>%
         # Keep only rows that are distinct
         dplyr::distinct(.)
     }

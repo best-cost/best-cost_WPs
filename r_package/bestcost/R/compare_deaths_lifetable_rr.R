@@ -55,7 +55,7 @@
 #' @author Alberto Castro
 #' @note Experimental function
 #' @export
-compare_health_lifetable_rr <-
+compare_deaths_lifetable_rr <-
   function(comparison_method = "delta",
            exp_1, exp_2,
            prop_pop_exp_1 = 1, prop_pop_exp_2 = 1,
@@ -123,6 +123,8 @@ compare_health_lifetable_rr <-
         year_of_analysis = year_of_analysis_2,
         info = info_2)
 
+    if(comparison_method == "delta"){
+
     # Identify the columns that are common for scenario 1 and 2
     joining_columns <-
       names(att_health_1[["total"]])[! grepl(c("exp|bhd|paf|rr_conc|impact|impact_rounded|info"),
@@ -138,6 +140,7 @@ compare_health_lifetable_rr <-
         suffix = c("_1", "_2"))%>%
       # Calculate the delta (difference) between scenario 1 and 2
       dplyr::mutate(impact = impact_1 - impact_2)
+    }
 
 
 
@@ -148,17 +151,70 @@ compare_health_lifetable_rr <-
        first_age_pop_1 == first_age_pop_2 &
        last_age_pop_1 == last_age_pop_2 &
        interval_age_pop_1 == interval_age_pop_2 &
-       prob_natural_death_male_1 == prob_natural_death_male_2 &
-       prob_natural_death_female_1 == prob_natural_death_male_2 &
-       prob_total_death_male_1 == prob_total_death_male_2 &
-       prob_total_death_female_1 == prob_total_death_female_2 &
-       population_male_1 == population_male_2 &
-       population_female_1 == population_female_2){
+       all(prob_natural_death_male_1 == prob_natural_death_male_2) &
+       all(prob_natural_death_female_1 == prob_natural_death_male_2) &
+       all(prob_total_death_male_1 == prob_total_death_male_2) &
+       all(prob_total_death_female_1 == prob_total_death_female_2) &
+       all(population_male_1 == population_male_2) &
+       all(population_female_1 == population_female_2) &
+       year_of_analysis_1 == year_of_analysis_2){
+
+      # Compile input data of scenario 1
+      input_1 <-
+        bestcost::compile_input(
+          exp = exp_1,
+          prop_pop_exp = prop_pop_exp_1,
+          cutoff = cutoff,
+          rr = rr,
+          rr_increment = rr_increment,
+          erf_shape = erf_shape,
+          erf_c = erf_c,
+          bhd = NULL,
+          min_age = min_age,
+          max_age = max_age,
+          info = info_1,
+          method = paste0("lifetable_rr_corrected"),
+          disability_weight = NULL,
+          duration = NULL)
+
+      # Compile input data of scenario 2
+      input_2 <-
+        bestcost::compile_input(
+          exp = exp_2,
+          prop_pop_exp = prop_pop_exp_2,
+          cutoff = cutoff,
+          rr = rr,
+          rr_increment = rr_increment,
+          erf_shape = erf_shape,
+          erf_c = erf_c,
+          bhd = NULL,
+          min_age = min_age,
+          max_age = max_age,
+          info = info_2,
+          method = paste0("lifetable_rr_corrected"),
+          disability_weight = NULL,
+          duration = NULL)
+
+      # Identify the columns that are common for scenario 1 and 2
+      joining_columns <-
+        names(input_1)[! grepl(c("exp|prop_pop_exp|info"),
+                                               names(input_1))]
+
+
+      # Merge the input tables by common columns
+      input <-
+        dplyr::left_join(
+          input_1,
+          input_2,
+          by = joining_columns,
+          suffix = c("_1", "_2"))
 
 
       # Get PAF and add to the input data frame
       input_risk_pif <-
-        bestcost::get_risk_and_pif(input = input)
+        bestcost::get_risk_and_pif(input = input)%>%
+        #Replace pif with paf to be able to use the lifetable functions
+        dplyr::rename(paf=pif)
 
 
       # The life table has to be provided as a data.frame (by sex)
@@ -168,27 +224,27 @@ compare_health_lifetable_rr <-
       lifetable_withPop <- list(
         male =
           data.frame(
-            age = seq(from = first_age_pop,
-                      to = last_age_pop,
-                      by = interval_age_pop),
-            age_end = seq(from = first_age_pop + interval_age_pop,
-                          to = last_age_pop,
-                          by = interval_age_pop + interval_age_pop),
-            death_probability_natural = prob_natural_death_male,
-            death_probability_total = prob_total_death_male,
-            population = population_male),
+            age = seq(from = first_age_pop_1,
+                      to = last_age_pop_1,
+                      by = interval_age_pop_1),
+            age_end = seq(from = first_age_pop_1+ interval_age_pop_1,
+                          to = last_age_pop_1,
+                          by = interval_age_pop_1 + interval_age_pop_1),
+            death_probability_natural = prob_natural_death_male_1,
+            death_probability_total = prob_total_death_male_1,
+            population = population_male_1),
 
         female =
           data.frame(
-            age = seq(from = first_age_pop,
-                      to = last_age_pop,
-                      by = interval_age_pop),
-            age_end = seq(from = first_age_pop + interval_age_pop,
-                          to = last_age_pop,
-                          by = interval_age_pop + interval_age_pop),
-            death_probability_natural = prob_natural_death_female,
-            death_probability_total = prob_total_death_female,
-            population = population_female))
+            age = seq(from = first_age_pop_1,
+                      to = last_age_pop_1,
+                      by = interval_age_pop_1),
+            age_end = seq(from = first_age_pop_1 + interval_age_pop_1,
+                          to = last_age_pop_1,
+                          by = interval_age_pop_1 + interval_age_pop_1),
+            death_probability_natural = prob_natural_death_female_1,
+            death_probability_total = prob_total_death_female_1,
+            population = population_female_1))
 
 
 
@@ -196,18 +252,20 @@ compare_health_lifetable_rr <-
       pop_impact <-
         bestcost::get_pop_impact(
           lifetab_withPop = lifetable_withPop,
-          year_of_analysis = year_of_analysis,
-          paf = input_risk_pif[, c("ci", "pif")])
+          year_of_analysis = year_of_analysis_1,
+          paf = input_risk_pif[, c("ci", "paf")])
 
 
       # Calculate deaths ####
-      deaths <-
+      att_health <-
         bestcost::get_deaths(
           pop_impact = pop_impact,
-          year_of_analysis = year_of_analysis,
+          year_of_analysis = year_of_analysis_1,
           min_age = min_age,
           max_age = max_age,
-          meta = input_risk_paf)
+          meta = input_risk_paf)$total%>%
+        # Replace paf with pif
+        dplyr::rename(pif = paf)
 
 
     }
