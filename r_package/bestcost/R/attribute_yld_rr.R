@@ -87,11 +87,11 @@ attribute_yld_rr <-
 
     # Calculate population attributable fraction (PAF) ####
 
-    # Add column "rr_forPaf" with rescaled relative risk
+    # Add column "rr_conc" with rescaled relative risk
     dat <-
       dat %>%
       dplyr::mutate(
-        rr_forPaf =
+        rr_conc =
           get_risk(rr = rr,
                      exp = exp,
                      cutoff = cutoff,
@@ -104,7 +104,7 @@ attribute_yld_rr <-
       dat %>%
       # Group by exp in case that there are different exposure categories
       dplyr::group_by(rr) %>%
-      dplyr::summarize(paf = bestcost::get_paf(rr_conc = rr_forPaf, prop_pop_exp = prop_pop_exp))
+      dplyr::summarize(paf = bestcost::get_paf(rr_conc = rr_conc, prop_pop_exp = prop_pop_exp))
     #return(paf) #yld3
 
     if(length(exp)>1){ # if input is exposure distribution (multiple exposure categories): reduce the number of rows to keep the same number as in rr
@@ -115,7 +115,7 @@ attribute_yld_rr <-
           # Replace the actual values with "multiple" to enable reduction of rows
           exp = paste(exp, collapse = ", "),
           prop_pop_exp = paste(prop_pop_exp, collapse = ", "),
-          rr_forPaf = paste(rr_forPaf, collapse = ", ")) %>%
+          rr_conc = paste(rr_conc, collapse = ", ")) %>%
         dplyr::distinct(.) # Keep only rows that are distinct
     }
     #return(dat)
@@ -135,7 +135,7 @@ attribute_yld_rr <-
       dplyr::mutate(yld = paf * bhd * dw,
                     yld_rounded = round(yld, 0)) %>%
       dplyr::select(exp, yld, yld_rounded, cutoff, bhd,
-                    rr, rr_forPaf, rr_increment, ci, erf_shape,
+                    rr, rr_conc, rr_increment, ci, erf_shape,
                     paf, prop_pop_exp,
                     starts_with("info_")) %>%
       dplyr::relocate(yld_rounded, yld, prop_pop_exp, .before = cutoff)
