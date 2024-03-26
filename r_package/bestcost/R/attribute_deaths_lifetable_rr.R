@@ -71,7 +71,9 @@ attribute_deaths_lifetable_rr <-
         min_age = min_age,
         max_age = max_age,
         info = info,
-        method = paste0("lifetable_rr_corrected"))
+        method = paste0("lifetable_rr_corrected"),
+        disability_weight = NULL,
+        duration = NULL)
 
 
     # Get PAF and add to the input data frame
