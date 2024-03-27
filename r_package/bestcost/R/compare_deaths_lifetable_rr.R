@@ -263,7 +263,7 @@ compare_deaths_lifetable_rr <-
           year_of_analysis = year_of_analysis_1,
           min_age = min_age,
           max_age = max_age,
-          meta = input_risk_paf)$total%>%
+          meta = input_risk_pif)$total%>%
         # Replace paf with pif
         dplyr::rename(pif = paf)
 
