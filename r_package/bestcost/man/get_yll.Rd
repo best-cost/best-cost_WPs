@@ -10,7 +10,7 @@ get_yll(
   min_age = min_age,
   max_age = max_age,
   meta,
-  corrected_discount_rate
+  corrected_discount_rate = 0
 )
 }
 \arguments{

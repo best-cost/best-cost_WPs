@@ -473,6 +473,280 @@ comparison_delta_singlebhd_ar <-
 ```
 
 
+```{r comparison deaths lifetable}
+ 
+comparison_deaths_lifetable_delta <-
+  bestcost::compare_deaths_lifetable_rr(
+    comparison_method = "delta",
+    exp_1 = 8.85, # Fake data just for testing purposes
+    prop_pop_exp_1 = 1, # Fake data just for testing purposes
+    exp_2 = 6, # Fake data just for testing purposes
+    prop_pop_exp_2 = 1, # Fake data just for testing purposes
+    cutoff = 5,   # PM2.5=5, WHO AQG 2021 
+    rr = c(1.118, 1.060, 1.179),
+    rr_increment = 10, 
+    erf_shape = "log_linear",
+    first_age_pop_1 = 0,
+    last_age_pop_1 = 99,
+    interval_age_pop_1 = 1,
+    prob_natural_death_male_1 = lifetable_withPopulation[["male"]]$death_probability_natural,
+    prob_natural_death_female_1 = lifetable_withPopulation[["female"]]$death_probability_natural,
+    prob_total_death_male_1 = lifetable_withPopulation[["male"]]$death_probability_total,
+    prob_total_death_female_1 = lifetable_withPopulation[["female"]]$death_probability_total,
+    population_male_1 = lifetable_withPopulation[["male"]]$population, 
+    population_female_1 = lifetable_withPopulation[["female"]]$population, 
+    year_of_analysis_1 = 2019, 
+    first_age_pop_2 = 0,
+    last_age_pop_2 = 99,
+    interval_age_pop_2 = 1,
+    prob_natural_death_male_2 = lifetable_withPopulation[["male"]]$death_probability_natural,
+    prob_natural_death_female_2 = lifetable_withPopulation[["female"]]$death_probability_natural,
+    prob_total_death_male_2 = lifetable_withPopulation[["male"]]$death_probability_total,
+    prob_total_death_female_2 = lifetable_withPopulation[["female"]]$death_probability_total,
+    population_male_2 = lifetable_withPopulation[["male"]]$population, 
+    population_female_2 = lifetable_withPopulation[["female"]]$population, 
+    year_of_analysis_2 = 2021, 
+    info_1 = input_data_mortality$pollutant[i],
+    info_2 = input_data_mortality$pollutant[i], 
+    min_age = 30,
+    max_age = NULL)
+    # max_age = if(is.na(input_data_mortality$max_age[i])) NULL else input_data_mortality$max_age[i])
+
+comparison_deaths_lifetable_pif  <-
+  bestcost::compare_deaths_lifetable_rr(
+    comparison_method = "pif",
+    exp_1 = 8.85, # Fake data just for testing purposes
+    prop_pop_exp_1 = 1, # Fake data just for testing purposes
+    exp_2 = 6, # Fake data just for testing purposes
+    prop_pop_exp_2 = 1, # Fake data just for testing purposes
+    cutoff = 5,   # PM2.5=5, WHO AQG 2021 
+    rr = c(1.118, 1.060, 1.179),
+    rr_increment = 10, 
+    erf_shape = "log_linear",
+    first_age_pop_1 = 0,
+    last_age_pop_1 = 99,
+    interval_age_pop_1 = 1,
+    prob_natural_death_male_1 = lifetable_withPopulation[["male"]]$death_probability_natural,
+    prob_natural_death_female_1 = lifetable_withPopulation[["female"]]$death_probability_natural,
+    prob_total_death_male_1 = lifetable_withPopulation[["male"]]$death_probability_total,
+    prob_total_death_female_1 = lifetable_withPopulation[["female"]]$death_probability_total,
+    population_male_1 = lifetable_withPopulation[["male"]]$population, 
+    population_female_1 = lifetable_withPopulation[["female"]]$population, 
+    year_of_analysis_1 = 2019, 
+    first_age_pop_2 = 0,
+    last_age_pop_2 = 99,
+    interval_age_pop_2 = 1,
+    prob_natural_death_male_2 = lifetable_withPopulation[["male"]]$death_probability_natural,
+    prob_natural_death_female_2 = lifetable_withPopulation[["female"]]$death_probability_natural,
+    prob_total_death_male_2 = lifetable_withPopulation[["male"]]$death_probability_total,
+    prob_total_death_female_2 = lifetable_withPopulation[["female"]]$death_probability_total,
+    population_male_2 = lifetable_withPopulation[["male"]]$population, 
+    population_female_2 = lifetable_withPopulation[["female"]]$population, 
+    year_of_analysis_2 = 2019, 
+    info_1 = NULL,
+    info_2 = NULL, 
+    min_age = 30,
+    max_age = NULL)
+```
+
+
+
+```{r comparison yll lifetable}
+ 
+comparison_yll_lifetable_delta  <-
+  bestcost::compare_yll_lifetable_rr(
+    comparison_method = "delta",
+    exp_1 = 8.85, # Fake data just for testing purposes
+    prop_pop_exp_1 = 1, # Fake data just for testing purposes
+    exp_2 = 6, # Fake data just for testing purposes
+    prop_pop_exp_2 = 1, # Fake data just for testing purposes
+    cutoff = 5,   # PM2.5=5, WHO AQG 2021 
+    rr = c(1.118, 1.060, 1.179),
+    rr_increment = 10, 
+    erf_shape = "log_linear",
+    first_age_pop_1 = 0,
+    last_age_pop_1 = 99,
+    interval_age_pop_1 = 1,
+    prob_natural_death_male_1 = lifetable_withPopulation[["male"]]$death_probability_natural,
+    prob_natural_death_female_1 = lifetable_withPopulation[["female"]]$death_probability_natural,
+    prob_total_death_male_1 = lifetable_withPopulation[["male"]]$death_probability_total,
+    prob_total_death_female_1 = lifetable_withPopulation[["female"]]$death_probability_total,
+    population_male_1 = lifetable_withPopulation[["male"]]$population, 
+    population_female_1 = lifetable_withPopulation[["female"]]$population, 
+    year_of_analysis_1 = 2019, 
+    first_age_pop_2 = 0,
+    last_age_pop_2 = 99,
+    interval_age_pop_2 = 1,
+    prob_natural_death_male_2 = lifetable_withPopulation[["male"]]$death_probability_natural,
+    prob_natural_death_female_2 = lifetable_withPopulation[["female"]]$death_probability_natural,
+    prob_total_death_male_2 = lifetable_withPopulation[["male"]]$death_probability_total,
+    prob_total_death_female_2 = lifetable_withPopulation[["female"]]$death_probability_total,
+    population_male_2 = lifetable_withPopulation[["male"]]$population, 
+    population_female_2 = lifetable_withPopulation[["female"]]$population, 
+    year_of_analysis_2 = 2019, 
+    info_1 = input_data_mortality$pollutant[i],
+    info_2 = input_data_mortality$pollutant[i], 
+    min_age = 30,
+    max_age = NULL)
+    # max_age = if(is.na(input_data_mortality$max_age[i])) NULL else input_data_mortality$max_age[i])
+
+comparison_yll_lifetable_pif <-
+  bestcost::compare_yll_lifetable_rr(
+    comparison_method = "pif",
+    exp_1 = 8.85, # Fake data just for testing purposes
+    prop_pop_exp_1 = 1, # Fake data just for testing purposes
+    exp_2 = 6, # Fake data just for testing purposes
+    prop_pop_exp_2 = 1, # Fake data just for testing purposes
+    cutoff = 5,   # PM2.5=5, WHO AQG 2021 
+    rr = c(1.118, 1.060, 1.179),
+    rr_increment = 10, 
+    erf_shape = "log_linear",
+    first_age_pop_1 = 0,
+    last_age_pop_1 = 99,
+    interval_age_pop_1 = 1,
+    prob_natural_death_male_1 = lifetable_withPopulation[["male"]]$death_probability_natural,
+    prob_natural_death_female_1 = lifetable_withPopulation[["female"]]$death_probability_natural,
+    prob_total_death_male_1 = lifetable_withPopulation[["male"]]$death_probability_total,
+    prob_total_death_female_1 = lifetable_withPopulation[["female"]]$death_probability_total,
+    population_male_1 = lifetable_withPopulation[["male"]]$population, 
+    population_female_1 = lifetable_withPopulation[["female"]]$population, 
+    year_of_analysis_1 = 2019, 
+    first_age_pop_2 = 0,
+    last_age_pop_2 = 99,
+    interval_age_pop_2 = 1,
+    prob_natural_death_male_2 = lifetable_withPopulation[["male"]]$death_probability_natural,
+    prob_natural_death_female_2 = lifetable_withPopulation[["female"]]$death_probability_natural,
+    prob_total_death_male_2 = lifetable_withPopulation[["male"]]$death_probability_total,
+    prob_total_death_female_2 = lifetable_withPopulation[["female"]]$death_probability_total,
+    population_male_2 = lifetable_withPopulation[["male"]]$population, 
+    population_female_2 = lifetable_withPopulation[["female"]]$population, 
+    year_of_analysis_2 = 2019, 
+    info_1 = NULL,
+    info_2 = NULL, 
+    min_age = 30,
+    max_age = NULL)
+```
+
+
+
+
+
+```{r comparison yld lifetable}
+ 
+comparison_yld_lifetable_delta  <-
+  bestcost::compare_yld_lifetable_rr(
+    comparison_method = "delta",
+    exp_1 = 8.85, # Fake data just for testing purposes
+    prop_pop_exp_1 = 1, # Fake data just for testing purposes
+    exp_2 = 6, # Fake data just for testing purposes
+    prop_pop_exp_2 = 1, # Fake data just for testing purposes
+    cutoff = 5,   # PM2.5=5, WHO AQG 2021 
+    rr = c(1.118, 1.060, 1.179),
+    rr_increment = 10, 
+    erf_shape = "log_linear",
+    first_age_pop_1 = 0,
+    last_age_pop_1 = 99,
+    interval_age_pop_1 = 1,
+    prob_natural_death_male_1 = lifetable_withPopulation[["male"]]$death_probability_natural,
+    prob_natural_death_female_1 = lifetable_withPopulation[["female"]]$death_probability_natural,
+    prob_total_death_male_1 = lifetable_withPopulation[["male"]]$death_probability_total,
+    prob_total_death_female_1 = lifetable_withPopulation[["female"]]$death_probability_total,
+    population_male_1 = lifetable_withPopulation[["male"]]$population, 
+    population_female_1 = lifetable_withPopulation[["female"]]$population, 
+    year_of_analysis_1 = 2019, 
+    first_age_pop_2 = 0,
+    last_age_pop_2 = 99,
+    interval_age_pop_2 = 1,
+    prob_natural_death_male_2 = lifetable_withPopulation[["male"]]$death_probability_natural,
+    prob_natural_death_female_2 = lifetable_withPopulation[["female"]]$death_probability_natural,
+    prob_total_death_male_2 = lifetable_withPopulation[["male"]]$death_probability_total,
+    prob_total_death_female_2 = lifetable_withPopulation[["female"]]$death_probability_total,
+    population_male_2 = lifetable_withPopulation[["male"]]$population, 
+    population_female_2 = lifetable_withPopulation[["female"]]$population, 
+    year_of_analysis_2 = 2019, 
+    info_1 = input_data_mortality$pollutant[i],
+    info_2 = input_data_mortality$pollutant[i], 
+    min_age = 30,
+    max_age = NULL,
+    disability_weight = 0.5,
+    duration = 2)
+
+comparison_yld_lifetable_pif <-
+  bestcost::compare_yld_lifetable_rr(
+    comparison_method = "pif",
+    exp_1 = 8.85, # Fake data just for testing purposes
+    prop_pop_exp_1 = 1, # Fake data just for testing purposes
+    exp_2 = 6, # Fake data just for testing purposes
+    prop_pop_exp_2 = 1, # Fake data just for testing purposes
+    cutoff = 5,   # PM2.5=5, WHO AQG 2021 
+    rr = c(1.118, 1.060, 1.179),
+    rr_increment = 10, 
+    erf_shape = "log_linear",
+    first_age_pop_1 = 0,
+    last_age_pop_1 = 99,
+    interval_age_pop_1 = 1,
+    prob_natural_death_male_1 = lifetable_withPopulation[["male"]]$death_probability_natural,
+    prob_natural_death_female_1 = lifetable_withPopulation[["female"]]$death_probability_natural,
+    prob_total_death_male_1 = lifetable_withPopulation[["male"]]$death_probability_total,
+    prob_total_death_female_1 = lifetable_withPopulation[["female"]]$death_probability_total,
+    population_male_1 = lifetable_withPopulation[["male"]]$population, 
+    population_female_1 = lifetable_withPopulation[["female"]]$population, 
+    year_of_analysis_1 = 2019, 
+    first_age_pop_2 = 0,
+    last_age_pop_2 = 99,
+    interval_age_pop_2 = 1,
+    prob_natural_death_male_2 = lifetable_withPopulation[["male"]]$death_probability_natural,
+    prob_natural_death_female_2 = lifetable_withPopulation[["female"]]$death_probability_natural,
+    prob_total_death_male_2 = lifetable_withPopulation[["male"]]$death_probability_total,
+    prob_total_death_female_2 = lifetable_withPopulation[["female"]]$death_probability_total,
+    population_male_2 = lifetable_withPopulation[["male"]]$population, 
+    population_female_2 = lifetable_withPopulation[["female"]]$population, 
+    year_of_analysis_2 = 2019, 
+    info_1 = NULL,
+    info_2 = NULL, 
+    min_age = 30,
+    max_age = NULL,
+    disability_weight = 0.5,
+    duration = 2)
+```
+
+
+```{r comparison yld singlebhd_rr}
+# Test delta comparison function with fake values
+comparison_yld_singlebhd_rr_delta <-
+  bestcost::compare_yld_singlebhd_rr(
+    comparison_method = "delta",
+    exp_1 = 8.85, 
+    exp_2 = 6,
+    cutoff = 5,    
+    bhd_1 = 25000,
+    bhd_2 = 25000,
+    rr = c(1.118, 1.060, 1.179),
+    rr_increment = 10, 
+    erf_shape = "log_linear", 
+    disability_weight = 0.5,
+    info_1 = "PM2.5_yld_before",
+    info_2 = "PM2.5_yld_after")
+
+
+# Test pif comparison function with fake values
+comparison_yld_singlebhd_rr_pif <-
+  bestcost::compare_yld_singlebhd_rr(
+    comparison_method = "pif",
+    exp_1 = 8.85,  
+    exp_2 = 6,
+    cutoff = 5,    
+    bhd_1 = 25000,
+    bhd_2 = 25000,
+    rr = c(1.118, 1.060, 1.179),
+    rr_increment = 10, 
+    erf_shape = "log_linear", 
+    disability_weight = 0.5,
+    info_1 = "PM2.5_yld_before",
+    info_2 = "PM2.5_yld_after")
+
+
+```
 
 # Export 
 

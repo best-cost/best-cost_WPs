@@ -72,6 +72,8 @@ attribute_yld_lifetable_rr(
 \item{disability_weight}{\code{Numeric value} showing the disability weight associated with the morbidity health outcome}
 
 \item{info}{\code{String} showing additional information or id for the pollutant. The suffix "info" will be added to the column name. Default value = NULL.}
+
+\item{duration}{\code{Numeric value} showing the disease duration}
 }
 \value{
 This function returns a \code{data.frame}

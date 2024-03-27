@@ -28,7 +28,7 @@ get_yld <-
            min_age,
            max_age,
            meta,
-           corrected_discount_rate,
+           corrected_discount_rate = 0,
            disability_weight,
            duration = NULL){
 
@@ -48,10 +48,10 @@ get_yld <-
           pop_impact[["pop_impact"]][[s]][[v]] %>%
 
           # Filter keeping only the relevant age
-          {if(!is.na(max_age))
+          {if(!is.null(max_age))
             dplyr::filter(., age <= max_age)
             else .} %>%
-          {if(!is.na(min_age))
+          {if(!is.null(min_age))
             dplyr::filter(., age >= min_age)
             else .} %>%
 
@@ -133,7 +133,7 @@ get_yld <-
                     discount %in% "discounted")
 
 
-    output <- list(yld_detailed = yld_detailed, yld = yld)
+    output <- list(total = yld, detailed = yld_detailed)
 
     return(output)
   }
