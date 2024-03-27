@@ -1,8 +1,8 @@
 # Title and description
 
-#' Compare attributable deaths obtained applying a life table approach
+#' Compare attributable years of life lost obtained applying a life table approach
 
-#' Calculates the deaths between two scenarios (e.g. before and after a intervention in a health impact assessments). It provides as a result the central estimate as well as the lower and the higher bound of the confidence interval based on the uncertainty of the exposure-response function.
+#' Calculates the years of life lost between two scenarios (e.g. before and after a intervention in a health impact assessments). It provides as a result the central estimate as well as the lower and the higher bound of the confidence interval based on the uncertainty of the exposure-response function.
 #' @param comparison_method \code{String} showing the method of comparison. Options: "delta" or "pif".
 #' @param exp_1 \code{Numeric value} showing the population-weighted mean exposure in ug/m3 or {vector} showing the exposure category in a exposure distribution in the scenario 1.
 #' @param exp_2 \code{Numeric value} showing the population-weighted mean exposure in ug/m3 or {vector} showing the exposure category in a exposure distribution in the scenario 2.
@@ -55,7 +55,7 @@
 #' @author Alberto Castro
 #' @note Experimental function
 #' @export
-compare_deaths_lifetable_rr <-
+compare_yll_lifetable_rr <-
   function(comparison_method = "delta",
            exp_1, exp_2,
            prop_pop_exp_1 = 1, prop_pop_exp_2 = 1,
@@ -81,7 +81,7 @@ compare_deaths_lifetable_rr <-
 
     # Calculate attributable health impacts in the scenario 1
     att_health_1 <-
-      bestcost::attribute_deaths_lifetable_rr(
+      bestcost::attribute_yll_lifetable_rr(
         exp = exp_1,
         prop_pop_exp = prop_pop_exp_1,
         cutoff = cutoff,
@@ -99,11 +99,13 @@ compare_deaths_lifetable_rr <-
         population_male = population_male_1,
         population_female = population_female_1,
         year_of_analysis = year_of_analysis_1,
+        max_age = max_age,
+        min_age = min_age,
         info = info_1)
 
     # Calculate attributable health impacts in the scenario 2
     att_health_2 <-
-      bestcost::attribute_deaths_lifetable_rr(
+      bestcost::attribute_yll_lifetable_rr(
         exp = exp_2,
         prop_pop_exp = prop_pop_exp_2,
         cutoff = cutoff,
@@ -121,6 +123,8 @@ compare_deaths_lifetable_rr <-
         population_male = population_male_2,
         population_female = population_female_2,
         year_of_analysis = year_of_analysis_2,
+        max_age = max_age,
+        min_age = min_age,
         info = info_2)
 
     if(comparison_method == "delta"){
@@ -256,9 +260,9 @@ compare_deaths_lifetable_rr <-
           paf = input_risk_pif[, c("ci", "paf")])
 
 
-      # Calculate deaths ####
+      # Calculate YLLs ####
       att_health <-
-        bestcost::get_deaths(
+        bestcost::get_yll(
           pop_impact = pop_impact,
           year_of_analysis = year_of_analysis_1,
           min_age = min_age,

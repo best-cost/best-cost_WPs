@@ -34,7 +34,7 @@ get_yll <-
   function(pop_impact, year_of_analysis,
            min_age = min_age, max_age = max_age,
            meta,
-           corrected_discount_rate){
+           corrected_discount_rate=0){
 
     lifeyears_byYear <- list()
     yll_by_list<-list()

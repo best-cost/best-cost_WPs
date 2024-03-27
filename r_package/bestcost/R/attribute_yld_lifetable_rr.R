@@ -21,6 +21,7 @@
 #' @param max_age \code{Numberic value} of the maximal age to be considered for infants/children (by default 0, i.e. below 1 year old).
 #' @param corrected_discount_rate \code{Numeric value} of the corrected discount rate as proportion (i.e. 0.1 instead of 10\%).
 #' @param disability_weight \code{Numeric value} showing the disability weight associated with the morbidity health outcome
+#' @param duration \code{Numeric value} showing the disease duration
 #' @param info \code{String} showing additional information or id for the pollutant. The suffix "info" will be added to the column name. Default value = NULL.
 #' @return
 #' This function returns a \code{data.frame}
@@ -36,7 +37,8 @@ attribute_yld_lifetable_rr <-
            prob_natural_death_male, prob_natural_death_female, prob_total_death_male, prob_total_death_female,
            population_male, population_female,
            year_of_analysis,
-           corrected_discount_rate = 0, min_age = NULL, max_age = NULL,
+           corrected_discount_rate = 0,
+           min_age = NULL, max_age = NULL,
            erf_c = NULL,
            disability_weight,
            info = NULL,
@@ -130,16 +132,15 @@ attribute_yld_lifetable_rr <-
           min_age = min_age,
           max_age = max_age,
           meta = input_risk_paf,
-          corrected_discount_rate = corrected_discount_rate,
           disability_weight = disability_weight,
           duration = duration)
 
     # Compile output ####
     output <-
       list(
-        pop_impact = pop_impact,
-        total = yld[["yld"]],
-        detailed = yld[["yld_detailed"]]
+        total = yld[["total"]],
+        detailed = list(yld_detaild = yld[["detailed"]],
+                        pop_impact = pop_impact)
         )
 
     return(output)

@@ -1,8 +1,8 @@
 # Title and description
 
-#' Compare attributable deaths obtained applying a life table approach
+#' Compare attributable years lived with disability obtained applying a life table approach
 
-#' Calculates the deaths between two scenarios (e.g. before and after a intervention in a health impact assessments). It provides as a result the central estimate as well as the lower and the higher bound of the confidence interval based on the uncertainty of the exposure-response function.
+#' Calculates the year lived with disability between two scenarios (e.g. before and after a intervention in a health impact assessments). It provides as a result the central estimate as well as the lower and the higher bound of the confidence interval based on the uncertainty of the exposure-response function.
 #' @param comparison_method \code{String} showing the method of comparison. Options: "delta" or "pif".
 #' @param exp_1 \code{Numeric value} showing the population-weighted mean exposure in ug/m3 or {vector} showing the exposure category in a exposure distribution in the scenario 1.
 #' @param exp_2 \code{Numeric value} showing the population-weighted mean exposure in ug/m3 or {vector} showing the exposure category in a exposure distribution in the scenario 2.
@@ -35,6 +35,8 @@
 #' @param year_of_analysis_2 \code{Numeric value} of the year of analysis, which corresponds to the first year of the life table.
 #' @param min_age \code{Numberic value} of the minimal age to be considered for adults (by default 30, i.e. 30+).
 #' @param max_age \code{Numberic value} of the maximal age to be considered for infants/children (by default 0, i.e. below 1 year old).
+#' @param disability_weight \code{Numeric value} showing the disability weight associated with the morbidity health outcome
+#' @param duration \code{Numeric value} showing the disease duration
 #' @param info_1 \code{String} or {data frame} showing additional information or id of the scenario 1. The suffix "info" will be added to the column name. Default value = NULL.
 #' @param info_2 \code{String} or {data frame} showing additional information or id of the scenario 1. The suffix "info" will be added to the column name. Default value = NULL.
 
@@ -55,7 +57,7 @@
 #' @author Alberto Castro
 #' @note Experimental function
 #' @export
-compare_deaths_lifetable_rr <-
+compare_yld_lifetable_rr <-
   function(comparison_method = "delta",
            exp_1, exp_2,
            prop_pop_exp_1 = 1, prop_pop_exp_2 = 1,
@@ -75,13 +77,14 @@ compare_deaths_lifetable_rr <-
            population_male_2, population_female_2,
            year_of_analysis_2,
            min_age = NULL, max_age = NULL,
+           disability_weight, duration,
            info_1 = NULL, info_2 = NULL){
 
 
 
     # Calculate attributable health impacts in the scenario 1
     att_health_1 <-
-      bestcost::attribute_deaths_lifetable_rr(
+      bestcost::attribute_yld_lifetable_rr(
         exp = exp_1,
         prop_pop_exp = prop_pop_exp_1,
         cutoff = cutoff,
@@ -99,11 +102,15 @@ compare_deaths_lifetable_rr <-
         population_male = population_male_1,
         population_female = population_female_1,
         year_of_analysis = year_of_analysis_1,
+        min_age = min_age,
+        max_age = max_age,
+        disability_weight = disability_weight,
+        duration = duration,
         info = info_1)
 
     # Calculate attributable health impacts in the scenario 2
     att_health_2 <-
-      bestcost::attribute_deaths_lifetable_rr(
+      bestcost::attribute_yld_lifetable_rr(
         exp = exp_2,
         prop_pop_exp = prop_pop_exp_2,
         cutoff = cutoff,
@@ -121,6 +128,10 @@ compare_deaths_lifetable_rr <-
         population_male = population_male_2,
         population_female = population_female_2,
         year_of_analysis = year_of_analysis_2,
+        min_age = min_age,
+        max_age = max_age,
+        disability_weight = disability_weight,
+        duration = duration,
         info = info_2)
 
     if(comparison_method == "delta"){
@@ -174,8 +185,8 @@ compare_deaths_lifetable_rr <-
           max_age = max_age,
           info = info_1,
           method = paste0("lifetable_rr_corrected"),
-          disability_weight = NULL,
-          duration = NULL)
+          disability_weight = disability_weight,
+          duration = duration)
 
       # Compile input data of scenario 2
       input_2 <-
@@ -192,8 +203,8 @@ compare_deaths_lifetable_rr <-
           max_age = max_age,
           info = info_2,
           method = paste0("lifetable_rr_corrected"),
-          disability_weight = NULL,
-          duration = NULL)
+          disability_weight = disability_weight,
+          duration = duration)
 
       # Identify the columns that are common for scenario 1 and 2
       joining_columns <-
@@ -256,14 +267,16 @@ compare_deaths_lifetable_rr <-
           paf = input_risk_pif[, c("ci", "paf")])
 
 
-      # Calculate deaths ####
+      # Calculate ylds ####
       att_health <-
-        bestcost::get_deaths(
+        bestcost::get_yld(
           pop_impact = pop_impact,
           year_of_analysis = year_of_analysis_1,
           min_age = min_age,
           max_age = max_age,
-          meta = input_risk_pif)$total%>%
+          meta = input_risk_pif,
+          disability_weight = disability_weight,
+          duration = duration)$total%>%
         # Replace paf with pif
         dplyr::rename(pif = paf)
 
