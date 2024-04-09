@@ -6,8 +6,8 @@ output: html_document
 
 # {BEST-COST} package example
 
-How to create a personal access token (PAT): 
-https://docs.github.com/en/enterprise-server@3.9/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens
+Guidance on installation of the {bestcost} package: PDF on Teams under
+WP4 PROGRAMMING > Github_hotToUse > Handbook_Github_v1.1.pdf
 
 ```{r Install package, include=FALSE}
 
