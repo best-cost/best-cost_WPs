@@ -7,7 +7,7 @@ output: pdf_document
 
 This script prepares the input data for the use in the {bestcost} functions. The R Environment (including all variables created during the script) is exported in the end in a ".Rdata" file.
 
-
+# Introduction
 The R script required the loading of certain R packages. 
 ```{r Load packages, include=FALSE}
 
@@ -34,6 +34,7 @@ library(zoo)
 library(openxlsx)
 
 ```
+
 
 ```{r Useful variables}
 #Decide 
@@ -73,7 +74,8 @@ outcomeGroups <- groups$outcome_group
 # Change it as needed
 year_hra <- "2019"
 ```
-
+ 
+ 
 ```{r Functions}
 
 # Create function to join mean RR with the lower and upper bound
@@ -156,6 +158,130 @@ get_lifetable_withPopulation <-
       # Add year to population column
       dplyr::rename("population_{year_of_analysis}" := population)
   }
+
+
+
+# Check if the results of the bestcost package are the same as in an alternative source (tool, assessment, etc.)
+check_bestcost <-
+  function(result_list_bestcost, result_vector_alternative){
+    # Store the central estimate of the bestcost assessment
+    
+  result_vector_bestcost <- 
+    result_list_bestcost[["total"]]%>%
+    # Set order of rows
+    arrange(factor(rr_ci, levels = c("mean", "low", "high")))%>%
+    dplyr::select(impact_rounded) %>%
+    unlist()
+  
+  
+  # Check difference between bestcost and alternative source
+  # First the show the difference between bestcost results and alternative source
+  cat(paste("Difference (central, lower, upper): ",
+            paste(result_vector_bestcost - result_vector_alternative, collapse = "; "),
+            "\n"))
+  # Second show message with colors
+  if(all((result_vector_bestcost - result_vector_alternative ) %in% 0)){
+    cat(paste(crayon::cyan("Right. Bestcost and alternative source with identical results.")))
+  } else{
+    cat(paste(crayon::red("Attention! Check! Bestcost and alternative source with different results.")))}
+  
+  }
+
+
+
+digest_airqplus_export <- 
+  function(airqplus_export){
+    
+    airqplus_export <- 
+      airqplus_export %>%
+      # Rename variables
+      setNames(c("variable", "value"))%>%
+      dplyr::rowwise()%>%
+      # Add and edit columns
+      dplyr::mutate(
+        # To identify the sections in the table (all capital letters)
+        section_break = !stringr::str_detect(variable, "[[:lower:]]") & stringr::str_detect(variable, "[[:alpha:]]"),
+        # To give section name to the first row (replacing empty spaces with _ and making lower case)
+        section_name = ifelse(section_break, gsub(" ", "_", tolower(variable)), NA))%>%
+      # Stop rowwise
+      dplyr::ungroup()%>%
+      # Remove line breaks
+      dplyr::mutate(
+        section_name = gsub("\r", "", section_name))%>%
+      # Fill the NAs in section_name with the first non-NA above
+      tidyr::fill(section_name) %>%
+      # Remove the rows with the section name (not needed anymore since they are in a column now)
+      dplyr::filter(!section_break)%>%
+      # Remove column section_break (not needed anymore because section_name is defined)
+      dplyr::select(-section_break) 
+    
+    # The results need to editing
+    airqplus_output <- 
+       airqplus_export %>%
+      # Keep only rows from output
+      dplyr::filter(
+        section_name %in% c("evaluation_results")) %>%
+      # Remove rows with NA
+      na.omit() %>%
+      # Remove last ; (no value behind)
+      dplyr::mutate(value = gsub("\\;$", "", value))%>%
+      # Split columns that are separated by ;
+      tidyr::separate( 
+          col = value,
+          sep = ";",
+          into = c("value_central", "value_lower", "value_upper"))%>%
+      # Remove the first row without numeric value
+      dplyr::slice(-1) %>%
+      # Make the table longer to fit into the same structrue as the input table
+      tidyr::pivot_longer(cols = starts_with("value_"), 
+                          names_to = "suffix",
+                          names_prefix = "value_",
+                          values_to = "value") %>%
+      # Paste columns variable and suffix to get the specific resulty by CI
+      tidyr::unite("variable", variable, suffix)
+
+
+      airqplus_ready <- 
+        airqplus_export %>%
+        # Keep only rows from input
+        dplyr::filter(
+          section_name %in% 
+            c("analysis_properties", "pollution_concentration", "evaluation_parameters")) %>%
+        # Add rows of results
+        dplyr::bind_rows(airqplus_output)%>%
+        # Edit string of variable to make it standard
+        dplyr::mutate(
+          # Remove : or parenthesis
+          variable = gsub(":|\\(|\\)", "", variable),
+          # no capital letters
+          variable = tolower(variable),
+          # Replace space with _
+          variable = gsub(" ", "_", variable ),
+          #Replace - with _
+          variable = gsub("-", "_", variable))%>%
+        # Pivot wider to have specific format for each value
+        dplyr::select(variable, value)%>%
+        tidyr::pivot_wider(names_from = variable, 
+                           values_from = value)%>%
+        # Convert percent in proportion
+        dplyr::mutate(across(starts_with("estimated_attributable_proportion"),
+                             readr::parse_number))%>%
+        # Divide by 100 because the columns were a percentage originally (e.g. 5% = 0.05)
+         dplyr::mutate(across(starts_with("estimated_attributable_proportion"),
+                              ~./100)) %>%
+        # Convert to numeric
+        dplyr::mutate(across(-c(analysis_name, type, pollutant, location,
+                                analyis_comment, evaluation_type, evaluation_name, 
+                                health_endpoint, calculation_method), 
+                             as.numeric))
+      
+  }
+
+  
+
+
+
+
 
 ```
 
@@ -249,82 +375,18 @@ airqplus_deaths_pop_singleYear <-
   read.csv2("../testing/input/life_tables/airqplus_manual_age0to14_singleYear.csv")
 ```
 
-# Digest input data from AirQ+
-```{r}
+
+```{r Digest input data from AirQ+}
 airqplus_morb_export <-
   # Read csv file
   readr::read_delim("../testing/airqplus_cases/Impact Assessment - Switzerland (PM2.5)_ALRI_2019.csv",
                     delim = ";",
-                    col_types = cols())%>%
-  # Rename variables
-  setNames(c("variable", "value"))%>%
-  dplyr::rowwise()%>%
-  # Add and edit columns
-  dplyr::mutate(
-    # To identify the sections in the table (all capital letters)
-    section_break = !stringr::str_detect(variable, "[[:lower:]]") & stringr::str_detect(variable, "[[:alpha:]]"),
-    # To give section name to the first row (replacing empty spaces with _ and making lower case)
-    section_name = ifelse(section_break, gsub(" ", "_", tolower(variable)), NA))%>%
-  # Stop rowwise
-  dplyr::ungroup()%>%
-  # Remove line breaks
-  dplyr::mutate(
-    section_name = gsub("\r", "", section_name))%>%
-  # Fill the NAs in section_name with the first non-NA above
-  tidyr::fill(section_name) %>%
-  # Remove the rows with the section name (not needed anymore since they are in a column now)
-  dplyr::filter(!section_break)%>%
-  # Remove column section_break (not needed anymore because section_name is defined)
-  dplyr::select(-section_break) 
-
-
-# The results need to editing
-airqplus_morb_output <- 
-   airqplus_morb_export %>%
-  # Keep only rows from output
-  dplyr::filter(
-    section_name %in% c("evaluation_results")) %>%
-  # Remove rows with NA
-  na.omit() %>%
-  # Split columns that are separated by ;
-  tidyr::separate( 
-      col = value,
-      into = c("value_central", "value_lower", "value_upper"))%>%
-  # Remove the first row without numeric value
-  dplyr::slice(-1) %>%
-  # Make the table longer to fit into the same structrue as the input table
-  tidyr::pivot_longer(cols = starts_with("value_"), 
-                      names_to = "suffix",
-                      names_prefix = "value_",
-                      values_to = "value") %>%
-  # Paste columns variable and suffix to get the specific resulty by CI
-  tidyr::unite("variable", variable, suffix)
-
-
+                    col_types = cols())
+# Digest the data (make it ready for testing the package)
 airqplus_morb <- 
-  airqplus_morb_export %>%
-  # Keep only rows from input
-  dplyr::filter(
-    section_name %in% 
-      c("analysis_properties", "pollution_concentration", "evaluation_parameters")) %>%
-  # Add rows of results
-  dplyr::bind_rows(airqplus_morb_output)%>%
-  # Edit string of variable to make it standard
-  dplyr::mutate(
-    # Remove : or parenthesis
-    variable = gsub(":|\\(|\\)", "", variable),
-    # no capital letters
-    variable = tolower(variable),
-    # Replace space with _
-    variable = gsub(" ", "_", variable ),
-    #Replace - with _
-    variable = gsub("-", "_", variable))%>%
-  # Pivot wider to have specific format for each value
-  dplyr::select(variable, value)%>%
-  tidyr::pivot_wider(names_from = variable, 
-                     values_from = value)%>%
-  # Convert to numeric
-  dplyr::mutate(across(-c(analysis_name, type, pollutant, location,analyis_comment, evaluation_type, evaluation_name, health_endpoint), as.numeric))
+  digest_airqplus_export(airqplus_export = airqplus_morb_export)
+ 
+
 
 
 ```
@@ -809,7 +871,8 @@ rm(list=setdiff(ls(),
                   # Values (keep none)
                   # Functions
                   "paste_round_CI",
-                  "round_keeping0"
+                  "round_keeping0",
+                  "check_bestcost"
                   )))
 save.image(file = "../testing/input/input_data_for_testing_Rpackage.RData")
 ```

@@ -103,32 +103,17 @@ att_morb_bestcost <-
     erf_shape = "log_linear", 
     info = paste0(airqplus_morb$pollutant,"_", airqplus_morb$evaluation_name))
 
-# Store the central estimate of the bestcost assessment
-result_att_morb_bestcost <- 
-  att_morb_bestcost[["total"]]%>%
-  # Set order of rows
-  arrange(factor(rr_ci, levels = c("mean", "low", "high")))%>%
-  dplyr::select(impact_rounded) %>%
-  dplyr::pull()
-
-# Store the central estimate of the AirQ+ assessment
+# Store the central, lower and upper estimate of the AirQ+ assessment
 result_att_morb_airqplus <- 
   airqplus_morb %>%
   dplyr::select(estimated_number_of_attributable_cases_central,
                 estimated_number_of_attributable_cases_lower,
                 estimated_number_of_attributable_cases_upper)%>%
-  dplyr::pull()
-
-result_att_morb_bestcost - result_att_mob_airqplus 
-if(all((result_att_morb_bestcost - result_att_mob_airqplus) %in% 0)){
-  cat(crayon::blue("Right. Bestcost and alternative source with identical results"))
-} else{
-  cat(crayon::red("Attention! Check! Bestcost and alternative source with different results"))}
-       
+  unlist()
 
 
-# Check difference between bestcost and AirQ+ results
-
+check_bestcost(result_list_bestcost = att_morb_bestcost,
+               result_vector_alternative = result_att_morb_airqplus)
 
 
 
