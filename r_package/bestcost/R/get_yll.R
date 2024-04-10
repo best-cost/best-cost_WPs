@@ -11,7 +11,7 @@
 #' @param corrected_discount_rate \code{Numeric value}  with the annual discount rate as proportion (i.e. 0.1 instead of 10\%). It can be calculated as (1+discount_rate_beforeCorrection/1+rate_of_increase)-1
 #' @return
 #' This function returns a \code{data.frame} with one row for each value of the
-#' concentration-response function (i.e. mean, lower and upper bound confidence interval.
+#' concentration-response function (i.e. central estimate, lower and upper bound confidence interval).
 #' Moreover, the data frame include columns such as:
 #' \itemize{
 #'  \item Attributable fraction
@@ -42,8 +42,8 @@ get_yll <-
     discount_factor <- corrected_discount_rate + 1
 
     # Calculate YLL ####
-    for(s in sex){
-      for (v in ci){
+    for(s in c("female", "male")){
+      for (v in c("central", "lower", "upper")){
 
         ## Sum life years by year (result is data frame with 2 columns "year" & "impact" [which contains YLL]) ####
         lifeyears_byYear[[s]][[v]] <-
@@ -96,7 +96,7 @@ get_yll <-
     yll_by <-
       yll_by_list %>%
       purrr::map(map, dplyr::bind_rows, .id = "discount") %>%
-      purrr::map(dplyr::bind_rows, .id = "ci" ) %>%
+      purrr::map(dplyr::bind_rows, .id = "rr_ci" ) %>%
       dplyr::bind_rows(., .id = "sex")
 
 
@@ -107,7 +107,7 @@ get_yll <-
       # Sum among sex adding total
       dplyr::bind_rows(
         group_by(.,
-                 discount, ci) %>%
+                 discount, rr_ci) %>%
           summarise(.,
                     across(.cols=c(impact), sum),
                     across(where(is.character), ~"total"),
@@ -119,15 +119,15 @@ get_yll <-
       # Add meta information (with left join)
       dplyr::left_join(.,
                        meta,
-                       by = "ci")%>%
+                       by = "rr_ci")%>%
 
       # Round the results
       dplyr::mutate(impact_rounded = round(impact, 0))%>%
 
       # Order columns
-      dplyr::select(discount, sex, ci, everything())%>%
+      dplyr::select(discount, sex, rr_ci, everything())%>%
       # Order rows
-      dplyr::arrange(discount, sex, ci)
+      dplyr::arrange(discount, sex, rr_ci)
 
     yll <-
       yll_detailed %>%

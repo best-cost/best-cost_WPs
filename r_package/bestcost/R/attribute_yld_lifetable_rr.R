@@ -34,7 +34,8 @@ attribute_yld_lifetable_rr <-
   function(exp, prop_pop_exp = 1,
            rr, rr_increment, erf_shape, cutoff,
            first_age_pop, last_age_pop, interval_age_pop,
-           prob_natural_death_male, prob_natural_death_female, prob_total_death_male, prob_total_death_female,
+           prob_natural_death_male, prob_natural_death_female,
+           prob_total_death_male, prob_total_death_female,
            population_male, population_female,
            year_of_analysis,
            corrected_discount_rate = 0,
@@ -103,7 +104,7 @@ attribute_yld_lifetable_rr <-
       bestcost::get_pop_impact(
         lifetab_withPop = lifetable_withPop,
         year_of_analysis = year_of_analysis,
-        paf = input_risk_paf[, c("ci", "paf")])
+        paf = input_risk_paf[, c("rr_ci", "paf")])
 
     # OLD CODE
     # # Get YLL ####

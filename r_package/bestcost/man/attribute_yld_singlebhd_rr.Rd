@@ -25,11 +25,11 @@ attribute_yld_singlebhd_rr(
 
 \item{cutoff}{\code{Numeric value} showing the cut-off exposure in ug/m3 (i.e. the exposure level below which no health effects occur).}
 
-\item{rr}{\code{Numeric vector} of three numeric values referring to the mean as well as the lower bound and upper bound of the confidence interval.}
+\item{rr}{\code{Numeric vector} of three numeric values referring to the central estimate as well as the lower and upper bound of the confidence interval.}
 
 \item{rr_increment}{\code{Numeric value} showing the increment of the concentration-response function in ug/m3 (usually 10 or 5).}
 
-\item{erf_shape}{\code{String} to choose among "linear" and "loglinear".}
+\item{erf_shape}{\code{String} to choose among "linear", "log-linear", "linear-log" and "log-log".}
 
 \item{erf_c}{\code{String} showing the user-defined function that puts the relative risk in relation with concentration. The function must have only one variable: c, which means concentration. E.g. "3+c+c^2". Default value = NULL.}
 
@@ -41,7 +41,7 @@ attribute_yld_singlebhd_rr(
 }
 \value{
 This function returns a \code{data.frame} with one row for each value of the
-concentration-response function (i.e. mean, lower and upper bound confidence interval.
+concentration-response function (i.e. central estimate, lower and upper bound confidence interval.
 The YLDs are listed in the columns:
 \itemize{
  \item yld

@@ -4,7 +4,7 @@
 #'
 #' Re-scale the relative risk from the increment value in the epidemiological study (e.g. for PM2.5 10 or 5 ug/m3) to the actual population exposure)
 #' @param rr
-#' \code{Numeric vector} containing the relative risk. The data frame must contain the mean, lower and upper bound of the exposure-response function.
+#' \code{Numeric vector} containing the relative risk. The data frame must contain the central estimate as well as the lower and upper bound of the exposure-response function.
 #' @param exp
 #' Population exposure to the stressor (e.g. annual population-weighted mean).
 #' @param cutoff
@@ -18,7 +18,7 @@
 #' @param erf_c
 #' \code{String} showing the user-defined function that puts the relative risk in relation with concentration. The function must have only one variable: c, which means concentration. E.g. "3+c+c^2". Default value = NULL.
 #' @return
-#' This function returns three \code{values} corresponding to mean, lower bound and upper bound of the exposure-response function.
+#' This function returns three \code{values} corresponding to the central estimate as well as the lower and upper bound of the exposure-response function.
 #' @examples
 #' get_risk(rr=1.05, exp=10, cutoff=5, erf_shape="linear" )
 #' @author Alberto Castro

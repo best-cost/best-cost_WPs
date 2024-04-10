@@ -15,7 +15,7 @@ get_risk(
 )
 }
 \arguments{
-\item{rr}{\code{Numeric vector} containing the relative risk. The data frame must contain the mean, lower and upper bound of the exposure-response function.}
+\item{rr}{\code{Numeric vector} containing the relative risk. The data frame must contain the central estimate as well as the lower and upper bound of the exposure-response function.}
 
 \item{exp}{Population exposure to the stressor (e.g. annual population-weighted mean).}
 
@@ -30,7 +30,7 @@ get_risk(
 \item{erf_c}{\code{String} showing the user-defined function that puts the relative risk in relation with concentration. The function must have only one variable: c, which means concentration. E.g. "3+c+c^2". Default value = NULL.}
 }
 \value{
-This function returns three \code{values} corresponding to mean, lower bound and upper bound of the exposure-response function.
+This function returns three \code{values} corresponding to the central estimate as well as the lower and upper bound of the exposure-response function.
 }
 \description{
 Re-scale the relative risk from the increment value in the epidemiological study (e.g. for PM2.5 10 or 5 ug/m3) to the actual population exposure)
