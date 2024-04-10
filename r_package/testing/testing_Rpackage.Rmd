@@ -69,7 +69,7 @@ library(bestcost)
 
 
 
-```{r Alternative 1 to load bestcost: load zip from local source, eval=FALSE, include=FALSE}
+```{r Alternative 2 to load bestcost: load zip from local source, eval=FALSE, include=FALSE}
 detach("package:bestcost", unload = TRUE) # detach bestcost
 devtools::build(binary = TRUE, path = "../testing/input/") # Save current state of package as .zip file (e.g. to directly test changes in functions)
 install.packages("../testing/input/bestcost_0.0.0.1.zip", repos=NULL, type='source') # Install package from source
@@ -96,7 +96,7 @@ load("../testing/input/input_data_for_testing_Rpackage.RData")
 att_morb_bestcost <-
   bestcost::attribute_health_singlebhd_rr(
     exp = airqplus_morb$mean_concentration,
-    cutoff = airqplus_morb$cut_off_value,    # PM2.5=5, NO2=10, i.e. WHO AQG 2021 
+    cutoff = airqplus_morb$cut_off_value,   
     bhd = airqplus_morb$incidents_per_100_000_per_year/1E5*airqplus_morb$population_at_risk,
     rr = c(airqplus_morb$relative_risk, airqplus_morb$relative_risk_lower, airqplus_morb$relative_risk_upper),
     rr_increment = 10, 
@@ -114,27 +114,6 @@ result_att_morb_airqplus <-
 
 check_bestcost(result_list_bestcost = att_morb_bestcost,
                result_vector_alternative = result_att_morb_airqplus)
-
-
-
-impact_morbidities_raw <- list()
-
-#for(i in 1:nrow(input_data_morbidities)){
-for(i in 12){ # runs loop only for health outcome "asthma incidence 20+"
-  impact_morbidities_raw[[input_data_morbidities$year[i]]][[input_data_morbidities$rr_id[[i]]]] <-
-  bestcost::attribute_health_singlebhd_rr(
-    #dw = 0.133, # for health state "Asthma, uncontrolled" (cf. bestcost::disability_weights)
-    exp = input_data_morbidities$exp[i],  # PM2.5=8.30=limit LRV CH, NO2=16.32=mean conc. in CH in 2019
-    cutoff = input_data_morbidities$cutoff[i],    # PM2.5=5, NO2=10, i.e. WHO AQG 2021 
-    bhd = input_data_morbidities$bhd_absolute[i],
-    rr = unlist(input_data_morbidities[i, 
-                            c("rr_central", "rr_lower", "rr_upper")]),
-    rr_increment = 10, 
-    erf_shape = "log_linear", 
-    info = data.frame(pollutant = input_data_morbidities$pollutant[i], 
-                      outcome = input_data_morbidities$outcome_metric[i]))
-  }
-
 
 
 ```

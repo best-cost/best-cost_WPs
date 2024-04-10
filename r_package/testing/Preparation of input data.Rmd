@@ -169,7 +169,7 @@ check_bestcost <-
   result_vector_bestcost <- 
     result_list_bestcost[["total"]]%>%
     # Set order of rows
-    arrange(factor(rr_ci, levels = c("central", "lower", "upper")))%>%
+    dplyr::arrange(factor(rr_ci, levels = c("central", "lower", "upper")))%>%
     dplyr::select(impact_rounded) %>%
     unlist()
   
