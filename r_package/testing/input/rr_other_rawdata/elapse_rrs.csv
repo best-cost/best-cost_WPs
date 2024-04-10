@@ -1,4 +1,4 @@
-cohort;rr_mean;rr_lowci;rr_highci
+cohort;rr_central;rr_lower;rr_upper
 belgian_2001_census;1.1;1.073;1.128
 danish_cohort;1.25;1.199;1.302
 duels;1.03;0.984;1.078

@@ -34,8 +34,8 @@ project_pop_withExp <-
       # Calculate the population the second year (first column after first year)
       # Considering the health effect of air pollution
       dplyr::mutate(.,
-                      "population_{second_year}" :=
-                        population_lag * death_probability_natural_lag * paf)%>%
+                    "population_{second_year}" :=
+                      population_lag * death_probability_natural_lag * paf)%>%
       # Remove the lag columns
       dplyr::select(-contains("_lag"))
 

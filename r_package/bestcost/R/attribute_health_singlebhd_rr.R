@@ -2,11 +2,11 @@
 
 #' Attributable health cases based on relative risk
 
-#' Calculates the health impacts, mortality or morbidity, of an environmental stressor using a single value for baseline heath data, i.e. without life table. It provides as a result the mean as well as the lower and the higher bound of the impact based on the confidence interval of the concentration-response function.
+#' @description Calculates the health impacts, mortality or morbidity, of an environmental stressor using a single value for baseline heath data, i.e. without life table. It provides as a result the mean as well as the lower and the higher bound of the impact based on the confidence interval of the concentration-response function.
 #' @param exp \code{Numeric value} showing the population-weighted mean exposure in ug/m3 or {vector} showing the exposure category in a exposure distribution (this information is linked to the proportion of population exposed).
 #' @param prop_pop_exp \code{Numeric value} or {vector} showing the proportion of population exposed (as a fraction, i.e. values between 0 and 1) for a single exposure value or for multiple categories, i.e., a exposure distribution, respectively. If a exposure distribution is used, the dimension of this input variable should be the same as "exp". By default, 1 for single exposure value will be assigned to this input variable assuming a single exposure value, but users can change this value.
 #' @param cutoff \code{Numeric value} showing the cut-off exposure in ug/m3 (i.e. the exposure level below which no health effects occur).
-#' @param rr \code{Vector} of three numeric values referring to the mean as well as the lower bound and upper bound of the confidence interval.
+#' @param rr \code{Vector} of three numeric values referring to the central as well as the lower bound and upper bound of the confidence interval.
 #' @param rr_increment \code{Numeric value} showing the increment of the concentration-response function in ug/m3 (usually 10 or 5).
 #' @param erf_shape \code{String} showing the shape of the exposure-response function to be assumed using the relative risk from the literature as support point. Options: "linear", log_linear", "linear_log", "log_log".
 #' @param erf_c \code{String} showing the user-defined function that puts the relative risk in relation with concentration. The function must have only one variable: c, which means concentration. E.g. "3+c+c^2". Default value = NULL.
@@ -14,7 +14,7 @@
 #' @param info \code{String} or {data frame} showing additional information or id. The suffix "info" will be added to the column name. Default value = NULL.
 #' @return
 #' TBD. E.g. This function returns a \code{data.frame} with one row for each value of the
-#' concentration-response function (i.e. mean, lower and upper bound confidence interval.
+#' concentration-response function (i.e. central, lower and upper bound confidence interval.
 #' Moreover, the data frame includes columns such as:
 #' \itemize{
 #'  \item Attributable fraction
@@ -54,7 +54,9 @@ attribute_health_singlebhd_rr <-
         min_age = NULL,
         max_age = NULL,
         info = info,
-        method = "singlebhd_rr")
+        method = "singlebhd_rr",
+        disability_weight = NULL,
+        duration = NULL)
 
     # Get PAF and added to the input data frame
     calculation <-
@@ -64,7 +66,7 @@ attribute_health_singlebhd_rr <-
                       impact_rounded = round(impact, 0)) %>%
         # Order columns
         dplyr::select(exp, cutoff, bhd,
-                      rr, rr_conc, rr_increment, ci, erf_shape,
+                      rr, rr_conc, rr_increment, rr_ci, erf_shape,
                       paf, impact, impact_rounded,
                       everything())
 

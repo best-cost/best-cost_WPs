@@ -28,7 +28,7 @@ get_yld <-
            min_age,
            max_age,
            meta,
-           corrected_discount_rate,
+           corrected_discount_rate = 0,
            disability_weight,
            duration = NULL){
 
@@ -40,18 +40,18 @@ get_yld <-
     discount_factor <- corrected_discount_rate + 1
 
     # Calculate YLD ####
-    for(s in sex){
-      for (v in ci){
+    for(s in c("female", "male")){
+      for (v in c("central", "lower", "upper")){
 
         ## Sum life years by year (result is data frame with 2 columns "year" & "impact" [which contains YLD]) ####
         lifeyears_byYear[[s]][[v]] <-
           pop_impact[["pop_impact"]][[s]][[v]] %>%
 
           # Filter keeping only the relevant age
-          {if(!is.na(max_age))
+          {if(!is.null(max_age))
             dplyr::filter(., age <= max_age)
             else .} %>%
-          {if(!is.na(min_age))
+          {if(!is.null(min_age))
             dplyr::filter(., age >= min_age)
             else .} %>%
 
@@ -96,7 +96,7 @@ get_yld <-
     yld_by <-
       yld_by_list%>%
       purrr::map(map, dplyr::bind_rows, .id = "discount")%>%
-      purrr::map(dplyr::bind_rows, .id = "ci" )%>%
+      purrr::map(dplyr::bind_rows, .id = "rr_ci" )%>%
       dplyr::bind_rows(., .id = "sex")
 
     ## Compile information needed for detailed yld results ####
@@ -105,7 +105,7 @@ get_yld <-
       # Sum among sex adding total
       dplyr::bind_rows(
         group_by(.,
-                 discount, ci) %>%
+                 discount, rr_ci) %>%
           summarise(.,
                     across(.cols=c(impact), sum),
                     across(where(is.character), ~"total"),
@@ -117,15 +117,15 @@ get_yld <-
       # Add meta information (with left join)
       dplyr::left_join(.,
                        meta,
-                       by = "ci")%>%
+                       by = "rr_ci")%>%
 
       # Round the results
       dplyr::mutate(impact_rounded = round(impact, 0))%>%
 
       # Order columns
-      dplyr::select(discount, sex, ci, everything())%>%
+      dplyr::select(discount, sex, rr_ci, everything())%>%
       # Order rows
-      dplyr::arrange(discount, sex, ci)
+      dplyr::arrange(discount, sex, rr_ci)
 
     yld <-
       yld_detailed %>%
@@ -133,7 +133,7 @@ get_yld <-
                     discount %in% "discounted")
 
 
-    output <- list(yld_detailed = yld_detailed, yld = yld)
+    output <- list(total = yld, detailed = yld_detailed)
 
     return(output)
   }

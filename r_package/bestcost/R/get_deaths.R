@@ -29,8 +29,8 @@ get_deaths <-
     # Add description of what happens in next code chunk ####
     deaths_by_list <- list()
 
-    for (s in sex){
-      for (v in ci){
+    for (s in c("female", "male")){
+      for (v in c("central", "lower", "upper")){
         population_secondYear_lifetable <-
           paste0("population_", year_of_analysis+1)
 
@@ -56,7 +56,7 @@ get_deaths <-
       dplyr::bind_rows(., .id ="sex") %>%
       # Reshape to long format
       tidyr::pivot_longer(cols = where(is.numeric),
-                          names_to = "ci",
+                          names_to = "rr_ci",
                           values_to = "impact")
     # Add up deaths ####
     deaths_detailed <-
@@ -64,7 +64,7 @@ get_deaths <-
       # Sum among age groups
       # Sum among sex
       dplyr::bind_rows(
-        group_by(., ci) %>%
+        group_by(., rr_ci) %>%
           summarise(.,
                     across(.cols=c(impact), sum),
                     # Mean to keep the value (since it is the mean of male and female
@@ -81,11 +81,11 @@ get_deaths <-
       # Add input data and info_ data
       dplyr::left_join(.,
                        meta,
-                       by = "ci") %>%
+                       by = "rr_ci") %>%
       # Order columns
-      dplyr::select(sex, ci, everything()) %>%
+      dplyr::select(sex, rr_ci, everything()) %>%
       # Order rows
-      dplyr::arrange(sex, ci)
+      dplyr::arrange(sex, rr_ci)
 
 
     deaths <-

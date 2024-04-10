@@ -10,7 +10,7 @@ get_yll(
   min_age = min_age,
   max_age = max_age,
   meta,
-  corrected_discount_rate
+  corrected_discount_rate = 0
 )
 }
 \arguments{
@@ -28,7 +28,7 @@ get_yll(
 }
 \value{
 This function returns a \code{data.frame} with one row for each value of the
-concentration-response function (i.e. mean, lower and upper bound confidence interval.
+concentration-response function (i.e. central estimate, lower and upper bound confidence interval).
 Moreover, the data frame include columns such as:
 \itemize{
  \item Attributable fraction

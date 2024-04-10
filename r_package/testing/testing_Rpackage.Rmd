@@ -4,13 +4,8 @@ author: "Alberto Castro & Axel Luyten"
 output: html_document
 ---
 # Goal
-Recreate calculation of AirQ+ with {bestcost}. For this, all necessary input data is loaded and manipulated to fit the required formats of {bestcost}. Then, the health impacts are calculated.
+Test the functions of the bestcost package comparing the results with results from other tools or assessments
 
-Pending
-- Create table comparing the AirQ+ and bestcost results to always control that we do not deviate.
-- Compare morbidity (not only mortality)
-- healthiar vs. geluft in the package
-- test
 
 # Load packages and data
 
@@ -33,6 +28,9 @@ library(stringr)
 library(tibble)
 library(zoo)
 
+# to set colors in console messages (checking)
+library(crayon)
+
 # to visualize results
 library(ggplot2)
 
@@ -43,20 +41,8 @@ library(openxlsx)
 library(credentials)
 library(gitcreds)
 library(devtools)
-```
 
-```{r Install own package from github, eval=FALSE, include=FALSE}
-# Install own package from github as suggested here: https://stackoverflow.com/a/71846333/6104907
-if(!"bestcost" %in% installed.packages()[, "Package"]){
-  #gitcreds::gitcreds_set()
-  #usethis::use_git_config(user.name = "YourName", user.email = "your@mail.com") # run if installation doesn't work
-  credentials::set_github_pat() # paste github PAT if prompted
-  devtools::install_github(repo = "best-cost/best-cost_WPs",
-                           subdir = "/r_package/bestcost",
-                           ref = "paf_pif", # Branch name (by default "HEAD") as a string
-                           force = TRUE)
-}
-library(bestcost)
+
 ```
 
 
@@ -67,8 +53,23 @@ library(bestcost)
 ```
 
 
+```{r Alternative 1 to load bestcost: Install own package from github, eval=FALSE, include=FALSE}
+# Install own package from github as suggested here: https://stackoverflow.com/a/71846333/6104907
+if(!"bestcost" %in% installed.packages()[, "Package"]){
+  #gitcreds::gitcreds_set()
+  #usethis::use_git_config(user.name = "YourName", user.email = "your@mail.com") # run if installation doesn't work
+  credentials::set_github_pat() # paste github PAT if prompted
+  devtools::install_github(repo = "best-cost/best-cost_WPs",
+                           subdir = "/r_package/bestcost",
+                           ref = "HEAD", # Branch name (by default "HEAD") as a string
+                           force = TRUE)
+}
+library(bestcost)
+```
 
-```{r load current version of bestcost from local source, eval=FALSE, include=FALSE}
+
+
+```{r Alternative 1 to load bestcost: load zip from local source, eval=FALSE, include=FALSE}
 detach("package:bestcost", unload = TRUE) # detach bestcost
 devtools::build(binary = TRUE, path = "../testing/input/") # Save current state of package as .zip file (e.g. to directly test changes in functions)
 install.packages("../testing/input/bestcost_0.0.0.1.zip", repos=NULL, type='source') # Install package from source
@@ -82,51 +83,63 @@ load("../testing/input/input_data_for_testing_Rpackage.RData")
 ```
 
 
+
 # Calculate health impacts
 
 ## Attributable health impact
 
-```{r Test attribute_yld_rr single input value, eval=FALSE, include=FALSE}
-test <- bestcost::attribute_yld_rr(
-  dw = 0.133, # for health state "Asthma, uncontrolled" (cf. bestcost::disability_weights)
-  exp = c(input_data_morbidities$exp[12], input_data_morbidities$exp[12]+20, input_data_morbidities$exp[12]+30),
-  prop_pop_exp = c(0.2, 0.2, 0.6),
-  cutoff = input_data_morbidities$cutoff[12],    # PM2.5=5, NO2=10, i.e. WHO AQG 2021 
-  bhd = input_data_morbidities$bhd_absolute[12],
-  rr = unlist(input_data_morbidities[12, c("rr_mean", "rr_lowci", "rr_highci")]), # RR for asthma incidence for adults
-  rr_increment = 10, 
-  erf_shape = "log_linear", 
-  info_pollutant = input_data_morbidities$pollutant[12], 
-  info_outcome = input_data_morbidities$outcome_metric[12]
-)
+### Single value
+
+```{r impact morbidity}
+
+# Assess attributable cases using the AirQ+ export as input data
+att_morb_bestcost <-
+  bestcost::attribute_health_singlebhd_rr(
+    exp = airqplus_morb$mean_concentration,
+    cutoff = airqplus_morb$cut_off_value,    # PM2.5=5, NO2=10, i.e. WHO AQG 2021 
+    bhd = airqplus_morb$incidents_per_100_000_per_year/1E5*airqplus_morb$population_at_risk,
+    rr = c(airqplus_morb$relative_risk, airqplus_morb$relative_risk_lower, airqplus_morb$relative_risk_upper),
+    rr_increment = 10, 
+    erf_shape = "log_linear", 
+    info = paste0(airqplus_morb$pollutant,"_", airqplus_morb$evaluation_name))
+
+# Store the central, lower and upper estimate of the AirQ+ assessment
+result_att_morb_airqplus <- 
+  airqplus_morb %>%
+  dplyr::select(estimated_number_of_attributable_cases_central,
+                estimated_number_of_attributable_cases_lower,
+                estimated_number_of_attributable_cases_upper)%>%
+  unlist()
 
 
-# Ref 2783  583 4719 
-# Ref * 0.133: 370  78  628
+check_bestcost(result_list_bestcost = att_morb_bestcost,
+               result_vector_alternative = result_att_morb_airqplus)
+
+
+
+impact_morbidities_raw <- list()
+
+#for(i in 1:nrow(input_data_morbidities)){
+for(i in 12){ # runs loop only for health outcome "asthma incidence 20+"
+  impact_morbidities_raw[[input_data_morbidities$year[i]]][[input_data_morbidities$rr_id[[i]]]] <-
+  bestcost::attribute_health_singlebhd_rr(
+    #dw = 0.133, # for health state "Asthma, uncontrolled" (cf. bestcost::disability_weights)
+    exp = input_data_morbidities$exp[i],  # PM2.5=8.30=limit LRV CH, NO2=16.32=mean conc. in CH in 2019
+    cutoff = input_data_morbidities$cutoff[i],    # PM2.5=5, NO2=10, i.e. WHO AQG 2021 
+    bhd = input_data_morbidities$bhd_absolute[i],
+    rr = unlist(input_data_morbidities[i, 
+                            c("rr_central", "rr_lower", "rr_upper")]),
+    rr_increment = 10, 
+    erf_shape = "log_linear", 
+    info = data.frame(pollutant = input_data_morbidities$pollutant[i], 
+                      outcome = input_data_morbidities$outcome_metric[i]))
+  }
+
+
+
 ```
 
-```{r Test probability of dying}
-# Use function
-prob_dying_airqplus <- 
-  bestcost::get_prob_dying(
-    first_age_pop = 0,
-    last_age_pop = 14,
-    interval_age_pop = 5,
-    population_midyear = airqplus_deaths_pop_multipleYear$mi,
-    deaths = airqplus_deaths_pop_multipleYear$di,
-    fraction_of_year_lived = 0.5
-  )
-```
 
-```{r absolute risk}
-
-impact_annoyance_expDistribution_raw <- 
-  bestcost::attribute_health_singlebhd_ar(
-    exp = c(57.5, 62.5, 67.5, 72.5, 77.5),# Values as example provided by NIPH
-    pop_exp = c(387500, 286000, 191800, 72200, 7700), # Values as example provided by NIPH
-    erf_c = "78.9270-3.1162*c+0.0342*c^2",
-    info = data.frame(pollutant = "road_noise", outcome = "highly_annoyance"))
-```
 
 ```{r morbidity using exposure distribution}
 
@@ -146,63 +159,53 @@ for(i in 1:nrow(input_data_morbidities)){
   }
 ```
 
-```{r impact morbidity}
-impact_morbidities_raw <- list()
 
-#for(i in 1:nrow(input_data_morbidities)){
-for(i in 12){ # runs loop only for HO "asthma incidence 20+"
-  impact_morbidities_raw[[input_data_morbidities$year[i]]][[input_data_morbidities$rr_id[[i]]]] <-
-  bestcost::attribute_health_singlebhd_rr(
-    #dw = 0.133, # for health state "Asthma, uncontrolled" (cf. bestcost::disability_weights)
-    exp = input_data_morbidities$exp[i],  # PM2.5=8.30=limit LRV CH, NO2=16.32=mean conc. in CH in 2019
-    cutoff = input_data_morbidities$cutoff[i],    # PM2.5=5, NO2=10, i.e. WHO AQG 2021 
-    bhd = input_data_morbidities$bhd_absolute[i],
-    rr = unlist(input_data_morbidities[i, 
-                            c("rr_mean", "rr_lowci", "rr_highci")]),
-    rr_increment = 10, 
-    erf_shape = "log_linear", 
-    info = data.frame(pollutant = input_data_morbidities$pollutant[i], 
-                      outcome = input_data_morbidities$outcome_metric[i]))
-  }
+```{r absolute risk}
 
-
-
+impact_annoyance_expDistribution_raw <- 
+  bestcost::attribute_health_singlebhd_ar(
+    exp = c(57.5, 62.5, 67.5, 72.5, 77.5),# Values as example provided by NIPH
+    pop_exp = c(387500, 286000, 191800, 72200, 7700), # Values as example provided by NIPH
+    erf_c = "78.9270-3.1162*c+0.0342*c^2",
+    info = data.frame(pollutant = "road_noise", outcome = "highly_annoyance"))
 ```
 
-```{r morbidity yld lifetable}
-yld <- attribute_yld_lifetable_rr(
-  exp = input_data_mortality$exp[2],
-  # exp = c(8, 9, 10), # Fake data just for testing purposes
-  prop_pop_exp = 1,
-  # prop_pop_exp = c(0.2, 0.3, 0.5), # Fake data just for testing purposes
-  cutoff = input_data_mortality$cutoff[2],
-  rr = unlist(input_data_mortality[2, c("rr_mean", "rr_lowci", "rr_highci")]),
-  rr_increment = 10, 
-  erf_shape = "log_linear",
-  first_age_pop = 0,last_age_pop = 99,
-  interval_age_pop = 1,
-  prob_natural_death_male = lifetable_withPopulation[["male"]]$death_probability_natural,
-  prob_natural_death_female = lifetable_withPopulation[["female"]]$death_probability_natural,
-  prob_total_death_male = lifetable_withPopulation[["male"]]$death_probability_total,
-  prob_total_death_female = lifetable_withPopulation[["female"]]$death_probability_total,
-  population_male = lifetable_withPopulation[["male"]]$population, 
-  population_female = lifetable_withPopulation[["female"]]$population,
-  year_of_analysis = 2019, 
-  info = input_data_mortality$pollutant[2], 
-  min_age = 20,
-  # min_age = input_data_mortality$min_age[2],
-  # min_age = NA,
-  max_age = 99,
-  # max_age = input_data_mortality$max_age[2],
-  # max_age = NA,
-  corrected_discount_rate = 0,
-  duration = 2,
-  disability_weight = 1
+
+```{r Test probability of dying}
+# Use function
+prob_dying_airqplus <- 
+  bestcost::get_prob_dying(
+    first_age_pop = 0,
+    last_age_pop = 14,
+    interval_age_pop = 5,
+    population_midyear = airqplus_deaths_pop_multipleYear$mi,
+    deaths = airqplus_deaths_pop_multipleYear$di,
+    fraction_of_year_lived = 0.5
   )
+```
 
-print(paste("YLD", head(yld$total$impact_rounded)))
-print("YLL (not discounted, as comparison) 40541.98 14640.90 27741.97")
+```{r Test attribute_yld_rr single input value, eval=FALSE, include=FALSE}
+yld_test <- bestcost::attribute_yld_rr(
+  dw = 0.133, # for health state "Asthma, uncontrolled" (cf. bestcost::disability_weights)
+  exp = c(input_data_morbidities$exp[12], input_data_morbidities$exp[12]+20, input_data_morbidities$exp[12]+30),
+  prop_pop_exp = c(0.2, 0.2, 0.6),
+  cutoff = input_data_morbidities$cutoff[12],    # PM2.5=5, NO2=10, i.e. WHO AQG 2021 
+  bhd = input_data_morbidities$bhd_absolute[12],
+  rr = unlist(input_data_morbidities[12, c("rr_central", "rr_lower", "rr_upper")]), # RR for asthma incidence for adults
+  rr_increment = 10, 
+  erf_shape = "log_linear", 
+  info_pollutant = input_data_morbidities$pollutant[12], 
+  info_outcome = input_data_morbidities$outcome_metric[12]
+)
 
+
+# Ref 2783  583 4719 
+# Ref * 0.133: 370  78  628
+```
+
+
+### Life table
+```{r yll lifetable}
 impact_yll_expDistribution_raw <- list()
 impact_yll_expDistribution_raw[[input_data_mortality$year[2]]][[input_data_mortality$rr_id[[2]]]] <-
     bestcost::attribute_yll_lifetable_rr(
@@ -211,7 +214,7 @@ impact_yll_expDistribution_raw[[input_data_mortality$year[2]]][[input_data_morta
       prop_pop_exp = 1,
       # prop_pop_exp = c(0.2, 0.3, 0.5), # Fake data just for testing purposes
       cutoff = input_data_mortality$cutoff[2], # WHO AQG 2021 
-      rr = unlist(input_data_mortality[2, c("rr_mean", "rr_lowci", "rr_highci")]),
+      rr = unlist(input_data_mortality[2, c("rr_central", "rr_lower", "rr_upper")]),
       rr_increment = 10, 
       erf_shape = "log_linear",
       first_age_pop = 0,
@@ -247,7 +250,7 @@ for(i in 2){                           # Use this if you want to evaluate only o
       prop_pop_exp = c(0.2, 0.3, 0.5), # Fake data just for testing purposes
       cutoff = input_data_mortality$cutoff[i],   # PM2.5=5, NO2=10, i.e. WHO AQG 2021 
       rr = unlist(input_data_mortality[i,
-                                        c("rr_mean", "rr_lowci", "rr_highci")]),
+                                        c("rr_central", "rr_lower", "rr_upper")]),
       rr_increment = 10, 
       erf_shape = "log_linear",
       first_age_pop = 0,
@@ -283,7 +286,7 @@ for(i in 2){                           # Use this if you want to evaluate only o
       exp = c(8, 9, 10), # Fake data just for testing purposes
       prop_pop_exp = c(0.2, 0.3, 0.5), # Fake data just for testing purposes
       cutoff = input_data_mortality$cutoff[i], # WHO AQG 2021 
-      rr = unlist(input_data_mortality[i, c("rr_mean", "rr_lowci", "rr_highci")]),
+      rr = unlist(input_data_mortality[i, c("rr_central", "rr_lower", "rr_upper")]),
       rr_increment = 10, 
       erf_shape = "log_linear",
       first_age_pop = 0,
@@ -318,7 +321,7 @@ for(i in 2){                           # Use this if you want to evaluate only o
     exp = input_data_mortality$exp[i], # PM2.5=8.30=limit LRV CH, NO2=16.32=mean conc. in CH in 2019
     cutoff = input_data_mortality$cutoff[i],   # PM2.5=5, NO2=10, i.e. WHO AQG 2021 
     rr = unlist(input_data_mortality[i,
-                                      c("rr_mean", "rr_lowci", "rr_highci")]),
+                                      c("rr_central", "rr_lower", "rr_upper")]),
     rr_increment = 10, 
     erf_shape = "log_linear",
     first_age_pop = 0,
@@ -385,10 +388,10 @@ head(impact_mortality_raw[["2019"]][["PM2.5_premature deaths_all causes_adults_m
 #                     impact_rounded_ref, impact_rounded_whoaqg21, impact_rounded_diff), names_from = ci) %>%
 #   # Paste the CIs
 #   dplyr::mutate(
-#     rr_meanCI = paste_round_CI(rr_mean, rr_lowci, rr_highci, 3),
-#     impact_ref_meanCI = paste_round_CI(impact_ref_mean, impact_ref_lowci, impact_ref_highci, 3),
-#     impact_whoaqg21_meanCI = paste_round_CI(impact_whoaqg21_mean, impact_whoaqg21_lowci, impact_whoaqg21_highci, 0),
-#     impact_diff_meanCI = paste_round_CI(impact_diff_mean, impact_diff_lowci, impact_diff_highci, 0),
+#     rr_centralCI = paste_round_CI(rr_central, rr_lower, rr_upper, 3),
+#     impact_ref_centralCI = paste_round_CI(impact_ref_central, impact_ref_lower, impact_ref_upper, 3),
+#     impact_whoaqg21_centralCI = paste_round_CI(impact_whoaqg21_central, impact_whoaqg21_lower, impact_whoaqg21_upper, 0),
+#     impact_diff_centralCI = paste_round_CI(impact_diff_central, impact_diff_lower, impact_diff_upper, 0),
 #     # bhd as NA just to match with structure of morbidities
 #     bhd = NA) %>%
 # 
@@ -396,7 +399,7 @@ head(impact_mortality_raw[["2019"]][["PM2.5_premature deaths_all causes_adults_m
 #   # Left join to add further information on RR
 #   dplyr::left_join(., rr_data, 
 #                    by = c("info_pollutant" = "pollutant", "rr_id", "rr_increment",
-#                           paste0("rr_", c("mean", "lowci", "highci"))),
+#                           paste0("rr_", c("central", "lower", "upper"))),
 #                    relationship = "many-to-one")%>%
 #   # Change outcome_id to ensure match with codebook
 #   dplyr::mutate(
@@ -405,14 +408,49 @@ head(impact_mortality_raw[["2019"]][["PM2.5_premature deaths_all causes_adults_m
 #                         outcome_id)) %>%
 #   # Order columns 
 #   dplyr::select(info_pollutant, ref, outcome_id, rr_source, 
-#                 term, bhd, rr_meanCI, 
-#                 contains("impact_diff_meanCI"),
-#                 contains("impact_ref_meanCI"), 
-#                 impact_whoaqg21_meanCI,
+#                 term, bhd, rr_centralCI, 
+#                 contains("impact_diff_centralCI"),
+#                 contains("impact_ref_centralCI"), 
+#                 impact_whoaqg21_centralCI,
 #                 everything()) %>%
 #   # Order rows by label
 #   dplyr::arrange(desc(info_pollutant), ref, outcome_id, rr_source)
 
+```
+
+```{r morbidity yld lifetable}
+yld <- attribute_yld_lifetable_rr(
+  exp = input_data_mortality$exp[2],
+  # exp = c(8, 9, 10), # Fake data just for testing purposes
+  prop_pop_exp = 1,
+  # prop_pop_exp = c(0.2, 0.3, 0.5), # Fake data just for testing purposes
+  cutoff = input_data_mortality$cutoff[2],
+  rr = unlist(input_data_mortality[2, c("rr_central", "rr_lower", "rr_upper")]),
+  rr_increment = 10, 
+  erf_shape = "log_linear",
+  first_age_pop = 0,last_age_pop = 99,
+  interval_age_pop = 1,
+  prob_natural_death_male = lifetable_withPopulation[["male"]]$death_probability_natural,
+  prob_natural_death_female = lifetable_withPopulation[["female"]]$death_probability_natural,
+  prob_total_death_male = lifetable_withPopulation[["male"]]$death_probability_total,
+  prob_total_death_female = lifetable_withPopulation[["female"]]$death_probability_total,
+  population_male = lifetable_withPopulation[["male"]]$population, 
+  population_female = lifetable_withPopulation[["female"]]$population,
+  year_of_analysis = 2019, 
+  info = input_data_mortality$pollutant[2], 
+  min_age = 20,
+  # min_age = input_data_mortality$min_age[2],
+  # min_age = NA,
+  max_age = 99,
+  # max_age = input_data_mortality$max_age[2],
+  # max_age = NA,
+  corrected_discount_rate = 0,
+  duration = 2,
+  disability_weight = 1
+  )
+
+print(paste("YLD", head(yld$total$impact_rounded)))
+print("YLL (not discounted, as comparison) 40541.98 14640.90 27741.97")
 ```
 
 
@@ -473,6 +511,280 @@ comparison_delta_singlebhd_ar <-
 ```
 
 
+```{r comparison deaths lifetable}
+ 
+comparison_deaths_lifetable_delta <-
+  bestcost::compare_deaths_lifetable_rr(
+    comparison_method = "delta",
+    exp_1 = 8.85, # Fake data just for testing purposes
+    prop_pop_exp_1 = 1, # Fake data just for testing purposes
+    exp_2 = 6, # Fake data just for testing purposes
+    prop_pop_exp_2 = 1, # Fake data just for testing purposes
+    cutoff = 5,   # PM2.5=5, WHO AQG 2021 
+    rr = c(1.118, 1.060, 1.179),
+    rr_increment = 10, 
+    erf_shape = "log_linear",
+    first_age_pop_1 = 0,
+    last_age_pop_1 = 99,
+    interval_age_pop_1 = 1,
+    prob_natural_death_male_1 = lifetable_withPopulation[["male"]]$death_probability_natural,
+    prob_natural_death_female_1 = lifetable_withPopulation[["female"]]$death_probability_natural,
+    prob_total_death_male_1 = lifetable_withPopulation[["male"]]$death_probability_total,
+    prob_total_death_female_1 = lifetable_withPopulation[["female"]]$death_probability_total,
+    population_male_1 = lifetable_withPopulation[["male"]]$population, 
+    population_female_1 = lifetable_withPopulation[["female"]]$population, 
+    year_of_analysis_1 = 2019, 
+    first_age_pop_2 = 0,
+    last_age_pop_2 = 99,
+    interval_age_pop_2 = 1,
+    prob_natural_death_male_2 = lifetable_withPopulation[["male"]]$death_probability_natural,
+    prob_natural_death_female_2 = lifetable_withPopulation[["female"]]$death_probability_natural,
+    prob_total_death_male_2 = lifetable_withPopulation[["male"]]$death_probability_total,
+    prob_total_death_female_2 = lifetable_withPopulation[["female"]]$death_probability_total,
+    population_male_2 = lifetable_withPopulation[["male"]]$population, 
+    population_female_2 = lifetable_withPopulation[["female"]]$population, 
+    year_of_analysis_2 = 2021, 
+    info_1 = input_data_mortality$pollutant[i],
+    info_2 = input_data_mortality$pollutant[i], 
+    min_age = 30,
+    max_age = NULL)
+    # max_age = if(is.na(input_data_mortality$max_age[i])) NULL else input_data_mortality$max_age[i])
+
+comparison_deaths_lifetable_pif  <-
+  bestcost::compare_deaths_lifetable_rr(
+    comparison_method = "pif",
+    exp_1 = 8.85, # Fake data just for testing purposes
+    prop_pop_exp_1 = 1, # Fake data just for testing purposes
+    exp_2 = 6, # Fake data just for testing purposes
+    prop_pop_exp_2 = 1, # Fake data just for testing purposes
+    cutoff = 5,   # PM2.5=5, WHO AQG 2021 
+    rr = c(1.118, 1.060, 1.179),
+    rr_increment = 10, 
+    erf_shape = "log_linear",
+    first_age_pop_1 = 0,
+    last_age_pop_1 = 99,
+    interval_age_pop_1 = 1,
+    prob_natural_death_male_1 = lifetable_withPopulation[["male"]]$death_probability_natural,
+    prob_natural_death_female_1 = lifetable_withPopulation[["female"]]$death_probability_natural,
+    prob_total_death_male_1 = lifetable_withPopulation[["male"]]$death_probability_total,
+    prob_total_death_female_1 = lifetable_withPopulation[["female"]]$death_probability_total,
+    population_male_1 = lifetable_withPopulation[["male"]]$population, 
+    population_female_1 = lifetable_withPopulation[["female"]]$population, 
+    year_of_analysis_1 = 2019, 
+    first_age_pop_2 = 0,
+    last_age_pop_2 = 99,
+    interval_age_pop_2 = 1,
+    prob_natural_death_male_2 = lifetable_withPopulation[["male"]]$death_probability_natural,
+    prob_natural_death_female_2 = lifetable_withPopulation[["female"]]$death_probability_natural,
+    prob_total_death_male_2 = lifetable_withPopulation[["male"]]$death_probability_total,
+    prob_total_death_female_2 = lifetable_withPopulation[["female"]]$death_probability_total,
+    population_male_2 = lifetable_withPopulation[["male"]]$population, 
+    population_female_2 = lifetable_withPopulation[["female"]]$population, 
+    year_of_analysis_2 = 2019, 
+    info_1 = NULL,
+    info_2 = NULL, 
+    min_age = 30,
+    max_age = NULL)
+```
+
+
+
+```{r comparison yll lifetable}
+ 
+comparison_yll_lifetable_delta  <-
+  bestcost::compare_yll_lifetable_rr(
+    comparison_method = "delta",
+    exp_1 = 8.85, # Fake data just for testing purposes
+    prop_pop_exp_1 = 1, # Fake data just for testing purposes
+    exp_2 = 6, # Fake data just for testing purposes
+    prop_pop_exp_2 = 1, # Fake data just for testing purposes
+    cutoff = 5,   # PM2.5=5, WHO AQG 2021 
+    rr = c(1.118, 1.060, 1.179),
+    rr_increment = 10, 
+    erf_shape = "log_linear",
+    first_age_pop_1 = 0,
+    last_age_pop_1 = 99,
+    interval_age_pop_1 = 1,
+    prob_natural_death_male_1 = lifetable_withPopulation[["male"]]$death_probability_natural,
+    prob_natural_death_female_1 = lifetable_withPopulation[["female"]]$death_probability_natural,
+    prob_total_death_male_1 = lifetable_withPopulation[["male"]]$death_probability_total,
+    prob_total_death_female_1 = lifetable_withPopulation[["female"]]$death_probability_total,
+    population_male_1 = lifetable_withPopulation[["male"]]$population, 
+    population_female_1 = lifetable_withPopulation[["female"]]$population, 
+    year_of_analysis_1 = 2019, 
+    first_age_pop_2 = 0,
+    last_age_pop_2 = 99,
+    interval_age_pop_2 = 1,
+    prob_natural_death_male_2 = lifetable_withPopulation[["male"]]$death_probability_natural,
+    prob_natural_death_female_2 = lifetable_withPopulation[["female"]]$death_probability_natural,
+    prob_total_death_male_2 = lifetable_withPopulation[["male"]]$death_probability_total,
+    prob_total_death_female_2 = lifetable_withPopulation[["female"]]$death_probability_total,
+    population_male_2 = lifetable_withPopulation[["male"]]$population, 
+    population_female_2 = lifetable_withPopulation[["female"]]$population, 
+    year_of_analysis_2 = 2019, 
+    info_1 = input_data_mortality$pollutant[i],
+    info_2 = input_data_mortality$pollutant[i], 
+    min_age = 30,
+    max_age = NULL)
+    # max_age = if(is.na(input_data_mortality$max_age[i])) NULL else input_data_mortality$max_age[i])
+
+comparison_yll_lifetable_pif <-
+  bestcost::compare_yll_lifetable_rr(
+    comparison_method = "pif",
+    exp_1 = 8.85, # Fake data just for testing purposes
+    prop_pop_exp_1 = 1, # Fake data just for testing purposes
+    exp_2 = 6, # Fake data just for testing purposes
+    prop_pop_exp_2 = 1, # Fake data just for testing purposes
+    cutoff = 5,   # PM2.5=5, WHO AQG 2021 
+    rr = c(1.118, 1.060, 1.179),
+    rr_increment = 10, 
+    erf_shape = "log_linear",
+    first_age_pop_1 = 0,
+    last_age_pop_1 = 99,
+    interval_age_pop_1 = 1,
+    prob_natural_death_male_1 = lifetable_withPopulation[["male"]]$death_probability_natural,
+    prob_natural_death_female_1 = lifetable_withPopulation[["female"]]$death_probability_natural,
+    prob_total_death_male_1 = lifetable_withPopulation[["male"]]$death_probability_total,
+    prob_total_death_female_1 = lifetable_withPopulation[["female"]]$death_probability_total,
+    population_male_1 = lifetable_withPopulation[["male"]]$population, 
+    population_female_1 = lifetable_withPopulation[["female"]]$population, 
+    year_of_analysis_1 = 2019, 
+    first_age_pop_2 = 0,
+    last_age_pop_2 = 99,
+    interval_age_pop_2 = 1,
+    prob_natural_death_male_2 = lifetable_withPopulation[["male"]]$death_probability_natural,
+    prob_natural_death_female_2 = lifetable_withPopulation[["female"]]$death_probability_natural,
+    prob_total_death_male_2 = lifetable_withPopulation[["male"]]$death_probability_total,
+    prob_total_death_female_2 = lifetable_withPopulation[["female"]]$death_probability_total,
+    population_male_2 = lifetable_withPopulation[["male"]]$population, 
+    population_female_2 = lifetable_withPopulation[["female"]]$population, 
+    year_of_analysis_2 = 2019, 
+    info_1 = NULL,
+    info_2 = NULL, 
+    min_age = 30,
+    max_age = NULL)
+```
+
+
+
+
+
+```{r comparison yld lifetable}
+ 
+comparison_yld_lifetable_delta  <-
+  bestcost::compare_yld_lifetable_rr(
+    comparison_method = "delta",
+    exp_1 = 8.85, # Fake data just for testing purposes
+    prop_pop_exp_1 = 1, # Fake data just for testing purposes
+    exp_2 = 6, # Fake data just for testing purposes
+    prop_pop_exp_2 = 1, # Fake data just for testing purposes
+    cutoff = 5,   # PM2.5=5, WHO AQG 2021 
+    rr = c(1.118, 1.060, 1.179),
+    rr_increment = 10, 
+    erf_shape = "log_linear",
+    first_age_pop_1 = 0,
+    last_age_pop_1 = 99,
+    interval_age_pop_1 = 1,
+    prob_natural_death_male_1 = lifetable_withPopulation[["male"]]$death_probability_natural,
+    prob_natural_death_female_1 = lifetable_withPopulation[["female"]]$death_probability_natural,
+    prob_total_death_male_1 = lifetable_withPopulation[["male"]]$death_probability_total,
+    prob_total_death_female_1 = lifetable_withPopulation[["female"]]$death_probability_total,
+    population_male_1 = lifetable_withPopulation[["male"]]$population, 
+    population_female_1 = lifetable_withPopulation[["female"]]$population, 
+    year_of_analysis_1 = 2019, 
+    first_age_pop_2 = 0,
+    last_age_pop_2 = 99,
+    interval_age_pop_2 = 1,
+    prob_natural_death_male_2 = lifetable_withPopulation[["male"]]$death_probability_natural,
+    prob_natural_death_female_2 = lifetable_withPopulation[["female"]]$death_probability_natural,
+    prob_total_death_male_2 = lifetable_withPopulation[["male"]]$death_probability_total,
+    prob_total_death_female_2 = lifetable_withPopulation[["female"]]$death_probability_total,
+    population_male_2 = lifetable_withPopulation[["male"]]$population, 
+    population_female_2 = lifetable_withPopulation[["female"]]$population, 
+    year_of_analysis_2 = 2019, 
+    info_1 = input_data_mortality$pollutant[i],
+    info_2 = input_data_mortality$pollutant[i], 
+    min_age = 30,
+    max_age = NULL,
+    disability_weight = 0.5,
+    duration = 2)
+
+comparison_yld_lifetable_pif <-
+  bestcost::compare_yld_lifetable_rr(
+    comparison_method = "pif",
+    exp_1 = 8.85, # Fake data just for testing purposes
+    prop_pop_exp_1 = 1, # Fake data just for testing purposes
+    exp_2 = 6, # Fake data just for testing purposes
+    prop_pop_exp_2 = 1, # Fake data just for testing purposes
+    cutoff = 5,   # PM2.5=5, WHO AQG 2021 
+    rr = c(1.118, 1.060, 1.179),
+    rr_increment = 10, 
+    erf_shape = "log_linear",
+    first_age_pop_1 = 0,
+    last_age_pop_1 = 99,
+    interval_age_pop_1 = 1,
+    prob_natural_death_male_1 = lifetable_withPopulation[["male"]]$death_probability_natural,
+    prob_natural_death_female_1 = lifetable_withPopulation[["female"]]$death_probability_natural,
+    prob_total_death_male_1 = lifetable_withPopulation[["male"]]$death_probability_total,
+    prob_total_death_female_1 = lifetable_withPopulation[["female"]]$death_probability_total,
+    population_male_1 = lifetable_withPopulation[["male"]]$population, 
+    population_female_1 = lifetable_withPopulation[["female"]]$population, 
+    year_of_analysis_1 = 2019, 
+    first_age_pop_2 = 0,
+    last_age_pop_2 = 99,
+    interval_age_pop_2 = 1,
+    prob_natural_death_male_2 = lifetable_withPopulation[["male"]]$death_probability_natural,
+    prob_natural_death_female_2 = lifetable_withPopulation[["female"]]$death_probability_natural,
+    prob_total_death_male_2 = lifetable_withPopulation[["male"]]$death_probability_total,
+    prob_total_death_female_2 = lifetable_withPopulation[["female"]]$death_probability_total,
+    population_male_2 = lifetable_withPopulation[["male"]]$population, 
+    population_female_2 = lifetable_withPopulation[["female"]]$population, 
+    year_of_analysis_2 = 2019, 
+    info_1 = NULL,
+    info_2 = NULL, 
+    min_age = 30,
+    max_age = NULL,
+    disability_weight = 0.5,
+    duration = 2)
+```
+
+
+```{r comparison yld singlebhd_rr}
+# Test delta comparison function with fake values
+comparison_yld_singlebhd_rr_delta <-
+  bestcost::compare_yld_singlebhd_rr(
+    comparison_method = "delta",
+    exp_1 = 8.85, 
+    exp_2 = 6,
+    cutoff = 5,    
+    bhd_1 = 25000,
+    bhd_2 = 25000,
+    rr = c(1.118, 1.060, 1.179),
+    rr_increment = 10, 
+    erf_shape = "log_linear", 
+    disability_weight = 0.5,
+    info_1 = "PM2.5_yld_before",
+    info_2 = "PM2.5_yld_after")
+
+
+# Test pif comparison function with fake values
+comparison_yld_singlebhd_rr_pif <-
+  bestcost::compare_yld_singlebhd_rr(
+    comparison_method = "pif",
+    exp_1 = 8.85,  
+    exp_2 = 6,
+    cutoff = 5,    
+    bhd_1 = 25000,
+    bhd_2 = 25000,
+    rr = c(1.118, 1.060, 1.179),
+    rr_increment = 10, 
+    erf_shape = "log_linear", 
+    disability_weight = 0.5,
+    info_1 = "PM2.5_yld_before",
+    info_2 = "PM2.5_yld_after")
+
+
+```
 
 # Export 
 

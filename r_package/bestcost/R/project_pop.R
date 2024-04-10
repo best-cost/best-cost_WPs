@@ -5,7 +5,7 @@
 #' Get population over time
 #' @param lifetable_withPop \code{Data frame} with three columns: the first one should refer to age, the second one to the probability of dying and the third one to the population (sex specific),
 #' @param year_of_analysis Numeric value of the year of analysis, which corresponds to the first year of the life table
-#' @param paf \code{Data frame} with three rows (mean, lower bound and upper bound)
+#' @param paf \code{Data frame} with three rows (central estimate as well as lower and upper bound)
 #' @return
 #' This function returns a \code{data.frame} the population over time taking into account probability of dying
 #' @import dplyr

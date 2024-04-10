@@ -15,6 +15,7 @@
 #' @param erf_c \code{String} showing the user-defined function that puts the relative risk in relation with concentration. The function must have only one variable: c, which means concentration. E.g. "3+c+c^2". Default value = NULL.
 #' @param bhd_1 \code{Numeric value} showing the baseline health data (incidence of the health outcome in the population) in the scenario 1.
 #' @param bhd_2 \code{Numeric value} showing the baseline health data (incidence of the health outcome in the population) in the scenario 1.
+#' @param disability_weight \code{Numeric value} showing the disability weight associated with the morbidity health outcome
 #' @param info_1 \code{String} or {data frame} showing additional information or id of the scenario 1. The suffix "info" will be added to the column name. Default value = NULL.
 #' @param info_2 \code{String} or {data frame} showing additional information or id of the scenario 1. The suffix "info" will be added to the column name. Default value = NULL.
 
@@ -35,7 +36,7 @@
 #' @author Alberto Castro
 #' @note Experimental function
 #' @export
-compare_health_singlebhd_rr <-
+compare_yld_singlebhd_rr <-
   function(comparison_method = "delta",
            exp_1, exp_2,
            prop_pop_exp_1 = 1, prop_pop_exp_2 = 1,
@@ -45,13 +46,14 @@ compare_health_singlebhd_rr <-
            erf_shape,
            erf_c = NULL,
            bhd_1, bhd_2,
+           disability_weight,
            info_1 = NULL, info_2 = NULL){
 
 
 
     # Calculate attributable health impacts in the scenario 1
     att_health_1 <-
-      bestcost::attribute_health_singlebhd_rr(
+      bestcost::attribute_yld_singlebhd_rr(
         exp = exp_1,
         prop_pop_exp = prop_pop_exp_1,
         cutoff = cutoff,
@@ -60,11 +62,12 @@ compare_health_singlebhd_rr <-
         erf_shape = erf_shape,
         erf_c = erf_c,
         bhd = bhd_1,
+        disability_weight = disability_weight,
         info = info_1)
 
     # Calculate attributable health impacts in the scenario 2
     att_health_2 <-
-      bestcost::attribute_health_singlebhd_rr(
+      bestcost::attribute_yld_singlebhd_rr(
         exp = exp_2,
         prop_pop_exp = prop_pop_exp_2,
         cutoff = cutoff,
@@ -73,6 +76,7 @@ compare_health_singlebhd_rr <-
         erf_shape = erf_shape,
         erf_c = erf_c,
         bhd = bhd_2,
+        disability_weight = disability_weight,
         info = info_2)
 
     # Identify the columns that are common for scenario 1 and 2
@@ -94,7 +98,7 @@ compare_health_singlebhd_rr <-
 
 
     # If the user choose "pif"  as comparison method
-    # pif is additonally calculated
+    # pif is additionally calculated
     # impact is overwritten with the new values that refer to pif instead of paf
     if(comparison_method == "pif" & bhd_1 == bhd_2){
       att_health <-
@@ -106,7 +110,7 @@ compare_health_singlebhd_rr <-
             rr_conc_2 = rr_conc_2,
             prop_pop_exp_1 = prop_pop_exp_1,
             prop_pop_exp_2 = prop_pop_exp_1),
-          impact = bhd_1 * pif)
+          impact = bhd_1 * pif * disability_weight)
 
     }
 

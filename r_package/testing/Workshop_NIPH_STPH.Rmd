@@ -1,0 +1,103 @@
+---
+title: "Workshop NIPH & STPH"
+author: "Axel Luyten"
+output: html_document
+---
+
+# {BEST-COST} package example
+
+Guidance on installation of the {bestcost} package: PDF on Teams under
+WP4 PROGRAMMING > Github_hotToUse > Handbook_Github_v1.1.pdf
+
+```{r Install package, include=FALSE}
+
+credentials::set_github_pat() # paste GitHub PAT if prompted
+devtools::install_github(repo = "best-cost/best-cost_WPs",
+                           subdir = "/r_package/bestcost",
+                           ref = "HEAD", # Branch name (by default "HEAD") as a string
+                           force = TRUE)
+library(bestcost)
+library(dplyr)
+```
+
+```{r Example morbidity (population weighted mean)}
+# Check which data we need
+?attribute_health_singlebhd_rr
+
+
+# Prepare input data
+View(input_data_morbidities)
+data <- input_data_morbidities %>% 
+  slice(12) %>% # row 12: adult asthma incidence
+  select(pollutant, outcome_disease, outcome_metric, outcome_group, term, # meta-information
+         exp_mean,
+         cutoff,
+         rr_rescaled_lowci, rr_rescaled_mean, rr_rescaled_highci, rr_increment,
+         bhd_absolute)
+
+# Call function
+res <- attribute_health_singlebhd_rr(
+  exp = data$exp_mean,
+  prop_pop_exp = 1, 
+  cutoff = data$cutoff, 
+  rr = c(data$rr_rescaled_mean, data$rr_rescaled_lowci, data$rr_rescaled_highci), 
+  rr_increment = data$rr_increment, 
+  erf_shape = "log_linear", 
+  bhd = data$bhd_absolute, 
+  info = data %>% select(pollutant:term))
+
+# Print results
+central <- res$total %>% filter(ci=="mean")
+central <- paste("Pollutant:", central$info_pollutant,
+          "Health outcome:", central$info_outcome_disease,
+          "Metric:", central$info_outcome_metric,
+          "Exposure (mean): ", central$exp,
+          "Observed cases:", central$bhd,
+          "Attributable cases:", central$impact_rounded,
+          "PAF:", central$paf,
+          sep="\n")
+cat(central)
+```
+
+
+```{r Example mortality (exposure distribution)}
+# Check which data we need
+?attribute_health_singlebhd_rr
+
+# Prepare input data
+View(input_data_mortality)
+data <- input_data_mortality %>% 
+  slice(1) %>% # row 1: adult all-cause mortality (source: Hoek [2013])
+  select(pollutant, outcome_disease, outcome_metric, outcome_group, term, # meta-information
+         exp_mean,
+         cutoff,
+         rr_rescaled_lowci, rr_rescaled_mean, rr_rescaled_highci, rr_increment,
+         bhd_absolute)
+
+# Call function
+res <- attribute_health_singlebhd_rr(
+  exp = c(8, 9, 10),
+  prop_pop_exp = c(0.2, 0.3, 0.5), 
+  cutoff = data$cutoff, 
+  rr = c(data$rr_rescaled_mean, data$rr_rescaled_lowci, data$rr_rescaled_highci), 
+  rr_increment = data$rr_increment, 
+  erf_shape = "log_linear", 
+  bhd = data$bhd_absolute, 
+  info = data %>% select(pollutant:term))
+
+# Print results
+central <- res$total %>% filter(ci=="mean")
+central <- paste("Pollutant:", central$info_pollutant,
+          "Health outcome:", central$info_outcome_disease,
+          "Metric:", central$info_outcome_metric,
+          "Exposure (mean): ", central$exp[1],
+          "Proportion of population exposed: ", central$prop_pop_exp[1],
+          "Observed cases:", central$bhd,
+          "Attributable cases:", central$impact_rounded,
+          "PAF:", central$paf,
+          sep="\n")
+cat(central)
+```
+
+For more examples see the script "testing_package"!
+

@@ -2,8 +2,7 @@
 % Please edit documentation in R/attribute_health_singlebhd_rr.R
 \name{attribute_health_singlebhd_rr}
 \alias{attribute_health_singlebhd_rr}
-\title{Attributable health cases based on relative risk
-Calculates the health impacts, mortality or morbidity, of an environmental stressor using a single value for baseline heath data, i.e. without life table. It provides as a result the mean as well as the lower and the higher bound of the impact based on the confidence interval of the concentration-response function.}
+\title{Attributable health cases based on relative risk}
 \usage{
 attribute_health_singlebhd_rr(
   exp,
@@ -24,7 +23,7 @@ attribute_health_singlebhd_rr(
 
 \item{cutoff}{\code{Numeric value} showing the cut-off exposure in ug/m3 (i.e. the exposure level below which no health effects occur).}
 
-\item{rr}{\code{Vector} of three numeric values referring to the mean as well as the lower bound and upper bound of the confidence interval.}
+\item{rr}{\code{Vector} of three numeric values referring to the central as well as the lower bound and upper bound of the confidence interval.}
 
 \item{rr_increment}{\code{Numeric value} showing the increment of the concentration-response function in ug/m3 (usually 10 or 5).}
 
@@ -38,7 +37,7 @@ attribute_health_singlebhd_rr(
 }
 \value{
 TBD. E.g. This function returns a \code{data.frame} with one row for each value of the
-concentration-response function (i.e. mean, lower and upper bound confidence interval.
+concentration-response function (i.e. central, lower and upper bound confidence interval.
 Moreover, the data frame includes columns such as:
 \itemize{
  \item Attributable fraction
@@ -48,7 +47,6 @@ Moreover, the data frame includes columns such as:
 }
 }
 \description{
-Attributable health cases based on relative risk
 Calculates the health impacts, mortality or morbidity, of an environmental stressor using a single value for baseline heath data, i.e. without life table. It provides as a result the mean as well as the lower and the higher bound of the impact based on the confidence interval of the concentration-response function.
 }
 \note{
