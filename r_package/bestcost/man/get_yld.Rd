@@ -9,6 +9,8 @@ get_yld(
   year_of_analysis,
   min_age,
   max_age,
+  first_age_pop,
+  last_age_pop,
   meta,
   corrected_discount_rate = 0,
   disability_weight,
@@ -19,6 +21,10 @@ get_yld(
 \item{pop_impact}{\code{Data frame} with projected population impact over time}
 
 \item{year_of_analysis}{\code{Numeric value} of the year of analysis, which corresponds to the first year of the life table,}
+
+\item{first_age_pop}{\code{Numeric value} starting age of the youngest age group from population and life table data}
+
+\item{last_age_pop}{\code{Numeric value} ending age of the oldest age group from population and life table data}
 
 \item{meta}{\code{Data frame} with meta-information such as input data, additional information and intermediate results.}
 
