@@ -26,7 +26,7 @@
 #' @param info \code{String} or {data frame} showing additional information or id. The suffix "info" will be added to the column name. Default value = NULL.
 #' @return
 #' TBD. E.g. This function returns a \code{data.frame} with one row for each value of the
-#' concentration-response function (i.e. mean, lower and upper bound confidence interval.
+#' concentration-response function (i.e. central estimate, lower and upper bound confidence interval.
 #' Moreover, the data frame include columns such as:
 #' \itemize{
 #'  \item Attributable fraction
@@ -44,8 +44,8 @@
 attribute_yll_lifetable_rr <-
   function(exp, prop_pop_exp = 1,
            cutoff,
-           rr, rr_increment,
-           erf_shape, erf_c = NULL,
+           rr, rr_increment, erf_shape,
+           erf_c = NULL,
            first_age_pop, last_age_pop, interval_age_pop,
            prob_natural_death_male, prob_natural_death_female,
            prob_total_death_male, prob_total_death_female,
@@ -119,7 +119,7 @@ attribute_yll_lifetable_rr <-
       bestcost::get_pop_impact(
         lifetab_withPop = lifetable_withPop,
         year_of_analysis = year_of_analysis,
-        paf = input_risk_paf[, c("ci", "paf")])
+        paf = input_risk_paf[, c("rr_ci", "paf")])
 
     # Calculate years of life lost (yll) ####
     yll <-

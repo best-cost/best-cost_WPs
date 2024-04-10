@@ -3,7 +3,7 @@
 \name{attribute_yld_rr}
 \alias{attribute_yld_rr}
 \title{Determine years lived with disability (YLD) attributable to the incidence of a specific morbidity health outcome
-Calculates the YLDs using a single value for baseline heath data, i.e. without life table. It provides as a result the mean as well as the lower and the higher bounds of the morbidity impact based on the confidence interval of the exposure-response function.}
+Calculates the YLDs using a single value for baseline heath data, i.e. without life table. It provides as a result the central estimate as well as the lower and the upper bounds of confidence interval of the morbidity impact based on the confidence interval of the exposure-response function.}
 \usage{
 attribute_yld_rr(
   dw,
@@ -31,11 +31,11 @@ attribute_yld_rr(
 
 \item{cutoff}{\code{Numeric value} showing the cut-off exposure in ug/m3 (i.e. the exposure level below which no health effects occur).}
 
-\item{rr}{\code{Numeric vector} of three numeric values referring to the mean as well as the lower bound and upper bound of the confidence interval.}
+\item{rr}{\code{Numeric vector} of three numeric values referring to the central as well as the lower bound and upper bound of the confidence interval.}
 
 \item{rr_increment}{\code{Numeric value} showing the increment of the concentration-response function in ug/m3 (usually 10 or 5).}
 
-\item{erf_shape}{\code{String} to choose among "linear" and "loglinear".}
+\item{erf_shape}{\code{String} to choose among "linear" and "log-linear", "linear-log" and "log-log".}
 
 \item{bhd}{\code{Numeric value} showing the baseline health data (incidence of the health outcome in the population).}
 
@@ -53,7 +53,7 @@ attribute_yld_rr(
 }
 \value{
 This function returns a \code{data.frame} with one row for each value of the
-concentration-response function (i.e. mean, lower and upper bound confidence interval.
+concentration-response function (i.e. central estimate, lower and upper bound confidence interval.
 The YLDs are listed in the columns:
 \itemize{
  \item yld
@@ -62,7 +62,7 @@ The YLDs are listed in the columns:
 }
 \description{
 Determine years lived with disability (YLD) attributable to the incidence of a specific morbidity health outcome
-Calculates the YLDs using a single value for baseline heath data, i.e. without life table. It provides as a result the mean as well as the lower and the higher bounds of the morbidity impact based on the confidence interval of the exposure-response function.
+Calculates the YLDs using a single value for baseline heath data, i.e. without life table. It provides as a result the central estimate as well as the lower and the upper bounds of confidence interval of the morbidity impact based on the confidence interval of the exposure-response function.
 }
 \note{
 Experimental function

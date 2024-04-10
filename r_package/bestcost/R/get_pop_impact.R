@@ -9,7 +9,7 @@
 #'
 #' @return
 #' This function returns a \code{data.frame} with one row for each value of the
-#' concentration-response function (i.e. mean, lower and upper bound confidence interval.
+#' concentration-response function (i.e. central estimate, lower and upper bound confidence interval).
 #' Moreover, the data frame include columns such as:
 #' \itemize{
 #'  \item Attributable fraction
@@ -27,19 +27,19 @@
 get_pop_impact <-
   function(lifetab_withPop, year_of_analysis, paf){
 
-    ci <- c("mean", "lowci", "highci") # variable used in code
+    rr_ci <- c("central", "lower", "upper") # variable used in code
     sex <- c("female","male")
 
     # Get popOvertime
     popOverTime <- list()
 
-    for(s in sex){
-      for(v in ci){
+    for(s in c("female", "male")){
+      for(v in rr_ci){
         popOverTime[[s]][[v]] <-
           bestcost::project_pop(
             lifetab_withPop = lifetab_withPop[[s]],
             year_of_analysis = year_of_analysis,
-            paf = paf$paf[paf$ci %in% v])
+            paf = paf$paf[paf$rr_ci %in% v])
       }
     }
 
@@ -48,8 +48,8 @@ get_pop_impact <-
 
     pop_impact <- list()
 
-    for(s in sex){
-      for(v in ci){
+    for(s in c("female", "male")){
+      for(v in rr_ci){
         pop_impact[[s]][[v]] <-
 
           bestcost::move_rows_up(popOTime = popOverTime[[s]][[v]],

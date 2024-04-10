@@ -58,7 +58,7 @@ pollutants_hra <- c(pm_target, "NO2")
 sex <-  c("male", "female")
 
 # Define values in the confidence interval (ci)
-ci <- c("mean", "lowci", "highci")
+ci <- c("central", "lower", "upper")
 
 # Define Outcome groups
 groups <-
@@ -78,10 +78,10 @@ year_hra <- "2019"
  
 ```{r Functions}
 
-# Create function to join mean RR with the lower and upper bound
+# Create function to join central estimate of RR with the lower and upper bound
 paste_CI <- 
-  function(mean, low, high){
-     paste0(mean," [", low, "; ", high, "]")
+  function(central, lower, upper){
+     paste0(central," [", lower, "; ", upper, "]")
   }
 
 # Create function to round keeping zeros in decimals (e.g. 2.0 instead of 2)
@@ -94,10 +94,10 @@ round_keeping0 <-
   
 # Create function to round the values of the RR and then paste
 paste_round_CI <- 
-  function(mean, low, high, decimals){
-    paste0(round_keeping0(mean, decimals)," [",  
-           round_keeping0(low, decimals), "; ", 
-           round_keeping0(high, decimals), "]")
+  function(central, lower, upper, decimals){
+    paste0(round_keeping0(central, decimals)," [",  
+           round_keeping0(lower, decimals), "; ", 
+           round_keeping0(upper, decimals), "]")
   }
 
 # r Functions to rescale RR 
@@ -169,7 +169,7 @@ check_bestcost <-
   result_vector_bestcost <- 
     result_list_bestcost[["total"]]%>%
     # Set order of rows
-    arrange(factor(rr_ci, levels = c("mean", "low", "high")))%>%
+    arrange(factor(rr_ci, levels = c("central", "lower", "upper")))%>%
     dplyr::select(impact_rounded) %>%
     unlist()
   
@@ -402,7 +402,7 @@ rr_data <-
   # Select only rrs that are relevant 
   dplyr::filter(!is.na(choice_pair)) %>%
   # Reshape RRs from wide to long (to enable editing RRs by row)
-  tidyr::pivot_longer(c(rr_mean, rr_lowci, rr_highci),
+  tidyr::pivot_longer(c(rr_central, rr_lower, rr_upper),
                       names_to = "ci",
                       names_prefix = "rr_", 
                       values_to = "rr") %>%
@@ -769,13 +769,13 @@ exp_data <-
   dplyr::select(-url, -hra, -estimation) %>%
   # Remove the columns for lower and upper bound of the concentration 
   # (not relevant but maybe later)
-  dplyr::select(-exp_lowci, -exp_highci) %>%
+  dplyr::select(-exp_lower, -exp_upper) %>%
   # Rename concentration column
   #dplyr::rename(exp = exp_mean) %>%
   # Add columns with the original values (before re-scaling)
   dplyr::mutate(
     pollutant_original = pollutant,
-    exp_original = exp_mean,
+    exp_original = exp_central,
     # Modify columns pollutant
     pollutant = 
       ifelse(pollutant %in% pm_no_target, 
@@ -806,10 +806,10 @@ cutoff_data <-
   cutoff_rawdata %>%
   # Take the relevant columns and rows 
   dplyr::filter(pollutant %in% c("PM2.5", "NO2")) %>%
-  dplyr::select(pollutant, cutoff_mean, cutoff_unit) %>%
+  dplyr::select(pollutant, cutoff_central, cutoff_unit) %>%
   # Rename cutoff_mean to cutoff 
   # TODO: to be changed if we used cutoff with CI
-  dplyr::rename(cutoff = cutoff_mean)
+  dplyr::rename(cutoff = cutoff_central)
   
 ```
 

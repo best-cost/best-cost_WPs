@@ -57,7 +57,7 @@ compare_yld_lifetable_rr(
 
 \item{cutoff}{\code{Numeric value} showing the cut-off exposure in ug/m3 (i.e. the exposure level below which no health effects occur).}
 
-\item{rr}{\code{Vector} of three numeric values referring to the mean as well as the lower bound and upper bound of the confidence interval.}
+\item{rr}{\code{Vector} of three numeric values referring to the central estimate as well as the lower and upper bound of the confidence interval.}
 
 \item{rr_increment}{\code{Numeric value} showing the increment of the concentration-response function in ug/m3 (usually 10 or 5).}
 
@@ -119,7 +119,7 @@ compare_yld_lifetable_rr(
 }
 \value{
 TBD. E.g. This function returns a \code{data.frame} with one row for each value of the
-concentration-response function (i.e. mean, lower and upper bound confidence interval.
+concentration-response function (i.e. central estimate, lower and upper bound confidence interval).
 Moreover, the data frame includes columns such as:
 \itemize{
  \item Attributable fraction

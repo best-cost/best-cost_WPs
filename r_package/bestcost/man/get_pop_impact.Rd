@@ -15,7 +15,7 @@ get_pop_impact(lifetab_withPop, year_of_analysis, paf)
 }
 \value{
 This function returns a \code{data.frame} with one row for each value of the
-concentration-response function (i.e. mean, lower and upper bound confidence interval.
+concentration-response function (i.e. central estimate, lower and upper bound confidence interval).
 Moreover, the data frame include columns such as:
 \itemize{
  \item Attributable fraction
