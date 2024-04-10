@@ -2,8 +2,7 @@
 % Please edit documentation in R/attribute_health_singlebhd_rr.R
 \name{attribute_health_singlebhd_rr}
 \alias{attribute_health_singlebhd_rr}
-\title{Attributable health cases based on relative risk
-Calculates the health impacts, mortality or morbidity, of an environmental stressor using a single value for baseline heath data, i.e. without life table. It provides as a result the mean as well as the lower and the higher bound of the impact based on the confidence interval of the concentration-response function.}
+\title{Attributable health cases based on relative risk}
 \usage{
 attribute_health_singlebhd_rr(
   exp,
@@ -48,7 +47,6 @@ Moreover, the data frame includes columns such as:
 }
 }
 \description{
-Attributable health cases based on relative risk
 Calculates the health impacts, mortality or morbidity, of an environmental stressor using a single value for baseline heath data, i.e. without life table. It provides as a result the mean as well as the lower and the higher bound of the impact based on the confidence interval of the concentration-response function.
 }
 \note{
