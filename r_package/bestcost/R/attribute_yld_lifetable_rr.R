@@ -93,6 +93,8 @@ attribute_yld_lifetable_rr <-
         year_of_analysis = year_of_analysis,
         paf = input_risk_paf[, c("rr_ci", "paf")])
 
+
+
     # Get YLD based on pop impact
     yld <-
         bestcost::get_yld(
