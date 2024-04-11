@@ -99,6 +99,8 @@ attribute_yld_lifetable_rr <-
           year_of_analysis = year_of_analysis,
           min_age = min_age,
           max_age = max_age,
+          first_age_pop = first_age_pop,
+          last_age_pop = last_age_pop,
           meta = input_risk_paf,
           disability_weight = disability_weight,
           duration = duration)

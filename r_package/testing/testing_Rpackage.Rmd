@@ -404,7 +404,7 @@ yld <- attribute_yld_lifetable_rr(
   prop_pop_exp = 1,
   # prop_pop_exp = c(0.2, 0.3, 0.5), # Fake data just for testing purposes
   cutoff = input_data_mortality$cutoff[2],
-  rr = unlist(input_data_mortality[2, c("rr_central", "rr_lower", "rr_upper")]),
+  rr = unlist(input_data_mortality[2, c("rr_mean", "rr_lowci", "rr_highci")]), # "rr_central", "rr_lower", "rr_upper"
   rr_increment = 10, 
   erf_shape = "log_linear",
   first_age_pop = 0,last_age_pop = 99,
@@ -417,14 +417,14 @@ yld <- attribute_yld_lifetable_rr(
   population_female = lifetable_withPopulation[["female"]]$population,
   year_of_analysis = 2019, 
   info = input_data_mortality$pollutant[2], 
-  min_age = 20,
-  # min_age = input_data_mortality$min_age[2],
+  # min_age = 20,
+  min_age = input_data_mortality$min_age[2],
   # min_age = NA,
   max_age = 99,
   # max_age = input_data_mortality$max_age[2],
   # max_age = NA,
   corrected_discount_rate = 0,
-  duration = 2,
+  # duration = 2,
   disability_weight = 1
   )
 
