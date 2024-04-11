@@ -217,35 +217,21 @@ compare_deaths_lifetable_rr <-
         dplyr::rename(paf=pif)
 
 
-      # The life table has to be provided as a data.frame (by sex)
-      # The first column has to be the age. Second, probability of death. Third, population.
-      # Rename column names to standard names
 
-      lifetable_withPop <- list(
-        male =
-          data.frame(
-            age = seq(from = first_age_pop_1,
-                      to = last_age_pop_1,
-                      by = interval_age_pop_1),
-            age_end = seq(from = first_age_pop_1+ interval_age_pop_1,
-                          to = last_age_pop_1,
-                          by = interval_age_pop_1 + interval_age_pop_1),
-            death_probability_natural = prob_natural_death_male_1,
-            death_probability_total = prob_total_death_male_1,
-            population = population_male_1),
+      # Compile list of life table data frame (by sex)
+      # Col 1: age; col 2: probability of death; col 3: population
 
-        female =
-          data.frame(
-            age = seq(from = first_age_pop_1,
-                      to = last_age_pop_1,
-                      by = interval_age_pop_1),
-            age_end = seq(from = first_age_pop_1 + interval_age_pop_1,
-                          to = last_age_pop_1,
-                          by = interval_age_pop_1 + interval_age_pop_1),
-            death_probability_natural = prob_natural_death_female_1,
-            death_probability_total = prob_total_death_female_1,
-            population = population_female_1))
-
+      lifetable_withPop <-
+        bestcost::compile_lifetable_pop(
+          first_age_pop =  first_age_pop_1,
+          last_age_pop = last_age_pop_1,
+          interval_age_pop =  interval_age_pop_1,
+          prob_natural_death_male = prob_natural_death_male_1,
+          prob_natural_death_female = prob_natural_death_female_1,
+          prob_total_death_male = prob_total_death_male_1,
+          prob_total_death_female = prob_total_death_female_1,
+          population_male = population_male_1,
+          population_female =  population_female_1)
 
 
       # Get population impact ####

@@ -55,9 +55,8 @@ attribute_deaths_lifetable_rr <-
 
     # Check input data ####
 
-    # Digest input data ####
 
-    # Compile input data and calculate paf putting all into a data frame
+
     input <-
       bestcost::compile_input(
         exp = exp,
@@ -81,36 +80,20 @@ attribute_deaths_lifetable_rr <-
       bestcost::get_risk_and_paf(input = input)
 
 
-    # The life table has to be provided as a data.frame (by sex)
-    # The first column has to be the age. Second, probability of death. Third, population.
-    # Rename column names to standard names
+    # Compile list of life table data frame (by sex)
+    # Col 1: age; col 2: probability of death; col 3: population
 
-    lifetable_withPop <- list(
-      male =
-        data.frame(
-          age = seq(from = first_age_pop,
-                    to = last_age_pop,
-                    by = interval_age_pop),
-          age_end = seq(from = first_age_pop + interval_age_pop,
-                        to = last_age_pop,
-                        by = interval_age_pop + interval_age_pop),
-          death_probability_natural = prob_natural_death_male,
-          death_probability_total = prob_total_death_male,
-          population = population_male),
-
-      female =
-        data.frame(
-          age = seq(from = first_age_pop,
-                    to = last_age_pop,
-                    by = interval_age_pop),
-          age_end = seq(from = first_age_pop + interval_age_pop,
-                        to = last_age_pop,
-                        by = interval_age_pop + interval_age_pop),
-          death_probability_natural = prob_natural_death_female,
-          death_probability_total = prob_total_death_female,
-          population = population_female))
-
-
+    lifetable_withPop <-
+      bestcost::compile_lifetable_pop(
+        first_age_pop =  first_age_pop,
+        last_age_pop = last_age_pop,
+        interval_age_pop =  interval_age_pop,
+        prob_natural_death_male = prob_natural_death_male,
+        prob_natural_death_female = prob_natural_death_female,
+        prob_total_death_male = prob_total_death_male,
+        prob_total_death_female = prob_total_death_female,
+        population_male = population_male,
+        population_female =  population_female)
 
     # Get population impact ####
     pop_impact <-
@@ -133,7 +116,8 @@ attribute_deaths_lifetable_rr <-
     # Compile output ####
     output <-
       list(total = deaths[["total"]],
-           detailed = deaths[["detailed"]])
+           detailed = list(by_age_year_sex = pop_impact[["pop_impact"]],
+                           by_sex = deaths[["detailed"]]))
 
     return(output)
 

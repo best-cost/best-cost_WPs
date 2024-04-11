@@ -95,9 +95,15 @@ get_yll <-
     # Convert list into data frame
     yll_by <-
       yll_by_list %>%
-      purrr::map(map, dplyr::bind_rows, .id = "discount") %>%
+      purrr::map(map, dplyr::bind_rows, .id = "discounted") %>%
       purrr::map(dplyr::bind_rows, .id = "rr_ci" ) %>%
-      dplyr::bind_rows(., .id = "sex")
+      dplyr::bind_rows(., .id = "sex")%>%
+      # Replace "discount" and "noDiscount" with TRUE and FALSE
+      dplyr::mutate(
+        discounted = ifelse(discounted %in% "discounted", TRUE,
+                            ifelse(discounted %in% "noDiscount", FALSE,
+                                   NA)),
+        corrected_discount_rate = corrected_discount_rate)
 
 
     ## Compile information needed for detailed YLL results ####
@@ -107,7 +113,7 @@ get_yll <-
       # Sum among sex adding total
       dplyr::bind_rows(
         group_by(.,
-                 discount, rr_ci) %>%
+                 discounted, rr_ci, corrected_discount_rate) %>%
           summarise(.,
                     across(.cols=c(impact), sum),
                     across(where(is.character), ~"total"),
@@ -125,14 +131,30 @@ get_yll <-
       dplyr::mutate(impact_rounded = round(impact, 0))%>%
 
       # Order columns
-      dplyr::select(discount, sex, rr_ci, everything())%>%
+      dplyr::select(discounted, sex, rr_ci, everything())%>%
       # Order rows
-      dplyr::arrange(discount, sex, rr_ci)
+      dplyr::arrange(discounted, sex, rr_ci)
 
     yll <-
-      yll_detailed %>%
-      dplyr::filter(sex %in% "total",
-                    discount %in% "discounted")
+      dplyr::filter(yll_detailed, sex %in% "total")
+
+    # If the user does not want any discount
+    # keep only the no-discount rows removing the ones with discount
+    # in both tables
+    if(corrected_discount_rate == 0){
+      yll <-
+        dplyr::filter(yll, discounted %in% FALSE)
+
+      yll_detailed <-
+        dplyr::filter(yll_detailed, discounted %in% FALSE)
+
+
+    } else {
+      # If a discount is desired then show the discounting in the main results
+      yll <-
+        yll %>%
+        dplyr::filter(discounted %in% TRUE)
+    }
 
 
     output <- list(total = yll, detailed = yll_detailed)
