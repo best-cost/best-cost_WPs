@@ -404,7 +404,7 @@ yld <- attribute_yld_lifetable_rr(
   prop_pop_exp = 1,
   # prop_pop_exp = c(0.2, 0.3, 0.5), # Fake data just for testing purposes
   cutoff = input_data_mortality$cutoff[2],
-  rr = unlist(input_data_mortality[2, c("rr_mean", "rr_lowci", "rr_highci")]), # "rr_central", "rr_lower", "rr_upper"
+  rr = unlist(input_data_mortality[2, c("rr_central", "rr_lower", "rr_upper")]), # "rr_central", "rr_lower", "rr_upper"
   rr_increment = 10, 
   erf_shape = "log_linear",
   first_age_pop = 0,last_age_pop = 99,
