@@ -4,12 +4,14 @@
 \alias{get_pop_impact}
 \title{Get population impact over time}
 \usage{
-get_pop_impact(lifetab_withPop, year_of_analysis, paf)
+get_pop_impact(lifetab_withPop, year_of_analysis, paf, outcome_metric)
 }
 \arguments{
 \item{year_of_analysis}{\code{Numeric value} of the year of analysis, which corresponds to the first year of the life table}
 
 \item{paf}{\code{Data frame} with three rows (mean, lower bound and upper bound)}
+
+\item{outcome_metric}{\code{String} to define the outcome metric. Choose between "death", "yll" and "yld"}
 
 \item{lifetable_withPop_male}{\code{Data frame} with three columns: the first one should refer to age, the second one to the probability of dying and the third one to the population (sex specific),}
 }

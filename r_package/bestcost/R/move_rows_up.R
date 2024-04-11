@@ -20,7 +20,8 @@ move_rows_up <-
     # Start of the loop
     year_loopStart <- year_of_analysis+1
     # End of the loop
-    year_loopEnd <- year_of_analysis + nrow(popOTime) - 1
+    year_loopEnd <-
+      year_of_analysis + length(grep(x = colnames(popOTime), pattern = "population_")) - 1
 
     years <- year_loopStart:year_loopEnd
 

@@ -100,7 +100,8 @@ attribute_deaths_lifetable_rr <-
       bestcost::get_pop_impact(
         lifetab_withPop = lifetable_withPop,
         year_of_analysis = year_of_analysis,
-        paf = input_risk_paf[, c("rr_ci", "paf")])
+        paf = input_risk_paf[, c("rr_ci", "paf")],
+        outcome_metric = "death")
 
 
     # Calculate deaths ####
