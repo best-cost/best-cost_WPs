@@ -93,26 +93,7 @@ attribute_yld_lifetable_rr <-
         year_of_analysis = year_of_analysis,
         paf = input_risk_paf[, c("rr_ci", "paf")])
 
-    # OLD CODE
-    # # Get YLL ####
-    # yld <-
-    #   bestcost::get_yll(
-    #     pop_impact = pop_impact,
-    #     year_of_analysis = year_of_analysis,
-    #     min_age = min_age,
-    #     max_age = max_age,
-    #     meta = input_risk_paf,
-    #     corrected_discount_rate = corrected_discount_rate)
-    #
-    # # Apply disability weight ####
-    # yld$total <- yld$total %>%
-    #   mutate(impact = impact * disability_weight,
-    #          impact_rounded = round(impact),
-    #          impact_metric = "Years lived with disability"
-    #   ) %>%
-    #   select(impact, impact_rounded, impact_metric, everything())
-
-    # NEW CODE
+    # Get YLD based on pop impact
     yld <-
         bestcost::get_yld(
           pop_impact = pop_impact,
@@ -127,9 +108,8 @@ attribute_yld_lifetable_rr <-
     output <-
       list(
         total = yld[["total"]],
-        detailed = list(yld_detaild = yld[["detailed"]],
-                        pop_impact = pop_impact)
-        )
+        detailed = list(by_age_year_sex = pop_impact[["pop_impact"]],
+                        by_sex = yld[["detailed"]]))
 
     return(output)
 
