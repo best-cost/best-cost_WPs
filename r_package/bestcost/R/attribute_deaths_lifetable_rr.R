@@ -116,7 +116,8 @@ attribute_deaths_lifetable_rr <-
     # Compile output ####
     output <-
       list(total = deaths[["total"]],
-           detailed = deaths[["detailed"]])
+           detailed = list(by_age_year_sex = pop_impact[["pop_impact"]],
+                           by_sex = deaths[["detailed"]]))
 
     return(output)
 

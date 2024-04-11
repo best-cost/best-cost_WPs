@@ -27,14 +27,12 @@
 get_pop_impact <-
   function(lifetab_withPop, year_of_analysis, paf){
 
-    rr_ci <- c("central", "lower", "upper") # variable used in code
-    sex <- c("female","male")
 
     # Get popOvertime
     popOverTime <- list()
 
     for(s in c("female", "male")){
-      for(v in rr_ci){
+      for(v in c("central", "lower", "upper")){
         popOverTime[[s]][[v]] <-
           bestcost::project_pop(
             lifetab_withPop = lifetab_withPop[[s]],
@@ -49,7 +47,7 @@ get_pop_impact <-
     pop_impact <- list()
 
     for(s in c("female", "male")){
-      for(v in rr_ci){
+      for(v in c("central", "lower", "upper")){
         pop_impact[[s]][[v]] <-
 
           bestcost::move_rows_up(popOTime = popOverTime[[s]][[v]],
