@@ -258,7 +258,9 @@ digest_airqplus_export <-
           # Replace space with _
           variable = gsub(" ", "_", variable ),
           #Replace - with _
-          variable = gsub("-", "_", variable))%>%
+          variable = gsub("-", "_", variable),
+          # Remove comma from value
+          value = gsub(",", "", value))%>%
         # Pivot wider to have specific format for each value
         dplyr::select(variable, value)%>%
         tidyr::pivot_wider(names_from = variable, 
@@ -379,7 +381,7 @@ airqplus_deaths_pop_singleYear <-
 ```{r Digest input data from AirQ+}
 airqplus_morb_export <-
   # Read csv file
-  readr::read_delim("../testing/airqplus_cases/Impact Assessment - Switzerland (PM2.5)_ALRI_2019.csv",
+  readr::read_delim("../testing/airqplus_cases/GeLuft_GeLuft_COPD.csv",
                     delim = ";",
                     col_types = cols())
 # Digest the data (make it ready for testing the package)
