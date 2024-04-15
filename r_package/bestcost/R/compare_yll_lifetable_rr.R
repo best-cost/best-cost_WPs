@@ -9,7 +9,7 @@
 #' @param prop_pop_exp_1 \code{Numeric value} or {vector} showing the proportion of population exposed in the scenario 1. The value is a fraction, i.e. values between 0 and 1) for a single exposure value or for multiple categories, i.e., a exposure distribution, respectively. If a exposure distribution is used, the dimension of this input variable should be the same as "exp". By default, 1 for single exposure value will be assigned to this input variable assuming a single exposure value, but users can change this value.
 #' @param prop_pop_exp_2 \code{Numeric value} or {vector} showing the proportion of population exposed in the scenario 2. The value is a fraction, i.e. values between 0 and 1) for a single exposure value or for multiple categories, i.e., a exposure distribution, respectively. If a exposure distribution is used, the dimension of this input variable should be the same as "exp". By default, 1 for single exposure value will be assigned to this input variable assuming a single exposure value, but users can change this value.
 #' @param cutoff \code{Numeric value} showing the cut-off exposure in ug/m3 (i.e. the exposure level below which no health effects occur).
-#' @param rr \code{Vector} of three numeric values referring to the mean as well as the lower bound and upper bound of the confidence interval.
+#' @param rr \code{Vector} of three numeric values referring to the central estimate as well as the lower and upper bound of the confidence interval.
 #' @param rr_increment \code{Numeric value} showing the increment of the concentration-response function in ug/m3 (usually 10 or 5).
 #' @param erf_shape \code{String} showing the shape of the exposure-response function to be assumed using the relative risk from the literature as support point. Options: "linear", log_linear", "linear_log", "log_log".
 #' @param erf_c \code{String} showing the user-defined function that puts the relative risk in relation with concentration. The function must have only one variable: c, which means concentration. E.g. "3+c+c^2". Default value = NULL.
@@ -40,7 +40,7 @@
 
 #' @return
 #' TBD. E.g. This function returns a \code{data.frame} with one row for each value of the
-#' concentration-response function (i.e. mean, lower and upper bound confidence interval.
+#' concentration-response function (i.e. central estimate, lower and upper bound confidence interval).
 #' Moreover, the data frame includes columns such as:
 #' \itemize{
 #'  \item Attributable fraction
@@ -221,34 +221,20 @@ compare_yll_lifetable_rr <-
         dplyr::rename(paf=pif)
 
 
-      # The life table has to be provided as a data.frame (by sex)
-      # The first column has to be the age. Second, probability of death. Third, population.
-      # Rename column names to standard names
+      # Compile list of life table data frame (by sex)
+      # Col 1: age; col 2: probability of death; col 3: population
 
-      lifetable_withPop <- list(
-        male =
-          data.frame(
-            age = seq(from = first_age_pop_1,
-                      to = last_age_pop_1,
-                      by = interval_age_pop_1),
-            age_end = seq(from = first_age_pop_1+ interval_age_pop_1,
-                          to = last_age_pop_1,
-                          by = interval_age_pop_1 + interval_age_pop_1),
-            death_probability_natural = prob_natural_death_male_1,
-            death_probability_total = prob_total_death_male_1,
-            population = population_male_1),
-
-        female =
-          data.frame(
-            age = seq(from = first_age_pop_1,
-                      to = last_age_pop_1,
-                      by = interval_age_pop_1),
-            age_end = seq(from = first_age_pop_1 + interval_age_pop_1,
-                          to = last_age_pop_1,
-                          by = interval_age_pop_1 + interval_age_pop_1),
-            death_probability_natural = prob_natural_death_female_1,
-            death_probability_total = prob_total_death_female_1,
-            population = population_female_1))
+      lifetable_withPop <-
+        bestcost::compile_lifetable_pop(
+          first_age_pop =  first_age_pop_1,
+          last_age_pop = last_age_pop_1,
+          interval_age_pop =  interval_age_pop_1,
+          prob_natural_death_male = prob_natural_death_male_1,
+          prob_natural_death_female = prob_natural_death_female_1,
+          prob_total_death_male = prob_total_death_male_1,
+          prob_total_death_female = prob_total_death_female_1,
+          population_male = population_male_1,
+          population_female =  population_female_1)
 
 
 
@@ -257,7 +243,8 @@ compare_yll_lifetable_rr <-
         bestcost::get_pop_impact(
           lifetab_withPop = lifetable_withPop,
           year_of_analysis = year_of_analysis_1,
-          paf = input_risk_pif[, c("ci", "paf")])
+          paf = input_risk_pif[, c("rr_ci", "paf")],
+          outcome_metric = "yll")
 
 
       # Calculate YLLs ####

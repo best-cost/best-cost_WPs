@@ -4,12 +4,14 @@
 \alias{project_pop}
 \title{Get population over time}
 \usage{
-project_pop(lifetab_withPop, year_of_analysis, paf)
+project_pop(lifetab_withPop, year_of_analysis, paf, outcome_metric)
 }
 \arguments{
 \item{year_of_analysis}{Numeric value of the year of analysis, which corresponds to the first year of the life table}
 
-\item{paf}{\code{Data frame} with three rows (mean, lower bound and upper bound)}
+\item{paf}{\code{Data frame} with three rows (central estimate as well as lower and upper bound)}
+
+\item{outcome_metric}{\code{String} to define the outcome metric. Choose between "death", "yll" and "yld"}
 
 \item{lifetable_withPop}{\code{Data frame} with three columns: the first one should refer to age, the second one to the probability of dying and the third one to the population (sex specific),}
 }

@@ -69,7 +69,7 @@ library(bestcost)
 
 
 
-```{r Alternative 1 to load bestcost: load zip from local source, eval=FALSE, include=FALSE}
+```{r Alternative 2 to load bestcost: load zip from local source, eval=FALSE, include=FALSE}
 detach("package:bestcost", unload = TRUE) # detach bestcost
 devtools::build(binary = TRUE, path = "../testing/input/") # Save current state of package as .zip file (e.g. to directly test changes in functions)
 install.packages("../testing/input/bestcost_0.0.0.1.zip", repos=NULL, type='source') # Install package from source
@@ -96,7 +96,7 @@ load("../testing/input/input_data_for_testing_Rpackage.RData")
 att_morb_bestcost <-
   bestcost::attribute_health_singlebhd_rr(
     exp = airqplus_morb$mean_concentration,
-    cutoff = airqplus_morb$cut_off_value,    # PM2.5=5, NO2=10, i.e. WHO AQG 2021 
+    cutoff = airqplus_morb$cut_off_value,   
     bhd = airqplus_morb$incidents_per_100_000_per_year/1E5*airqplus_morb$population_at_risk,
     rr = c(airqplus_morb$relative_risk, airqplus_morb$relative_risk_lower, airqplus_morb$relative_risk_upper),
     rr_increment = 10, 
@@ -116,49 +116,8 @@ check_bestcost(result_list_bestcost = att_morb_bestcost,
                result_vector_alternative = result_att_morb_airqplus)
 
 
-
-impact_morbidities_raw <- list()
-
-#for(i in 1:nrow(input_data_morbidities)){
-for(i in 12){ # runs loop only for health outcome "asthma incidence 20+"
-  impact_morbidities_raw[[input_data_morbidities$year[i]]][[input_data_morbidities$rr_id[[i]]]] <-
-  bestcost::attribute_health_singlebhd_rr(
-    #dw = 0.133, # for health state "Asthma, uncontrolled" (cf. bestcost::disability_weights)
-    exp = input_data_morbidities$exp[i],  # PM2.5=8.30=limit LRV CH, NO2=16.32=mean conc. in CH in 2019
-    cutoff = input_data_morbidities$cutoff[i],    # PM2.5=5, NO2=10, i.e. WHO AQG 2021 
-    bhd = input_data_morbidities$bhd_absolute[i],
-    rr = unlist(input_data_morbidities[i, 
-                            c("rr_mean", "rr_lowci", "rr_highci")]),
-    rr_increment = 10, 
-    erf_shape = "log_linear", 
-    info = data.frame(pollutant = input_data_morbidities$pollutant[i], 
-                      outcome = input_data_morbidities$outcome_metric[i]))
-  }
-
-
-
 ```
 
-```{r impact morbidity}
-impact_morbidities_raw <- list()
-
-test_1bhd_1exp <-
-  bestcost::attribute_health_singlebhd_rr(
-    #dw = 0.133, # for health state "Asthma, uncontrolled" (cf. bestcost::disability_weights)
-    exp = airqplus_input_morb$value[airqplus_input_morb$section_name %in% "evaluation_parameters" &
-                                      airqplus_input_morb$variable %in% concentration],  # PM2.5=8.30=limit LRV CH, NO2=16.32=mean conc. in CH in 2019
-    cutoff = input_data_morbidities$cutoff[i],    # PM2.5=5, NO2=10, i.e. WHO AQG 2021 
-    bhd = input_data_morbidities$bhd_absolute[i],
-    rr = unlist(input_data_morbidities[i, 
-                            c("rr_mean", "rr_lowci", "rr_highci")]),
-    rr_increment = 10, 
-    erf_shape = "log_linear", 
-    info = data.frame(pollutant = input_data_morbidities$pollutant[i], 
-                      outcome = input_data_morbidities$outcome_metric[i]))
-
-
-
-```
 
 
 ```{r morbidity using exposure distribution}
@@ -211,7 +170,7 @@ yld_test <- bestcost::attribute_yld_rr(
   prop_pop_exp = c(0.2, 0.2, 0.6),
   cutoff = input_data_morbidities$cutoff[12],    # PM2.5=5, NO2=10, i.e. WHO AQG 2021 
   bhd = input_data_morbidities$bhd_absolute[12],
-  rr = unlist(input_data_morbidities[12, c("rr_mean", "rr_lowci", "rr_highci")]), # RR for asthma incidence for adults
+  rr = unlist(input_data_morbidities[12, c("rr_central", "rr_lower", "rr_upper")]), # RR for asthma incidence for adults
   rr_increment = 10, 
   erf_shape = "log_linear", 
   info_pollutant = input_data_morbidities$pollutant[12], 
@@ -234,7 +193,7 @@ impact_yll_expDistribution_raw[[input_data_mortality$year[2]]][[input_data_morta
       prop_pop_exp = 1,
       # prop_pop_exp = c(0.2, 0.3, 0.5), # Fake data just for testing purposes
       cutoff = input_data_mortality$cutoff[2], # WHO AQG 2021 
-      rr = unlist(input_data_mortality[2, c("rr_mean", "rr_lowci", "rr_highci")]),
+      rr = unlist(input_data_mortality[2, c("rr_central", "rr_lower", "rr_upper")]),
       rr_increment = 10, 
       erf_shape = "log_linear",
       first_age_pop = 0,
@@ -270,7 +229,7 @@ for(i in 2){                           # Use this if you want to evaluate only o
       prop_pop_exp = c(0.2, 0.3, 0.5), # Fake data just for testing purposes
       cutoff = input_data_mortality$cutoff[i],   # PM2.5=5, NO2=10, i.e. WHO AQG 2021 
       rr = unlist(input_data_mortality[i,
-                                        c("rr_mean", "rr_lowci", "rr_highci")]),
+                                        c("rr_central", "rr_lower", "rr_upper")]),
       rr_increment = 10, 
       erf_shape = "log_linear",
       first_age_pop = 0,
@@ -306,7 +265,7 @@ for(i in 2){                           # Use this if you want to evaluate only o
       exp = c(8, 9, 10), # Fake data just for testing purposes
       prop_pop_exp = c(0.2, 0.3, 0.5), # Fake data just for testing purposes
       cutoff = input_data_mortality$cutoff[i], # WHO AQG 2021 
-      rr = unlist(input_data_mortality[i, c("rr_mean", "rr_lowci", "rr_highci")]),
+      rr = unlist(input_data_mortality[i, c("rr_central", "rr_lower", "rr_upper")]),
       rr_increment = 10, 
       erf_shape = "log_linear",
       first_age_pop = 0,
@@ -341,7 +300,7 @@ for(i in 2){                           # Use this if you want to evaluate only o
     exp = input_data_mortality$exp[i], # PM2.5=8.30=limit LRV CH, NO2=16.32=mean conc. in CH in 2019
     cutoff = input_data_mortality$cutoff[i],   # PM2.5=5, NO2=10, i.e. WHO AQG 2021 
     rr = unlist(input_data_mortality[i,
-                                      c("rr_mean", "rr_lowci", "rr_highci")]),
+                                      c("rr_central", "rr_lower", "rr_upper")]),
     rr_increment = 10, 
     erf_shape = "log_linear",
     first_age_pop = 0,
@@ -408,10 +367,10 @@ head(impact_mortality_raw[["2019"]][["PM2.5_premature deaths_all causes_adults_m
 #                     impact_rounded_ref, impact_rounded_whoaqg21, impact_rounded_diff), names_from = ci) %>%
 #   # Paste the CIs
 #   dplyr::mutate(
-#     rr_meanCI = paste_round_CI(rr_mean, rr_lowci, rr_highci, 3),
-#     impact_ref_meanCI = paste_round_CI(impact_ref_mean, impact_ref_lowci, impact_ref_highci, 3),
-#     impact_whoaqg21_meanCI = paste_round_CI(impact_whoaqg21_mean, impact_whoaqg21_lowci, impact_whoaqg21_highci, 0),
-#     impact_diff_meanCI = paste_round_CI(impact_diff_mean, impact_diff_lowci, impact_diff_highci, 0),
+#     rr_centralCI = paste_round_CI(rr_central, rr_lower, rr_upper, 3),
+#     impact_ref_centralCI = paste_round_CI(impact_ref_central, impact_ref_lower, impact_ref_upper, 3),
+#     impact_whoaqg21_centralCI = paste_round_CI(impact_whoaqg21_central, impact_whoaqg21_lower, impact_whoaqg21_upper, 0),
+#     impact_diff_centralCI = paste_round_CI(impact_diff_central, impact_diff_lower, impact_diff_upper, 0),
 #     # bhd as NA just to match with structure of morbidities
 #     bhd = NA) %>%
 # 
@@ -419,7 +378,7 @@ head(impact_mortality_raw[["2019"]][["PM2.5_premature deaths_all causes_adults_m
 #   # Left join to add further information on RR
 #   dplyr::left_join(., rr_data, 
 #                    by = c("info_pollutant" = "pollutant", "rr_id", "rr_increment",
-#                           paste0("rr_", c("mean", "lowci", "highci"))),
+#                           paste0("rr_", c("central", "lower", "upper"))),
 #                    relationship = "many-to-one")%>%
 #   # Change outcome_id to ensure match with codebook
 #   dplyr::mutate(
@@ -428,10 +387,10 @@ head(impact_mortality_raw[["2019"]][["PM2.5_premature deaths_all causes_adults_m
 #                         outcome_id)) %>%
 #   # Order columns 
 #   dplyr::select(info_pollutant, ref, outcome_id, rr_source, 
-#                 term, bhd, rr_meanCI, 
-#                 contains("impact_diff_meanCI"),
-#                 contains("impact_ref_meanCI"), 
-#                 impact_whoaqg21_meanCI,
+#                 term, bhd, rr_centralCI, 
+#                 contains("impact_diff_centralCI"),
+#                 contains("impact_ref_centralCI"), 
+#                 impact_whoaqg21_centralCI,
 #                 everything()) %>%
 #   # Order rows by label
 #   dplyr::arrange(desc(info_pollutant), ref, outcome_id, rr_source)
@@ -445,7 +404,7 @@ yld <- attribute_yld_lifetable_rr(
   prop_pop_exp = 1,
   # prop_pop_exp = c(0.2, 0.3, 0.5), # Fake data just for testing purposes
   cutoff = input_data_mortality$cutoff[2],
-  rr = unlist(input_data_mortality[2, c("rr_mean", "rr_lowci", "rr_highci")]),
+  rr = unlist(input_data_mortality[2, c("rr_central", "rr_lower", "rr_upper")]), # "rr_central", "rr_lower", "rr_upper"
   rr_increment = 10, 
   erf_shape = "log_linear",
   first_age_pop = 0,last_age_pop = 99,
@@ -458,14 +417,14 @@ yld <- attribute_yld_lifetable_rr(
   population_female = lifetable_withPopulation[["female"]]$population,
   year_of_analysis = 2019, 
   info = input_data_mortality$pollutant[2], 
-  min_age = 20,
-  # min_age = input_data_mortality$min_age[2],
+  # min_age = 20,
+  min_age = input_data_mortality$min_age[2],
   # min_age = NA,
   max_age = 99,
   # max_age = input_data_mortality$max_age[2],
   # max_age = NA,
   corrected_discount_rate = 0,
-  duration = 2,
+  # duration = 2,
   disability_weight = 1
   )
 

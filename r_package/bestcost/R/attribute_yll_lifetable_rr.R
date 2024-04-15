@@ -26,7 +26,7 @@
 #' @param info \code{String} or {data frame} showing additional information or id. The suffix "info" will be added to the column name. Default value = NULL.
 #' @return
 #' TBD. E.g. This function returns a \code{data.frame} with one row for each value of the
-#' concentration-response function (i.e. mean, lower and upper bound confidence interval.
+#' concentration-response function (i.e. central estimate, lower and upper bound confidence interval.
 #' Moreover, the data frame include columns such as:
 #' \itemize{
 #'  \item Attributable fraction
@@ -44,8 +44,8 @@
 attribute_yll_lifetable_rr <-
   function(exp, prop_pop_exp = 1,
            cutoff,
-           rr, rr_increment,
-           erf_shape, erf_c = NULL,
+           rr, rr_increment, erf_shape,
+           erf_c = NULL,
            first_age_pop, last_age_pop, interval_age_pop,
            prob_natural_death_male, prob_natural_death_female,
            prob_total_death_male, prob_total_death_female,
@@ -83,35 +83,20 @@ attribute_yll_lifetable_rr <-
       bestcost::get_risk_and_paf(input = input)
 
 
-    # The life table has to be provided as a data.frame (by sex)
-    # The first column has to be the age. Second, probability of death. Third, population.
-    # Rename column names to standard names
+    # Compile list of life table data frame (by sex)
+    # Col 1: age; col 2: probability of death; col 3: population
 
-    lifetable_withPop <- list(
-      male =
-        data.frame(
-          age = seq(from = first_age_pop,
-                    to = last_age_pop,
-                    by = interval_age_pop),
-          age_end = seq(from = first_age_pop + interval_age_pop,
-                        to = last_age_pop,
-                        by = interval_age_pop + interval_age_pop),
-          death_probability_natural = prob_natural_death_male,
-          death_probability_total = prob_total_death_male,
-          population = population_male),
-
-      female =
-        data.frame(
-          age = seq(from = first_age_pop,
-                    to = last_age_pop,
-                    by = interval_age_pop),
-          age_end = seq(from = first_age_pop + interval_age_pop,
-                        to = last_age_pop,
-                        by = interval_age_pop + interval_age_pop),
-          death_probability_natural = prob_natural_death_female,
-          death_probability_total = prob_total_death_female,
-          population = population_female))
-
+    lifetable_withPop <-
+      bestcost::compile_lifetable_pop(
+        first_age_pop =  first_age_pop,
+        last_age_pop = last_age_pop,
+        interval_age_pop =  interval_age_pop,
+        prob_natural_death_male = prob_natural_death_male,
+        prob_natural_death_female = prob_natural_death_female,
+        prob_total_death_male = prob_total_death_male,
+        prob_total_death_female = prob_total_death_female,
+        population_male = population_male,
+        population_female =  population_female)
 
 
     # Get population impact ####
@@ -119,7 +104,8 @@ attribute_yll_lifetable_rr <-
       bestcost::get_pop_impact(
         lifetab_withPop = lifetable_withPop,
         year_of_analysis = year_of_analysis,
-        paf = input_risk_paf[, c("ci", "paf")])
+        paf = input_risk_paf[, c("rr_ci", "paf")],
+        outcome_metric = "yll")
 
     # Calculate years of life lost (yll) ####
     yll <-
@@ -134,7 +120,8 @@ attribute_yll_lifetable_rr <-
     # Calculate output ####
     output <-
       list(total = yll[["total"]],
-           detailed = yll[["detailed"]])
+           detailed = list(by_age_year_sex = pop_impact[["pop_impact"]],
+                           by_sex = yll[["detailed"]]))
 
     return(output)
 

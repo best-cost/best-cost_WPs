@@ -1,4 +1,4 @@
-hra;estimation;pollutant;year;exp_mean;exp_lowci;exp_highci;exp_metric;exp_unit;source;url
+hra;estimation;pollutant;year;exp_central;exp_lower;exp_upper;exp_metric;exp_unit;source;url
 ;;PM2.5;2019;8.85;;;annual mean;ug/m3;METEOTEST (2022);
 ;;NO2;2019;16.32;;;annual mean;ug/m3;METEOTEST (2022);
 ;;PM2.5;whoaqg21;5;;;annual mean;ug/m3;WHO AQG (2021);

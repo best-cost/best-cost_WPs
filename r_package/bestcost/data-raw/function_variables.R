@@ -7,7 +7,7 @@ last_age_pop <- 99
 interval_age_pop <- 1
 year_of_analysis <- 2019
 corrected_discount_rate <- 0
-ci <- c("mean", "lowci", "highci")
+ci <- c("central", "lower", "upper")
 sex <- c("female","male")
 
 usethis::use_data(rr_increment,

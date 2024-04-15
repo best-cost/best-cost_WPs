@@ -5,7 +5,8 @@
 #' Get population over time
 #' @param lifetable_withPop \code{Data frame} with three columns: the first one should refer to age, the second one to the probability of dying and the third one to the population (sex specific),
 #' @param year_of_analysis Numeric value of the year of analysis, which corresponds to the first year of the life table
-#' @param paf \code{Data frame} with three rows (mean, lower bound and upper bound)
+#' @param paf \code{Data frame} with three rows (central estimate as well as lower and upper bound)
+#' @param outcome_metric \code{String} to define the outcome metric. Choose between "death", "yll" and "yld"
 #' @return
 #' This function returns a \code{data.frame} the population over time taking into account probability of dying
 #' @import dplyr
@@ -16,7 +17,7 @@
 #' @note Experimental function
 #' @export
 project_pop <-
-  function(lifetab_withPop, year_of_analysis, paf){
+  function(lifetab_withPop, year_of_analysis, paf, outcome_metric){
 
 
     # Add the first year of the life table to the column name of population
@@ -34,12 +35,15 @@ project_pop <-
         year_of_analysis = year_of_analysis,
         paf = paf)
 
+    if(outcome_metric %in% c("yll", "yld")){
+
     # Now calculate population over time (for the rest of years)
     # without considering air pollution
     popOverTime <-
       bestcost::project_pop_noExp(
         lifetable_withPop = popOverTime,
         year_of_analysis = year_of_analysis)
+    }
 
     output <- popOverTime
 

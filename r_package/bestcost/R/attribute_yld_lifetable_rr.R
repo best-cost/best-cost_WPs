@@ -34,7 +34,8 @@ attribute_yld_lifetable_rr <-
   function(exp, prop_pop_exp = 1,
            rr, rr_increment, erf_shape, cutoff,
            first_age_pop, last_age_pop, interval_age_pop,
-           prob_natural_death_male, prob_natural_death_female, prob_total_death_male, prob_total_death_female,
+           prob_natural_death_male, prob_natural_death_female,
+           prob_total_death_male, prob_total_death_female,
            population_male, population_female,
            year_of_analysis,
            corrected_discount_rate = 0,
@@ -72,30 +73,17 @@ attribute_yld_lifetable_rr <-
     # Compile list of life table data frame (by sex)
     # Col 1: age; col 2: probability of death; col 3: population
 
-    lifetable_withPop <- list(
-      male =
-        data.frame(
-          age = seq(from = first_age_pop,
-                    to = last_age_pop,
-                    by = interval_age_pop),
-          age_end = seq(from = first_age_pop + interval_age_pop,
-                        to = last_age_pop,
-                        by = interval_age_pop + interval_age_pop),
-          death_probability_natural = prob_natural_death_male,
-          death_probability_total = prob_total_death_male,
-          population = population_male),
-
-      female =
-        data.frame(
-          age = seq(from = first_age_pop,
-                    to = last_age_pop,
-                    by = interval_age_pop),
-          age_end = seq(from = first_age_pop + interval_age_pop,
-                        to = last_age_pop,
-                        by = interval_age_pop + interval_age_pop),
-          death_probability_natural = prob_natural_death_female,
-          death_probability_total = prob_total_death_female,
-          population = population_female))
+    lifetable_withPop <-
+      bestcost::compile_lifetable_pop(
+        first_age_pop =  first_age_pop,
+        last_age_pop = last_age_pop,
+        interval_age_pop =  interval_age_pop,
+        prob_natural_death_male = prob_natural_death_male,
+        prob_natural_death_female = prob_natural_death_female,
+        prob_total_death_male = prob_total_death_male,
+        prob_total_death_female = prob_total_death_female,
+        population_male = population_male,
+        population_female =  population_female)
 
     # Get attributable cases in YOA + 1 ####
 
@@ -103,34 +91,17 @@ attribute_yld_lifetable_rr <-
       bestcost::get_pop_impact(
         lifetab_withPop = lifetable_withPop,
         year_of_analysis = year_of_analysis,
-        paf = input_risk_paf[, c("ci", "paf")])
+        paf = input_risk_paf[, c("rr_ci", "paf")],
+        outcome_metric = "yld")
 
-    # OLD CODE
-    # # Get YLL ####
-    # yld <-
-    #   bestcost::get_yll(
-    #     pop_impact = pop_impact,
-    #     year_of_analysis = year_of_analysis,
-    #     min_age = min_age,
-    #     max_age = max_age,
-    #     meta = input_risk_paf,
-    #     corrected_discount_rate = corrected_discount_rate)
-    #
-    # # Apply disability weight ####
-    # yld$total <- yld$total %>%
-    #   mutate(impact = impact * disability_weight,
-    #          impact_rounded = round(impact),
-    #          impact_metric = "Years lived with disability"
-    #   ) %>%
-    #   select(impact, impact_rounded, impact_metric, everything())
-
-    # NEW CODE
     yld <-
         bestcost::get_yld(
           pop_impact = pop_impact,
           year_of_analysis = year_of_analysis,
           min_age = min_age,
           max_age = max_age,
+          first_age_pop = first_age_pop,
+          last_age_pop = last_age_pop,
           meta = input_risk_paf,
           disability_weight = disability_weight,
           duration = duration)
@@ -139,9 +110,8 @@ attribute_yld_lifetable_rr <-
     output <-
       list(
         total = yld[["total"]],
-        detailed = list(yld_detaild = yld[["detailed"]],
-                        pop_impact = pop_impact)
-        )
+        detailed = list(by_age_year_sex = pop_impact[["pop_impact"]],
+                        by_sex = yld[["detailed"]]))
 
     return(output)
 

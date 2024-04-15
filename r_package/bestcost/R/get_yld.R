@@ -7,6 +7,8 @@
 #' @param year_of_analysis \code{Numeric value} of the year of analysis, which corresponds to the first year of the life table,
 #' @param age_min \code{Numeric value}  with the minimal age to be considered for adults (by default 30, i.e. 30+),
 #' @param age_max \code{Numeric value}  with the maximal age to be considered for infants/children (by default 0, i.e. below 1 years old)
+#' @param first_age_pop \code{Numeric value} starting age of the youngest age group from population and life table data
+#' @param last_age_pop \code{Numeric value} ending age of the oldest age group from population and life table data
 #' @param meta \code{Data frame} with meta-information such as input data, additional information and intermediate results.
 #' @param corrected_discount_rate \code{Numeric value}  with the annual discount rate as proportion (i.e. 0.1 instead of 10\%). It can be calculated as (1+discount_rate_beforeCorrection/1+rate_of_increase)-1
 #' @param disbility_weight \code{Numeric value} showing the disability weight associated with the morbidity health outcome
@@ -27,12 +29,14 @@ get_yld <-
            year_of_analysis,
            min_age,
            max_age,
+           first_age_pop,
+           last_age_pop,
            meta,
            corrected_discount_rate = 0,
            disability_weight,
            duration = NULL){
 
-    if (is.null(duration)) duration <- 99
+    if (is.null(duration)) duration <- last_age_pop-first_age_pop
 
     lifeyears_byYear <- list()
     yld_by_list<-list()
@@ -40,8 +44,8 @@ get_yld <-
     discount_factor <- corrected_discount_rate + 1
 
     # Calculate YLD ####
-    for(s in sex){
-      for (v in ci){
+    for(s in c("female", "male")){
+      for (v in c("central", "lower", "upper")){
 
         ## Sum life years by year (result is data frame with 2 columns "year" & "impact" [which contains YLD]) ####
         lifeyears_byYear[[s]][[v]] <-
@@ -96,7 +100,7 @@ get_yld <-
     yld_by <-
       yld_by_list%>%
       purrr::map(map, dplyr::bind_rows, .id = "discount")%>%
-      purrr::map(dplyr::bind_rows, .id = "ci" )%>%
+      purrr::map(dplyr::bind_rows, .id = "rr_ci" )%>%
       dplyr::bind_rows(., .id = "sex")
 
     ## Compile information needed for detailed yld results ####
@@ -105,7 +109,7 @@ get_yld <-
       # Sum among sex adding total
       dplyr::bind_rows(
         group_by(.,
-                 discount, ci) %>%
+                 discount, rr_ci) %>%
           summarise(.,
                     across(.cols=c(impact), sum),
                     across(where(is.character), ~"total"),
@@ -117,15 +121,15 @@ get_yld <-
       # Add meta information (with left join)
       dplyr::left_join(.,
                        meta,
-                       by = "ci")%>%
+                       by = "rr_ci")%>%
 
       # Round the results
       dplyr::mutate(impact_rounded = round(impact, 0))%>%
 
       # Order columns
-      dplyr::select(discount, sex, ci, everything())%>%
+      dplyr::select(discount, sex, rr_ci, everything())%>%
       # Order rows
-      dplyr::arrange(discount, sex, ci)
+      dplyr::arrange(discount, sex, rr_ci)
 
     yld <-
       yld_detailed %>%
