@@ -288,8 +288,8 @@ digest_airqplus_export <-
 ```
 
 
-# Load raw input data
-```{r load raw data}
+# Read raw input
+```{r Read data}
 
 # Generic data
 percentage_pm2.5_in_pm10 <- 
@@ -378,18 +378,28 @@ airqplus_deaths_pop_singleYear <-
 ```
 
 
-```{r Digest input data from AirQ+}
-airqplus_morb_export <-
+```{r Read and digest input data from AirQ+}
+airqplus_copd_export <-
   # Read csv file
   readr::read_delim("../testing/input/airqplus_cases/GeLuft_GeLuft_COPD.csv",
                     delim = ";",
                     col_types = cols())
 # Digest the data (make it ready for testing the package)
-airqplus_morb <- 
+airqplus_copd <- 
   digest_airqplus_export(airqplus_export = airqplus_morb_export)
  
 
 
+
+```
+```{r Read asssessment for noise}
+
+# The assessment for noise was provided by NIPH
+airqplus_morb_export <-
+  # Read csv file
+  readr::read_delim("../testing/input/noise_niph/example_daly_noise_niph.xlsx",
+                    delim = ";",
+                    col_types = cols())
 
 ```
 

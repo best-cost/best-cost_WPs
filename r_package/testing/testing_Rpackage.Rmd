@@ -95,17 +95,17 @@ load("../testing/input/input_data_for_testing_Rpackage.RData")
 # Assess attributable cases using the AirQ+ export as input data
 att_morb_bestcost <-
   bestcost::attribute_health_singlebhd_rr(
-    exp = airqplus_morb$mean_concentration,
-    cutoff = airqplus_morb$cut_off_value,   
-    bhd = airqplus_morb$incidents_per_100_000_per_year/1E5*airqplus_morb$population_at_risk,
-    rr = c(airqplus_morb$relative_risk, airqplus_morb$relative_risk_lower, airqplus_morb$relative_risk_upper),
+    exp = airqplus_copd$mean_concentration,
+    cutoff = airqplus_copd$cut_off_value,   
+    bhd = airqplus_copd$incidents_per_100_000_per_year/1E5*airqplus_copd$population_at_risk,
+    rr = c(airqplus_copd$relative_risk, airqplus_copd$relative_risk_lower, airqplus_copd$relative_risk_upper),
     rr_increment = 10, 
     erf_shape = "log_linear", 
-    info = paste0(airqplus_morb$pollutant,"_", airqplus_morb$evaluation_name))
+    info = paste0(airqplus_copd$pollutant,"_", airqplus_copd$evaluation_name))
 
 # Store the central, lower and upper estimate of the AirQ+ assessment
 result_att_morb_airqplus <- 
-  airqplus_morb %>%
+  airqplus_copd %>%
   dplyr::select(estimated_number_of_attributable_cases_central,
                 estimated_number_of_attributable_cases_lower,
                 estimated_number_of_attributable_cases_upper)%>%
