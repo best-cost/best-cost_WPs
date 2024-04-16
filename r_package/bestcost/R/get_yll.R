@@ -96,7 +96,7 @@ get_yll <-
     yll_by <-
       yll_by_list %>%
       purrr::map(map, dplyr::bind_rows, .id = "discounted") %>%
-      purrr::map(dplyr::bind_rows, .id = "rr_ci" ) %>%
+      purrr::map(dplyr::bind_rows, .id = "erf_ci" ) %>%
       dplyr::bind_rows(., .id = "sex")%>%
       # Replace "discount" and "noDiscount" with TRUE and FALSE
       dplyr::mutate(
@@ -113,7 +113,7 @@ get_yll <-
       # Sum among sex adding total
       dplyr::bind_rows(
         group_by(.,
-                 discounted, rr_ci, corrected_discount_rate) %>%
+                 discounted, erf_ci, corrected_discount_rate) %>%
           summarise(.,
                     across(.cols=c(impact), sum),
                     across(where(is.character), ~"total"),
@@ -125,15 +125,15 @@ get_yll <-
       # Add meta information (with left join)
       dplyr::left_join(.,
                        meta,
-                       by = "rr_ci")%>%
+                       by = "erf_ci")%>%
 
       # Round the results
       dplyr::mutate(impact_rounded = round(impact, 0))%>%
 
       # Order columns
-      dplyr::select(discounted, sex, rr_ci, everything())%>%
+      dplyr::select(discounted, sex, erf_ci, everything())%>%
       # Order rows
-      dplyr::arrange(discounted, sex, rr_ci)
+      dplyr::arrange(discounted, sex, erf_ci)
 
     yll <-
       dplyr::filter(yll_detailed, sex %in% "total")

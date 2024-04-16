@@ -100,7 +100,7 @@ get_yld <-
     yld_by <-
       yld_by_list%>%
       purrr::map(map, dplyr::bind_rows, .id = "discount")%>%
-      purrr::map(dplyr::bind_rows, .id = "rr_ci" )%>%
+      purrr::map(dplyr::bind_rows, .id = "erf_ci" )%>%
       dplyr::bind_rows(., .id = "sex")
 
     ## Compile information needed for detailed yld results ####
@@ -109,7 +109,7 @@ get_yld <-
       # Sum among sex adding total
       dplyr::bind_rows(
         group_by(.,
-                 discount, rr_ci) %>%
+                 discount, erf_ci) %>%
           summarise(.,
                     across(.cols=c(impact), sum),
                     across(where(is.character), ~"total"),
@@ -121,15 +121,15 @@ get_yld <-
       # Add meta information (with left join)
       dplyr::left_join(.,
                        meta,
-                       by = "rr_ci")%>%
+                       by = "erf_ci")%>%
 
       # Round the results
       dplyr::mutate(impact_rounded = round(impact, 0))%>%
 
       # Order columns
-      dplyr::select(discount, sex, rr_ci, everything())%>%
+      dplyr::select(discount, sex, erf_ci, everything())%>%
       # Order rows
-      dplyr::arrange(discount, sex, rr_ci)
+      dplyr::arrange(discount, sex, erf_ci)
 
     yld <-
       yld_detailed %>%
