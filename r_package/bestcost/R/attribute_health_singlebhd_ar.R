@@ -37,12 +37,40 @@ attribute_health_singlebhd_ar <-
       data.frame(
         exp = exp,
         pop_exp = pop_exp,
-        erf_c = erf_c,
         approach_id = paste0("absolute risk"))
 
-    # Add additional (meta-)information
+    # To identify which function is central, lower and upper
+    # First check which risk is high for a exp=10  (random value, it could be another one)
+    erf_10 <- c(get_risk(exp = 10, erf_c = erf_c[1], erf_full = TRUE),
+                get_risk(exp = 10, erf_c = erf_c[2], erf_full = TRUE),
+                get_risk(exp = 10, erf_c = erf_c[3], erf_full = TRUE))
+
+    # # Input data in data frame ####
+    # Compile rr data to assign categories
+    ar_data <-
+      data.frame(
+        erf_c = erf_c,
+        # Assign central estimate as well as lower and upper bound of rr values
+        erf_ci = ifelse(erf_10 %in% min(erf_10), "lower",
+                        ifelse(erf_10 %in% max(erf_10), "upper",
+                               "central"))) %>%
+      # In case of same value in mean and low and/or high, assign value randomly
+      {if(sum(duplicated(erf_10))==1) dplyr::mutate(.,
+                                                    erf_ci = ifelse(duplicated(erf_10),
+                                                               "central",
+                                                               erf_10))
+        else .} %>%
+
+      {if(sum(duplicated(erf_10))==2) dplyr::mutate(.,
+                                                erf_ci = c("central", "lower", "upper"))
+        else .}
+
     input <-
-      bestcost::add_info(df=input, info=info)
+      input %>%
+      # Add ar with a cross join to produce all likely combinations
+      dplyr::cross_join(., ar_data)%>%
+      # Add additional (meta-)information
+      bestcost::add_info(df=., info=info)
 
     # Calculate absolute risk for each exposure category ####
     output_byExposureCategory <-
@@ -56,6 +84,7 @@ attribute_health_singlebhd_ar <-
       output_byExposureCategory %>%
       dplyr::mutate(exp = paste(exp, collapse = ", ")) %>%
       dplyr::group_by(exp,
+                      erf_ci,
                       erf_c,
                       approach_id,
                       across(starts_with("info"))) %>%

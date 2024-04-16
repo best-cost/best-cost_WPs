@@ -18,6 +18,7 @@ rm(list = ls())
 
 # to read data
 library(readr)
+library(readxl)
 
 # to manipulate data
 library(readxl)
@@ -169,7 +170,7 @@ check_bestcost <-
   result_vector_bestcost <- 
     result_list_bestcost[["total"]]%>%
     # Set order of rows
-    dplyr::arrange(factor(rr_ci, levels = c("central", "lower", "upper")))%>%
+    dplyr::arrange(factor(erf_ci, levels = c("central", "lower", "upper")))%>%
     dplyr::select(impact_rounded) %>%
     unlist()
   
@@ -386,20 +387,34 @@ airqplus_copd_export <-
                     col_types = cols())
 # Digest the data (make it ready for testing the package)
 airqplus_copd <- 
-  digest_airqplus_export(airqplus_export = airqplus_morb_export)
+  digest_airqplus_export(airqplus_export = airqplus_copd_export)
  
 
 
 
 ```
-```{r Read asssessment for noise}
+```{r Read NIPH asssessment for noise}
 
 # The assessment for noise was provided by NIPH
-airqplus_morb_export <-
+
+## High annoyance (HA)
+niph_noise_ha_excel <-
   # Read csv file
-  readr::read_delim("../testing/input/noise_niph/example_daly_noise_niph.xlsx",
-                    delim = ";",
-                    col_types = cols())
+  readxl::read_xlsx(path = "../testing/input/noise_niph/example_road_noise_niph.xlsx",
+                    sheet = "Absolute_risk_HA")
+
+## High sleep disturbance (HSD)
+niph_noise_hsd_excel <-
+  # Read csv file
+  readxl::read_xlsx(path = "../testing/input/noise_niph/example_road_noise_niph.xlsx",
+                    sheet = "Absolute_risk_HSD")
+
+## Ischemic Heart Disease (IHD)
+niph_noise_ihd_excel <-
+  # Read csv file
+  readxl::read_xlsx(path = "../testing/input/noise_niph/example_road_noise_niph.xlsx",
+                    sheet = "Relative_risk_IHD_WHO_2003a")
+
 
 ```
 
@@ -872,8 +887,11 @@ input_data_mortality <-
 # Keep only variables/functions that will be used in "testing_Rpackage.Rmd"
 rm(list=setdiff(ls(), 
                 c(# Data
-                  "airqplus_morb",
+                  "airqplus_copd",
                   "airqplus_deaths_pop_multipleYear",
+                  "niph_noise_ha_excel",
+                  "niph_noise_hsd_excel", 
+                  "niph_noise_ihd_excel",
                   "codebook",
                   "input_data_morbidities",
                   "input_data_mortality",
