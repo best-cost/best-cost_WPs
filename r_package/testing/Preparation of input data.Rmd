@@ -382,7 +382,7 @@ airqplus_deaths_pop_singleYear <-
 ```{r Read and digest input data from AirQ+}
 airqplus_copd_export <-
   # Read csv file
-  readr::read_delim("../testing/input/airqplus_cases/GeLuft_GeLuft_COPD.csv",
+  readr::read_delim("../testing/input/airqplus_cases/airqplus_COPD.csv",
                     delim = ";",
                     col_types = cols())
 # Digest the data (make it ready for testing the package)
