@@ -38,7 +38,7 @@ get_pop_impact <-
           bestcost::project_pop(
             lifetab_withPop = lifetab_withPop[[s]],
             year_of_analysis = year_of_analysis,
-            paf = paf$paf[paf$rr_ci %in% v],
+            paf = paf$paf[paf$erf_ci %in% v],
             outcome_metric = outcome_metric)
       }
     }

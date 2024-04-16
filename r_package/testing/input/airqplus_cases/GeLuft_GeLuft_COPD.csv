@@ -1,0 +1,64 @@
+sep=;
+ANALYSIS PROPERTIES
+
+Analysis Name:;GeLuft
+Type:;Impact Assessment - Long-term Effects (Ambient)
+Pollutant:;PM2.5
+Location:;Switzerland
+Total Population;8606096
+Year:;2023
+Area Size;41285
+Latitude:;
+Longitude:;
+Analyis Comment:;Source of measured air pollution data: Number of stations used: Location: Type of stations: Responsible agency/unit:
+
+
+POLLUTION CONCENTRATION
+
+Mean Concentration;8.85
+
+
+EVALUATION PARAMETERS
+
+Evaluation Name:;GeLuft_COPD
+Evaluation Type:;Impact Evaluation
+Health Endpoint:;
+Incidents (per 100 000 per year);357.27
+Population at risk;8606096
+Calculation Method:;log-linear
+Relative Risk:;1.369
+Relative Risk Lower:;1.124
+Relative Risk Upper:;1.664
+Beta:;0.031408054630631184
+Beta Lower:;0.011689375147149943
+Beta Upper:;0.050922434239901684
+Cut-off value;5
+Evaluation Comment:;
+
+
+EVALUATION RESULTS
+
+Result Table:;
+ ;Central;Lower;Upper
+Estimated Attributable Proportion;11.39%;4.4%;17.8%;
+Estimated number of Attributable Cases;3,502;1,353;5,474;
+Estimated number of Attributable Cases per 100 000 Population at Risk;41;16;64;
+
+
+
+DETAILED EVALUATION RESULTS
+
+Detailed Result Table:;
+Concentration Mean;number of Days;%Person*Days;RR;RR*p;(RR-1)*p;Number of attrib. cases * 100,000 population at risk;estimated number of cases attrib. to exposure
+8.85;365;100%;1.128536;1.1285357661764865;0.12853576617648654;40.69;3,501.96;
+
+Detailed Result TableLower:;
+Concentration Mean;number of Days;%Person*Days;RR;RR*p;(RR-1)*p;Number of attrib. cases * 100,000 population at risk;estimated number of cases attrib. to exposure
+8.85;365;100%;1.046032;1.0460321426866392;0.046032142686639244;15.72;1,353.07;
+
+Detailed Result TableUpper:;
+Concentration Mean;number of Days;%Person*Days;RR;RR*p;(RR-1)*p;Number of attrib. cases * 100,000 population at risk;estimated number of cases attrib. to exposure
+8.85;365;100%;1.216589;1.2165894021452017;0.21658940214520173;63.60;5,473.89;
+
+
+

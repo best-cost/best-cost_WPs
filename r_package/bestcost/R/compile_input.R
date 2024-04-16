@@ -63,11 +63,19 @@ compile_input <-
         cutoff = cutoff,
         rr = rr,
         # Assign central estimate as well as lower and upper bound of rr values
-        rr_ci = ifelse(rr %in% min(rr), "lower",
+        erf_ci = ifelse(rr %in% min(rr), "lower",
                        ifelse(rr %in% max(rr), "upper",
                               "central"))) %>%
-      # In case of same value in mean and low or high, assign value randomly
-      dplyr::mutate(rr_ci = ifelse(duplicated(rr), "central", rr_ci)) %>%
+      # In case of same value in mean and low and/or high, assign value randomly
+      {if(sum(duplicated(rr))==1) dplyr::mutate(.,
+                                                erf_ci = ifelse(duplicated(rr),
+                                                               "central",
+                                                               erf_ci))
+        else .} %>%
+
+      {if(sum(duplicated(rr))==2) dplyr::mutate(.,
+                                                erf_ci = c("central", "lower", "upper"))
+        else .}%>%
 
       # If variable is not NULL add it to the data frame. Otherwise, leave it out
       {if(!is.null(erf_c)) mutate(., erf_c = erf_c) else .} %>%
