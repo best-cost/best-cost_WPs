@@ -293,20 +293,20 @@ digest_airqplus_export <-
 
 # Generic data
 percentage_pm2.5_in_pm10 <- 
-  read.csv("../testing/input/generic_data.csv", sep = ";") %>% 
+  read.csv("../testing/input/data/generic_data.csv", sep = ";") %>% 
   dplyr::filter(parameter_name %in% "percentage_pm2.5_in_pm10") %>%
   dplyr::select(value) %>%
   dplyr::pull()
 
 # RR data (inserted manually in the csv table)
 rr_rawdata <- 
-  read.csv("../testing/input/rr.csv",
+  read.csv("../testing/input/data/rr.csv",
            sep = ";",
            na.strings=c("NA", ""))
 
 # Population data by age (To be used in the life table approach)
 population_byAge_rawdata <-
-  read.csv2("../testing/input/population/population_byAge_bySex_CH_2018_2019.csv") %>%
+  read.csv2("../testing/input/data/population/population_byAge_bySex_CH_2018_2019.csv") %>%
   # Rename columns
   dplyr::rename("age" = "Alter",
                 "male_end2018" = "Mann.2018",
@@ -319,7 +319,7 @@ population_byAge_rawdata <-
 
 # Baseline health data 
 bhd_rawdata <- 
-  read.csv("../testing/input/bhd.csv", sep = ";")
+  read.csv("../testing/input/data/bhd.csv", sep = ";")
 
 # Read raw life table data
 lifetable <- list()
@@ -329,7 +329,7 @@ for(s in sex){
   lifetable[[s]] <- 
     read.csv2(
       # The raw data are for the period 2013-2020 but we focused on 2015-2019 (five years period)
-      paste0("../testing/input/life_tables/life_table_2013_2020_",
+      paste0("../testing/input/data/life_tables/life_table_2013_2020_",
              s,
              ".csv"))
 }
@@ -338,50 +338,50 @@ for(s in sex){
 # Read raw non-natural mortality data for 2019 (average of the period 2009-2019)
 nonNatural_mortality_rawdata<- 
    list(
-     male = read.csv2("../testing/input/mortality/nonNatural_mortality_byAge_2009_2019_male.csv",
+     male = read.csv2("../testing/input/data/mortality/nonNatural_mortality_byAge_2009_2019_male.csv",
                       na.strings =".", 
                       check.names = FALSE),
-     female = read.csv2("../testing/input/mortality/nonNatural_mortality_byAge_2009_2019_female.csv",
+     female = read.csv2("../testing/input/data/mortality/nonNatural_mortality_byAge_2009_2019_female.csv",
                         na.strings =".", 
                       check.names = FALSE))
 
 # Read total mortality raw data for 2019 (average of the period 2009-2019)
 total_mortality_rawdata <- 
   list(
-    male = read.csv2("../testing/input/mortality/total_mortality_byAge_2009_2019_male.csv",
+    male = read.csv2("../testing/input/data/mortality/total_mortality_byAge_2009_2019_male.csv",
                      na.strings =".", 
                       check.names = FALSE),
-    female = read.csv2("../testing/input/mortality/total_mortality_byAge_2009_2019_female.csv",
+    female = read.csv2("../testing/input/data/mortality/total_mortality_byAge_2009_2019_female.csv",
                        na.strings =".", 
                       check.names = FALSE))
 
 # Concentration data
 # Scenario
 exp_rawdata <- 
-  read.csv("../testing/input/exp.csv",
+  read.csv("../testing/input/data/exp.csv",
            sep = ";",
            na.strings=c("NA", ""))
 
 # cutoff
 cutoff_rawdata <- 
   # Read data
-  read.csv("../testing/input/cutoff.csv",
+  read.csv("../testing/input/data/cutoff.csv",
            sep = ";",
            na.strings=c("NA", ""))
 
 # Data sets from the AirQ+ manual (for testing of function get_prob_dying())
 
 airqplus_deaths_pop_multipleYear <-
-  read.csv2("../testing/input/life_tables/airqplus_manual_age0to14_multipleYear.csv")
+  read.csv2("../testing/input/data/life_tables/airqplus_manual_age0to14_multipleYear.csv")
 airqplus_deaths_pop_singleYear <-
-  read.csv2("../testing/input/life_tables/airqplus_manual_age0to14_singleYear.csv")
+  read.csv2("../testing/input/data/life_tables/airqplus_manual_age0to14_singleYear.csv")
 ```
 
 
 ```{r Digest input data from AirQ+}
 airqplus_morb_export <-
   # Read csv file
-  readr::read_delim("../testing/airqplus_cases/GeLuft_GeLuft_COPD.csv",
+  readr::read_delim("../testing/input/airqplus_cases/GeLuft_GeLuft_COPD.csv",
                     delim = ";",
                     col_types = cols())
 # Digest the data (make it ready for testing the package)
@@ -876,6 +876,6 @@ rm(list=setdiff(ls(),
                   "round_keeping0",
                   "check_bestcost"
                   )))
-save.image(file = "../testing/input/input_data_for_testing_Rpackage.RData")
+save.image(file = "../testing/input/data/input_data_for_testing_Rpackage.RData")
 ```
 
