@@ -5,8 +5,8 @@
 #' Get years of life lost
 #' @param pop_impact \code{Data frame} with projected population impact over time
 #' @param year_of_analysis \code{Numeric value} of the year of analysis, which corresponds to the first year of the life table,
-#' @param age_min \code{Numeric value}  with the minimal age to be considered for adults (by default 30, i.e. 30+),
-#' @param age_max \code{Numeric value}  with the maximal age to be considered for infants/children (by default 0, i.e. below 1 years old)
+#' @param age_min \code{Numeric value} with the minimal age to be considered for adults (by default 30, i.e. 30+),
+#' @param age_max \code{Numeric value} with the maximal age to be considered for infants/children (by default 0, i.e. below 1 years old)
 #' @param meta \code{Data frame} with meta-information such as input data, additional information and intermediate results.
 #' @param corrected_discount_rate \code{Numeric value}  with the annual discount rate as proportion (i.e. 0.1 instead of 10\%). It can be calculated as (1+discount_rate_beforeCorrection/1+rate_of_increase)-1
 #' @return
@@ -42,8 +42,8 @@ get_yll <-
     discount_factor <- corrected_discount_rate + 1
 
     # Calculate YLL ####
-    for(s in c("female", "male")){
-      for (v in c("central", "lower", "upper")){
+    for(s in names(pop_impact[["pop_impact"]])){ # c(male, female)
+      for (v in unique(unlist(purrr::map(pop_impact[["pop_impact"]], names)))){ # c(central, lower, upper) or only central
 
         ## Sum life years by year (result is data frame with 2 columns "year" & "impact" [which contains YLL]) ####
         lifeyears_byYear[[s]][[v]] <-

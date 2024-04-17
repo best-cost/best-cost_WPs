@@ -32,8 +32,8 @@ get_pop_impact <-
     # Get popOvertime
     popOverTime <- list()
 
-    for(s in c("female", "male")){
-      for(v in c("central", "lower", "upper")){
+    for(s in names(lifetab_withPop)){
+      for(v in paf$erf_ci){
         popOverTime[[s]][[v]] <-
           bestcost::project_pop(
             lifetab_withPop = lifetab_withPop[[s]],
@@ -50,8 +50,8 @@ get_pop_impact <-
 
     pop_impact <- list()
 
-    for(s in c("female", "male")){
-      for(v in c("central", "lower", "upper")){
+    for(s in names(lifetab_withPop)){
+      for(v in paf$erf_ci){
         pop_impact[[s]][[v]] <-
 
           bestcost::move_rows_up(popOTime = popOverTime[[s]][[v]],
