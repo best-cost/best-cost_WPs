@@ -29,8 +29,8 @@ get_deaths <-
     # Add description of what happens in next code chunk ####
     deaths_by_list <- list()
 
-    for (s in c("female", "male")){
-      for (v in c("central", "lower", "upper")){
+    for(s in names(pop_impact[["pop_impact"]])){ # c(male, female)
+      for (v in unique(unlist(purrr::map(pop_impact[["pop_impact"]], names)))){ # c(central, lower, upper) or only central
         population_secondYear_lifetable <-
           paste0("population_", year_of_analysis+1)
 

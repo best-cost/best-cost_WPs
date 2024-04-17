@@ -80,8 +80,8 @@ compile_input <-
           # Check which risk of the vector is higher for an exp=10
           # (random value, it could be another one)
           erf_10 = c(bestcost::get_risk(exp = 10, erf_c = erf_c[1], erf_full = TRUE),
-                      bestcost::get_risk(exp = 10, erf_c = erf_c[2], erf_full = TRUE),
-                      bestcost::get_risk(exp = 10, erf_c = erf_c[3], erf_full = TRUE)),
+                     bestcost::get_risk(exp = 10, erf_c = erf_c[2], erf_full = TRUE),
+                     bestcost::get_risk(exp = 10, erf_c = erf_c[3], erf_full = TRUE)),
           rr = erf_10)
 
     }
@@ -91,9 +91,11 @@ compile_input <-
       erf_data %>%
       mutate(
         # Assign central estimate as well as lower and upper bound of rr values
-        erf_ci = ifelse(rr %in% min(rr), "lower",
-                       ifelse(rr %in% max(rr), "upper",
-                              "central"))) %>%
+        erf_ci = ifelse((rr>min(rr) & rr<max(rr)) |
+                          (min(rr)%in%max(rr)), "central",
+                        ifelse(rr %in% min(rr), "lower",
+                               ifelse(rr %in% max(rr), "upper",
+                               NA)))) %>%
 
       # In case of same value in mean and low and/or high, assign value randomly
       {if(sum(duplicated(.$rr))==1) dplyr::mutate(.,
