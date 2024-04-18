@@ -17,8 +17,8 @@ attribute_yld_lifetable_rr(
   prob_natural_death_female,
   prob_total_death_male,
   prob_total_death_female,
-  population_male,
-  population_female,
+  population_midyear_male,
+  population_midyear_female,
   year_of_analysis,
   corrected_discount_rate = 0,
   min_age = NULL,
@@ -54,9 +54,9 @@ attribute_yld_lifetable_rr(
 
 \item{prob_total_death_female}{\code{Numeric vector} containing the probability of dying due to all causes (including non-natural deaths due to violence or accidents) by age or age group for females.}
 
-\item{population_male}{\code{Numeric vector} containing the mid-year male population for the year of analysis.}
+\item{population_midyear_male}{\code{Numeric vector} containing the mid-year male population for the year of analysis.}
 
-\item{population_female}{\code{Vector} containing the mid-year female population for the year of analysis.}
+\item{population_midyear_female}{\code{Vector} containing the mid-year female population for the year of analysis.}
 
 \item{year_of_analysis}{\code{Numeric value} of the year of analysis, which corresponds to the first year of the life table.}
 

@@ -20,13 +20,13 @@
 This function returns a \code{data frame} showing the probability of dying by age interval.
 }
 \description{
-Calculates the probability of dying (natural, non-natural or all cause deaths) based on population and mortality data.
+Calculates the probability of dying (natural, non-natural or all cause deaths) based on population and mortality data for each single year.
 }
 \note{
 Experimental function
 }
 \examples{
-get_prob_dying(first_age_pop = 0, last_age_pop = 99, interval_age_pop = 1, population = rep(5000, 99), deaths = rep(100, 99))
+get_prob_dying_by_single_age(first_age_pop = 0, last_age_pop = 99, population_midyear = rep(5000, 99), deaths = rep(100, 99))
 
 }
 \author{
