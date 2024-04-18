@@ -3,7 +3,7 @@
 #' Get probability of dying
 #'
 #' Calculates the probability of dying (natural, non-natural or all cause deaths) based on population and mortality data.
-#' @name get_one_year_prob_dying
+#' @name get_prob_dying_by_single_age
 #'
 #' @param first_age_pop \code{Numeric value} of the first item of the age sequence from population and life table data.
 #' @param last_age_pop \code{Numeric value} of the last item of the age sequence from population and life table data.
