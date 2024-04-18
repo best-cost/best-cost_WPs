@@ -14,7 +14,6 @@ attribute_yll_lifetable_rr(
   erf_c = NULL,
   first_age_pop,
   last_age_pop,
-  interval_age_pop,
   prob_natural_death_male,
   prob_natural_death_female,
   prob_total_death_male,
@@ -46,8 +45,6 @@ attribute_yll_lifetable_rr(
 \item{first_age_pop}{\code{Numeric value} starting age of the youngest age group from population and life table data}
 
 \item{last_age_pop}{\code{Numeric value} ending age of the oldest age group from population and life table data}
-
-\item{interval_age_pop}{\code{Numeric value} of the interval (in years) of each age group from population and life table data}
 
 \item{prob_natural_death_male}{\code{Numeric vector} containing the probability of dying due to natural cause (excluding non-natural deaths due to violence or accidents) by age or age group for males.}
 

@@ -10,9 +10,8 @@
 #' @param rr_increment \code{Numeric value} showing the increment of the exposure-response function in ug/m3 (usually 10 or 5).
 #' @param erf_shape \code{String} showing the shape of the exposure-response function to be assumed using the relative risk from the literature as support point. Options: "linear", log_linear", "linear_log", "log_log".
 #' @param erf_c \code{String} showing the user-defined function that puts the relative risk in relation with concentration. The function must have only one variable: c, which means concentration. E.g. "3+c+c^2". Default value = NULL.
-#' @param first_age_pop \code{Numeric value} starting age of the youngest age group from population and life table data
-#' @param last_age_pop \code{Numeric value} ending age of the oldest age group from population and life table data
-#' @param interval_age_pop \code{Numeric value} of the interval (in years) of each age group from population and life table data
+#' @param first_age_pop \code{Numeric value} starting age of the youngest age group from population and life table data (age interval = 1 year)
+#' @param last_age_pop \code{Numeric value} ending age of the oldest age group from population and life table data (age interval = 1 year)
 #' @param prob_natural_death_male \code{Numeric vector} containing the probability of dying due to natural cause (excluding non-natural deaths due to violence or accidents) by age or age group for males.
 #' @param prob_natural_death_female \code{Numeric vector} containing the probability of dying due to natural cause (excluding non-natural deaths due to violence or accidents) by age or age group for females.
 #' @param prob_total_death_male \code{Numeric vector} containing the probability of dying due to all causes (including non-natural deaths due to violence or accidents) by age or age group for males.
@@ -45,7 +44,7 @@ attribute_deaths_lifetable_rr <-
            cutoff,
            rr, rr_increment, erf_shape,
            erf_c = NULL,
-           first_age_pop, last_age_pop, interval_age_pop,
+           first_age_pop, last_age_pop,
            prob_natural_death_male, prob_natural_death_female,
            prob_total_death_male, prob_total_death_female,
            population_male, population_female,
@@ -87,7 +86,6 @@ attribute_deaths_lifetable_rr <-
       bestcost::compile_lifetable_pop(
         first_age_pop =  first_age_pop,
         last_age_pop = last_age_pop,
-        interval_age_pop =  interval_age_pop,
         prob_natural_death_male = prob_natural_death_male,
         prob_natural_death_female = prob_natural_death_female,
         prob_total_death_male = prob_total_death_male,

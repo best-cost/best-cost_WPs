@@ -15,7 +15,6 @@
 #' @param erf_c \code{String} showing the user-defined function that puts the relative risk in relation with concentration. The function must have only one variable: c, which means concentration. E.g. "3+c+c^2". Default value = NULL.
 #' @param first_age_pop_1 \code{Numeric value} starting age of the youngest age group from population and life table data in the scenario 1.
 #' @param last_age_pop_1 \code{Numeric value} ending age of the oldest age group from population and life table data in the scenario 1.
-#' @param interval_age_pop_1 \code{Numeric value} of the interval (in years) of each age group from population and life table data in the scenario 1.
 #' @param prob_natural_death_male-1 \code{Numeric vector} containing the probability of dying due to natural cause (excluding non-natural deaths due to violence or accidents) by age or age group for males in the scenario 1.
 #' @param prob_natural_death_female_1 \code{Numeric vector} containing the probability of dying due to natural cause (excluding non-natural deaths due to violence or accidents) by age or age group for females in the scenario 1.
 #' @param prob_total_death_male_1 \code{Numeric vector} containing the probability of dying due to all causes (including non-natural deaths due to violence or accidents) by age or age group for males in the scenario 1.
@@ -25,7 +24,6 @@
 #' @param year_of_analysis_1 \code{Numeric value} of the year of analysis, which corresponds to the first year of the life table in the scenario 2.
 #' @param first_age_pop_2 \code{Numeric value} starting age of the youngest age group from population and life table data in the scenario 2.
 #' @param last_age_pop_2 \code{Numeric value} ending age of the oldest age group from population and life table data in the scenario 2.
-#' @param interval_age_pop_2 \code{Numeric value} of the interval (in years) of each age group from population and life table data in the scenario 2.
 #' @param prob_natural_death_male_2 \code{Numeric vector} containing the probability of dying due to natural cause (excluding non-natural deaths due to violence or accidents) by age or age group for males in the scenario 2.
 #' @param prob_natural_death_female_2 \code{Numeric vector} containing the probability of dying due to natural cause (excluding non-natural deaths due to violence or accidents) by age or age group for females in the scenario 2.
 #' @param prob_total_death_male_2 \code{Numeric vector} containing the probability of dying due to all causes (including non-natural deaths due to violence or accidents) by age or age group for males in the scenario 2.
@@ -64,12 +62,12 @@ compare_deaths_lifetable_rr <-
            rr_increment,
            erf_shape,
            erf_c = NULL,
-           first_age_pop_1, last_age_pop_1, interval_age_pop_1,
+           first_age_pop_1, last_age_pop_1,
            prob_natural_death_male_1, prob_natural_death_female_1,
            prob_total_death_male_1, prob_total_death_female_1,
            population_male_1, population_female_1,
            year_of_analysis_1,
-           first_age_pop_2, last_age_pop_2, interval_age_pop_2,
+           first_age_pop_2, last_age_pop_2,
            prob_natural_death_male_2, prob_natural_death_female_2,
            prob_total_death_male_2, prob_total_death_female_2,
            population_male_2, population_female_2,
@@ -91,7 +89,6 @@ compare_deaths_lifetable_rr <-
         erf_c = erf_c,
         first_age_pop = first_age_pop_1,
         last_age_pop = last_age_pop_1,
-        interval_age_pop = interval_age_pop_1,
         prob_natural_death_male = prob_natural_death_male_1,
         prob_natural_death_female = prob_natural_death_male_1,
         prob_total_death_male = prob_total_death_male_1,
@@ -113,7 +110,6 @@ compare_deaths_lifetable_rr <-
         erf_c = erf_c,
         first_age_pop = first_age_pop_2,
         last_age_pop = last_age_pop_2,
-        interval_age_pop = interval_age_pop_2,
         prob_natural_death_male = prob_natural_death_male_2,
         prob_natural_death_female = prob_natural_death_male_2,
         prob_total_death_male = prob_total_death_male_2,
@@ -150,7 +146,6 @@ compare_deaths_lifetable_rr <-
     if(comparison_method == "pif" &
        first_age_pop_1 == first_age_pop_2 &
        last_age_pop_1 == last_age_pop_2 &
-       interval_age_pop_1 == interval_age_pop_2 &
        all(prob_natural_death_male_1 == prob_natural_death_male_2) &
        all(prob_natural_death_female_1 == prob_natural_death_female_2) &
        all(prob_total_death_male_1 == prob_total_death_male_2) &
@@ -225,7 +220,6 @@ compare_deaths_lifetable_rr <-
         bestcost::compile_lifetable_pop(
           first_age_pop =  first_age_pop_1,
           last_age_pop = last_age_pop_1,
-          interval_age_pop =  interval_age_pop_1,
           prob_natural_death_male = prob_natural_death_male_1,
           prob_natural_death_female = prob_natural_death_female_1,
           prob_total_death_male = prob_total_death_male_1,
