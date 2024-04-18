@@ -22,9 +22,9 @@ get_yll(
 
 \item{corrected_discount_rate}{\code{Numeric value}  with the annual discount rate as proportion (i.e. 0.1 instead of 10\%). It can be calculated as (1+discount_rate_beforeCorrection/1+rate_of_increase)-1}
 
-\item{age_min}{\code{Numeric value}  with the minimal age to be considered for adults (by default 30, i.e. 30+),}
+\item{age_min}{\code{Numeric value} with the minimal age to be considered for adults (by default 30, i.e. 30+),}
 
-\item{age_max}{\code{Numeric value}  with the maximal age to be considered for infants/children (by default 0, i.e. below 1 years old)}
+\item{age_max}{\code{Numeric value} with the maximal age to be considered for infants/children (by default 0, i.e. below 1 years old)}
 }
 \value{
 This function returns a \code{data.frame} with one row for each value of the
