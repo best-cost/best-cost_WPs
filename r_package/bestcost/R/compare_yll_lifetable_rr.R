@@ -243,7 +243,7 @@ compare_yll_lifetable_rr <-
         bestcost::get_pop_impact(
           lifetab_withPop = lifetable_withPop,
           year_of_analysis = year_of_analysis_1,
-          paf = input_risk_pif[, c("erf_ci", "paf")],
+          pop_fraction = input_risk_pif[, c("erf_ci", "paf")],
           outcome_metric = "yll")
 
 
