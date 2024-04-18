@@ -2,7 +2,7 @@
 
 #' Get probability of dying
 #'
-#' Calculates the probability of dying (natural, non-natural or all cause deaths) based on population and mortality data.
+#' Calculates the probability of dying (natural, non-natural or all cause deaths) based on population and mortality data for each single year.
 #' @name get_prob_dying_by_single_age
 #'
 #' @param first_age_pop \code{Numeric value} of the first item of the age sequence from population and life table data.
@@ -16,7 +16,7 @@
 #' This function returns a \code{data frame} showing the probability of dying by age interval.
 #'
 #' @examples
-#' get_prob_dying(first_age_pop = 0, last_age_pop = 99, interval_age_pop = 1, population = rep(5000, 99), deaths = rep(100, 99))
+#' get_prob_dying_by_single_age(first_age_pop = 0, last_age_pop = 99, population_midyear = rep(5000, 99), deaths = rep(100, 99))
 #'
 #' @author Alberto Castro
 #' @note Experimental function
@@ -27,7 +27,7 @@ require(dplyr)
 
 
 # Define the function
-get_prob_dying <-
+get_prob_dying_by_single_age  <-
   function(first_age_pop, last_age_pop, interval_age_pop,
            population_midyear, deaths,
            fraction_of_year_lived = 0.5){
@@ -41,10 +41,11 @@ get_prob_dying <-
     #stopifnot(length(fraction_of_year_lived) == 1) # OR fraction_of ...
 
     # If input value for parameter "fraction_of_year_lived" is single value convert to vector
-    if (length(fraction_of_year_lived)==1){fraction_of_year_lived <-  rep(fraction_of_year_lived,
-                                                                         length(seq(from = first_age_pop,
-                                                                                    to = last_age_pop,
-                                                                                    by = interval_age_pop)))}
+    if (length(fraction_of_year_lived)==1){
+      fraction_of_year_lived <-  rep(fraction_of_year_lived,
+                                     length(seq(from = first_age_pop,
+                                                to = last_age_pop,
+                                                by = interval_age_pop)))}
 
     # Probability of dying using the user-defined age interval
     # The age interval can be 1 and then no further data preparation is needed

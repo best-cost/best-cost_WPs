@@ -10,8 +10,8 @@
 #' @param prob_natural_death_female \code{Numeric vector} containing the probability of dying due to natural cause (excluding non-natural deaths due to violence or accidents) by age or age group for females.
 #' @param prob_total_death_male \code{Numeric vector} containing the probability of dying due to all causes (including non-natural deaths due to violence or accidents) by age or age group for males.
 #' @param prob_total_death_female \code{Numeric vector} containing the probability of dying due to all causes (including non-natural deaths due to violence or accidents) by age or age group for females.
-#' @param population_male \code{Numeric vector} containing the mid-year male population for the year of analysis.
-#' @param population_female \code{Vector} containing the mid-year female population for the year of analysis.
+#' @param population_midyear_male \code{Numeric vector} containing the mid-year male population for the year of analysis.
+#' @param population_midyear_female \code{Vector} containing the mid-year female population for the year of analysis.
 #' @return
 #'
 #' TBD. E.g. This function returns a \code{data.frame} with one row for each value of the
@@ -37,7 +37,7 @@ compile_lifetable_pop <-
   function(first_age_pop, last_age_pop,
            prob_natural_death_male, prob_natural_death_female,
            prob_total_death_male, prob_total_death_female,
-           population_male, population_female){
+           population_midyear_male, population_midyear_female){
 
     # The life table has to be provided as a data.frame (by sex)
     # The first column has to be the age. Second, probability of death. Third, population.
@@ -54,7 +54,7 @@ compile_lifetable_pop <-
                         by = 1),
           death_probability_natural = prob_natural_death_male,
           death_probability_total = prob_total_death_male,
-          population = population_male),
+          population = population_midyear_male),
 
       female =
         data.frame(
@@ -66,7 +66,7 @@ compile_lifetable_pop <-
                         by = 1),
           death_probability_natural = prob_natural_death_female,
           death_probability_total = prob_total_death_female,
-          population = population_female))
+          population = population_midyear_female))
 
 
   }
