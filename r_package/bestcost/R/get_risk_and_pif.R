@@ -53,7 +53,7 @@ get_risk_and_pif <-
                                                prop_pop_exp_2 = prop_pop_exp_2))%>%
       # Join the input table with pif values
       dplyr::left_join(., input_and_risk,
-                       by = "rr")
+                       by = "erf_ci")
 
     # Data wrangling ####
     # Only if exposure distribution (multiple exposure categories)

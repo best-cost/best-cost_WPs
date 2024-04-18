@@ -18,7 +18,6 @@ compare_yld_lifetable_rr(
   erf_c = NULL,
   first_age_pop_1,
   last_age_pop_1,
-  interval_age_pop_1,
   prob_natural_death_male_1,
   prob_natural_death_female_1,
   prob_total_death_male_1,
@@ -28,7 +27,6 @@ compare_yld_lifetable_rr(
   year_of_analysis_1,
   first_age_pop_2,
   last_age_pop_2,
-  interval_age_pop_2,
   prob_natural_death_male_2,
   prob_natural_death_female_2,
   prob_total_death_male_2,
@@ -69,8 +67,6 @@ compare_yld_lifetable_rr(
 
 \item{last_age_pop_1}{\code{Numeric value} ending age of the oldest age group from population and life table data in the scenario 1.}
 
-\item{interval_age_pop_1}{\code{Numeric value} of the interval (in years) of each age group from population and life table data in the scenario 1.}
-
 \item{prob_natural_death_female_1}{\code{Numeric vector} containing the probability of dying due to natural cause (excluding non-natural deaths due to violence or accidents) by age or age group for females in the scenario 1.}
 
 \item{prob_total_death_male_1}{\code{Numeric vector} containing the probability of dying due to all causes (including non-natural deaths due to violence or accidents) by age or age group for males in the scenario 1.}
@@ -86,8 +82,6 @@ compare_yld_lifetable_rr(
 \item{first_age_pop_2}{\code{Numeric value} starting age of the youngest age group from population and life table data in the scenario 2.}
 
 \item{last_age_pop_2}{\code{Numeric value} ending age of the oldest age group from population and life table data in the scenario 2.}
-
-\item{interval_age_pop_2}{\code{Numeric value} of the interval (in years) of each age group from population and life table data in the scenario 2.}
 
 \item{prob_natural_death_male_2}{\code{Numeric vector} containing the probability of dying due to natural cause (excluding non-natural deaths due to violence or accidents) by age or age group for males in the scenario 2.}
 

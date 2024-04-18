@@ -9,7 +9,6 @@
 #' @param erf_shape \code{Character string} either "linear" or "loglinear".
 #' @param first_age_pop \code{Numeric value} starting age of the youngest age group from population and life table data
 #' @param last_age_pop \code{Numeric value} ending age of the oldest age group from population and life table data
-#' @param interval_age_pop \code{Numeric value} of the interval (in years) of each age group from population and life table data
 #' @param prob_natural_death_male \code{Numeric vector} containing the probability of dying due to natural cause (excluding non-natural deaths due to violence or accidents) by age or age group for males.
 #' @param prob_natural_death_female \code{Numeric vector} containing the probability of dying due to natural cause (excluding non-natural deaths due to violence or accidents) by age or age group for females.
 #' @param prob_total_death_male \code{Numeric vector} containing the probability of dying due to all causes (including non-natural deaths due to violence or accidents) by age or age group for males.
@@ -33,7 +32,7 @@
 attribute_yld_lifetable_rr <-
   function(exp, prop_pop_exp = 1,
            rr, rr_increment, erf_shape, cutoff,
-           first_age_pop, last_age_pop, interval_age_pop,
+           first_age_pop, last_age_pop,
            prob_natural_death_male, prob_natural_death_female,
            prob_total_death_male, prob_total_death_female,
            population_male, population_female,
@@ -77,7 +76,6 @@ attribute_yld_lifetable_rr <-
       bestcost::compile_lifetable_pop(
         first_age_pop =  first_age_pop,
         last_age_pop = last_age_pop,
-        interval_age_pop =  interval_age_pop,
         prob_natural_death_male = prob_natural_death_male,
         prob_natural_death_female = prob_natural_death_female,
         prob_total_death_male = prob_total_death_male,

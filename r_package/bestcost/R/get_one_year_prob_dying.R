@@ -27,7 +27,7 @@ require(dplyr)
 
 
 # Define the function
-get_one_year_prob_dying <-
+get_prob_dying <-
   function(first_age_pop, last_age_pop, interval_age_pop,
            population_midyear, deaths,
            fraction_of_year_lived = 0.5){
