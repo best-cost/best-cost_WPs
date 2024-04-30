@@ -33,6 +33,7 @@
 #' @author Alberto Castro
 #' @note Experimental function
 #' @export
+
 compile_input <-
   function(exp,
            prop_pop_exp = NULL,
@@ -49,6 +50,7 @@ compile_input <-
            method = NULL,
            disability_weight = NULL,
            duration = NULL){
+
     # Check input data ####
     stopifnot(exprs = {
       #length(exp) == length(prop_pop_exp)
@@ -81,7 +83,8 @@ compile_input <-
           # (random value, it could be another one)
           erf_10 = c(bestcost::get_risk(exp = 10, erf_c = erf_c[1], erf_full = TRUE),
                      bestcost::get_risk(exp = 10, erf_c = erf_c[2], erf_full = TRUE),
-                     bestcost::get_risk(exp = 10, erf_c = erf_c[3], erf_full = TRUE)),
+                     bestcost::get_risk(exp = 10, erf_c = erf_c[3], erf_full = TRUE))) %>%
+        dplyr::mutate(
           rr = erf_10)
 
     }
