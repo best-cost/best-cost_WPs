@@ -93,52 +93,54 @@ load("../testing/input/data/input_data_for_testing_Rpackage.RData")
 ```{r single exposure value}
 
 # Assess attributable cases using the AirQ+ export as input data
-att_pm_copd_bestcost <-
+bestcost_pm_copd <-
   bestcost::attribute_health_singlebhd_rr(
-    exp = airqplus_copd$mean_concentration,
-    cutoff = airqplus_copd$cut_off_value,   
-    bhd = airqplus_copd$incidents_per_100_000_per_year/1E5*airqplus_copd$population_at_risk,
-    rr = c(airqplus_copd$relative_risk, airqplus_copd$relative_risk_lower, airqplus_copd$relative_risk_upper),
+    exp = airqplus_pm_copd$mean_concentration,
+    cutoff = airqplus_pm_copd$cut_off_value,   
+    bhd = airqplus_pm_copd$incidents_per_100_000_per_year/1E5*airqplus_pm_copd$population_at_risk,
+    rr = c(airqplus_pm_copd$relative_risk, airqplus_pm_copd$relative_risk_lower, airqplus_pm_copd$relative_risk_upper),
     rr_increment = 10, 
     erf_shape = "log_linear", 
-    info = paste0(airqplus_copd$pollutant,"_", airqplus_copd$evaluation_name))
+    info = paste0(airqplus_pm_copd$pollutant,"_", airqplus_pm_copd$evaluation_name))
 
 # Store the central, lower and upper estimate of the AirQ+ assessment
-att_pm_copd_airqplus_result <- 
-  airqplus_copd %>%
+airqplus_pm_copd_result <- 
+  airqplus_pm_copd %>%
   dplyr::select(estimated_number_of_attributable_cases_central,
                 estimated_number_of_attributable_cases_lower,
                 estimated_number_of_attributable_cases_upper)%>%
   unlist()
 
 
-check_bestcost(result_list_bestcost = att_pm_copd_bestcost,
-               result_vector_alternative = att_pm_copd_airqplus_result)
+check_bestcost(result_list_bestcost = bestcost_pm_copd,
+               result_vector_alternative = airqplus_pm_copd_result)
 
 
 ```
+
+
 ```{r single exposure value and relative risk}
 
 # Assess attributable cases using the AirQ+ export as input data
 att_pm_copd_1rr_bestcost <-
   bestcost::attribute_health_singlebhd_rr(
-    exp = airqplus_copd$mean_concentration,
-    cutoff = airqplus_copd$cut_off_value,   
-    bhd = airqplus_copd$incidents_per_100_000_per_year/1E5*airqplus_copd$population_at_risk,
-    rr = airqplus_copd$relative_risk,
+    exp = airqplus_pm_copd$mean_concentration,
+    cutoff = airqplus_pm_copd$cut_off_value,   
+    bhd = airqplus_pm_copd$incidents_per_100_000_per_year/1E5*airqplus_pm_copd$population_at_risk,
+    rr = airqplus_pm_copd$relative_risk,
     rr_increment = 10, 
     erf_shape = "log_linear", 
-    info = paste0(airqplus_copd$pollutant,"_", airqplus_copd$evaluation_name))
+    info = paste0(airqplus_pm_copd$pollutant,"_", airqplus_pm_copd$evaluation_name))
 
 # Store the central, lower and upper estimate of the AirQ+ assessment
 att_pm_copd_1rr_airqplus_result <- 
-  airqplus_copd %>%
+  airqplus_pm_copd %>%
   dplyr::select(estimated_number_of_attributable_cases_central)%>%
   unlist()
 
 
-check_bestcost(result_list_bestcost = att_pm_copd_bestcost,
-               result_vector_alternative = att_pm_copd_airqplus_result)
+check_bestcost(result_list_bestcost = bestcost_pm_copd,
+               result_vector_alternative = airqplus_pm_copd_result)
 
 
 ```
@@ -164,7 +166,7 @@ niph_noise_ihd_result <-
   round()
 
 # Obtain attributable cases using the bestcost package and input data from niph
-att_noise_ihd_bestcost <- 
+bestcost_noise_ihd_expDist <- 
   bestcost::attribute_health_singlebhd_rr(
     exp = niph_noise_ihd_input$exposure_mean,
     prop_pop_exp = niph_noise_ihd_input$prop_exposed,
@@ -176,7 +178,7 @@ att_noise_ihd_bestcost <-
     info = data.frame(pollutant = "road_noise", outcome = "YLD"))
 
 
-check_bestcost(result_list_bestcost = att_noise_ihd_bestcost,
+check_bestcost(result_list_bestcost = bestcost_noise_ihd_expDist,
                result_vector_alternative = niph_noise_ihd_result)
                                                
 
@@ -203,14 +205,14 @@ niph_noise_ha_result <-
   round()
 
 # Obtain attributable cases using the bestcost package and input data from niph
-att_noise_ha_bestcost <- 
+bestcost_noise_ha_ar <- 
   bestcost::attribute_health_singlebhd_ar(
     exp = niph_noise_ha_input$exposure_mean,
     pop_exp = niph_noise_ha_input$population_exposed_total, 
     erf_c = rep("78.9270-3.1162*c+0.0342*c^2", 3),
     info = data.frame(pollutant = "road_noise", outcome = "highly_annoyance"))
 
-check_bestcost(result_list_bestcost = att_noise_ha_bestcost,
+check_bestcost(result_list_bestcost = bestcost_noise_ha_ar,
                result_vector_alternative = niph_noise_ha_result)
 
 

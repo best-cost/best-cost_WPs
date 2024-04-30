@@ -386,7 +386,7 @@ airqplus_copd_export <-
                     delim = ";",
                     col_types = cols())
 # Digest the data (make it ready for testing the package)
-airqplus_copd <- 
+airqplus_pm_copd <- 
   digest_airqplus_export(airqplus_export = airqplus_copd_export)
  
 
@@ -887,7 +887,7 @@ input_data_mortality <-
 # Keep only variables/functions that will be used in "testing_Rpackage.Rmd"
 rm(list=setdiff(ls(), 
                 c(# Data
-                  "airqplus_copd",
+                  "airqplus_pm_copd",
                   "airqplus_deaths_pop_multipleYear",
                   "niph_noise_ha_excel",
                   "niph_noise_hsd_excel", 
