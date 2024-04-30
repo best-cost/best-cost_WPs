@@ -44,8 +44,8 @@ get_yld <-
     discount_factor <- corrected_discount_rate + 1
 
     # Calculate YLD ####
-    for(s in c("female", "male")){
-      for (v in c("central", "lower", "upper")){
+    for(s in names(pop_impact[["pop_impact"]])){ # c(male, female)
+      for (v in unique(unlist(purrr::map(pop_impact[["pop_impact"]], names)))){ # c(central, lower, upper) or only central
 
         ## Sum life years by year (result is data frame with 2 columns "year" & "impact" [which contains YLD]) ####
         lifeyears_byYear[[s]][[v]] <-

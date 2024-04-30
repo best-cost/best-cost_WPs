@@ -15,23 +15,21 @@
 #' @param erf_c \code{String} showing the user-defined function that puts the relative risk in relation with concentration. The function must have only one variable: c, which means concentration. E.g. "3+c+c^2". Default value = NULL.
 #' @param first_age_pop_1 \code{Numeric value} starting age of the youngest age group from population and life table data in the scenario 1.
 #' @param last_age_pop_1 \code{Numeric value} ending age of the oldest age group from population and life table data in the scenario 1.
-#' @param interval_age_pop_1 \code{Numeric value} of the interval (in years) of each age group from population and life table data in the scenario 1.
 #' @param prob_natural_death_male-1 \code{Numeric vector} containing the probability of dying due to natural cause (excluding non-natural deaths due to violence or accidents) by age or age group for males in the scenario 1.
 #' @param prob_natural_death_female_1 \code{Numeric vector} containing the probability of dying due to natural cause (excluding non-natural deaths due to violence or accidents) by age or age group for females in the scenario 1.
 #' @param prob_total_death_male_1 \code{Numeric vector} containing the probability of dying due to all causes (including non-natural deaths due to violence or accidents) by age or age group for males in the scenario 1.
 #' @param prob_total_death_female_1 \code{Numeric vector} containing the probability of dying due to all causes (including non-natural deaths due to violence or accidents) by age or age group for females in the scenario 1.
-#' @param population_male_1 \code{Numeric vector} containing the mid-year male population for the year of analysis of the scenario 1.
-#' @param population_female_1 \code{Vector} containing the mid-year female population for the year of analysis.
+#' @param population_midyear_male_1 \code{Numeric vector} containing the mid-year male population for the year of analysis of the scenario 1.
+#' @param population_midyear_female_1 \code{Vector} containing the mid-year female population for the year of analysis.
 #' @param year_of_analysis_1 \code{Numeric value} of the year of analysis, which corresponds to the first year of the life table in the scenario 2.
 #' @param first_age_pop_2 \code{Numeric value} starting age of the youngest age group from population and life table data in the scenario 2.
 #' @param last_age_pop_2 \code{Numeric value} ending age of the oldest age group from population and life table data in the scenario 2.
-#' @param interval_age_pop_2 \code{Numeric value} of the interval (in years) of each age group from population and life table data in the scenario 2.
 #' @param prob_natural_death_male_2 \code{Numeric vector} containing the probability of dying due to natural cause (excluding non-natural deaths due to violence or accidents) by age or age group for males in the scenario 2.
 #' @param prob_natural_death_female_2 \code{Numeric vector} containing the probability of dying due to natural cause (excluding non-natural deaths due to violence or accidents) by age or age group for females in the scenario 2.
 #' @param prob_total_death_male_2 \code{Numeric vector} containing the probability of dying due to all causes (including non-natural deaths due to violence or accidents) by age or age group for males in the scenario 2.
 #' @param prob_total_death_female_2 \code{Numeric vector} containing the probability of dying due to all causes (including non-natural deaths due to violence or accidents) by age or age group for females in the scenario 2.
-#' @param population_male_2 \code{Numeric vector} containing the mid-year male population for the year of analysis of the scenario 2.
-#' @param population_female_2 \code{Vector} containing the mid-year female population for the year of analysis.
+#' @param population_midyear_male_2 \code{Numeric vector} containing the mid-year male population for the year of analysis of the scenario 2.
+#' @param population_midyear_female_2 \code{Vector} containing the mid-year female population for the year of analysis.
 #' @param year_of_analysis_2 \code{Numeric value} of the year of analysis, which corresponds to the first year of the life table.
 #' @param min_age \code{Numberic value} of the minimal age to be considered for adults (by default 30, i.e. 30+).
 #' @param max_age \code{Numberic value} of the maximal age to be considered for infants/children (by default 0, i.e. below 1 year old).
@@ -66,15 +64,15 @@ compare_yld_lifetable_rr <-
            rr_increment,
            erf_shape,
            erf_c = NULL,
-           first_age_pop_1, last_age_pop_1, interval_age_pop_1,
+           first_age_pop_1, last_age_pop_1,
            prob_natural_death_male_1, prob_natural_death_female_1,
            prob_total_death_male_1, prob_total_death_female_1,
-           population_male_1, population_female_1,
+           population_midyear_male_1, population_midyear_female_1,
            year_of_analysis_1,
-           first_age_pop_2, last_age_pop_2, interval_age_pop_2,
+           first_age_pop_2, last_age_pop_2,
            prob_natural_death_male_2, prob_natural_death_female_2,
            prob_total_death_male_2, prob_total_death_female_2,
-           population_male_2, population_female_2,
+           population_midyear_male_2, population_midyear_female_2,
            year_of_analysis_2,
            min_age = NULL, max_age = NULL,
            disability_weight, duration,
@@ -94,13 +92,12 @@ compare_yld_lifetable_rr <-
         erf_c = erf_c,
         first_age_pop = first_age_pop_1,
         last_age_pop = last_age_pop_1,
-        interval_age_pop = interval_age_pop_1,
         prob_natural_death_male = prob_natural_death_male_1,
         prob_natural_death_female = prob_natural_death_male_1,
         prob_total_death_male = prob_total_death_male_1,
         prob_total_death_female = prob_total_death_female_1,
-        population_male = population_male_1,
-        population_female = population_female_1,
+        population_midyear_male = population_midyear_male_1,
+        population_midyear_female = population_midyear_female_1,
         year_of_analysis = year_of_analysis_1,
         min_age = min_age,
         max_age = max_age,
@@ -120,13 +117,12 @@ compare_yld_lifetable_rr <-
         erf_c = erf_c,
         first_age_pop = first_age_pop_2,
         last_age_pop = last_age_pop_2,
-        interval_age_pop = interval_age_pop_2,
         prob_natural_death_male = prob_natural_death_male_2,
         prob_natural_death_female = prob_natural_death_male_2,
         prob_total_death_male = prob_total_death_male_2,
         prob_total_death_female = prob_total_death_female_2,
-        population_male = population_male_2,
-        population_female = population_female_2,
+        population_midyear_male = population_midyear_male_2,
+        population_midyear_female = population_midyear_female_2,
         year_of_analysis = year_of_analysis_2,
         min_age = min_age,
         max_age = max_age,
@@ -161,13 +157,12 @@ compare_yld_lifetable_rr <-
     if(comparison_method == "pif" &
        first_age_pop_1 == first_age_pop_2 &
        last_age_pop_1 == last_age_pop_2 &
-       interval_age_pop_1 == interval_age_pop_2 &
        all(prob_natural_death_male_1 == prob_natural_death_male_2) &
        all(prob_natural_death_female_1 == prob_natural_death_female_2) &
        all(prob_total_death_male_1 == prob_total_death_male_2) &
        all(prob_total_death_female_1 == prob_total_death_female_2) &
-       all(population_male_1 == population_male_2) &
-       all(population_female_1 == population_female_2) &
+       all(population_midyear_male_1 == population_midyear_male_2) &
+       all(population_midyear_female_1 == population_midyear_female_2) &
        year_of_analysis_1 == year_of_analysis_2){
 
       # Compile input data of scenario 1
@@ -235,13 +230,12 @@ compare_yld_lifetable_rr <-
         bestcost::compile_lifetable_pop(
           first_age_pop =  first_age_pop_1,
           last_age_pop = last_age_pop_1,
-          interval_age_pop =  interval_age_pop_1,
           prob_natural_death_male = prob_natural_death_male_1,
           prob_natural_death_female = prob_natural_death_female_1,
           prob_total_death_male = prob_total_death_male_1,
           prob_total_death_female = prob_total_death_female_1,
-          population_male = population_male_1,
-          population_female =  population_female_1)
+          population_midyear_male = population_midyear_male_1,
+          population_midyear_female =  population_midyear_female_1)
 
 
       # Get population impact ####
@@ -249,7 +243,7 @@ compare_yld_lifetable_rr <-
         bestcost::get_pop_impact(
           lifetab_withPop = lifetable_withPop,
           year_of_analysis = year_of_analysis_1,
-          paf = input_risk_pif[, c("erf_ci", "paf")],
+          pop_fraction = input_risk_pif[, c("erf_ci", "paf")],
           outcome_metric = "yld")
 
 

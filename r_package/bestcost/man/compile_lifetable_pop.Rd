@@ -7,21 +7,18 @@
 compile_lifetable_pop(
   first_age_pop,
   last_age_pop,
-  interval_age_pop,
   prob_natural_death_male,
   prob_natural_death_female,
   prob_total_death_male,
   prob_total_death_female,
-  population_male,
-  population_female
+  population_midyear_male,
+  population_midyear_female
 )
 }
 \arguments{
 \item{first_age_pop}{\code{Numeric value} starting age of the youngest age group from population and life table data}
 
 \item{last_age_pop}{\code{Numeric value} ending age of the oldest age group from population and life table data}
-
-\item{interval_age_pop}{\code{Numeric value} of the interval (in years) of each age group from population and life table data}
 
 \item{prob_natural_death_male}{\code{Numeric vector} containing the probability of dying due to natural cause (excluding non-natural deaths due to violence or accidents) by age or age group for males.}
 
@@ -31,9 +28,9 @@ compile_lifetable_pop(
 
 \item{prob_total_death_female}{\code{Numeric vector} containing the probability of dying due to all causes (including non-natural deaths due to violence or accidents) by age or age group for females.}
 
-\item{population_male}{\code{Numeric vector} containing the mid-year male population for the year of analysis.}
+\item{population_midyear_male}{\code{Numeric vector} containing the mid-year male population for the year of analysis.}
 
-\item{population_female}{\code{Vector} containing the mid-year female population for the year of analysis.}
+\item{population_midyear_female}{\code{Vector} containing the mid-year female population for the year of analysis.}
 }
 \value{
 TBD. E.g. This function returns a \code{data.frame} with one row for each value of the

@@ -31,46 +31,30 @@ attribute_health_singlebhd_ar <-
     # Check input data ####
     # TBA: length(exp) == length(pop_exp)
 
-    # Input data in data frame
-    # Compile input data except meta-info
+    # Compile input data except erf data
     input <-
-      data.frame(
+      bestcost::compile_input(
         exp = exp,
         pop_exp = pop_exp,
-        approach_id = paste0("absolute risk"))
-
-    # To identify which function is central, lower and upper
-    # First check which risk is high for a exp=10  (random value, it could be another one)
-    erf_10 <- c(get_risk(exp = 10, erf_c = erf_c[1], erf_full = TRUE),
-                get_risk(exp = 10, erf_c = erf_c[2], erf_full = TRUE),
-                get_risk(exp = 10, erf_c = erf_c[3], erf_full = TRUE))
-
-    # # Input data in data frame ####
-    # Compile rr data to assign categories
-    ar_data <-
-      data.frame(
+        prop_pop_exp = NULL,
+        cutoff = NULL,
+        rr = NULL,
+        rr_increment = NULL,
+        erf_shape = NULL,
         erf_c = erf_c,
-        # Assign central estimate as well as lower and upper bound of rr values
-        erf_ci = ifelse(erf_10 %in% min(erf_10), "lower",
-                        ifelse(erf_10 %in% max(erf_10), "upper",
-                               "central"))) %>%
-      # In case of same value in mean and low and/or high, assign value randomly
-      {if(sum(duplicated(erf_10))==1) dplyr::mutate(.,
-                                                    erf_ci = ifelse(duplicated(erf_10),
-                                                               "central",
-                                                               erf_10))
-        else .} %>%
+        bhd = NULL,
+        min_age = NULL,
+        max_age = NULL,
+        info = info,
+        method = "absolute_risk",
+        disability_weight = NULL,
+        duration = NULL)%>%
+      # Remove erf_10 and rr
+      # They were added to identify what is central, lower and upper
+      # but not needed anymore
+      dplyr::select(-rr, -erf_10)
 
-      {if(sum(duplicated(erf_10))==2) dplyr::mutate(.,
-                                                erf_ci = c("central", "lower", "upper"))
-        else .}
 
-    input <-
-      input %>%
-      # Add ar with a cross join to produce all likely combinations
-      dplyr::cross_join(., ar_data)%>%
-      # Add additional (meta-)information
-      bestcost::add_info(df=., info=info)
 
     # Calculate absolute risk for each exposure category ####
     output_byExposureCategory <-
@@ -86,7 +70,7 @@ attribute_health_singlebhd_ar <-
       dplyr::group_by(exp,
                       erf_ci,
                       erf_c,
-                      approach_id,
+                      method,
                       across(starts_with("info"))) %>%
       dplyr::summarize(
         across(c(pop_exp, absolute_risk_as_percent, population_affected),

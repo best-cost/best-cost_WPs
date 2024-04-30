@@ -14,13 +14,12 @@ attribute_deaths_lifetable_rr(
   erf_c = NULL,
   first_age_pop,
   last_age_pop,
-  interval_age_pop,
   prob_natural_death_male,
   prob_natural_death_female,
   prob_total_death_male,
   prob_total_death_female,
-  population_male,
-  population_female,
+  population_midyear_male,
+  population_midyear_female,
   year_of_analysis,
   min_age = NULL,
   max_age = NULL,
@@ -42,11 +41,9 @@ attribute_deaths_lifetable_rr(
 
 \item{erf_c}{\code{String} showing the user-defined function that puts the relative risk in relation with concentration. The function must have only one variable: c, which means concentration. E.g. "3+c+c^2". Default value = NULL.}
 
-\item{first_age_pop}{\code{Numeric value} starting age of the youngest age group from population and life table data}
+\item{first_age_pop}{\code{Numeric value} starting age of the youngest age group from population and life table data (age interval = 1 year)}
 
-\item{last_age_pop}{\code{Numeric value} ending age of the oldest age group from population and life table data}
-
-\item{interval_age_pop}{\code{Numeric value} of the interval (in years) of each age group from population and life table data}
+\item{last_age_pop}{\code{Numeric value} ending age of the oldest age group from population and life table data (age interval = 1 year)}
 
 \item{prob_natural_death_male}{\code{Numeric vector} containing the probability of dying due to natural cause (excluding non-natural deaths due to violence or accidents) by age or age group for males.}
 
@@ -56,9 +53,9 @@ attribute_deaths_lifetable_rr(
 
 \item{prob_total_death_female}{\code{Numeric vector} containing the probability of dying due to all causes (including non-natural deaths due to violence or accidents) by age or age group for females.}
 
-\item{population_male}{\code{Numeric vector} containing the mid-year male population for the year of analysis.}
+\item{population_midyear_male}{\code{Numeric vector} containing the mid-year male population for the year of analysis.}
 
-\item{population_female}{\code{Vector} containing the mid-year female population for the year of analysis.}
+\item{population_midyear_female}{\code{Vector} containing the mid-year female population for the year of analysis.}
 
 \item{year_of_analysis}{\code{Numeric value} of the year of analysis, which corresponds to the first year of the life table.}
 

@@ -46,14 +46,14 @@ get_risk_and_pif <-
     input_risk_pif <-
       input_and_risk %>%
       # Group by exp in case that there are different exposure categories
-      dplyr::group_by(rr) %>%
+      dplyr::group_by(erf_ci) %>%
       dplyr::summarize(pif = bestcost::get_pif(rr_conc_1 = rr_conc_1,
                                                rr_conc_2 = rr_conc_2,
                                                prop_pop_exp_1 = prop_pop_exp_1,
                                                prop_pop_exp_2 = prop_pop_exp_2))%>%
       # Join the input table with pif values
       dplyr::left_join(., input_and_risk,
-                       by = "rr")
+                       by = "erf_ci")
 
     # Data wrangling ####
     # Only if exposure distribution (multiple exposure categories)
