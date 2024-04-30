@@ -373,9 +373,9 @@ cutoff_rawdata <-
 # Data sets from the AirQ+ manual (for testing of function get_prob_dying())
 
 airqplus_deaths_pop_multipleYear <-
-  read.csv2("../testing/input/data/life_tables/airqplus_manual_age0to14_multipleYear.csv")
+  read.csv2("../testing/input/airqplus_cases/airqplus_manual_multipleYear.csv")
 airqplus_deaths_pop_singleYear <-
-  read.csv2("../testing/input/data/life_tables/airqplus_manual_age0to14_singleYear.csv")
+  read.csv2("../testing/input/airqplus_cases/airqplus_manual_age0to40_singleYear.csv")
 ```
 
 
@@ -889,6 +889,7 @@ rm(list=setdiff(ls(),
                 c(# Data
                   "airqplus_pm_copd",
                   "airqplus_deaths_pop_multipleYear",
+                  "airqplus_deaths_pop_singleYear",
                   "niph_noise_ha_excel",
                   "niph_noise_hsd_excel", 
                   "niph_noise_ihd_excel",

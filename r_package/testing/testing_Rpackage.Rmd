@@ -222,17 +222,37 @@ check_bestcost(result_list_bestcost = bestcost_noise_ha_ar,
 
 ### Life table
 
-```{r Test probability of dying}
-# Use function
-prob_dying_airqplus <- 
+```{r Probability of dying}
+
+# Remove years over 40 
+# because we are going to compare with results up to 39 years old
+airqplus_prob_dying_age0to39_multipleYear <- 
+  airqplus_deaths_pop_multipleYear%>%
+  dplyr::filter(To<40)
+
+# Results from the AirQ+ manual (to be compared with bestcost results)
+airqplus_prob_dying_age0to39_singleYear <-
+  airqplus_deaths_pop_singleYear%>%
+  dplyr::filter(To<40)
+
+# Use bestcost function
+bestcost_prob_dying <- 
   bestcost::get_prob_dying_by_single_age(
-    first_age_pop = 0,
-    last_age_pop = 14,
-    interval_age_pop = 5,
-    population_midyear = airqplus_deaths_pop_multipleYear$mi,
-    deaths = airqplus_deaths_pop_multipleYear$di,
+    first_age_pop = first(airqplus_prob_dying_age0to39_multipleYear$From),
+    last_age_pop = last(airqplus_prob_dying_age0to39_multipleYear$To),
+    interval_age_pop = first(airqplus_prob_dying_age0to39_multipleYear$To) - first(airqplus_prob_dying_age0to39_multipleYear$From)+1,
+    population_midyear = airqplus_prob_dying_age0to39_multipleYear$mi,
+    deaths = airqplus_prob_dying_age0to39_multipleYear$di,
     fraction_of_year_lived = 0.5
   )
+
+
+ # Compare and show message with colors
+  if(all((bestcost_prob_dying$prob_dying - 
+          as.numeric(airqplus_prob_dying_age0to39_singleYear$qx)) < 0.002)){
+    cat(paste(crayon::cyan("Right. Bestcost and alternative source with similar results.")))
+  } else{
+    cat(paste(crayon::red("Attention! Check! Bestcost and alternative source with very different results.")))}
 ```
 
 
