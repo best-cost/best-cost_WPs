@@ -162,35 +162,9 @@ get_lifetable_withPopulation <-
 
 
 
-# Check if the results of the bestcost package are the same as in an alternative source (tool, assessment, etc.)
-check_bestcost <-
-  function(result_list_bestcost, result_vector_alternative){
-    # Store the central estimate of the bestcost assessment
-    
-  result_vector_bestcost <- 
-    result_list_bestcost[["total"]]%>%
-    # Set order of rows
-    dplyr::arrange(factor(erf_ci, levels = c("central", "lower", "upper")))%>%
-    dplyr::select(impact_rounded) %>%
-    unlist()
-  
-  
-  # Check difference between bestcost and alternative source
-  # First the show the difference between bestcost results and alternative source
-  cat(paste("Difference (central, lower, upper): ",
-            paste(result_vector_bestcost - result_vector_alternative, collapse = "; "),
-            "\n"))
-  # Second show message with colors
-  if(all((result_vector_bestcost - result_vector_alternative ) %in% 0)){
-    cat(paste(crayon::cyan("Right. Bestcost and alternative source with identical results.")))
-  } else{
-    cat(paste(crayon::red("Attention! Check! Bestcost and alternative source with different results.")))}
-  
-  }
 
 
-
-digest_airqplus_export <- 
+digest_airqplus_export_singlebhd <- 
   function(airqplus_export){
     
     airqplus_export <- 
@@ -254,6 +228,8 @@ digest_airqplus_export <-
         dplyr::mutate(
           # Remove : or parenthesis
           variable = gsub(":|\\(|\\)", "", variable),
+          # Remove line breaks
+          variable = gsub("\r", "", variable),
           # no capital letters
           variable = tolower(variable),
           # Replace space with _
@@ -281,6 +257,215 @@ digest_airqplus_export <-
   }
 
   
+
+
+digest_airqplus_export_lifetable <- 
+  function(airqplus_export){
+    
+    airqplus_export_edited <- 
+      airqplus_export %>%
+      # Rename variables
+      setNames(c("variable", "value")) %>%
+      # Remove ";" at the end of the string 
+      # Important to be done before
+      dplyr::mutate(
+        value = gsub("\\;$" ,"", value)) %>%
+      # Add columns for dimension and dimension_below
+      dplyr::mutate(
+        # Identify dimension
+        dimension = stringr::str_count(value, "\\;")+1,
+        # Take the dimension from the row below (this is to be identify sub-sections)
+        dimension_below = dplyr::lead(dimension, n=1)) %>%
+      # Identify breaks 
+      dplyr::rowwise() %>%
+      dplyr::mutate(
+        # To identify the sections in the table (all capital letters)
+        section_break = !stringr::str_detect(variable, "[[:lower:]]") &
+          stringr::str_detect(variable, "[[:alpha:]]"),
+        subsection_break = is.na(value) & dimension_below > 1) %>%
+      # Stop rowwise
+      dplyr::ungroup()%>%
+      
+      # Edit columns to standardize the strings
+      dplyr::mutate(
+        # Remove : or parenthesis
+        variable = gsub(":|\\(|\\)", "", variable),
+        # Remove line breaks
+        variable = gsub("\\\r", "", variable),
+        # no capital letters
+        variable = tolower(variable),
+        # Replace space with _
+        variable = gsub(" ", "_", variable ),
+        # Replace - with _
+        variable = gsub("-", "_", variable),
+        # Remove comma from value
+        value = gsub(",", "", value))%>%
+      # Give names to sections and subsections
+      dplyr::mutate(
+        # To identify the sections in the table (all capital letters)
+        section_name = ifelse(section_break, 
+                              variable, 
+                              NA),
+        subsection_name = ifelse(subsection_break, 
+                                 variable,
+                                 NA)) %>%
+      # Fill the NAs in (sub)section_name with the first non-NA above
+      tidyr::fill(c("section_name", "subsection_name")) %>%
+      # If subsection is NA assign section name
+      dplyr::mutate(subsection_name = ifelse(is.na(subsection_name), 
+                                             section_name, 
+                                             subsection_name))%>%
+      # Remove the rows with the (sub)section name (not needed anymore since they are in a column now)
+      dplyr::filter(!section_break) %>%
+      dplyr::filter(!subsection_break) %>%
+      # Remove column (sub)section_break (not needed anymore because section_name is defined)
+      dplyr::select(-section_break, -subsection_break, 
+                    -dimension_below)
+    
+    # Create nested list by section and subsecton name
+    airqplus_list <-
+      split(airqplus_export_edited, airqplus_export_edited$section_name) %>%
+      purrr::map(., function(x) split(x, x$subsection_name)) %>%
+      purrr::map(., ~ purrr::map(., function(x) 
+        tidyr::separate_wider_delim(
+          x,
+          cols = value,
+          delim = ";",
+          names = paste0("value_", 1:max(x$dimension, na.rm = TRUE)))))
+     
+    
+    
+    # Define the data frames that will be used as outcome of this function
+    # INPUT (EXCEPT POP)
+    airqplus_input <-
+      airqplus_export_edited %>%
+          dplyr::filter(subsection_name %in% c("evaluation_parameters", "pollution_concentration")) %>%
+      # Remove columns that are not needed anymore
+      dplyr::select(-dimension, -section_name, -subsection_name)%>%
+      # Pivot wider to have a 1-row data frame (easier to extract information)
+      tidyr::pivot_wider(values_from = "value",             
+                         names_from = "variable") %>%
+      # Convert to numeric
+        dplyr::mutate(across(-c(evaluation_type, evaluation_name, 
+                                health_endpoint, calculation_method), 
+                             as.numeric))
+      
+      
+    # POP
+    # population data including probability of dying  
+    airqplus_pop <- 
+      airqplus_list[["evaluation_parameters"]][["population_data"]] 
+    
+    # Rename columns
+    names(airqplus_pop) <-
+      # If starting with "value_" then adopt the name of the first row
+      ifelse(grepl("value_|variable", names(airqplus_pop)),
+             paste0(airqplus_pop[1,]),
+             names(airqplus_pop)) %>%
+      # Standardize names
+      # Replace " -(" with "_"
+      gsub(" ", "_",.) %>%
+      # Remove bracket and empty spaces
+      gsub("\\(|\\)|\\-", "",.) %>%
+      # Lower case
+      tolower(.)
+    
+    # Continue editing
+    airqplus_pop <- 
+      airqplus_pop %>%
+      # Remove column dimension (not needed anymore)
+      dplyr::select(-dimension) %>%
+      # Remove the first row without numeric value
+      dplyr::slice(-1)%>%
+      # Convert to numeric
+      dplyr::mutate(across(-c(section_name, -subsection_name),
+                           as.numeric))
+    
+    # OUTPUT
+    # The results need to editing
+    airqplus_yll <- 
+      airqplus_list[["evaluation_results"]][["years_of_life_lost"]] 
+    
+    # Rename columns
+    names(airqplus_yll) <-
+      # If starting with "value_" then adopt the name of the first row
+      ifelse(grepl("value_", names(airqplus_yll)),
+             paste0("value_", airqplus_yll[1,]),
+             names(airqplus_yll)) %>%
+      # Standardize names
+      # Replace " -(" with "_"
+      gsub(" - \\(", "_",.) %>%
+      # Remove bracket and empty spaces
+      gsub("\\)| ", "",.) %>%
+      # Lower case
+      tolower(.) 
+    
+    # Continue editing
+    airqplus_yll <- 
+      airqplus_yll %>%
+      # Remove column dimension (not needed anymore)
+      dplyr::select(-dimension) %>%
+      # Remove the first row without numeric value
+      dplyr::slice(-1) %>%
+      # Pivot wider
+      tidyr::pivot_wider(values_from = starts_with("value_"),             
+                         names_from = "variable")%>%
+      # Convert to numeric
+      dplyr::mutate(across(-c(section_name, -subsection_name), 
+                           as.numeric))
+      
+    
+    
+    # Build the list
+    airqplus_ready <-
+      list(
+        input = airqplus_input,
+        pop = airqplus_pop,
+        output = airqplus_yll
+      )
+
+  }
+
+
+# Check if the results of the bestcost package are the same as in an alternative source (tool, assessment, etc.)
+check_bestcost <-
+  function(result_list_bestcost, result_vector_alternative){
+    # Store the central estimate of the bestcost assessment
+    
+  result_vector_bestcost <- 
+    result_list_bestcost[["total"]]%>%
+    # Set order of rows
+    dplyr::arrange(factor(erf_ci, levels = c("central", "lower", "upper")))%>%
+    dplyr::select(impact_rounded) %>%
+    unlist()
+  
+  # Obtain difference between the result of using bestcost and other source
+  difference_prop <- 
+    round(
+      (result_vector_bestcost - result_vector_alternative)/result_vector_alternative,
+      4)
+  difference_percent <- paste0(difference_prop*100, "%")
+  
+  # Check difference between bestcost and alternative source
+  # First the show the difference between bestcost results and alternative source
+  cat(
+    paste0("Difference (central, lower, upper): ", paste(difference_percent, collapse = "; "),"\n"))
+  # Second show message with colors
+  if(all(difference_prop == 0)){
+    cat(paste(crayon::cyan("Right. Bestcost and alternative with identical results.")))
+    
+    }else if(all(difference_prop > 0 & difference_prop < 0.01)){
+      cat(paste0("best-cost: ", paste(result_vector_bestcost, collapse = ";")),"\n", 
+          paste0("alternative_source: ", paste(result_vector_alternative, collapse = "; ")),"\n", 
+          crayon::yellow("Slight difference (<1%). Bestcost and alternative with similar but not identical results."))
+      
+    } else{
+    cat(paste0("best-cost: ", paste(result_vector_bestcost, collapse = ";")),"\n", 
+        paste0("alternative_source: ", paste(result_vector_alternative, collapse = "; ")),"\n", 
+        crayon::red("Attention! Check! Bestcost and alternative with different results."))}
+  
+  }
+
 
 
 
@@ -370,29 +555,46 @@ cutoff_rawdata <-
            sep = ";",
            na.strings=c("NA", ""))
 
-# Data sets from the AirQ+ manual (for testing of function get_prob_dying())
 
-airqplus_deaths_pop_multipleYear <-
-  read.csv2("../testing/input/airqplus_cases/airqplus_manual_multipleYear.csv")
-airqplus_deaths_pop_singleYear <-
-  read.csv2("../testing/input/airqplus_cases/airqplus_manual_age0to40_singleYear.csv")
 ```
 
 
 ```{r Read and digest input data from AirQ+}
+
+
 airqplus_copd_export <-
-  # Read csv file
+  # Read csv file from AirQ+ export for incidence of COPD
   readr::read_delim("../testing/input/airqplus_cases/airqplus_COPD.csv",
                     delim = ";",
                     col_types = cols())
 # Digest the data (make it ready for testing the package)
 airqplus_pm_copd <- 
-  digest_airqplus_export(airqplus_export = airqplus_copd_export)
+  digest_airqplus_export_singlebhd(airqplus_export = airqplus_copd_export)
  
+# Data sets from the AirQ+ manual (for testing of function get_prob_dying())
+airqplus_deaths_pop_multipleYear <-
+  read.csv2("../testing/input/airqplus_cases/airqplus_manual_multipleYear.csv")
+airqplus_deaths_pop_singleYear <-
+  read.csv2("../testing/input/airqplus_cases/airqplus_manual_age0to40_singleYear.csv")
+
+
+
+# Read csv file from AirQ+ export for deaths and YLLs
+airqplus_deaths_yll_export <-
+  readr::read_delim(
+    "../testing/input/airqplus_cases/airqplus_deaths_yll_lifetable_adults.csv",
+    delim = ";",
+    col_types = cols())
+
+# Digest the data (make it ready for testing the package)
+airqplus_pm_deaths_yll <- 
+  digest_airqplus_export_lifetable(airqplus_export = airqplus_deaths_yll_export)
 
 
 
 ```
+
+
 ```{r Read NIPH asssessment for noise}
 
 # The assessment for noise was provided by NIPH
@@ -890,6 +1092,7 @@ rm(list=setdiff(ls(),
                   "airqplus_pm_copd",
                   "airqplus_deaths_pop_multipleYear",
                   "airqplus_deaths_pop_singleYear",
+                  "airqplus_pm_deaths_yll",
                   "niph_noise_ha_excel",
                   "niph_noise_hsd_excel", 
                   "niph_noise_ihd_excel",

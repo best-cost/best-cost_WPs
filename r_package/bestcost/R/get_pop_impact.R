@@ -33,12 +33,12 @@ get_pop_impact <-
     popOverTime <- list()
 
     for(s in names(lifetab_withPop)){
-      for(v in paf$erf_ci){
+      for(v in pop_fraction$erf_ci){
         popOverTime[[s]][[v]] <-
           bestcost::project_pop(
             lifetab_withPop = lifetab_withPop[[s]],
             year_of_analysis = year_of_analysis,
-            paf = paf$paf[paf$erf_ci %in% v],
+            paf = pop_fraction$paf[pop_fraction$erf_ci %in% v],
             outcome_metric = outcome_metric)
       }
     }
@@ -51,7 +51,7 @@ get_pop_impact <-
     pop_impact <- list()
 
     for(s in names(lifetab_withPop)){
-      for(v in paf$erf_ci){
+      for(v in pop_fraction$erf_ci){
         pop_impact[[s]][[v]] <-
 
           bestcost::move_rows_up(popOTime = popOverTime[[s]][[v]],
@@ -61,7 +61,7 @@ get_pop_impact <-
 
 
     output <-
-      list(paf = paf,
+      list(paf = pop_fraction,
            popOverTime = popOverTime,
            pop_impact = pop_impact)
 

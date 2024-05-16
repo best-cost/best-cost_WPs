@@ -90,12 +90,14 @@ compare_deaths_lifetable_rr <-
         first_age_pop = first_age_pop_1,
         last_age_pop = last_age_pop_1,
         prob_natural_death_male = prob_natural_death_male_1,
-        prob_natural_death_female = prob_natural_death_male_1,
+        prob_natural_death_female = prob_natural_death_female_1,
         prob_total_death_male = prob_total_death_male_1,
         prob_total_death_female = prob_total_death_female_1,
         population_midyear_male = population_midyear_male_1,
         population_midyear_female = population_midyear_female_1,
         year_of_analysis = year_of_analysis_1,
+        min_age = min_age,
+        max_age = max_age,
         info = info_1)
 
     # Calculate attributable health impacts in the scenario 2
@@ -111,12 +113,14 @@ compare_deaths_lifetable_rr <-
         first_age_pop = first_age_pop_2,
         last_age_pop = last_age_pop_2,
         prob_natural_death_male = prob_natural_death_male_2,
-        prob_natural_death_female = prob_natural_death_male_2,
+        prob_natural_death_female = prob_natural_death_female_2,
         prob_total_death_male = prob_total_death_male_2,
         prob_total_death_female = prob_total_death_female_2,
         population_midyear_male = population_midyear_male_2,
         population_midyear_female = population_midyear_female_2,
         year_of_analysis = year_of_analysis_2,
+        min_age = min_age,
+        max_age = max_age,
         info = info_2)
 
     if(comparison_method == "delta"){

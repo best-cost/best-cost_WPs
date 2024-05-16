@@ -161,7 +161,7 @@ get_prob_dying_by_single_age  <-
     output <-
       output %>%
       dplyr::select(age_start, age_end, fraction_of_year_lived,
-                    population_entry, deaths, population_midyear,
+                    deaths, population_midyear,
                     prob_dying, prob_surviving)
 
 
