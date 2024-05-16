@@ -162,32 +162,6 @@ get_lifetable_withPopulation <-
 
 
 
-# Check if the results of the bestcost package are the same as in an alternative source (tool, assessment, etc.)
-check_bestcost <-
-  function(result_list_bestcost, result_vector_alternative){
-    # Store the central estimate of the bestcost assessment
-    
-  result_vector_bestcost <- 
-    result_list_bestcost[["total"]]%>%
-    # Set order of rows
-    dplyr::arrange(factor(erf_ci, levels = c("central", "lower", "upper")))%>%
-    dplyr::select(impact_rounded) %>%
-    unlist()
-  
-  
-  # Check difference between bestcost and alternative source
-  # First the show the difference between bestcost results and alternative source
-  cat(paste("Difference (central, lower, upper): ",
-            paste(result_vector_bestcost - result_vector_alternative, collapse = "; "),
-            "\n"))
-  # Second show message with colors
-  if(all((result_vector_bestcost - result_vector_alternative ) %in% 0)){
-    cat(paste(crayon::cyan("Right. Bestcost and alternative source with identical results.")))
-  } else{
-    cat(paste(crayon::red("Attention! Check! Bestcost and alternative source with different results.")))}
-  
-  }
-
 
 
 digest_airqplus_export_singlebhd <- 
@@ -450,6 +424,46 @@ digest_airqplus_export_lifetable <-
         output = airqplus_yll
       )
 
+  }
+
+
+# Check if the results of the bestcost package are the same as in an alternative source (tool, assessment, etc.)
+check_bestcost <-
+  function(result_list_bestcost, result_vector_alternative){
+    # Store the central estimate of the bestcost assessment
+    
+  result_vector_bestcost <- 
+    result_list_bestcost[["total"]]%>%
+    # Set order of rows
+    dplyr::arrange(factor(erf_ci, levels = c("central", "lower", "upper")))%>%
+    dplyr::select(impact_rounded) %>%
+    unlist()
+  
+  # Obtain difference between the result of using bestcost and other source
+  difference_prop <- 
+    round(
+      (result_vector_bestcost - result_vector_alternative)/result_vector_alternative,
+      4)
+  difference_percent <- paste0(difference_prop*100, "%")
+  
+  # Check difference between bestcost and alternative source
+  # First the show the difference between bestcost results and alternative source
+  cat(
+    paste0("Difference (central, lower, upper): ", paste(difference_percent, collapse = "; "),"\n"))
+  # Second show message with colors
+  if(all(difference_prop == 0)){
+    cat(paste(crayon::cyan("Right. Bestcost and alternative with identical results.")))
+    
+    }else if(all(difference_prop > 0 & difference_prop < 0.01)){
+      cat(paste0("best-cost: ", paste(result_vector_bestcost, collapse = ";")),"\n", 
+          paste0("alternative_source: ", paste(result_vector_alternative, collapse = "; ")),"\n", 
+          crayon::yellow("Slight difference (<1%). Bestcost and alternative with similar but not identical results."))
+      
+    } else{
+    cat(paste0("best-cost: ", paste(result_vector_bestcost, collapse = ";")),"\n", 
+        paste0("alternative_source: ", paste(result_vector_alternative, collapse = "; ")),"\n", 
+        crayon::red("Attention! Check! Bestcost and alternative with different results."))}
+  
   }
 
 
