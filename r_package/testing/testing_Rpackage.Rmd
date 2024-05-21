@@ -367,7 +367,7 @@ bestcost_pm_deaths_lifetable_expDistribution <-
       population_midyear_male = lifetable_withPopulation[["male"]]$population, 
       population_midyear_female = lifetable_withPopulation[["female"]]$population, 
       year_of_analysis = 2019, 
-      info = input_data_mortality$pollutant[i], 
+      info = input_data_mortality$pollutant[2], 
       min_age = 20)
 
 # No study to compare bestcost results
@@ -490,7 +490,7 @@ bestcost_pm_yll_lifetable_expDistribution_geluft <-
       prop_pop_exp = c(0.2, 0.3, 0.5), # Fake data just for testing purposes
       cutoff = input_data_mortality$cutoff[i], # WHO AQG 2021 
       rr = unlist(input_data_mortality[i, c("rr_central", "rr_lower", "rr_upper")]),
-      erf_increment = 10, 
+      erf_increment = 10,
       erf_shape = "log_linear",
       first_age_pop = 0,
       last_age_pop = 99,
@@ -501,8 +501,8 @@ bestcost_pm_yll_lifetable_expDistribution_geluft <-
       population_midyear_male = lifetable_withPopulation[["male"]]$population, 
       population_midyear_female = lifetable_withPopulation[["female"]]$population, 
       year_of_analysis = 2019, 
-      info = input_data_mortality$pollutant[i], 
-      min_age = if(is.na(input_data_mortality$min_age[i])) NULL else input_data_mortality$min_age[i])
+      info = input_data_mortality$pollutant[2], 
+      min_age = if(is.na(input_data_mortality$min_age[2])) NULL else input_data_mortality$min_age[2])
 
 
 # No study to compare bestcost results
@@ -780,8 +780,8 @@ comparison_yll_lifetable_delta  <-
     population_midyear_male_2 = lifetable_withPopulation[["male"]]$population, 
     population_midyear_female_2 = lifetable_withPopulation[["female"]]$population, 
     year_of_analysis_2 = 2019, 
-    info_1 = input_data_mortality$pollutant[i],
-    info_2 = input_data_mortality$pollutant[i], 
+    info_1 = input_data_mortality$pollutant[2],
+    info_2 = input_data_mortality$pollutant[2], 
     min_age = 20,
     max_age = NULL)
 
@@ -879,8 +879,8 @@ comparison_yld_lifetable_delta  <-
     population_midyear_male_2 = lifetable_withPopulation[["male"]]$population, 
     population_midyear_female_2 = lifetable_withPopulation[["female"]]$population, 
     year_of_analysis_2 = 2019, 
-    info_1 = input_data_mortality$pollutant[i],
-    info_2 = input_data_mortality$pollutant[i], 
+    info_1 = input_data_mortality$pollutant[2],
+    info_2 = input_data_mortality$pollutant[2], 
     min_age = 20,
     max_age = NULL,
     #duration = 2,
