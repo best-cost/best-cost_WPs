@@ -31,14 +31,14 @@ get_risk_and_pif <-
           bestcost::get_risk(rr = rr,
                              exp = exp_1,
                              cutoff = cutoff,
-                             rr_increment = rr_increment,
+                             erf_increment = erf_increment,
                              erf_shape = unique(erf_shape)
                              ),
         rr_conc_2 =
           bestcost::get_risk(rr = rr,
                              exp = exp_2,
                              cutoff = cutoff,
-                             rr_increment = rr_increment,
+                             erf_increment = erf_increment,
                              erf_shape = unique(erf_shape)
           ))
 

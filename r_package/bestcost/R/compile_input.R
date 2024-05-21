@@ -8,11 +8,11 @@
 #' @param pop_exp \code{Numeric value} or {vector} showing the population exposed for each of the exposure categories. The length of this input variable must be the same as "exp".
 #' @param cutoff \code{Numeric value} showing the cut-off exposure in ug/m3 (i.e. the exposure level below which no health effects occur).
 #' @param rr \code{Vector} of three numeric values referring to the central estimate as well as the lower and upper bound of the confidence interval.
-#' @param rr_increment \code{Numeric value} showing the increment of the concentration-response function in ug/m3 (usually 10 or 5).
+#' @param erf_increment \code{Numeric value} showing the increment of the concentration-response function in ug/m3 (usually 10 or 5).
 #' @param erf_shape \code{String} showing the shape of the exposure-response function to be assumed using the relative risk from the literature as support point. Options: "linear", log_linear", "linear_log", "log_log".
-#' @param erf_c \code{String} showing the user-defined function that puts the relative risk in relation with concentration. The function must have only one variable: c, which means concentration. E.g. "3+c+c^2". Default value = NULL.
+#' @param erf_c \code{String} showing the user-defined function that puts the relative risk in relation with concentration. The function must have only one variable: c, which means concentration. E.g. "3+c+c^2". Default value = NA.
 #' @param bhd \code{Numeric value} showing the baseline health data (incidence of the health outcome in the population).
-#' @param info \code{String} showing additional information or id for the pollutant. The suffix "info" will be added to the column name. Default value = NULL.
+#' @param info \code{String} showing additional information or id for the pollutant. The suffix "info" will be added to the column name. Default value = NA.
 #' @param min_age \code{Numberic value} of the minimal age to be considered for adults (by default 30, i.e. 30+).
 #' @param max_age \code{Numberic value} of the maximal age to be considered for infants/children (by default 0, i.e. below 1 year old).
 #' @param method \code{String} showing the calculation methods.
@@ -35,27 +35,27 @@
 #' @export
 
 compile_input <-
-  function(exp,
-           prop_pop_exp = NULL,
-           pop_exp = NULL,
-           cutoff = NULL,
-           rr = NULL,
-           rr_increment = NULL,
-           erf_shape = NULL,
-           erf_c = NULL,
-           bhd = NULL,
-           min_age = NULL,
-           max_age = NULL,
-           info = NULL,
-           method = NULL,
-           disability_weight = NULL,
-           duration = NULL){
+  function(exp_central, exp_lower = NA, exp_upper = NA,
+           prop_pop_exp = NA,
+           pop_exp = NA,
+           cutoff = NA,
+           rr_central, rr_lower = NA, rr_upper = NA,
+           erf_increment = NA,
+           erf_shape = NA,
+           erf_c_central = NA, erf_c_lower = NA, erf_c_upper = NA,
+           bhd_central, bhd_lower = NA, bhd_upper = NA,
+           min_age = NA,
+           max_age = NA,
+           info = NA,
+           method = NA,
+           disability_weight = NA,
+           duration = NA){
 
     # Check input data ####
     stopifnot(exprs = {
       #length(exp) == length(prop_pop_exp)
-      is.na(min_age) == FALSE
-      is.na(max_age) == FALSE
+      #is.na(min_age) == FALSE
+      #is.na(max_age) == FALSE
     })
 
 
@@ -63,70 +63,44 @@ compile_input <-
 
     # If the erf is defined by rr, increment, shape and cutoff
 
-    if(is.null(erf_c)){
+    if(is.na(erf_c_central)){
       # Input data in data frame ####
       # Compile rr data to assign categories
       erf_data <-
         data.frame(
-          rr_increment = rr_increment,
+          erf_increment = erf_increment,
           erf_shape = erf_shape,
           cutoff = cutoff,
-          rr = rr)
+          rr_central = rr_central,
+          rr_lower =  rr_lower,
+          rr_upper = rr_upper)
     }
 
     # If it is defined by the erf function
-    if(!is.null(erf_c)){
+    if(!is.na(erf_c_central)){
       erf_data <-
         data.frame(
-          erf_c = erf_c,
-          # Check which risk of the vector is higher for an exp=10
-          # (random value, it could be another one)
-          erf_10 = c(bestcost::get_risk(exp = 10, erf_c = erf_c[1], erf_full = TRUE),
-                     bestcost::get_risk(exp = 10, erf_c = erf_c[2], erf_full = TRUE),
-                     bestcost::get_risk(exp = 10, erf_c = erf_c[3], erf_full = TRUE))) %>%
-        dplyr::mutate(
-          rr = erf_10)
+          erf_c_central = erf_c_central,
+          erf_c_lower = erf_c_lower,
+          erf_c_upper = erf_c_upper)
 
     }
 
 
-    erf_data <-
-      erf_data %>%
-      mutate(
-        # Assign central estimate as well as lower and upper bound of rr values
-        erf_ci = ifelse((rr>min(rr) & rr<max(rr)) |
-                          (min(rr)%in%max(rr)), "central",
-                        ifelse(rr %in% min(rr), "lower",
-                               ifelse(rr %in% max(rr), "upper",
-                               NA)))) %>%
-
-      # In case of same value in mean and low and/or high, assign value randomly
-      {if(sum(duplicated(.$rr))==1) dplyr::mutate(.,
-                                                erf_ci = ifelse(duplicated(rr),
-                                                               "central",
-                                                               erf_ci))
-        else .} %>%
-
-      {if(sum(duplicated(.$rr))==2) dplyr::mutate(.,
-                                                erf_ci = c("central", "lower", "upper"))
-        else .}
 
 
 
     # Compile input data except meta-info
     input <-
       data.frame(
-        exp = exp)%>%
-      # If variable is not NULL,
-      # add it to the data frame. Otherwise, leave it out.
-      {if(!is.null(bhd)) mutate(., bhd = bhd) else .} %>%
-      {if(!is.null(prop_pop_exp)) mutate(., prop_pop_exp = prop_pop_exp) else .} %>%
-      {if(!is.null(pop_exp)) mutate(., pop_exp = pop_exp) else .} %>%
-      {if(!is.null(disability_weight)) mutate(., disability_weight = disability_weight) else .} %>%
-      {if(!is.null(duration)) mutate(., duration = duration) else .} %>%
-
+        exp_central = exp_central, exp_lower = exp_lower, exp_upper = exp_upper,
+        prop_pop_exp = prop_pop_exp,
+        pop_exp = pop_exp,
+        disability_weight = disability_weight,
+        duration = duration,
+        bhd_central = bhd_central, bhd_lower = bhd_lower, bhd_upper = bhd_upper) %>%
       # Add rr with a cross join to produce all likely combinations
-      dplyr::cross_join(., erf_data) %>%
+      dplyr::bind_cols(., erf_data) %>%
       # Add additional (meta-)information
       bestcost::add_info(df=., info=info) %>%
       # Information derived from input data
@@ -136,6 +110,27 @@ compile_input <-
                            ifelse(!is.null(min_age) & is.null(max_age), paste0("from", min_age),
                                   NA)),
         # Add the method that refer to the function
-        method = method)
+        method = method)%>%
+      # Remove all columns with all values being NA
+      dplyr::select(where(~ !all(is.na(.))))%>%
+      # Pivot longer to show all combinations of central, lower and upper estimate
+      # (relevant for iteration)
+      ## For exposure,
+      tidyr::pivot_longer(cols = starts_with("exp_"),
+                          names_to = "exp_ci",
+                          names_prefix = "exp_",
+                          values_to = "exp") %>%
+      ## Baseline health data &
+      tidyr::pivot_longer(cols = starts_with("rr_"),
+                          names_to = "erf_ci",
+                          names_prefix = "rr_",
+                          values_to = "rr") %>%
+      ## Relative risk
+      tidyr::pivot_longer(cols = starts_with("bhd_"),
+                          names_to = "bhd_ci",
+                          names_prefix = "bhd_",
+                          values_to = "bhd")
+
+
 
   }

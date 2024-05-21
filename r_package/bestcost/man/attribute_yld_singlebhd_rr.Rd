@@ -10,7 +10,7 @@ attribute_yld_singlebhd_rr(
   prop_pop_exp = 1,
   cutoff,
   rr,
-  rr_increment,
+  erf_increment,
   erf_shape,
   erf_c,
   bhd,
@@ -27,7 +27,7 @@ attribute_yld_singlebhd_rr(
 
 \item{rr}{\code{Numeric vector} of three numeric values referring to the central estimate as well as the lower and upper bound of the confidence interval.}
 
-\item{rr_increment}{\code{Numeric value} showing the increment of the concentration-response function in ug/m3 (usually 10 or 5).}
+\item{erf_increment}{\code{Numeric value} showing the increment of the concentration-response function in ug/m3 (usually 10 or 5).}
 
 \item{erf_shape}{\code{String} to choose among "linear", "log-linear", "linear-log" and "log-log".}
 

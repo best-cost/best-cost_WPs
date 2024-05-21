@@ -9,7 +9,7 @@ attribute_health_singlebhd_rr(
   prop_pop_exp = 1,
   cutoff,
   rr,
-  rr_increment,
+  erf_increment,
   erf_shape,
   erf_c = NULL,
   bhd,
@@ -25,7 +25,7 @@ attribute_health_singlebhd_rr(
 
 \item{rr}{\code{Numeric vector} of three numeric values referring to the central estimate of the exposure-response function and the corresponding lower and upper 95\% confidence interval bounds.}
 
-\item{rr_increment}{\code{Numeric value} showing the increment of the exposure-response function in ug/m3 (usually 10 or 5).}
+\item{erf_increment}{\code{Numeric value} showing the increment of the exposure-response function in ug/m3 (usually 10 or 5).}
 
 \item{erf_shape}{\code{String} showing the shape of the exposure-response function to be assumed using the relative risk from the literature as support point. Options: "linear", log_linear", "linear_log", "log_log".}
 

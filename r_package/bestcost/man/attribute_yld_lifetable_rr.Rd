@@ -8,7 +8,7 @@ attribute_yld_lifetable_rr(
   exp,
   prop_pop_exp = 1,
   rr,
-  rr_increment,
+  erf_increment,
   erf_shape,
   cutoff,
   first_age_pop,
@@ -36,7 +36,7 @@ attribute_yld_lifetable_rr(
 
 \item{rr}{\code{Numeric vector} of three numeric values referring to the central estimate of the exposure-response function and the corresponding lower and upper 95\% confidence interval bounds.}
 
-\item{rr_increment}{\code{Numeric value} showing the increment of the exposure-response function in ug/m3 (usually 10 or 5).}
+\item{erf_increment}{\code{Numeric value} showing the increment of the exposure-response function in ug/m3 (usually 10 or 5).}
 
 \item{erf_shape}{\code{Character string} either "linear" or "loglinear".}
 

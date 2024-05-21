@@ -31,7 +31,7 @@ get_risk_and_paf <-
           bestcost::get_risk(rr = rr,
                              exp = exp,
                              cutoff = cutoff,
-                             rr_increment = rr_increment,
+                             erf_increment = erf_increment,
                              erf_shape = unique(erf_shape)
                              ))
 

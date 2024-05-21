@@ -5,7 +5,7 @@
 #' @param prop_pop_exp \code{Numeric value} or {Numeric vector} Fraction (values between 0 & 1) of the total population exposed to (one or more) exposure categories, i.e., a exposure distribution, respectively. If a exposure distribution is used, the dimension of this input variable should be the same as "exp". By default, 1 for single exposure value will be assigned to this input variable assuming a single exposure value, but users can change this value.
 #' @param cutoff \code{Numeric value} showing the cut-off exposure in ug/m3 (i.e. the exposure level below which no health effects occur).
 #' @param rr \code{Numeric vector} of three numeric values referring to the central estimate of the exposure-response function and the corresponding lower and upper 95\% confidence interval bounds.
-#' @param rr_increment \code{Numeric value} showing the increment of the exposure-response function in ug/m3 (usually 10 or 5).
+#' @param erf_increment \code{Numeric value} showing the increment of the exposure-response function in ug/m3 (usually 10 or 5).
 #' @param erf_shape \code{Character string} either "linear" or "loglinear".
 #' @param first_age_pop \code{Numeric value} starting age of the youngest age group from population and life table data
 #' @param last_age_pop \code{Numeric value} ending age of the oldest age group from population and life table data
@@ -31,7 +31,7 @@
 #' @export
 attribute_yld_lifetable_rr <-
   function(exp, prop_pop_exp = 1,
-           rr, rr_increment, erf_shape, cutoff,
+           rr, erf_increment, erf_shape, cutoff,
            first_age_pop, last_age_pop,
            prob_natural_death_male, prob_natural_death_female,
            prob_total_death_male, prob_total_death_female,
@@ -55,7 +55,7 @@ attribute_yld_lifetable_rr <-
         duration = duration,
         cutoff = cutoff,
         rr = rr,
-        rr_increment = rr_increment,
+        erf_increment = erf_increment,
         erf_shape = erf_shape,
         erf_c = erf_c,
         bhd = NULL,
