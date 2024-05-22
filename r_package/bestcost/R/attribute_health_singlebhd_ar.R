@@ -39,7 +39,7 @@ attribute_health_singlebhd_ar <-
         prop_pop_exp = NULL,
         cutoff = NULL,
         rr = NULL,
-        erf_increment = NULL,
+        rr_increment = NULL,
         erf_shape = NULL,
         erf_c = erf_c,
         bhd = NULL,

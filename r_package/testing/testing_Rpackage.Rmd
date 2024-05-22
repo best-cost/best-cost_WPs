@@ -118,6 +118,9 @@ check_bestcost(result_list_bestcost = bestcost_pm_copd,
                result_vector_alternative = airqplus_pm_copd_result)
 
 
+
+
+
 ```
 
 
@@ -488,8 +491,8 @@ bestcost_pm_yll_lifetable_expDistribution_geluft <-
     bestcost::attribute_yll_lifetable_rr(
       exp = c(8, 9, 10), # Fake data just for testing purposes
       prop_pop_exp = c(0.2, 0.3, 0.5), # Fake data just for testing purposes
-      cutoff = input_data_mortality$cutoff[i], # WHO AQG 2021 
-      rr = unlist(input_data_mortality[i, c("rr_central", "rr_lower", "rr_upper")]),
+      cutoff = input_data_mortality$cutoff[2], # WHO AQG 2021 
+      rr = unlist(input_data_mortality[2, c("rr_central", "rr_lower", "rr_upper")]),
       erf_increment = 10,
       erf_shape = "log_linear",
       first_age_pop = 0,
