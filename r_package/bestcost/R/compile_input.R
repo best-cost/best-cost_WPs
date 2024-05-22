@@ -43,7 +43,7 @@ compile_input <-
            erf_increment = NA,
            erf_shape = NA,
            erf_c_central = NA, erf_c_lower = NA, erf_c_upper = NA,
-           bhd_central, bhd_lower = NA, bhd_upper = NA,
+           bhd_central = NA, bhd_lower = NA, bhd_upper = NA,
            min_age = NA,
            max_age = NA,
            info = NA,
@@ -116,20 +116,31 @@ compile_input <-
       # Pivot longer to show all combinations of central, lower and upper estimate
       # (relevant for iteration)
       ## For exposure,
-      tidyr::pivot_longer(cols = starts_with("exp_"),
+      tidyr::pivot_longer(.,
+                          cols = starts_with("exp_"),
                           names_to = "exp_ci",
                           names_prefix = "exp_",
                           values_to = "exp") %>%
-      ## Baseline health data &
-      tidyr::pivot_longer(cols = starts_with("rr_"),
-                          names_to = "erf_ci",
-                          names_prefix = "rr_",
-                          values_to = "rr") %>%
-      ## Relative risk
-      tidyr::pivot_longer(cols = starts_with("bhd_"),
-                          names_to = "bhd_ci",
-                          names_prefix = "bhd_",
-                          values_to = "bhd")
+      ## Exposure response function &
+      {if(is.na(erf_c_central))
+        tidyr::pivot_longer(.,
+                            cols = starts_with("rr_"),
+                            names_to = "erf_ci",
+                            names_prefix = "rr_",
+                            values_to = "rr")
+        else
+          tidyr::pivot_longer(.,
+                              cols = starts_with("erf_c_"),
+                              names_to = "erf_ci",
+                              names_prefix = "erf_c_",
+                              values_to = "erf_c")}%>%
+      ## Baseline health data
+      {if(!is.na(bhd_central))
+        tidyr::pivot_longer(.,
+                            cols = starts_with("bhd_"),
+                            names_to = "bhd_ci",
+                            names_prefix = "bhd_",
+                            values_to = "bhd") else .}
 
 
 

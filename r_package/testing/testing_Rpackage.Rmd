@@ -118,16 +118,13 @@ check_bestcost(result_list_bestcost = bestcost_pm_copd,
                result_vector_alternative = airqplus_pm_copd_result)
 
 
-
-
-
 ```
 
 
 ```{r single exposure value and relative risk}
 
 # Assess attributable cases using the AirQ+ export as input data
-att_pm_copd_1rr_bestcost <-
+bestcost_pm_copd_1rr <-
   bestcost::attribute_health_singlebhd_rr(
     exp_central = airqplus_pm_copd$mean_concentration,
     cutoff = airqplus_pm_copd$cut_off_value,   
@@ -138,7 +135,7 @@ att_pm_copd_1rr_bestcost <-
     info = paste0(airqplus_pm_copd$pollutant,"_", airqplus_pm_copd$evaluation_name))
 
 # Store the central, lower and upper estimate of the AirQ+ assessment
-att_pm_copd_1rr_airqplus_result <- 
+airqplus_pm_copd_1rr_result <- 
   airqplus_pm_copd %>%
   dplyr::select(estimated_number_of_attributable_cases_central)%>%
   unlist()
@@ -163,21 +160,20 @@ niph_noise_ihd_input <-
 # so let's repeat the value three times to build 
 # the vector for lower and upper bound
 niph_noise_ihd_result <- 
-  rep(niph_noise_ihd_excel %>%
+  niph_noise_ihd_excel %>%
         dplyr::filter(exposure_category %in% "Total exposed")%>%
         dplyr::select(daly)%>%
-        dplyr::pull(), 
-      3) %>%
-  round()
+        dplyr::pull() %>%
+  round(.)
 
 # Obtain attributable cases using the bestcost package and input data from niph
 bestcost_noise_ihd_expDist <- 
   bestcost::attribute_health_singlebhd_rr(
-    exp = niph_noise_ihd_input$exposure_mean,
+    exp_central = niph_noise_ihd_input$exposure_mean,
     prop_pop_exp = niph_noise_ihd_input$prop_exposed,
     cutoff = min(niph_noise_ihd_input$exposure_mean), 
-    bhd = niph_noise_ihd_input$gbd_daly[1],
-    rr = rep(1.08, 3),
+    bhd_central = niph_noise_ihd_input$gbd_daly[1],
+    rr_central = 1.08,
     erf_increment = 10, 
     erf_shape = "log_linear",
     info = data.frame(pollutant = "road_noise", outcome = "YLD"))
@@ -202,19 +198,18 @@ niph_noise_ha_input <-
 # so let's repeat the value three times to build 
 # the vector for lower and upper bound
 niph_noise_ha_result <- 
-  rep(niph_noise_ha_excel %>%
+  niph_noise_ha_excel %>%
         dplyr::filter(exposure_category %in% "Total exposed")%>%
         dplyr::select(number)%>%
-        dplyr::pull(), 
-      3) %>%
-  round()
+        dplyr::pull() %>%
+  round(.)
 
 # Obtain attributable cases using the bestcost package and input data from niph
 bestcost_noise_ha_ar <- 
   bestcost::attribute_health_singlebhd_ar(
-    exp = niph_noise_ha_input$exposure_mean,
+    exp_central = niph_noise_ha_input$exposure_mean,
     pop_exp = niph_noise_ha_input$population_exposed_total, 
-    erf_c = rep("78.9270-3.1162*c+0.0342*c^2", 3),
+    erf_c_central = "78.9270-3.1162*c+0.0342*c^2",
     info = data.frame(pollutant = "road_noise", outcome = "highly_annoyance"))
 
 check_bestcost(result_list_bestcost = bestcost_noise_ha_ar,

@@ -44,12 +44,8 @@ attribute_health_singlebhd_rr <-
         erf_shape = erf_shape,
         erf_c_central = erf_c_central, erf_c_lower = erf_c_lower, erf_c_upper = erf_c_upper,
         bhd_central = bhd_central, bhd_lower = bhd_lower, bhd_upper = bhd_upper,
-        min_age = NA,
-        max_age = NA,
         info = info,
-        method = "singlebhd_rr",
-        disability_weight = NA,
-        duration = NA)
+        method = "singlebhd_rr")
 
     # Get PAF and added to the input data frame
     calculation <-
