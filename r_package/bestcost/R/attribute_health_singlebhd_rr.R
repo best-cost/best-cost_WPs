@@ -26,9 +26,9 @@ attribute_health_singlebhd_rr <-
   function(exp_central, exp_lower = NA, exp_upper = NA,
            prop_pop_exp = 1,
            cutoff,
-           rr_central, rr_lower = NA, rr_upper = NA,
-           erf_increment,
-           erf_shape,
+           rr_central = NA, rr_lower = NA, rr_upper = NA,
+           erf_increment = NA,
+           erf_shape = NA,
            erf_c_central = NA, erf_c_lower = NA, erf_c_upper = NA,
            bhd_central, bhd_lower = NA, bhd_upper = NA,
            info = NA){

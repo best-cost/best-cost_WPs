@@ -39,10 +39,10 @@ get_deaths <-
           # Select only relevant columns
           dplyr::select(., age, all_of(population_secondYear_lifetable)) %>%
           # Filter keeping only the relevant age
-          {if(!is.null(max_age))
+          {if(!is.na(max_age))
             dplyr::filter(., age <= max_age)
             else .} %>%
-          {if(!is.null(min_age))
+          {if(!is.na(min_age))
             dplyr::filter(., age >= min_age)
             else .} %>%
           dplyr::select(all_of(population_secondYear_lifetable)) %>%
@@ -56,6 +56,7 @@ get_deaths <-
       dplyr::bind_rows(., .id ="sex") %>%
       # Reshape to long format
       tidyr::pivot_longer(cols = where(is.numeric),
+                          names_prefix = "erf_ci_",
                           names_to = "erf_ci",
                           values_to = "impact")
     # Add up deaths ####

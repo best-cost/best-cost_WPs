@@ -41,18 +41,20 @@
 #' @note Experimental function
 #' @export
 attribute_yll_lifetable_rr <-
-  function(exp, prop_pop_exp = 1,
+  function(exp_central, exp_lower = NA, exp_upper = NA,
+           prop_pop_exp = 1,
            cutoff,
-           rr, erf_increment, erf_shape,
-           erf_c = NULL,
+           rr_central = NA, rr_lower = NA, rr_upper = NA,
+           erf_increment, erf_shape,
+           erf_c_central = NA, erf_c_lower = NA, erf_c_upper = NA,
            first_age_pop, last_age_pop,
            prob_natural_death_male, prob_natural_death_female,
            prob_total_death_male, prob_total_death_female,
            population_midyear_male, population_midyear_female,
            year_of_analysis,
            corrected_discount_rate = 0,
-           min_age = NULL, max_age = NULL,
-           info = NULL){
+           min_age = NA, max_age = NA,
+           info = NA){
 
     # Check input data ####
 
@@ -61,20 +63,17 @@ attribute_yll_lifetable_rr <-
     # Compile input data and calculate paf putting all into a data frame
     input <-
       bestcost::compile_input(
-        exp = exp,
+        exp_central = exp_central, exp_lower = exp_lower, exp_upper = exp_upper,
         prop_pop_exp = prop_pop_exp,
         cutoff = cutoff,
-        rr = rr,
+        rr_central = rr_central, rr_lower = rr_lower, rr_upper = rr_upper,
         erf_increment = erf_increment,
         erf_shape = erf_shape,
-        erf_c = erf_c,
-        bhd = NULL,
+        erf_c_central = erf_c_central, erf_c_lower = erf_c_lower, erf_c_upper = erf_c_upper,
         min_age = min_age,
         max_age = max_age,
         info = info,
-        method = paste0("lifetable_rr_corrected_discount_rate_", corrected_discount_rate),
-        disability_weight = NULL,
-        duration = NULL)
+        method = paste0("lifetable_rr_corrected_discount_rate_", corrected_discount_rate))
 
 
     # Get PAF and added to the input data frame

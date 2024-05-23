@@ -25,7 +25,7 @@
 attribute_health_singlebhd_ar <-
   function(exp_central, exp_lower = NA, exp_upper = NA,
            pop_exp,
-           erf_c_central = NA, erf_c_lower = NA, erf_c_upper = NA,
+           erf_c_central, erf_c_lower = NA, erf_c_upper = NA,
            info = NA){
 
     # Check input data ####

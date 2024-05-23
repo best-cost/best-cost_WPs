@@ -29,9 +29,10 @@
 #' @note Experimental function
 #' @export
 compare_health_ar <-
-  function(exp_1, exp_2,
+  function(exp_central_1, exp_lower_1 = NA, exp_upper_1 = NA,
+           exp_central_2, exp_lower_2 = NA, exp_upper_2 = NA,
            pop_exp_1, pop_exp_2,
-           erf_c,
+           erf_c_central, erf_c_lower = NA, erf_c_upper = NA,
            info_1 = NULL, info_2 = NULL){
 
 
@@ -39,17 +40,17 @@ compare_health_ar <-
     # Calculate attributable health impacts in the scenario 1
     att_health_1 <-
       bestcost::attribute_health_singlebhd_ar(
-        exp = exp_1,
+        exp_central = exp_central_1,
         pop_exp = pop_exp_1,
-        erf_c = erf_c,
+        erf_c_central = erf_c_central,
         info = info_1)
 
     # Calculate attributable health impacts in the scenario 2
     att_health_2 <-
       bestcost::attribute_health_singlebhd_ar(
-        exp = exp_2,
+        exp_central = exp_central_2,
         pop_exp = pop_exp_2,
-        erf_c = erf_c,
+        erf_c_central = erf_c_central,
         info = info_2)
 
     # Identify the columns that are common for scenario 1 and 2

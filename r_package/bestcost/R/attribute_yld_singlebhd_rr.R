@@ -29,44 +29,40 @@
 #' @note Experimental function
 #' @export
 attribute_yld_singlebhd_rr <-
-  function(exp,
+  function(exp_central, exp_lower = NA, exp_upper = NA,
            prop_pop_exp = 1,
            cutoff,
-           rr,
+           rr_central = NA, rr_lower = NA, rr_upper = NA,
            erf_increment,
            erf_shape,
-           erf_c,
-           bhd,
+           erf_c_central = NA, erf_c_lower = NA, erf_c_upper = NA,
+           bhd_central, bhd_lower = NA, bhd_upper = NA,
            disability_weight,
            info = NULL){
 
     # Check input data ####
     stopifnot(exprs = {
-      length(exp) == length(prop_pop_exp)
+      #length(exp) == length(prop_pop_exp)
     })
 
     # Call attribute_health_singlebhd_rr
-    dat <- attribute_health_singlebhd_rr(
-      exp = exp,
-      prop_pop_exp = prop_pop_exp,
-      cutoff = cutoff,
-      rr = rr,
-      erf_increment = erf_increment,
-      erf_shape = erf_shape,
-      bhd = bhd,
-      info = info)[["total"]]
+    dat <-
+      attribute_health_singlebhd_rr(
+        exp_central = exp_central, exp_lower = exp_lower, exp_upper = exp_upper,
+        prop_pop_exp = prop_pop_exp,
+        cutoff = cutoff,
+        rr_central = rr_central, rr_lower = rr_lower, rr_upper = rr_upper,
+        erf_increment = erf_increment,
+        erf_shape = erf_shape,
+        erf_c_central = erf_c_central, erf_c_lower = erf_c_lower, erf_c_upper = erf_c_upper,
+        bhd_central = bhd_central, bhd_lower = bhd_lower, bhd_upper = bhd_upper,
+        info = info)[["total"]]
 
     # Calculate YLD and add as column
     dat <-
       dat %>%
       dplyr::mutate(impact = paf * bhd * disability_weight,
                     impact_rounded = round(impact, 0))
-    #%>%
-      #dplyr::select(yld, yld_rounded, impact_rounded, exp, exp_mean, cutoff, bhd,
-                    #rr, rr_forPaf, erf_increment, ci, erf_shape,
-                    #paf, prop_pop_exp,
-                    #starts_with("info_")) %>%
-      #dplyr::relocate(yld_rounded, yld, prop_pop_exp, .before = impact_rounded)
 
     output <- list(total = dat)
 

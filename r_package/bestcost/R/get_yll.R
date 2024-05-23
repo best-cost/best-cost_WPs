@@ -50,10 +50,10 @@ get_yll <-
           pop_impact[["pop_impact"]][[s]][[v]] %>%
 
           # Filter keeping only the relevant age
-          {if(!is.null(max_age))
+          {if(!is.na(max_age))
             dplyr::filter(., age <= max_age)
             else .} %>%
-          {if(!is.null(min_age))
+          {if(!is.na(min_age))
             dplyr::filter(., age >= min_age)
             else .} %>%
 
@@ -99,11 +99,14 @@ get_yll <-
       purrr::map(dplyr::bind_rows, .id = "erf_ci" ) %>%
       dplyr::bind_rows(., .id = "sex")%>%
       # Replace "discount" and "noDiscount" with TRUE and FALSE
+      # Add discount rate
+      # Rename erf_ci values
       dplyr::mutate(
         discounted = ifelse(discounted %in% "discounted", TRUE,
                             ifelse(discounted %in% "noDiscount", FALSE,
                                    NA)),
-        corrected_discount_rate = corrected_discount_rate)
+        corrected_discount_rate = corrected_discount_rate,
+        erf_ci = gsub("erf_ci_", "", erf_ci))
 
 
     ## Compile information needed for detailed YLL results ####

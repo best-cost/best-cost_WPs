@@ -55,13 +55,15 @@
 #' @export
 compare_deaths_lifetable_rr <-
   function(comparison_method = "delta",
-           exp_1, exp_2,
-           prop_pop_exp_1 = 1, prop_pop_exp_2 = 1,
+           exp_central_1, exp_lower_1 = NA, exp_upper_1 = NA,
+           exp_central_2, exp_lower_2 = NA, exp_upper_2 = NA,
+           prop_pop_exp_1 = 1,
+           prop_pop_exp_2 = 1,
            cutoff,
-           rr,
-           erf_increment,
-           erf_shape,
-           erf_c = NULL,
+           rr_central = NA, rr_lower = NA, rr_upper = NA,
+           erf_increment = NA,
+           erf_shape = NA,
+           erf_c_central = NA, erf_c_lower = NA, erf_c_upper = NA,
            first_age_pop_1, last_age_pop_1,
            prob_natural_death_male_1, prob_natural_death_female_1,
            prob_total_death_male_1, prob_total_death_female_1,
@@ -72,21 +74,21 @@ compare_deaths_lifetable_rr <-
            prob_total_death_male_2, prob_total_death_female_2,
            population_midyear_male_2, population_midyear_female_2,
            year_of_analysis_2,
-           min_age = NULL, max_age = NULL,
-           info_1 = NULL, info_2 = NULL){
+           min_age = NA, max_age = NA,
+           info_1 = NA, info_2 = NA){
 
 
 
     # Calculate attributable health impacts in the scenario 1
     att_health_1 <-
       bestcost::attribute_deaths_lifetable_rr(
-        exp = exp_1,
+        exp_central = exp_central_1,  exp_lower = exp_lower_1, exp_upper = exp_upper_1,
         prop_pop_exp = prop_pop_exp_1,
         cutoff = cutoff,
-        rr = rr,
+        rr_central = rr_central, rr_lower = rr_lower, rr_upper = rr_upper,
         erf_increment = erf_increment,
         erf_shape = erf_shape,
-        erf_c = erf_c,
+        erf_c_central = erf_c_central, erf_c_lower = erf_c_lower, erf_c_upper = erf_c_upper,
         first_age_pop = first_age_pop_1,
         last_age_pop = last_age_pop_1,
         prob_natural_death_male = prob_natural_death_male_1,
@@ -103,13 +105,13 @@ compare_deaths_lifetable_rr <-
     # Calculate attributable health impacts in the scenario 2
     att_health_2 <-
       bestcost::attribute_deaths_lifetable_rr(
-        exp = exp_2,
+        exp_central = exp_central_2, exp_lower = exp_lower_2, exp_upper = exp_upper_2,
         prop_pop_exp = prop_pop_exp_2,
         cutoff = cutoff,
-        rr = rr,
+        rr_central = rr_central, rr_lower = rr_lower, rr_upper = rr_upper,
         erf_increment = erf_increment,
         erf_shape = erf_shape,
-        erf_c = erf_c,
+        erf_c_central = erf_c_central, erf_c_lower = erf_c_lower, erf_c_upper = erf_c_upper,
         first_age_pop = first_age_pop_2,
         last_age_pop = last_age_pop_2,
         prob_natural_death_male = prob_natural_death_male_2,
@@ -161,38 +163,36 @@ compare_deaths_lifetable_rr <-
       # Compile input data of scenario 1
       input_1 <-
         bestcost::compile_input(
-          exp = exp_1,
+          exp_central = exp_central_1, exp_lower = exp_lower_1, exp_upper = exp_upper_1,
           prop_pop_exp = prop_pop_exp_1,
           cutoff = cutoff,
-          rr = rr,
+          rr_central = rr_central,
+          rr_lower = rr_lower,
+          rr_upper = rr_upper,
           erf_increment = erf_increment,
           erf_shape = erf_shape,
-          erf_c = erf_c,
-          bhd = NULL,
+          erf_c_central = erf_c_central, erf_c_lower = erf_c_lower, erf_c_upper = erf_c_upper,
           min_age = min_age,
           max_age = max_age,
           info = info_1,
-          method = paste0("lifetable_rr_corrected"),
-          disability_weight = NULL,
-          duration = NULL)
+          method = paste0("lifetable_rr_corrected"))
 
       # Compile input data of scenario 2
       input_2 <-
         bestcost::compile_input(
-          exp = exp_2,
+          exp_central = exp_central_2, exp_lower = exp_lower_2, exp_upper = exp_upper_2,
           prop_pop_exp = prop_pop_exp_2,
           cutoff = cutoff,
-          rr = rr,
+          rr_central = rr_central,
+          rr_lower = rr_lower,
+          rr_upper = rr_upper,
           erf_increment = erf_increment,
           erf_shape = erf_shape,
-          erf_c = erf_c,
-          bhd = NULL,
+          erf_c_central = erf_c_central, erf_c_lower = erf_c_lower, erf_c_upper = erf_c_upper,
           min_age = min_age,
           max_age = max_age,
           info = info_2,
-          method = paste0("lifetable_rr_corrected"),
-          disability_weight = NULL,
-          duration = NULL)
+          method = paste0("lifetable_rr_corrected"))
 
       # Identify the columns that are common for scenario 1 and 2
       joining_columns <-
