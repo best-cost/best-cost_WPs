@@ -23,15 +23,15 @@
 #' @inherit attribute_deaths_lifetable_rr note
 #' @export
 attribute_health_singlebhd_rr <-
-  function(exp_central, exp_lower = NA, exp_upper = NA,
+  function(exp_central, exp_lower = NULL, exp_upper = NULL,
            prop_pop_exp = 1,
            cutoff,
-           rr_central = NA, rr_lower = NA, rr_upper = NA,
-           erf_increment = NA,
-           erf_shape = NA,
-           erf_c_central = NA, erf_c_lower = NA, erf_c_upper = NA,
-           bhd_central, bhd_lower = NA, bhd_upper = NA,
-           info = NA){
+           rr_central = NULL, rr_lower = NULL, rr_upper = NULL,
+           erf_increment = NULL,
+           erf_shape = NULL,
+           erf_c_central = NULL, erf_c_lower = NULL, erf_c_upper = NULL,
+           bhd_central, bhd_lower = NULL, bhd_upper = NULL,
+           info = NULL){
 
     # Compile input data and calculate paf putting all into a data frame
     input <-

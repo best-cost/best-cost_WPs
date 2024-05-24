@@ -29,10 +29,10 @@
 #' @note Experimental function
 #' @export
 compare_health_ar <-
-  function(exp_central_1, exp_lower_1 = NA, exp_upper_1 = NA,
-           exp_central_2, exp_lower_2 = NA, exp_upper_2 = NA,
+  function(exp_central_1, exp_lower_1 = NULL, exp_upper_1 = NULL,
+           exp_central_2, exp_lower_2 = NULL, exp_upper_2 = NULL,
            pop_exp_1, pop_exp_2,
-           erf_c_central, erf_c_lower = NA, erf_c_upper = NA,
+           erf_c_central, erf_c_lower = NULL, erf_c_upper = NULL,
            info_1 = NULL, info_2 = NULL){
 
 

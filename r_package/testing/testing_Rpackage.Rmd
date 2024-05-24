@@ -775,9 +775,9 @@ comparison_yll_lifetable_delta  <-
   bestcost::compare_yll_lifetable_rr(
     comparison_method = "delta",
     exp_central_1 = 8.85, # Fake data just for testing purposes
-    prop_pop_exp_central_1 = 1, # Fake data just for testing purposes
+    prop_pop_exp_1 = 1, # Fake data just for testing purposes
     exp_central_2 = 6, # Fake data just for testing purposes
-    prop_pop_exp_central_2 = 1, # Fake data just for testing purposes
+    prop_pop_exp_2 = 1, # Fake data just for testing purposes
     cutoff = 5,   # PM2.5=5, WHO AQG 2021 
     rr_central = 1.118,
     rr_lower = 1.060,
@@ -821,9 +821,9 @@ comparison_yll_lifetable_pif <-
   bestcost::compare_yll_lifetable_rr(
     comparison_method = "pif",
     exp_central_1 = 8.85, # Fake data just for testing purposes
-    prop_pop_exp_central_1 = 1, # Fake data just for testing purposes
+    prop_pop_exp_1 = 1, # Fake data just for testing purposes
     exp_central_2 = 6, # Fake data just for testing purposes
-    prop_pop_exp_central_2 = 1, # Fake data just for testing purposes
+    prop_pop_exp_2 = 1, # Fake data just for testing purposes
     cutoff = 5,   # PM2.5=5, WHO AQG 2021 
     rr_central = 1.118,
     rr_lower = 1.060,
@@ -848,8 +848,8 @@ comparison_yll_lifetable_pif <-
     population_midyear_male_2 = lifetable_withPopulation[["male"]]$population, 
     population_midyear_female_2 = lifetable_withPopulation[["female"]]$population, 
     year_of_analysis_2 = 2019, 
-    info_1 = NA,
-    info_2 = NA, 
+    info_1 = NULL,
+    info_2 = NULL, 
     min_age = 20)
 
 
@@ -876,9 +876,9 @@ comparison_yld_lifetable_delta  <-
   bestcost::compare_yld_lifetable_rr(
     comparison_method = "delta",
     exp_central_1 = 8.85, # Fake data just for testing purposes
-    prop_pop_exp_central_1 = 1, # Fake data just for testing purposes
+    prop_pop_exp_1 = 1, # Fake data just for testing purposes
     exp_central_2 = 6, # Fake data just for testing purposes
-    prop_pop_exp_central_2 = 1, # Fake data just for testing purposes
+    prop_pop_exp_2 = 1, # Fake data just for testing purposes
     cutoff = 5,   # PM2.5=5, WHO AQG 2021 
     rr_central = 1.118,
     rr_lower = 1.060,
@@ -923,9 +923,9 @@ comparison_yld_lifetable_pif <-
   bestcost::compare_yld_lifetable_rr(
     comparison_method = "pif",
     exp_central_1 = 8.85, # Fake data just for testing purposes
-    prop_pop_exp_central_1 = 1, # Fake data just for testing purposes
+    prop_pop_exp_1 = 1, # Fake data just for testing purposes
     exp_central_2 = 6, # Fake data just for testing purposes
-    prop_pop_exp_central_2 = 1, # Fake data just for testing purposes
+    prop_pop_exp_2 = 1, # Fake data just for testing purposes
     cutoff = 5,   # PM2.5=5, WHO AQG 2021 
     rr_central = 1.118,
     rr_lower = 1.060,
@@ -950,8 +950,8 @@ comparison_yld_lifetable_pif <-
     population_midyear_male_2 = lifetable_withPopulation[["male"]]$population, 
     population_midyear_female_2 = lifetable_withPopulation[["female"]]$population, 
     year_of_analysis_2 = 2019, 
-    info_1 = NA,
-    info_2 = NA, 
+    info_1 = NULL,
+    info_2 = NULL, 
     min_age = 20,
     #duration = 2,
     disability_weight = 1)
@@ -976,8 +976,8 @@ comparison_yld_singlebhd_rr_delta <-
     exp_central_1 = 8.85, 
     exp_central_2 = 6,
     cutoff = 5,    
-    bhd_1 = 25000,
-    bhd_2 = 25000,
+    bhd_central_1 = 25000,
+    bhd_central_2 = 25000,
     rr_central = 1.118,
     rr_lower = 1.060,
     rr_upper = 1.179,
@@ -1004,8 +1004,8 @@ comparison_yld_singlebhd_rr_pif <-
     exp_central_1 = 8.85,  
     exp_central_2 = 6,
     cutoff = 5,    
-    bhd_1 = 25000,
-    bhd_2 = 25000,
+    bhd_central_1 = 25000,
+    bhd_central_2 = 25000,
     rr_central = 1.118,
     rr_lower = 1.060,
     rr_upper = 1.179,

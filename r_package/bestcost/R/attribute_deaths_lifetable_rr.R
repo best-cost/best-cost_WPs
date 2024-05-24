@@ -40,19 +40,19 @@
 #' @note Experimental function
 #' @export
 attribute_deaths_lifetable_rr <-
-  function(exp_central, exp_lower = NA, exp_upper = NA,
+  function(exp_central, exp_lower = NULL, exp_upper = NULL,
            prop_pop_exp = 1,
            cutoff,
-           rr_central = NA, rr_lower = NA, rr_upper = NA,
+           rr_central = NULL, rr_lower = NULL, rr_upper = NULL,
            erf_increment, erf_shape,
-           erf_c_central = NA, erf_c_lower = NA, erf_c_upper = NA,
+           erf_c_central = NULL, erf_c_lower = NULL, erf_c_upper = NULL,
            first_age_pop, last_age_pop,
            prob_natural_death_male, prob_natural_death_female,
            prob_total_death_male, prob_total_death_female,
            population_midyear_male, population_midyear_female,
            year_of_analysis,
-           min_age = NA, max_age = NA,
-           info = NA){
+           min_age = NULL, max_age = NULL,
+           info = NULL){
 
     # Check input data ####
 

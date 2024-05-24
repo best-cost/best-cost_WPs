@@ -39,10 +39,10 @@ get_deaths <-
           # Select only relevant columns
           dplyr::select(., age, all_of(population_secondYear_lifetable)) %>%
           # Filter keeping only the relevant age
-          {if(!is.na(max_age))
+          {if(!is.null(max_age))
             dplyr::filter(., age <= max_age)
             else .} %>%
-          {if(!is.na(min_age))
+          {if(!is.null(min_age))
             dplyr::filter(., age >= min_age)
             else .} %>%
           dplyr::select(all_of(population_secondYear_lifetable)) %>%

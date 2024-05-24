@@ -5,8 +5,8 @@
 #' Calculates the health impacts, of an environmental stressor (e.g. noise) using the absolute risk instead of the relative risk
 #' @param exp \code{Vector} showing the mid-point exposure in the exposure categories (average of the exposure ranges) in a exposure distribution referring only to the exposed population. The length of exp and pop_exp must be the same.
 #' @param pop_exp \code{Numeric value} or {vector} showing the population exposed for each of the exposure categories. The length of this input variable must be the same as "exp".
-#' @param erf_c \code{String} showing the user-defined function that puts the relative risk in relation with concentration. The function must have only one variable: c, which means concentration. E.g. "3+c+c^2". Default value = NA.
-#' @param info \code{String} or {data frame} showing additional information or id. The suffix "info" will be added to the column name. Default value = NA.
+#' @param erf_c \code{String} showing the user-defined function that puts the relative risk in relation with concentration. The function must have only one variable: c, which means concentration. E.g. "3+c+c^2". Default value = NULL.
+#' @param info \code{String} or {data frame} showing additional information or id. The suffix "info" will be added to the column name. Default value = NULL.
 
 #' @return
 #' TBD. E.g. This function returns a \code{list} with two \code{data.frames}, one with the total health impact and the second one with a row for each category of the exposure distribution.
@@ -23,10 +23,10 @@
 #'
 #'
 attribute_health_singlebhd_ar <-
-  function(exp_central, exp_lower = NA, exp_upper = NA,
+  function(exp_central, exp_lower = NULL, exp_upper = NULL,
            pop_exp,
-           erf_c_central, erf_c_lower = NA, erf_c_upper = NA,
-           info = NA){
+           erf_c_central, erf_c_lower = NULL, erf_c_upper = NULL,
+           info = NULL){
 
     # Check input data ####
     # TBA: length(exp) == length(pop_exp)

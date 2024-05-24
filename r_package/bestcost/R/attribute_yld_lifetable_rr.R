@@ -30,9 +30,9 @@
 #' @note Experimental function
 #' @export
 attribute_yld_lifetable_rr <-
-  function(exp_central, exp_lower = NA, exp_upper = NA,
+  function(exp_central, exp_lower = NULL, exp_upper = NULL,
            prop_pop_exp = 1,
-           rr_central = NA, rr_lower = NA, rr_upper = NA,
+           rr_central = NULL, rr_lower = NULL, rr_upper = NULL,
            erf_increment, erf_shape, cutoff,
            first_age_pop, last_age_pop,
            prob_natural_death_male, prob_natural_death_female,
@@ -40,11 +40,11 @@ attribute_yld_lifetable_rr <-
            population_midyear_male, population_midyear_female,
            year_of_analysis,
            corrected_discount_rate = 0,
-           min_age = NA, max_age = NA,
-           erf_c_central = NA, erf_c_lower = NA, erf_c_upper = NA,
+           min_age = NULL, max_age = NULL,
+           erf_c_central = NULL, erf_c_lower = NULL, erf_c_upper = NULL,
            disability_weight,
-           info = NA,
-           duration = NA){
+           info = NULL,
+           duration = NULL){
 
     # Check input data ####
 

@@ -36,7 +36,7 @@ get_yld <-
            disability_weight,
            duration = NULL){
 
-    if (is.na(duration)) {duration <- last_age_pop-first_age_pop}
+    if (is.null(duration)) {duration <- last_age_pop-first_age_pop}
 
     lifeyears_byYear <- list()
     yld_by_list<-list()
@@ -52,10 +52,10 @@ get_yld <-
           pop_impact[["pop_impact"]][[s]][[v]] %>%
 
           # Filter keeping only the relevant age
-          {if(!is.na(max_age))
+          {if(!is.null(max_age))
             dplyr::filter(., age <= max_age)
             else .} %>%
-          {if(!is.na(min_age))
+          {if(!is.null(min_age))
             dplyr::filter(., age >= min_age)
             else .} %>%
 

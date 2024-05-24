@@ -4,8 +4,8 @@
 
 #' Calculates the year lived with disability between two scenarios (e.g. before and after a intervention in a health impact assessments). It provides as a result the central estimate as well as the lower and the higher bound of the confidence interval based on the uncertainty of the exposure-response function.
 #' @param comparison_method \code{String} showing the method of comparison. Options: "delta" or "pif".
-#' @param exp_1 \code{Numeric value} showing the population-weighted mean exposure in ug/m3 or {vector} showing the exposure category in a exposure distribution in the scenario 1.
-#' @param exp_2 \code{Numeric value} showing the population-weighted mean exposure in ug/m3 or {vector} showing the exposure category in a exposure distribution in the scenario 2.
+#' @param exp_central_1 \code{Numeric value} showing the population-weighted mean exposure in ug/m3 or {vector} showing the exposure category in a exposure distribution in the scenario 1.
+#' @param exp_central_2 \code{Numeric value} showing the population-weighted mean exposure in ug/m3 or {vector} showing the exposure category in a exposure distribution in the scenario 2.
 #' @param prop_pop_exp_1 \code{Numeric value} or {vector} showing the proportion of population exposed in the scenario 1. The value is a fraction, i.e. values between 0 and 1) for a single exposure value or for multiple categories, i.e., a exposure distribution, respectively. If a exposure distribution is used, the dimension of this input variable should be the same as "exp". By default, 1 for single exposure value will be assigned to this input variable assuming a single exposure value, but users can change this value.
 #' @param prop_pop_exp_2 \code{Numeric value} or {vector} showing the proportion of population exposed in the scenario 2. The value is a fraction, i.e. values between 0 and 1) for a single exposure value or for multiple categories, i.e., a exposure distribution, respectively. If a exposure distribution is used, the dimension of this input variable should be the same as "exp". By default, 1 for single exposure value will be assigned to this input variable assuming a single exposure value, but users can change this value.
 #' @param cutoff \code{Numeric value} showing the cut-off exposure in ug/m3 (i.e. the exposure level below which no health effects occur).
@@ -57,13 +57,15 @@
 #' @export
 compare_yld_lifetable_rr <-
   function(comparison_method = "delta",
-           exp_1, exp_2,
-           prop_pop_exp_1 = 1, prop_pop_exp_2 = 1,
+           exp_central_1, exp_lower_1 = NULL, exp_upper_1 = NULL,
+           exp_central_2, exp_lower_2 = NULL, exp_upper_2 = NULL,
+           prop_pop_exp_1 = 1,
+           prop_pop_exp_2 = 1,
            cutoff,
-           rr,
-           erf_increment,
-           erf_shape,
-           erf_c = NULL,
+           rr_central = NULL, rr_lower = NULL, rr_upper = NULL,
+           erf_increment = NULL,
+           erf_shape = NULL,
+           erf_c_central = NULL, erf_c_lower = NULL, erf_c_upper = NULL,
            first_age_pop_1, last_age_pop_1,
            prob_natural_death_male_1, prob_natural_death_female_1,
            prob_total_death_male_1, prob_total_death_female_1,
@@ -84,13 +86,13 @@ compare_yld_lifetable_rr <-
     # Calculate attributable health impacts in the scenario 1
     att_health_1 <-
       bestcost::attribute_yld_lifetable_rr(
-        exp = exp_1,
+        exp_central = exp_central_1,  exp_lower = exp_lower_1, exp_upper = exp_upper_1,
         prop_pop_exp = prop_pop_exp_1,
         cutoff = cutoff,
-        rr = rr,
+        rr_central = rr_central, rr_lower = rr_lower, rr_upper = rr_upper,
         erf_increment = erf_increment,
         erf_shape = erf_shape,
-        erf_c = erf_c,
+        erf_c_central = erf_c_central, erf_c_lower = erf_c_lower, erf_c_upper = erf_c_upper,
         first_age_pop = first_age_pop_1,
         last_age_pop = last_age_pop_1,
         prob_natural_death_male = prob_natural_death_male_1,
@@ -109,13 +111,13 @@ compare_yld_lifetable_rr <-
     # Calculate attributable health impacts in the scenario 2
     att_health_2 <-
       bestcost::attribute_yld_lifetable_rr(
-        exp = exp_2,
+        exp_central = exp_central_2, exp_lower = exp_lower_2, exp_upper = exp_upper_2,
         prop_pop_exp = prop_pop_exp_2,
         cutoff = cutoff,
-        rr = rr,
+        rr_central = rr_central, rr_lower = rr_lower, rr_upper = rr_upper,
         erf_increment = erf_increment,
         erf_shape = erf_shape,
-        erf_c = erf_c,
+        erf_c_central = erf_c_central, erf_c_lower = erf_c_lower, erf_c_upper = erf_c_upper,
         first_age_pop = first_age_pop_2,
         last_age_pop = last_age_pop_2,
         prob_natural_death_male = prob_natural_death_male_2,
@@ -169,14 +171,15 @@ compare_yld_lifetable_rr <-
       # Compile input data of scenario 1
       input_1 <-
         bestcost::compile_input(
-          exp = exp_1,
+          exp_central = exp_central_1, exp_lower = exp_lower_1, exp_upper = exp_upper_1,
           prop_pop_exp = prop_pop_exp_1,
           cutoff = cutoff,
-          rr = rr,
+          rr_central = rr_central,
+          rr_lower = rr_lower,
+          rr_upper = rr_upper,
           erf_increment = erf_increment,
           erf_shape = erf_shape,
-          erf_c = erf_c,
-          bhd = NULL,
+          erf_c_central = erf_c_central, erf_c_lower = erf_c_lower, erf_c_upper = erf_c_upper,
           min_age = min_age,
           max_age = max_age,
           info = info_1,
@@ -187,14 +190,15 @@ compare_yld_lifetable_rr <-
       # Compile input data of scenario 2
       input_2 <-
         bestcost::compile_input(
-          exp = exp_2,
+          exp_central = exp_central_2, exp_lower = exp_lower_2, exp_upper = exp_upper_2,
           prop_pop_exp = prop_pop_exp_2,
           cutoff = cutoff,
-          rr = rr,
+          rr_central = rr_central,
+          rr_lower = rr_lower,
+          rr_upper = rr_upper,
           erf_increment = erf_increment,
           erf_shape = erf_shape,
-          erf_c = erf_c,
-          bhd = NULL,
+          erf_c_central = erf_c_central, erf_c_lower = erf_c_lower, erf_c_upper = erf_c_upper,
           min_age = min_age,
           max_age = max_age,
           info = info_2,

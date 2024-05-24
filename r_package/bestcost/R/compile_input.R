@@ -10,9 +10,9 @@
 #' @param rr \code{Vector} of three numeric values referring to the central estimate as well as the lower and upper bound of the confidence interval.
 #' @param erf_increment \code{Numeric value} showing the increment of the concentration-response function in ug/m3 (usually 10 or 5).
 #' @param erf_shape \code{String} showing the shape of the exposure-response function to be assumed using the relative risk from the literature as support point. Options: "linear", log_linear", "linear_log", "log_log".
-#' @param erf_c \code{String} showing the user-defined function that puts the relative risk in relation with concentration. The function must have only one variable: c, which means concentration. E.g. "3+c+c^2". Default value = NA.
+#' @param erf_c \code{String} showing the user-defined function that puts the relative risk in relation with concentration. The function must have only one variable: c, which means concentration. E.g. "3+c+c^2". Default value = NULL.
 #' @param bhd \code{Numeric value} showing the baseline health data (incidence of the health outcome in the population).
-#' @param info \code{String} showing additional information or id for the pollutant. The suffix "info" will be added to the column name. Default value = NA.
+#' @param info \code{String} showing additional information or id for the pollutant. The suffix "info" will be added to the column name. Default value = NULL.
 #' @param min_age \code{Numberic value} of the minimal age to be considered for adults (by default 30, i.e. 30+).
 #' @param max_age \code{Numberic value} of the maximal age to be considered for infants/children (by default 0, i.e. below 1 year old).
 #' @param method \code{String} showing the calculation methods.
@@ -35,27 +35,27 @@
 #' @export
 
 compile_input <-
-  function(exp_central, exp_lower = NA, exp_upper = NA,
-           prop_pop_exp = NA,
-           pop_exp = NA,
-           cutoff = NA,
-           rr_central, rr_lower = NA, rr_upper = NA,
-           erf_increment = NA,
-           erf_shape = NA,
-           erf_c_central = NA, erf_c_lower = NA, erf_c_upper = NA,
-           bhd_central = NA, bhd_lower = NA, bhd_upper = NA,
-           min_age = NA,
-           max_age = NA,
-           info = NA,
-           method = NA,
-           disability_weight = NA,
-           duration = NA){
+  function(exp_central, exp_lower = NULL, exp_upper = NULL,
+           prop_pop_exp = NULL,
+           pop_exp = NULL,
+           cutoff = NULL,
+           rr_central, rr_lower = NULL, rr_upper = NULL,
+           erf_increment = NULL,
+           erf_shape = NULL,
+           erf_c_central = NULL, erf_c_lower = NULL, erf_c_upper = NULL,
+           bhd_central = NULL, bhd_lower = NULL, bhd_upper = NULL,
+           min_age = NULL,
+           max_age = NULL,
+           info = NULL,
+           method = NULL,
+           disability_weight = NULL,
+           duration = NULL){
 
     # Check input data ####
     stopifnot(exprs = {
       #length(exp) == length(prop_pop_exp)
-      #is.na(min_age) == FALSE
-      #is.na(max_age) == FALSE
+      #is.null(min_age) == FALSE
+      #is.null(max_age) == FALSE
     })
 
 
@@ -63,11 +63,12 @@ compile_input <-
 
     # If the erf is defined by rr, increment, shape and cutoff
 
-    if(is.na(erf_c_central)){
+    if(is.null(erf_c_central)){
       # Input data in data frame ####
       # Compile rr data to assign categories
       erf_data <-
-        data.frame(
+        # tibble instead of data.frame because tibble converts NULL into NA
+        dplyr::tibble(
           erf_increment = erf_increment,
           erf_shape = erf_shape,
           cutoff = cutoff,
@@ -77,9 +78,10 @@ compile_input <-
     }
 
     # If it is defined by the erf function
-    if(!is.na(erf_c_central)){
+    if(!is.null(erf_c_central)){
       erf_data <-
-        data.frame(
+        # tibble instead of data.frame because tibble converts NULL into NA
+        dplyr::tibble(
           erf_c_central = erf_c_central,
           erf_c_lower = erf_c_lower,
           erf_c_upper = erf_c_upper)
@@ -87,12 +89,10 @@ compile_input <-
     }
 
 
-
-
-
     # Compile input data except meta-info
     input <-
-      data.frame(
+      # Build a tibble instead  a data.frame because tibble converts NULL into NA
+      dplyr::tibble(
         exp_central = exp_central, exp_lower = exp_lower, exp_upper = exp_upper,
         prop_pop_exp = prop_pop_exp,
         pop_exp = pop_exp,
@@ -112,7 +112,7 @@ compile_input <-
         # Add the method that refer to the function
         method = method)%>%
       # Remove all columns with all values being NA
-      dplyr::select(where(~ !all(is.na(.))))%>%
+      dplyr::select(where(~ !all(is.null(.))))%>%
       # Pivot longer to show all combinations of central, lower and upper estimate
       # (relevant for iteration)
       ## For exposure,
@@ -122,7 +122,7 @@ compile_input <-
                           names_prefix = "exp_",
                           values_to = "exp") %>%
       ## Exposure response function &
-      {if(is.na(erf_c_central))
+      {if(is.null(erf_c_central))
         tidyr::pivot_longer(.,
                             cols = starts_with("rr_"),
                             names_to = "erf_ci",
@@ -135,7 +135,7 @@ compile_input <-
                               names_prefix = "erf_c_",
                               values_to = "erf_c")}%>%
       ## Baseline health data
-      {if(!is.na(bhd_central))
+      {if(!is.null(bhd_central))
         tidyr::pivot_longer(.,
                             cols = starts_with("bhd_"),
                             names_to = "bhd_ci",

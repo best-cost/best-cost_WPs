@@ -29,14 +29,14 @@
 #' @note Experimental function
 #' @export
 attribute_yld_singlebhd_rr <-
-  function(exp_central, exp_lower = NA, exp_upper = NA,
+  function(exp_central, exp_lower = NULL, exp_upper = NULL,
            prop_pop_exp = 1,
            cutoff,
-           rr_central = NA, rr_lower = NA, rr_upper = NA,
+           rr_central = NULL, rr_lower = NULL, rr_upper = NULL,
            erf_increment,
            erf_shape,
-           erf_c_central = NA, erf_c_lower = NA, erf_c_upper = NA,
-           bhd_central, bhd_lower = NA, bhd_upper = NA,
+           erf_c_central = NULL, erf_c_lower = NULL, erf_c_upper = NULL,
+           bhd_central, bhd_lower = NULL, bhd_upper = NULL,
            disability_weight,
            info = NULL){
 

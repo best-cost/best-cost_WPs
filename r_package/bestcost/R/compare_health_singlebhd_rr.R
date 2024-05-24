@@ -37,45 +37,45 @@
 #' @export
 compare_health_singlebhd_rr <-
   function(comparison_method = "delta",
-           exp_central_1, exp_lower_1 = NA, exp_upper_1 = NA,
-           exp_central_2, exp_lower_2 = NA, exp_upper_2 = NA,
+           exp_central_1, exp_lower_1 = NULL, exp_upper_1 = NULL,
+           exp_central_2, exp_lower_2 = NULL, exp_upper_2 = NULL,
            prop_pop_exp_1 = 1,
            prop_pop_exp_2 = 1,
            cutoff,
-           rr_central = NA, rr_lower = NA, rr_upper = NA,
-           erf_increment = NA,
-           erf_shape = NA,
-           erf_c_central = NA, erf_c_lower = NA, erf_c_upper = NA,
-           bhd_central_1, bhd_lower_1 = NA, bhd_upper_1 = NA,
-           bhd_central_2, bhd_lower_2 = NA, bhd_upper_2 = NA,
-           info_1 = NA, info_2 = NA){
+           rr_central = NULL, rr_lower = NULL, rr_upper = NULL,
+           erf_increment = NULL,
+           erf_shape = NULL,
+           erf_c_central = NULL, erf_c_lower = NULL, erf_c_upper = NULL,
+           bhd_central_1, bhd_lower_1 = NULL, bhd_upper_1 = NULL,
+           bhd_central_2, bhd_lower_2 = NULL, bhd_upper_2 = NULL,
+           info_1 = NULL, info_2 = NULL){
 
 
 
     # Calculate attributable health impacts in the scenario 1
     att_health_1 <-
       bestcost::attribute_health_singlebhd_rr(
-        exp_central = exp_central_1,
+        exp_central = exp_central_1, exp_lower = exp_lower_1, exp_upper = exp_upper_1,
         prop_pop_exp = prop_pop_exp_1,
         cutoff = cutoff,
         rr_central = rr_central, rr_lower = rr_lower, rr_upper = rr_upper,
         erf_increment = erf_increment,
         erf_shape = erf_shape,
         erf_c_central = erf_c_central, erf_c_lower = erf_c_lower, erf_c_upper = erf_c_upper,
-        bhd_central = bhd_central_1, bhd_lower = bhd_lower_2, bhd_upper = bhd_upper_2,
+        bhd_central = bhd_central_1, bhd_lower = bhd_lower_1, bhd_upper = bhd_upper_1,
         info = info_1)
 
     # Calculate attributable health impacts in the scenario 2
     att_health_2 <-
       bestcost::attribute_health_singlebhd_rr(
-        exp_central = exp_central_2,
+        exp_central = exp_central_2, exp_lower = exp_lower_2, exp_upper = exp_upper_2,
         prop_pop_exp = prop_pop_exp_2,
         cutoff = cutoff,
         rr_central = rr_central, rr_lower = rr_lower, rr_upper = rr_upper,
         erf_increment = erf_increment,
         erf_shape = erf_shape,
         erf_c_central = erf_c_central, erf_c_lower = erf_c_lower, erf_c_upper = erf_c_upper,
-        bhd_central = bhd_central_1, bhd_lower = bhd_lower_2, bhd_upper = bhd_upper_2,
+        bhd_central = bhd_central_2, bhd_lower = bhd_lower_2, bhd_upper = bhd_upper_2,
         info = info_2)
 
     # Identify the columns that are common for scenario 1 and 2
@@ -101,8 +101,9 @@ compare_health_singlebhd_rr <-
     # impact is overwritten with the new values that refer to pif instead of paf
     if(comparison_method == "pif" &
        bhd_central_1 == bhd_central_2 &
-       ((is.na(bhd_lower_1) & is.na(bhd_lower_2)) | bhd_lower_1 == bhd_lower_2) &
-       ((is.na(bhd_upper_1) & is.na(bhd_upper_2)) | bhd_upper_1 == bhd_upper_2)){
+       # Either both NULL or identical. Use the function identical() to enable NULL==NULL
+       ((is.null(bhd_lower_1) & is.null(bhd_lower_2)) | identical(bhd_lower_1, bhd_lower_2)) &
+       ((is.null(bhd_upper_1) & is.null(bhd_upper_2)) | identical(bhd_upper_1, bhd_upper_2))){
 
       att_health <-
         att_health %>%

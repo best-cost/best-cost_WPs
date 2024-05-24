@@ -55,15 +55,15 @@
 #' @export
 compare_deaths_lifetable_rr <-
   function(comparison_method = "delta",
-           exp_central_1, exp_lower_1 = NA, exp_upper_1 = NA,
-           exp_central_2, exp_lower_2 = NA, exp_upper_2 = NA,
+           exp_central_1, exp_lower_1 = NULL, exp_upper_1 = NULL,
+           exp_central_2, exp_lower_2 = NULL, exp_upper_2 = NULL,
            prop_pop_exp_1 = 1,
            prop_pop_exp_2 = 1,
            cutoff,
-           rr_central = NA, rr_lower = NA, rr_upper = NA,
-           erf_increment = NA,
-           erf_shape = NA,
-           erf_c_central = NA, erf_c_lower = NA, erf_c_upper = NA,
+           rr_central = NULL, rr_lower = NULL, rr_upper = NULL,
+           erf_increment = NULL,
+           erf_shape = NULL,
+           erf_c_central = NULL, erf_c_lower = NULL, erf_c_upper = NULL,
            first_age_pop_1, last_age_pop_1,
            prob_natural_death_male_1, prob_natural_death_female_1,
            prob_total_death_male_1, prob_total_death_female_1,
@@ -74,8 +74,8 @@ compare_deaths_lifetable_rr <-
            prob_total_death_male_2, prob_total_death_female_2,
            population_midyear_male_2, population_midyear_female_2,
            year_of_analysis_2,
-           min_age = NA, max_age = NA,
-           info_1 = NA, info_2 = NA){
+           min_age = NULL, max_age = NULL,
+           info_1 = NULL, info_2 = NULL){
 
 
 
