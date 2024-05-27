@@ -98,12 +98,12 @@ compile_input <-
       dplyr::tibble(
         geo_id_raw,
         geo_id_aggregated,
-        exp_central = exp_central, exp_lower = exp_lower, exp_upper = exp_upper,
+        exp_central = unlist(exp_central), exp_lower = unlist(exp_lower), exp_upper = unlist(exp_upper),
         prop_pop_exp = prop_pop_exp,
         pop_exp = pop_exp,
         disability_weight = disability_weight,
         duration = duration,
-        bhd_central = bhd_central, bhd_lower = bhd_lower, bhd_upper = bhd_upper) %>%
+        bhd_central = unlist(bhd_central), bhd_lower = unlist(bhd_lower), bhd_upper = unlist(bhd_upper)) %>%
       # Add rr with a cross join to produce all likely combinations
       dplyr::bind_cols(., erf_data) %>%
       # Add additional (meta-)information
@@ -116,9 +116,9 @@ compile_input <-
                                   NA)),
         # Add the method that refer to the function
         method = method,
-        exp_type = ifelse(unlist(unique(map(exp_central, function(x) length(x)))),
-                          "pop_weighted_mean",
-                          "exposure_distribution"))%>%
+        exposure_type = ifelse(unlist(unique(map(exp_central, function(x) length(x)))),
+                               "population_weighted_mean",
+                               "exposure_distribution"))%>%
       # Remove all columns with all values being NA
       dplyr::select(where(~ !all(is.null(.))))%>%
       # Pivot longer to show all combinations of central, lower and upper estimate

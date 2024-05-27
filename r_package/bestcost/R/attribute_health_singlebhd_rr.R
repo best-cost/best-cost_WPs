@@ -67,12 +67,12 @@ attribute_health_singlebhd_rr <-
       calculation <-
         calculation %>%
         # Group by higher geo level
-        dplyr::group_by(geo_id_aggregated) %>%
+        dplyr::group_by(geo_id_aggregated, exp_ci, bhd_ci, erf_ci) %>%
         dplyr::summarise(impact = sum(impact),
-                         impact_rounded = rounded(impact))
+                         impact_rounded = round(impact),
+                         .groups = "drop")%>%
+        dplyr::bind_rows(calculation, .)
     }
-
-
 
 
 
@@ -83,7 +83,7 @@ attribute_health_singlebhd_rr <-
       dplyr::filter(exp_ci %in% "central", bhd_ci %in% "central")
 
 
-   output <- list(total = calculation_exp_bhd_central,
+   output <- list(main = calculation_exp_bhd_central,
                   detailed = calculation)
 
     return(output)

@@ -124,7 +124,7 @@ compare_health_singlebhd_rr <-
         att_health %>%
         mutate(impact_rounded = round(impact, 0))
 
-   output <- list(total = att_health,
+   output <- list(main = att_health,
                   detailed = list(scenario_1 = att_health_1,
                                   scenario_2 = att_health_2))
 

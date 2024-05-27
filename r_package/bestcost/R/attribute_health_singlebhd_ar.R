@@ -66,7 +66,7 @@ attribute_health_singlebhd_ar <-
                     impact_rounded = round(impact, 0))
 
     output <-
-      list(total = output_total,
+      list(main = output_total,
            detailed = list(by_exp_category = output_byExposureCategory))
 
     return(output)

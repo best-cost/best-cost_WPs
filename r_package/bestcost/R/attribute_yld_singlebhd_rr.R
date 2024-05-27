@@ -64,7 +64,7 @@ attribute_yld_singlebhd_rr <-
       dplyr::mutate(impact = paf * bhd * disability_weight,
                     impact_rounded = round(impact, 0))
 
-    output <- list(total = dat)
+    output <- list(main = dat)
 
     return(output)
 

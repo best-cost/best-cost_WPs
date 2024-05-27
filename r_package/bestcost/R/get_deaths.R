@@ -94,7 +94,7 @@ get_deaths <-
       dplyr::filter(sex %in% "total")
 
 
-    output <- list(total = deaths,
+    output <- list(main = deaths,
                    detailed = deaths_detailed)
 
     return(output)

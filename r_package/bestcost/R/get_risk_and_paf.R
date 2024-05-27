@@ -28,6 +28,7 @@ get_risk_and_paf <-
       input %>%
       dplyr::rowwise(.) %>%
       dplyr::mutate(
+        # Obtain the relative risk for the relevant concentration
         rr_conc =
           bestcost::get_risk(rr = rr,
                              exp = exp,
@@ -54,7 +55,7 @@ get_risk_and_paf <-
     # Data wrangling ####
     # Only if exposure distribution (multiple exposure categories)
     # then reduce the number of rows to keep the same number as in rr
-    if(unique(input$exp_type) == "exp_distribution"){
+    if(unique(input$exposure_type) == "exposure_distribution"){
       input_risk_paf <-
         input_risk_paf %>%
         dplyr::mutate(

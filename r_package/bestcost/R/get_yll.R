@@ -160,7 +160,7 @@ get_yll <-
     }
 
 
-    output <- list(total = yll, detailed = yll_detailed)
+    output <- list(main = yll, detailed = yll_detailed)
 
     return(output)
   }
