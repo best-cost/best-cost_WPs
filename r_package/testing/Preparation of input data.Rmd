@@ -468,7 +468,12 @@ check_bestcost <-
 
 
 
-
+runif_with_seed <- 
+  function(n, min, max, seed){
+    set.seed(seed)
+    
+    output <- runif(n, min, max)
+  }
 
 
 ```
@@ -1106,7 +1111,8 @@ rm(list=setdiff(ls(),
                   # Functions
                   "paste_round_CI",
                   "round_keeping0",
-                  "check_bestcost"
+                  "check_bestcost",
+                  "runif_with_seed"
                   )))
 save.image(file = "../testing/input/data/input_data_for_testing_Rpackage.RData")
 ```

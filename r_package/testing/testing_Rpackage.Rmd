@@ -91,7 +91,6 @@ load("../testing/input/data/input_data_for_testing_Rpackage.RData")
 ### Single baseline health data
 
 ```{r single exposure value}
-
 # Assess attributable cases using the AirQ+ export as input data
 bestcost_pm_copd <-
   bestcost::attribute_health_singlebhd_rr(
@@ -116,7 +115,47 @@ airqplus_pm_copd_result <-
 
 check_bestcost(result_list_bestcost = bestcost_pm_copd,
                result_vector_alternative = airqplus_pm_copd_result)
+```
 
+
+```{r multiple single exposure value}
+# Assess attributable cases for multiple uncertainties at the same time
+# i.e. rr, bhd and exp
+bestcost_pm_copd_multiple <-
+  bestcost::attribute_health_singlebhd_rr(
+    exp_central = airqplus_pm_copd$mean_concentration,
+    exp_lower = 8,
+    exp_upper = 9,
+    cutoff = airqplus_pm_copd$cut_off_value,   
+    bhd_central = airqplus_pm_copd$incidents_per_100_000_per_year/1E5*airqplus_pm_copd$population_at_risk,
+    bhd_lower = 25000,
+    bhd_upper = 35000,
+    rr_central = airqplus_pm_copd$relative_risk, 
+    rr_lower = airqplus_pm_copd$relative_risk_lower,
+    rr_upper = airqplus_pm_copd$relative_risk_upper,
+    erf_increment = 10, 
+    erf_shape = "log_linear", 
+    info = paste0(airqplus_pm_copd$pollutant,"_", airqplus_pm_copd$evaluation_name))
+
+
+# Assess multiple geographical sections keeping the multiple uncertainties
+bestcost_pm_copd_multiple <-
+  bestcost::attribute_health_singlebhd_rr(
+    exp_central = as.list(runif_with_seed(26, 8.0, 9.0, 1)),
+    exp_lower = as.list(runif_with_seed(26, 8.0, 9.0, 1)-0.1),
+    exp_upper = as.list(runif_with_seed(26, 8.0, 9.0, 1)+0.1),
+    cutoff = 5,   
+    bhd_central = as.list(runif_with_seed(26, 25000, 35000, 1)),
+    bhd_lower = as.list(runif_with_seed(26, 25000, 35000, 1)),
+    bhd_upper = as.list(runif_with_seed(26, 25000, 35000, 1)),
+    rr_central = 1.369, 
+    rr_lower = 1.124,
+    rr_upper = 1.664,
+    erf_increment = 10, 
+    erf_shape = "log_linear", 
+    geo_id_raw = 1:26, 
+    geo_id_aggregated = "CH",
+    info = "PM2.5_copd")
 
 ```
 

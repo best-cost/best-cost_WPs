@@ -35,7 +35,8 @@
 #' @export
 
 compile_input <-
-  function(exp_central, exp_lower = NULL, exp_upper = NULL,
+  function(
+           exp_central, exp_lower = NULL, exp_upper = NULL,
            prop_pop_exp = NULL,
            pop_exp = NULL,
            cutoff = NULL,
@@ -46,6 +47,8 @@ compile_input <-
            bhd_central = NULL, bhd_lower = NULL, bhd_upper = NULL,
            min_age = NULL,
            max_age = NULL,
+           geo_id_raw = NULL,
+           geo_id_aggregated = NULL,
            info = NULL,
            method = NULL,
            disability_weight = NULL,
@@ -93,6 +96,8 @@ compile_input <-
     input <-
       # Build a tibble instead  a data.frame because tibble converts NULL into NA
       dplyr::tibble(
+        geo_id_raw,
+        geo_id_aggregated,
         exp_central = exp_central, exp_lower = exp_lower, exp_upper = exp_upper,
         prop_pop_exp = prop_pop_exp,
         pop_exp = pop_exp,
@@ -110,7 +115,10 @@ compile_input <-
                            ifelse(!is.null(min_age) & is.null(max_age), paste0("from", min_age),
                                   NA)),
         # Add the method that refer to the function
-        method = method)%>%
+        method = method,
+        exp_type = ifelse(unlist(unique(map(exp_central, function(x) length(x)))),
+                          "pop_weighted_mean",
+                          "exposure_distribution"))%>%
       # Remove all columns with all values being NA
       dplyr::select(where(~ !all(is.null(.))))%>%
       # Pivot longer to show all combinations of central, lower and upper estimate

@@ -31,6 +31,7 @@ attribute_health_singlebhd_rr <-
            erf_shape = NULL,
            erf_c_central = NULL, erf_c_lower = NULL, erf_c_upper = NULL,
            bhd_central, bhd_lower = NULL, bhd_upper = NULL,
+           geo_id_raw = NULL, geo_id_aggregated = NULL,
            info = NULL){
 
     # Compile input data and calculate paf putting all into a data frame
@@ -44,6 +45,8 @@ attribute_health_singlebhd_rr <-
         erf_shape = erf_shape,
         erf_c_central = erf_c_central, erf_c_lower = erf_c_lower, erf_c_upper = erf_c_upper,
         bhd_central = bhd_central, bhd_lower = bhd_lower, bhd_upper = bhd_upper,
+        geo_id_raw = geo_id_raw,
+        geo_id_aggregated = geo_id_aggregated,
         info = info,
         method = "singlebhd_rr")
 
@@ -54,15 +57,34 @@ attribute_health_singlebhd_rr <-
         dplyr::mutate(impact = paf * bhd,
                       impact_rounded = round(impact, 0)) %>%
         # Order columns
-        dplyr::select(exp,
-                      cutoff,
-                      bhd,
-                      rr,
-                      rr_conc, erf_increment, erf_ci, erf_shape,
+        dplyr::select(exp_ci, bhd_ci, erf_ci,
                       paf, impact, impact_rounded,
                       everything())
 
-   output <- list(total = calculation)
+    # Aggregate results by higher geo_level
+    # only if geo_id_aggregated is defined
+    if(!is.null(geo_id_aggregated)){
+      calculation <-
+        calculation %>%
+        # Group by higher geo level
+        dplyr::group_by(geo_id_aggregated) %>%
+        dplyr::summarise(impact = sum(impact),
+                         impact_rounded = rounded(impact))
+    }
+
+
+
+
+
+    # Filter for total list element
+    # Keep only exp_ci = central and bhd_ci=central
+    calculation_exp_bhd_central <-
+      calculation %>%
+      dplyr::filter(exp_ci %in% "central", bhd_ci %in% "central")
+
+
+   output <- list(total = calculation_exp_bhd_central,
+                  detailed = calculation)
 
     return(output)
   }
