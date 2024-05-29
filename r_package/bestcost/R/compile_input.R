@@ -78,10 +78,8 @@ compile_input <-
           rr_central = rr_central,
           rr_lower =  rr_lower,
           rr_upper = rr_upper)
-    }
 
-    # If it is defined by the erf function
-    if(!is.null(erf_c_central)){
+    }else{ # If it is defined by the erf function
       erf_data <-
         # tibble instead of data.frame because tibble converts NULL into NA
         dplyr::tibble(
@@ -91,19 +89,37 @@ compile_input <-
 
     }
 
+    # Store the lentgh of the exposure distribution (to be used below)
+    # Let's take the first element
+    length_expDist <-
+      ifelse(is.list(exp_central),
+             length(exp_central[[1]]),
+             length(exp_central))
 
-    # Compile input data except meta-info
+
     input <-
       # Build a tibble instead  a data.frame because tibble converts NULL into NA
       dplyr::tibble(
-        geo_id_raw,
-        geo_id_aggregated,
-        exp_central = unlist(exp_central), exp_lower = unlist(exp_lower), exp_upper = unlist(exp_upper),
-        prop_pop_exp = prop_pop_exp,
-        pop_exp = pop_exp,
+        # First compile input data that are only geo-dependent,
+        # ie. those which require adjustment to have the same dimension
+        # as those with multiple dimension because of exposure distribution
+        # Let's use rep() to ensure that there is dimension match
+        geo_id_raw = rep(geo_id_raw, each = length_expDist) ,
+        geo_id_aggregated = rep(geo_id_aggregated, each = length_expDist),
+        bhd_central = rep(unlist(bhd_central), each = length_expDist),
+        bhd_lower = rep(unlist(bhd_lower), each = length_expDist),
+        bhd_upper = rep(unlist(bhd_lower), each = length_expDist),
+        # Second those variables that will have lenght = 1 (no problematic)
         disability_weight = disability_weight,
         duration = duration,
-        bhd_central = unlist(bhd_central), bhd_lower = unlist(bhd_lower), bhd_upper = unlist(bhd_upper)) %>%
+        # Finally, those variables that are multi-dimentional (exposure distribution)
+        exp_central = unlist(exp_central),
+        exp_lower = unlist(exp_lower),
+        exp_upper = unlist(exp_upper),
+        prop_pop_exp = unlist(prop_pop_exp),
+        pop_exp = unlist(pop_exp),
+        ) %>%
+
       # Add rr with a cross join to produce all likely combinations
       dplyr::bind_cols(., erf_data) %>%
       # Add additional (meta-)information

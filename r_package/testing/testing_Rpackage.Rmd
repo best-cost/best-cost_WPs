@@ -154,7 +154,7 @@ bestcost_pm_copd_multiple <-
     erf_increment = 10, 
     erf_shape = "log_linear", 
     geo_id_raw = 1:1E4, 
-    geo_id_aggregated = "CH",
+    geo_id_aggregated = rep("CH", 1E4),
     info = "PM2.5_copd")
 
 ```
@@ -220,6 +220,26 @@ bestcost_noise_ihd_expDist <-
 
 check_bestcost(result_list_bestcost = bestcost_noise_ihd_expDist,
                result_vector_alternative = niph_noise_ihd_result)
+
+# Obtain attributable cases using the bestcost package
+# for multiple geo_sections
+bestcost_noise_ihd_expDist_multiple <- 
+  bestcost::attribute_health_singlebhd_rr(
+    exp_central = list(runif_with_seed(5,8,10,1), 
+                          runif_with_seed(5,8,10,2), 
+                          runif_with_seed(5,8,10,3)),
+    cutoff = 5,
+    prop_pop_exp = list(runif_with_seed(5,0.1,1,1), 
+                        runif_with_seed(5,0.1,1,2), 
+                        runif_with_seed(5,0.1,1,3)),
+    bhd_central = list(runif_with_seed(3,1E4,1E5,1)),
+    rr_central = 1.08,
+    erf_increment = 10, 
+    erf_shape = "log_linear",
+    geo_id_raw = 1:3,
+    geo_id_aggregated = rep("ch", 3),
+    info = data.frame(pollutant = "road_noise", outcome = "highly_annoyance"))
+
                                                
 
 ```
@@ -254,6 +274,21 @@ bestcost_noise_ha_ar <-
 check_bestcost(result_list_bestcost = bestcost_noise_ha_ar,
                result_vector_alternative = niph_noise_ha_result)
 
+
+
+# Obtain attributable cases using the bestcost package and input data from niph
+# for multiple geo_sections
+bestcost_noise_ha_ar_multiple <- 
+  bestcost::attribute_health_singlebhd_ar(
+    exp_central = list(runif_with_seed(5,8,10,1), 
+                          runif_with_seed(5,8,10,2), 
+                          runif_with_seed(5,8,10,3)),
+    pop_exp = list(runif_with_seed(5,5E3,1E4,1), 
+                   runif_with_seed(5,5E3,1E4,2), 
+                   runif_with_seed(5,5E3,1E4,3)), 
+    erf_c_central = "78.9270-3.1162*c+0.0342*c^2",
+    geo_id_raw = 1:3,
+    info = data.frame(pollutant = "road_noise", outcome = "highly_annoyance"))
 
 ```
 

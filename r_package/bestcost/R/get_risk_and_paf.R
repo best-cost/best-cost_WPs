@@ -40,8 +40,6 @@ get_risk_and_paf <-
     # Calculate population attributable fraction (PAF) ####
     input_risk_paf <-
       input_and_risk %>%
-      #dplyr::mutate(paf = bestcost::get_paf(rr_conc = rr_conc,
-      #                                         prop_pop_exp = prop_pop_exp))
       # Group by exp in case that there are different exposure categories
       dplyr::group_by(erf_ci, exp_ci) %>%
       dplyr::summarize(paf = bestcost::get_paf(rr_conc = rr_conc,
