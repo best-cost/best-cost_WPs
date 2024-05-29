@@ -116,9 +116,13 @@ compile_input <-
                                   NA)),
         # Add the method that refer to the function
         method = method,
-        exposure_type = ifelse(unlist(unique(map(exp_central, function(x) length(x)))),
-                               "population_weighted_mean",
-                               "exposure_distribution"))%>%
+        exposure_type =
+          ifelse((is.list(exp_central) &
+                   unique(purrr::map_int(exp_central, function(x) length(x))) == 1) |
+                   (is.vector(exp_central) &
+                      length(exp_central) == 1),
+                 "population_weighted_mean",
+                 "exposure_distribution"))%>%
       # Remove all columns with all values being NA
       dplyr::select(where(~ !all(is.null(.))))%>%
       # Pivot longer to show all combinations of central, lower and upper estimate
