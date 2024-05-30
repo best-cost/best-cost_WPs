@@ -293,6 +293,28 @@ bestcost_noise_ha_ar_multiple <-
 ```
 
 
+```{r morbidity yld lifetable with single relative risk}
+
+bestcost_pm_yld_singlebhd  <- 
+  bestcost::attribute_yld_singlebhd_rr(
+    exp_central = 8.85, 
+    cutoff = 5,    
+    bhd_central = 25000,
+    rr_central = 1.118,
+    rr_lower = 1.060, 
+    rr_upper = 1.179,
+    erf_increment = 10, 
+    erf_shape = "log_linear", 
+    disability_weight = 0.5)
+
+# No study to compare bestcost results
+# Check only if results stay the same overtime despite developments
+check_bestcost(result_list_bestcost = bestcost_pm_yld_singlebhd ,
+               result_vector_alternative = c(525, 277, 768)) # Result on 16 May 2024
+
+
+```
+
 
 ### Life table
 
@@ -638,28 +660,6 @@ bestcost_pm_yld_lifetable_geluft  <-
 # and the result should be identical.
 check_bestcost(result_list_bestcost = bestcost_pm_yld_lifetable_geluft,
                result_vector_alternative = c(27742, 14641, 40542))
-
-
-```
-
-```{r morbidity yld lifetable with single relative risk}
-
-bestcost_pm_yld_singlebhd  <- 
-  bestcost::attribute_yld_singlebhd_rr(
-    exp_central = 8.85, 
-    cutoff = 5,    
-    bhd_central = 25000,
-    rr_central = 1.118,
-    rr_lower = 1.060, 
-    rr_upper = 1.179,
-    erf_increment = 10, 
-    erf_shape = "log_linear", 
-    disability_weight = 0.5)
-
-# No study to compare bestcost results
-# Check only if results stay the same overtime despite developments
-check_bestcost(result_list_bestcost = bestcost_pm_yld_singlebhd ,
-               result_vector_alternative = c(525, 277, 768)) # Result on 16 May 2024
 
 
 ```

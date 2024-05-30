@@ -117,8 +117,7 @@ compile_input <-
         exp_lower = unlist(exp_lower),
         exp_upper = unlist(exp_upper),
         prop_pop_exp = unlist(prop_pop_exp),
-        pop_exp = unlist(pop_exp),
-        ) %>%
+        pop_exp = unlist(pop_exp)) %>%
 
       # Add rr with a cross join to produce all likely combinations
       dplyr::bind_cols(., erf_data) %>%

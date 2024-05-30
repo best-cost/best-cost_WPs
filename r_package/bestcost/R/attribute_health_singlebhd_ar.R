@@ -53,10 +53,11 @@ attribute_health_singlebhd_ar <-
         population_affected = absolute_risk_as_percent/100 * pop_exp,
         population_affected_rounded = round(population_affected, 0))
 
-    output_total <-
+    output_total_exposure <-
       output_byExposureCategory %>%
       dplyr::mutate(exp = paste(exp, collapse = ", ")) %>%
-      dplyr::group_by(exp,
+      dplyr::group_by(geo_id_raw,
+                      exp,
                       erf_ci,
                       erf_c,
                       method,
@@ -71,8 +72,8 @@ attribute_health_singlebhd_ar <-
     # Aggregate results by higher geo_level
     # only if geo_id_aggregated is defined
     if(!is.null(geo_id_aggregated)){
-      output_total <-
-        output_total %>%
+      output_total_exposure <-
+        output_total_exposure %>%
         # Group by higher geo level
         dplyr::group_by(geo_id_aggregated, exp_ci, bhd_ci, erf_ci) %>%
         dplyr::summarise(impact = sum(impact),
@@ -83,7 +84,7 @@ attribute_health_singlebhd_ar <-
 
 
     output <-
-      list(main = output_total,
+      list(main = output_total_exposure,
            detailed = list(by_exp_category = output_byExposureCategory))
 
     return(output)

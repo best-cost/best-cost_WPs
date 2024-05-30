@@ -56,15 +56,17 @@ attribute_yld_singlebhd_rr <-
         erf_shape = erf_shape,
         erf_c_central = erf_c_central, erf_c_lower = erf_c_lower, erf_c_upper = erf_c_upper,
         bhd_central = bhd_central, bhd_lower = bhd_lower, bhd_upper = bhd_upper,
-        info = info)[["total"]]
+        info = info)
 
     # Calculate YLD and add as column
-    dat <-
+    output <-
       dat %>%
-      dplyr::mutate(impact = paf * bhd * disability_weight,
-                    impact_rounded = round(impact, 0))
+      purrr::map(., function(x)
+        dplyr::mutate(x,
+                      impact = paf * bhd * disability_weight,
+                      impact_rounded = round(impact, 0)))
 
-    output <- list(main = dat)
+
 
     return(output)
 
