@@ -5,7 +5,7 @@
 #' @param prop_pop_exp \code{Numeric value} or {Numeric vector} Fraction (values between 0 & 1) of the total population exposed to (one or more) exposure categories, i.e., a exposure distribution, respectively. If a exposure distribution is used, the dimension of this input variable should be the same as "exp". By default, 1 for single exposure value will be assigned to this input variable assuming a single exposure value, but users can change this value.
 #' @param cutoff \code{Numeric value} showing the cut-off exposure in ug/m3 (i.e. the exposure level below which no health effects occur).
 #' @param rr \code{Numeric vector} of three numeric values referring to the central estimate of the exposure-response function and the corresponding lower and upper 95\% confidence interval bounds.
-#' @param rr_increment \code{Numeric value} showing the increment of the exposure-response function in ug/m3 (usually 10 or 5).
+#' @param erf_increment \code{Numeric value} showing the increment of the exposure-response function in ug/m3 (usually 10 or 5).
 #' @param erf_shape \code{Character string} either "linear" or "loglinear".
 #' @param first_age_pop \code{Numeric value} starting age of the youngest age group from population and life table data
 #' @param last_age_pop \code{Numeric value} ending age of the oldest age group from population and life table data
@@ -30,8 +30,10 @@
 #' @note Experimental function
 #' @export
 attribute_yld_lifetable_rr <-
-  function(exp, prop_pop_exp = 1,
-           rr, rr_increment, erf_shape, cutoff,
+  function(exp_central, exp_lower = NULL, exp_upper = NULL,
+           prop_pop_exp = 1,
+           rr_central = NULL, rr_lower = NULL, rr_upper = NULL,
+           erf_increment, erf_shape, cutoff,
            first_age_pop, last_age_pop,
            prob_natural_death_male, prob_natural_death_female,
            prob_total_death_male, prob_total_death_female,
@@ -39,7 +41,7 @@ attribute_yld_lifetable_rr <-
            year_of_analysis,
            corrected_discount_rate = 0,
            min_age = NULL, max_age = NULL,
-           erf_c = NULL,
+           erf_c_central = NULL, erf_c_lower = NULL, erf_c_upper = NULL,
            disability_weight,
            info = NULL,
            duration = NULL){
@@ -49,16 +51,15 @@ attribute_yld_lifetable_rr <-
     # Compile input data and calculate paf putting all into a data frame
     input <-
       bestcost::compile_input(
-        exp = exp,
+        exp_central = exp_central, exp_lower = exp_lower, exp_upper = exp_upper,
         prop_pop_exp = prop_pop_exp,
         disability_weight = disability_weight,
         duration = duration,
         cutoff = cutoff,
-        rr = rr,
-        rr_increment = rr_increment,
+        rr_central = rr_central, rr_lower = rr_lower, rr_upper = rr_upper,
+        erf_increment = erf_increment,
         erf_shape = erf_shape,
-        erf_c = erf_c,
-        bhd = NULL,
+        erf_c_central = erf_c_central, erf_c_lower = erf_c_lower, erf_c_upper = erf_c_upper,
         min_age = min_age,
         max_age = max_age,
         info = info,
@@ -107,7 +108,7 @@ attribute_yld_lifetable_rr <-
     # Compile output ####
     output <-
       list(
-        total = yld[["total"]],
+        main = yld[["main"]],
         detailed = list(by_age_year_sex = pop_impact[["pop_impact"]],
                         by_sex = yld[["detailed"]]))
 

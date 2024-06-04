@@ -29,9 +29,10 @@
 #' @note Experimental function
 #' @export
 compare_health_ar <-
-  function(exp_1, exp_2,
+  function(exp_central_1, exp_lower_1 = NULL, exp_upper_1 = NULL,
+           exp_central_2, exp_lower_2 = NULL, exp_upper_2 = NULL,
            pop_exp_1, pop_exp_2,
-           erf_c,
+           erf_c_central, erf_c_lower = NULL, erf_c_upper = NULL,
            info_1 = NULL, info_2 = NULL){
 
 
@@ -39,30 +40,30 @@ compare_health_ar <-
     # Calculate attributable health impacts in the scenario 1
     att_health_1 <-
       bestcost::attribute_health_singlebhd_ar(
-        exp = exp_1,
+        exp_central = exp_central_1,
         pop_exp = pop_exp_1,
-        erf_c = erf_c,
+        erf_c_central = erf_c_central,
         info = info_1)
 
     # Calculate attributable health impacts in the scenario 2
     att_health_2 <-
       bestcost::attribute_health_singlebhd_ar(
-        exp = exp_2,
+        exp_central = exp_central_2,
         pop_exp = pop_exp_2,
-        erf_c = erf_c,
+        erf_c_central = erf_c_central,
         info = info_2)
 
     # Identify the columns that are common for scenario 1 and 2
     # grepl instead of %in% because there might be differnt info columns starting with info_
     joining_columns <-
-      names(att_health_1[["total"]])[! grepl(c("exp|rr_conc|absolute_risk_as_percent|population_affected|impact|impact_rounded|info"),
-                                             names(att_health_1[["total"]]))]
+      names(att_health_1[["main"]])[! grepl(c("exp|rr_conc|absolute_risk_as_percent|population_affected|impact|impact_rounded|info"),
+                                             names(att_health_1[["main"]]))]
 
     # Merge the result tables by common columns
     att_health <-
       dplyr::left_join(
-        att_health_1[["total"]],
-        att_health_2[["total"]],
+        att_health_1[["main"]],
+        att_health_2[["main"]],
         by = joining_columns,
         suffix = c("_1", "_2"))%>%
       # Calculate the delta (difference) between scenario 1 and 2
@@ -76,7 +77,7 @@ compare_health_ar <-
         att_health %>%
         mutate(impact_rounded = round(impact, 0))
 
-   output <- list(total = att_health,
+   output <- list(main = att_health,
                   detailed = list(scenario_1 = att_health_1,
                                   scenario_2 = att_health_2))
 

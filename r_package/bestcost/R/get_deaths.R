@@ -56,6 +56,7 @@ get_deaths <-
       dplyr::bind_rows(., .id ="sex") %>%
       # Reshape to long format
       tidyr::pivot_longer(cols = where(is.numeric),
+                          names_prefix = "erf_ci_",
                           names_to = "erf_ci",
                           values_to = "impact")
     # Add up deaths ####
@@ -93,7 +94,7 @@ get_deaths <-
       dplyr::filter(sex %in% "total")
 
 
-    output <- list(total = deaths,
+    output <- list(main = deaths,
                    detailed = deaths_detailed)
 
     return(output)

@@ -13,7 +13,7 @@ compare_yll_lifetable_rr(
   prop_pop_exp_2 = 1,
   cutoff,
   rr,
-  rr_increment,
+  erf_increment,
   erf_shape,
   erf_c = NULL,
   first_age_pop_1,
@@ -55,7 +55,7 @@ compare_yll_lifetable_rr(
 
 \item{rr}{\code{Vector} of three numeric values referring to the central estimate as well as the lower and upper bound of the confidence interval.}
 
-\item{rr_increment}{\code{Numeric value} showing the increment of the concentration-response function in ug/m3 (usually 10 or 5).}
+\item{erf_increment}{\code{Numeric value} showing the increment of the concentration-response function in ug/m3 (usually 10 or 5).}
 
 \item{erf_shape}{\code{String} showing the shape of the exposure-response function to be assumed using the relative risk from the literature as support point. Options: "linear", log_linear", "linear_log", "log_log".}
 

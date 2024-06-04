@@ -36,7 +36,7 @@ get_yld <-
            disability_weight,
            duration = NULL){
 
-    if (is.null(duration)) duration <- last_age_pop-first_age_pop
+    if (is.null(duration)) {duration <- last_age_pop-first_age_pop}
 
     lifeyears_byYear <- list()
     yld_by_list<-list()
@@ -101,7 +101,8 @@ get_yld <-
       yld_by_list%>%
       purrr::map(map, dplyr::bind_rows, .id = "discount")%>%
       purrr::map(dplyr::bind_rows, .id = "erf_ci" )%>%
-      dplyr::bind_rows(., .id = "sex")
+      dplyr::bind_rows(., .id = "sex")%>%
+      dplyr::mutate(erf_ci = gsub("erf_ci_", "", erf_ci))
 
     ## Compile information needed for detailed yld results ####
     yld_detailed <-
@@ -137,7 +138,7 @@ get_yld <-
                     discount %in% "discounted")
 
 
-    output <- list(total = yld, detailed = yld_detailed)
+    output <- list(main = yld, detailed = yld_detailed)
 
     return(output)
   }

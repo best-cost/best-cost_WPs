@@ -11,7 +11,7 @@ compile_input(
   pop_exp = NULL,
   cutoff = NULL,
   rr = NULL,
-  rr_increment = NULL,
+  erf_increment = NULL,
   erf_shape = NULL,
   erf_c = NULL,
   bhd = NULL,
@@ -34,7 +34,7 @@ compile_input(
 
 \item{rr}{\code{Vector} of three numeric values referring to the central estimate as well as the lower and upper bound of the confidence interval.}
 
-\item{rr_increment}{\code{Numeric value} showing the increment of the concentration-response function in ug/m3 (usually 10 or 5).}
+\item{erf_increment}{\code{Numeric value} showing the increment of the concentration-response function in ug/m3 (usually 10 or 5).}
 
 \item{erf_shape}{\code{String} showing the shape of the exposure-response function to be assumed using the relative risk from the literature as support point. Options: "linear", log_linear", "linear_log", "log_log".}
 

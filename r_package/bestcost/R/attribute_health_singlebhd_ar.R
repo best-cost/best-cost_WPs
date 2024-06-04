@@ -23,9 +23,10 @@
 #'
 #'
 attribute_health_singlebhd_ar <-
-  function(exp,
+  function(exp_central, exp_lower = NULL, exp_upper = NULL,
            pop_exp,
-           erf_c,
+           erf_c_central, erf_c_lower = NULL, erf_c_upper = NULL,
+           geo_id_raw = NULL, geo_id_aggregated = NULL,
            info = NULL){
 
     # Check input data ####
@@ -34,25 +35,13 @@ attribute_health_singlebhd_ar <-
     # Compile input data except erf data
     input <-
       bestcost::compile_input(
-        exp = exp,
+        exp_central = exp_central, exp_lower = exp_lower, exp_upper = exp_upper,
         pop_exp = pop_exp,
-        prop_pop_exp = NULL,
-        cutoff = NULL,
-        rr = NULL,
-        rr_increment = NULL,
-        erf_shape = NULL,
-        erf_c = erf_c,
-        bhd = NULL,
-        min_age = NULL,
-        max_age = NULL,
+        erf_c_central = erf_c_central, erf_c_lower = erf_c_lower, erf_c_upper = erf_c_upper,
+        geo_id_raw = geo_id_raw,
+        geo_id_aggregated = geo_id_aggregated,
         info = info,
-        method = "absolute_risk",
-        disability_weight = NULL,
-        duration = NULL)%>%
-      # Remove erf_10 and rr
-      # They were added to identify what is central, lower and upper
-      # but not needed anymore
-      dplyr::select(-rr, -erf_10)
+        method = "absolute_risk")
 
 
 
@@ -60,14 +49,15 @@ attribute_health_singlebhd_ar <-
     output_byExposureCategory <-
       input %>%
       dplyr::mutate(
-        absolute_risk_as_percent = get_risk(exp = exp, erf_c = erf_c, erf_full = TRUE) ,
+        absolute_risk_as_percent = bestcost::get_risk(exp = exp, erf_c = erf_c, erf_full = TRUE) ,
         population_affected = absolute_risk_as_percent/100 * pop_exp,
         population_affected_rounded = round(population_affected, 0))
 
-    output_total <-
+    output_total_exposure <-
       output_byExposureCategory %>%
       dplyr::mutate(exp = paste(exp, collapse = ", ")) %>%
-      dplyr::group_by(exp,
+      dplyr::group_by(geo_id_raw,
+                      exp,
                       erf_ci,
                       erf_c,
                       method,
@@ -79,8 +69,22 @@ attribute_health_singlebhd_ar <-
       dplyr::mutate(impact = population_affected,
                     impact_rounded = round(impact, 0))
 
+    # Aggregate results by higher geo_level
+    # only if geo_id_aggregated is defined
+    if(!is.null(geo_id_aggregated)){
+      output_total_exposure <-
+        output_total_exposure %>%
+        # Group by higher geo level
+        dplyr::group_by(geo_id_aggregated, exp_ci, bhd_ci, erf_ci) %>%
+        dplyr::summarise(impact = sum(impact),
+                         impact_rounded = round(impact),
+                         .groups = "drop")%>%
+        dplyr::bind_rows(output_total, .)
+    }
+
+
     output <-
-      list(total = output_total,
+      list(main = output_total_exposure,
            detailed = list(by_exp_category = output_byExposureCategory))
 
     return(output)

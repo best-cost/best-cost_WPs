@@ -34,7 +34,7 @@ get_pop_impact <-
 
     for(s in names(lifetab_withPop)){
       for(v in pop_fraction$erf_ci){
-        popOverTime[[s]][[v]] <-
+        popOverTime[[s]][[paste0("erf_ci_",v)]] <-
           bestcost::project_pop(
             lifetab_withPop = lifetab_withPop[[s]],
             year_of_analysis = year_of_analysis,
@@ -52,9 +52,9 @@ get_pop_impact <-
 
     for(s in names(lifetab_withPop)){
       for(v in pop_fraction$erf_ci){
-        pop_impact[[s]][[v]] <-
+        pop_impact[[s]][[paste0("erf_ci_",v)]] <-
 
-          bestcost::move_rows_up(popOTime = popOverTime[[s]][[v]],
+          bestcost::move_rows_up(popOTime = popOverTime[[s]][[paste0("erf_ci_",v)]],
                                  year_of_analysis = year_of_analysis)
       }
     }

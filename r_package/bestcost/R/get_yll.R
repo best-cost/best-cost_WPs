@@ -99,11 +99,14 @@ get_yll <-
       purrr::map(dplyr::bind_rows, .id = "erf_ci" ) %>%
       dplyr::bind_rows(., .id = "sex")%>%
       # Replace "discount" and "noDiscount" with TRUE and FALSE
+      # Add discount rate
+      # Rename erf_ci values
       dplyr::mutate(
         discounted = ifelse(discounted %in% "discounted", TRUE,
                             ifelse(discounted %in% "noDiscount", FALSE,
                                    NA)),
-        corrected_discount_rate = corrected_discount_rate)
+        corrected_discount_rate = corrected_discount_rate,
+        erf_ci = gsub("erf_ci_", "", erf_ci))
 
 
     ## Compile information needed for detailed YLL results ####
@@ -157,7 +160,7 @@ get_yll <-
     }
 
 
-    output <- list(total = yll, detailed = yll_detailed)
+    output <- list(main = yll, detailed = yll_detailed)
 
     return(output)
   }
