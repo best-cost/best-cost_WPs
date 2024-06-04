@@ -226,10 +226,10 @@ check_bestcost(result_list_bestcost = bestcost_noise_ihd_expDist,
 bestcost_noise_ihd_expDist_geo <- 
   bestcost::attribute_health_singlebhd_rr(
     exp_central = list(runif_with_seed(5,8,10,1), 
-                          runif_with_seed(5,8,10,2), 
-                          runif_with_seed(5,8,10,3)),
+                       runif_with_seed(5,8,10,2), 
+                       runif_with_seed(5,8,10,3)),
     cutoff = 5,
-    prop_pop_exp = list(runif_with_seed(5,0.1,1,1), 
+    prop_pop_exp = list(runif_with_seed(5,0.1,1,1),
                         runif_with_seed(5,0.1,1,2), 
                         runif_with_seed(5,0.1,1,3)),
     bhd_central = list(runif_with_seed(3,1E4,1E5,1)),
@@ -631,7 +631,7 @@ check_bestcost(result_list_bestcost = bestcost_pm_yll_lifetable_expDistribution_
 bestcost_pm_yld_lifetable_geluft  <- 
   attribute_yld_lifetable_rr(
     exp_central = input_data_mortality$exp[2],
-    # exp = c(8, 9, 10), # Fake data. Deactivate to test exposure distribution.
+    # exp_central = c(8, 9, 10), # Fake data. Deactivate to test exposure distribution.
     prop_pop_exp = 1,
     # prop_pop_exp = c(0.2, 0.3, 0.5), # Fake data. Deactivate to test exposure distribution.
     cutoff = input_data_mortality$cutoff[2],

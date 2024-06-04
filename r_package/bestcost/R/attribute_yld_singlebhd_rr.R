@@ -47,7 +47,7 @@ attribute_yld_singlebhd_rr <-
 
     # Call attribute_health_singlebhd_rr
     dat <-
-      attribute_health_singlebhd_rr(
+      bestcost::attribute_health_singlebhd_rr(
         exp_central = exp_central, exp_lower = exp_lower, exp_upper = exp_upper,
         prop_pop_exp = prop_pop_exp,
         cutoff = cutoff,

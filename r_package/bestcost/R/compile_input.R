@@ -35,8 +35,7 @@
 #' @export
 
 compile_input <-
-  function(
-           exp_central, exp_lower = NULL, exp_upper = NULL,
+  function(exp_central, exp_lower = NULL, exp_upper = NULL,
            prop_pop_exp = NULL,
            pop_exp = NULL,
            cutoff = NULL,
