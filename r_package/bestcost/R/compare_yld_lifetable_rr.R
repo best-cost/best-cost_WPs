@@ -137,15 +137,15 @@ compare_yld_lifetable_rr <-
 
     # Identify the columns that are common for scenario 1 and 2
     joining_columns <-
-      names(att_health_1[["total"]])[! grepl(c("exp|bhd|paf|rr_conc|impact|impact_rounded|info"),
-                                             names(att_health_1[["total"]]))]
+      names(att_health_1[["main"]])[! grepl(c("exp|bhd|paf|rr_conc|impact|impact_rounded|info"),
+                                             names(att_health_1[["main"]]))]
 
 
     # Merge the result tables by common columns
     att_health <-
       dplyr::left_join(
-        att_health_1[["total"]],
-        att_health_2[["total"]],
+        att_health_1[["main"]],
+        att_health_2[["main"]],
         by = joining_columns,
         suffix = c("_1", "_2"))%>%
       # Calculate the delta (difference) between scenario 1 and 2
@@ -263,7 +263,7 @@ compare_yld_lifetable_rr <-
           last_age_pop = last_age_pop_1,
           meta = input_risk_pif,
           disability_weight = disability_weight,
-          duration = duration)$total%>%
+          duration = duration)$main%>%
         # Replace paf with pif
         dplyr::rename(pif = paf)
 

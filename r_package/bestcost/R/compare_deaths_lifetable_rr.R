@@ -129,15 +129,15 @@ compare_deaths_lifetable_rr <-
 
     # Identify the columns that are common for scenario 1 and 2
     joining_columns <-
-      names(att_health_1[["total"]])[! grepl(c("exp|bhd|paf|rr_conc|impact|impact_rounded|info"),
-                                             names(att_health_1[["total"]]))]
+      names(att_health_1[["main"]])[! grepl(c("exp|bhd|paf|rr_conc|impact|impact_rounded|info"),
+                                             names(att_health_1[["main"]]))]
 
 
     # Merge the result tables by common columns
     att_health <-
       dplyr::left_join(
-        att_health_1[["total"]],
-        att_health_2[["total"]],
+        att_health_1[["main"]],
+        att_health_2[["main"]],
         by = joining_columns,
         suffix = c("_1", "_2"))%>%
       # Calculate the delta (difference) between scenario 1 and 2
@@ -248,7 +248,7 @@ compare_deaths_lifetable_rr <-
           year_of_analysis = year_of_analysis_1,
           min_age = min_age,
           max_age = max_age,
-          meta = input_risk_pif)$total%>%
+          meta = input_risk_pif)$main%>%
         # Replace paf with pif
         dplyr::rename(pif = paf)
 

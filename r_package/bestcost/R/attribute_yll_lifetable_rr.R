@@ -116,7 +116,7 @@ attribute_yll_lifetable_rr <-
 
     # Calculate output ####
     output <-
-      list(main = yll[["total"]],
+      list(main = yll[["main"]],
            detailed = list(by_age_year_sex = pop_impact[["pop_impact"]],
                            by_sex = yll[["detailed"]]))
 
