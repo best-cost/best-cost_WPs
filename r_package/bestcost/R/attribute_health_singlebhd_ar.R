@@ -58,6 +58,7 @@ attribute_health_singlebhd_ar <-
       dplyr::mutate(exp = paste(exp, collapse = ", ")) %>%
       dplyr::group_by(geo_id_raw,
                       exp,
+                      exp_ci,
                       erf_ci,
                       erf_c,
                       method,

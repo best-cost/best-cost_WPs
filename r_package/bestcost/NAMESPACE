@@ -2,6 +2,7 @@
 
 export(add_info)
 export(attribute_deaths_lifetable_rr)
+export(attribute_health_singlebhd)
 export(attribute_health_singlebhd_ar)
 export(attribute_health_singlebhd_rr)
 export(attribute_yld_lifetable_rr)

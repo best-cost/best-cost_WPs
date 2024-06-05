@@ -92,7 +92,7 @@ load("../testing/input/data/input_data_for_testing_Rpackage.RData")
 
 ```{r single exposure value}
 # Assess attributable cases using the AirQ+ export as input data
-bestcost_pm_copd <-
+system.time(replicate(100, bestcost_pm_copd <-
   bestcost::attribute_health_singlebhd_rr(
     exp_central = airqplus_pm_copd$mean_concentration,
     cutoff = airqplus_pm_copd$cut_off_value,   
@@ -102,7 +102,20 @@ bestcost_pm_copd <-
     rr_upper = airqplus_pm_copd$relative_risk_upper,
     erf_increment = 10, 
     erf_shape = "log_linear", 
-    info = paste0(airqplus_pm_copd$pollutant,"_", airqplus_pm_copd$evaluation_name))
+    info = paste0(airqplus_pm_copd$pollutant,"_", airqplus_pm_copd$evaluation_name))))
+
+# Assess attributable cases using the AirQ+ export as input data
+system.time(replicate(100, bestcost_pm_copd_test <-
+  bestcost::attribute_health_singlebhd(
+    exp_central = airqplus_pm_copd$mean_concentration,
+    cutoff = airqplus_pm_copd$cut_off_value,   
+    bhd_central = airqplus_pm_copd$incidents_per_100_000_per_year/1E5*airqplus_pm_copd$population_at_risk,
+    rr_central = airqplus_pm_copd$relative_risk, 
+    rr_lower = airqplus_pm_copd$relative_risk_lower,
+    rr_upper = airqplus_pm_copd$relative_risk_upper,
+    erf_increment = 10, 
+    erf_shape = "log_linear", 
+    info = paste0(airqplus_pm_copd$pollutant,"_", airqplus_pm_copd$evaluation_name))))
 
 # Store the central, lower and upper estimate of the AirQ+ assessment
 airqplus_pm_copd_result <- 
@@ -274,6 +287,15 @@ bestcost_noise_ha_ar <-
 check_bestcost(result_list_bestcost = bestcost_noise_ha_ar,
                result_vector_alternative = niph_noise_ha_result)
 
+
+# Obtain attributable cases using the bestcost package and input data from niph
+bestcost_noise_ha_ar_test <- 
+  bestcost::attribute_health_singlebhd(
+    method = "absolute_risk",
+    exp_central = niph_noise_ha_input$exposure_mean,
+    pop_exp = niph_noise_ha_input$population_exposed_total, 
+    erf_c_central = "78.9270-3.1162*c+0.0342*c^2",
+    info = data.frame(pollutant = "road_noise", outcome = "highly_annoyance"))
 
 
 # Obtain attributable cases using the bestcost package and input data from niph
