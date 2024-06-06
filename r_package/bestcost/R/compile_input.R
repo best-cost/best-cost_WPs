@@ -50,6 +50,7 @@ compile_input <-
            geo_id_aggregated = NULL,
            info = NULL,
            method = NULL,
+           health_metric = NULL,
            disability_weight = NULL,
            duration = NULL){
 
@@ -130,6 +131,7 @@ compile_input <-
                                   NA)),
         # Add the method that refer to the function
         method = method,
+        health_metric = health_metric,
         exposure_type =
           ifelse((is.list(exp_central) &
                    unique(purrr::map_int(exp_central, function(x) length(x))) == 1) |
@@ -138,7 +140,7 @@ compile_input <-
                  "population_weighted_mean",
                  "exposure_distribution"))%>%
       # Remove all columns with all values being NA
-      dplyr::select(where(~ !all(is.null(.))))%>%
+      dplyr::select(where(~ !all(is.na(.))))%>%
       # Pivot longer to show all combinations of central, lower and upper estimate
       # (relevant for iteration)
       ## For exposure,

@@ -29,6 +29,7 @@ compile_input(
   geo_id_aggregated = NULL,
   info = NULL,
   method = NULL,
+  health_metric = NULL,
   disability_weight = NULL,
   duration = NULL
 )

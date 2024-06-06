@@ -297,7 +297,7 @@ bestcost_noise_ha_ar_geo <-
 ```{r morbidity yld lifetable with single relative risk}
 
 bestcost_pm_yld_singlebhd  <- 
-  bestcost::attribute_yld_singlebhd(
+  bestcost::attribute_health_singlebhd(
     exp_central = 8.85, 
     cutoff = 5,    
     bhd_central = 25000,
@@ -306,7 +306,8 @@ bestcost_pm_yld_singlebhd  <-
     rr_upper = 1.179,
     erf_increment = 10, 
     erf_shape = "log_linear", 
-    disability_weight = 0.5)
+    disability_weight = 0.5,
+    health_metric = "from_prevalence_to_yld")
 
 # No study to compare bestcost results
 # Check only if results stay the same overtime despite developments

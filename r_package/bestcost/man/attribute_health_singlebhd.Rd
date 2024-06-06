@@ -22,8 +22,10 @@ attribute_health_singlebhd(
   bhd_central = NULL,
   bhd_lower = NULL,
   bhd_upper = NULL,
+  disability_weight = NULL,
   geo_id_raw = NULL,
   geo_id_aggregated = NULL,
+  health_metric = "same_input_output",
   method = "relative_risk",
   info = NULL
 )
@@ -42,6 +44,8 @@ attribute_health_singlebhd(
 \item{bhd_lower}{\code{Numeric value} showing the upper bound estimate (confidence interval) of the baseline health data.}
 
 \item{bhd_upper}{\code{Numeric value} showing the lower bound estimate (confidence interval) of the baseline health data.}
+
+\item{method}{\code{String} showing the calculation method: "relative_risk" or "absolute_risk".}
 
 \item{info}{\code{String} or {data frame} showing additional information or id. The suffix "info" will be added to the column name. Default value = NULL.}
 }

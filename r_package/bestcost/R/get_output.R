@@ -2,7 +2,6 @@
 
 #' @description Distributes and store outputs by level of detail by aggregating or filtering impacts.
 #' @param output_raw \code{Data frame} containing all input data and the calculation of health impacts.
-#' @param method \code{String} showing the calculation method: "relative_risk" or "absolute_risk".
 #' @return
 #' TBD. E.g. This function returns a \code{data.frame} with one row for each value of the
 #' concentration-response function (i.e. central, lower and upper bound confidence interval.
@@ -21,24 +20,19 @@
 #' @inherit attribute_deaths_lifetable_rr note
 #' @export
 get_output <-
-  function(output_raw, method){
+  function(output_raw){
 
     output <- list(main = output_raw, detailed = list(raw = output_raw))
 
     output_last <- output_raw
 
-    if(method == "absolute_risk"){
+    if(unique(output_raw$method) == "absolute_risk"){
 
       output[["detailed"]][["agg_exp_cat"]] <-
         output_raw %>%
         dplyr::mutate(exp = paste(exp, collapse = ", ")) %>%
-        dplyr::group_by(geo_id_raw,
-                        exp,
-                        exp_ci,
-                        erf_ci,
-                        erf_c,
-                        method,
-                        across(starts_with("info"))) %>%
+        dplyr::group_by(
+          across(c(-pop_exp, -exp, -absolute_risk_as_percent, -impact, -impact_rounded))) %>%
         dplyr::summarize(
           across(c(pop_exp, absolute_risk_as_percent, impact),
                  sum),
@@ -52,7 +46,7 @@ get_output <-
 
     # Aggregate results by higher geo_level
     # only if geo_id_aggregated is defined
-    if(!is.null(geo_id_aggregated)){
+    if("geo_id_aggregated" %in% names(output_raw)){
 
       output[["detailed"]][["agg_geo"]] <-
         output_last %>%
@@ -73,7 +67,7 @@ get_output <-
     output[["main"]] <-
       output_last %>%
       dplyr::filter(!exp_ci %in% c("lower", "upper"))%>%
-      {if(method == "relative_risk")
+      {if(unique(output_raw$method) == "relative_risk")
         dplyr::filter(., !bhd_ci %in% c("lower", "upper")) else .}
 
 

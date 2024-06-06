@@ -5,6 +5,7 @@
 #' @param bhd_central \code{Numeric value} showing the only or central estimate (if confidence interval) of the baseline health data (e.g. incidence of the health outcome in the population).
 #' @param bhd_upper \code{Numeric value} showing the lower bound estimate (confidence interval) of the baseline health data.
 #' @param bhd_lower \code{Numeric value} showing the upper bound estimate (confidence interval) of the baseline health data.
+#' @param method \code{String} showing the calculation method: "relative_risk" or "absolute_risk".
 #' @return
 #' TBD. E.g. This function returns a \code{data.frame} with one row for each value of the
 #' concentration-response function (i.e. central, lower and upper bound confidence interval.
@@ -32,7 +33,9 @@ attribute_health_singlebhd <-
            erf_shape = NULL,
            erf_c_central = NULL, erf_c_lower = NULL, erf_c_upper = NULL,
            bhd_central = NULL, bhd_lower = NULL, bhd_upper = NULL,
+           disability_weight = NULL,
            geo_id_raw = NULL, geo_id_aggregated = NULL,
+           health_metric = "same_input_output",
            method = "relative_risk",
            info = NULL){
 
@@ -51,17 +54,17 @@ attribute_health_singlebhd <-
         geo_id_raw = geo_id_raw,
         geo_id_aggregated = geo_id_aggregated,
         info = info,
+        health_metric = health_metric,
+        disability_weight = disability_weight,
         method = method)
 
     # Calculate the health impacts for each case (uncertainty, category, geo area...)
     output_raw <-
-      bestcost::get_impact(input = input,
-                           method = method)
+      bestcost::get_impact(input = input)
 
     # Get the main and detailed output by aggregating and/or filtering cases (rows)
     output <-
-      bestcost::get_output(output_raw,
-                           method = method)
+      bestcost::get_output(output_raw)
 
 
 

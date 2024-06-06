@@ -4,12 +4,10 @@
 \alias{get_impact}
 \title{Attributable health cases based on relative risk}
 \usage{
-get_impact(input, method)
+get_impact(input)
 }
 \arguments{
 \item{input}{\code{Data frame} containing all input data.}
-
-\item{method}{\code{String} showing the calculation method: "relative_risk" or "absolute_risk".}
 }
 \value{
 TBD. E.g. This function returns a \code{data.frame} with one row for each value of the
