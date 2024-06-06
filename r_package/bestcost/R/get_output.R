@@ -23,9 +23,7 @@
 get_output <-
   function(output_raw, method){
 
-    output <- list(main = NA, detailed = list(NA))
-
-    output[["detailed"]][["raw"]] <- output_raw
+    output <- list(main = output_raw, detailed = list(raw = output_raw))
 
     output_last <- output_raw
 
@@ -58,13 +56,13 @@ get_output <-
     if(!is.null(geo_id_aggregated)){
 
       output[["detailed"]][["agg_geo"]] <-
-        output[["detailed"]][["raw"]] %>%
+        output_last %>%
         # Group by higher geo level
         dplyr::group_by(geo_id_aggregated, exp_ci, bhd_ci, erf_ci) %>%
         dplyr::summarise(impact = sum(impact),
                          impact_rounded = round(impact),
                          .groups = "drop")%>%
-        dplyr::bind_rows(calculation, .)
+        dplyr::bind_rows(output_last, .)
 
       output_last <- output[["detailed"]][["agg_geo"]]
 
