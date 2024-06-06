@@ -40,11 +40,10 @@ get_output <-
                         method,
                         across(starts_with("info"))) %>%
         dplyr::summarize(
-          across(c(pop_exp, absolute_risk_as_percent, population_affected),
+          across(c(pop_exp, absolute_risk_as_percent, impact),
                  sum),
           .groups = "drop") %>%
-        dplyr::mutate(impact = population_affected,
-                      impact_rounded = round(impact, 0))
+        dplyr::mutate(impact_rounded = round(impact, 0))
 
 
       output_last <- output[["detailed"]][["agg_exp_cat"]]

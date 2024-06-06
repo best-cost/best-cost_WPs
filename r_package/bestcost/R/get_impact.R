@@ -44,8 +44,8 @@ get_impact <-
         input %>%
         dplyr::mutate(
           absolute_risk_as_percent = bestcost::get_risk(exp = exp, erf_c = erf_c, erf_full = TRUE) ,
-          population_affected = absolute_risk_as_percent/100 * pop_exp,
-          population_affected_rounded = round(population_affected, 0))
+          impact = absolute_risk_as_percent/100 * pop_exp,
+          impact_rounded = round(impact, 0))
 
 
     }

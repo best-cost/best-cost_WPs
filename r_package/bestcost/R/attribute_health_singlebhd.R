@@ -22,7 +22,7 @@
 #' @author Alberto Castro
 #' @inherit attribute_deaths_lifetable_rr note
 #' @export
-attribute_health_singlebhd_fun <-
+attribute_health_singlebhd <-
   function(exp_central, exp_lower = NULL, exp_upper = NULL,
            prop_pop_exp = 1,
            pop_exp = NULL,
