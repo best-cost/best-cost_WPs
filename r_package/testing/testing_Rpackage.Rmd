@@ -93,7 +93,7 @@ load("../testing/input/data/input_data_for_testing_Rpackage.RData")
 ```{r single exposure value}
 # Assess attributable cases using the AirQ+ export as input data
 bestcost_pm_copd <-
-  bestcost::attribute_health_singlebhd(
+  bestcost::attribute(
     exp_central = airqplus_pm_copd$mean_concentration,
     cutoff = airqplus_pm_copd$cut_off_value,   
     bhd_central = airqplus_pm_copd$incidents_per_100_000_per_year/1E5*airqplus_pm_copd$population_at_risk,
@@ -122,7 +122,7 @@ check_bestcost(result_list_bestcost = bestcost_pm_copd,
 # Assess attributable cases for multiple uncertainties at the same time
 # i.e. rr, bhd and exp
 bestcost_pm_copd_multiple <-
-  bestcost::attribute_health_singlebhd(
+  bestcost::attribute(
     exp_central = airqplus_pm_copd$mean_concentration,
     exp_lower = 8,
     exp_upper = 9,
@@ -140,7 +140,7 @@ bestcost_pm_copd_multiple <-
 
 # Assess iteration geographical sections keeping the multiple uncertainties
 system.time(bestcost_pm_copd_geo <-
-  bestcost::attribute_health_singlebhd(
+  bestcost::attribute(
     exp_central = as.list(runif_with_seed(1E4, 8.0, 9.0, 1)),
     exp_lower = as.list(runif_with_seed(1E4, 8.0, 9.0, 1)-0.1),
     exp_upper = as.list(runif_with_seed(1E4, 8.0, 9.0, 1)+0.1),
@@ -164,7 +164,7 @@ system.time(bestcost_pm_copd_geo <-
 
 # Assess attributable cases using the AirQ+ export as input data
 bestcost_pm_copd_1rr <-
-  bestcost::attribute_health_singlebhd(
+  bestcost::attribute(
     exp_central = airqplus_pm_copd$mean_concentration,
     cutoff = airqplus_pm_copd$cut_off_value,   
     bhd_central = airqplus_pm_copd$incidents_per_100_000_per_year/1E5*airqplus_pm_copd$population_at_risk,
@@ -207,7 +207,7 @@ niph_noise_ihd_result <-
 
 # Obtain attributable cases using the bestcost package and input data from niph
 bestcost_noise_ihd_expDist <- 
-  bestcost::attribute_health_singlebhd(
+  bestcost::attribute(
     exp_central = niph_noise_ihd_input$exposure_mean,
     prop_pop_exp = niph_noise_ihd_input$prop_exposed,
     cutoff = min(niph_noise_ihd_input$exposure_mean), 
@@ -224,7 +224,7 @@ check_bestcost(result_list_bestcost = bestcost_noise_ihd_expDist,
 # Obtain attributable cases using the bestcost package
 # for multiple geo_sections
 bestcost_noise_ihd_expDist_geo <- 
-  bestcost::attribute_health_singlebhd(
+  bestcost::attribute(
     exp_central = list(runif_with_seed(5,8,10,1), 
                        runif_with_seed(5,8,10,2), 
                        runif_with_seed(5,8,10,3)),
@@ -265,7 +265,7 @@ niph_noise_ha_result <-
 
 # Obtain attributable cases using the bestcost package and input data from niph
 bestcost_noise_ha_ar <- 
-  bestcost::attribute_health_singlebhd(
+  bestcost::attribute(
     method = "absolute_risk",
     exp_central = niph_noise_ha_input$exposure_mean,
     pop_exp = niph_noise_ha_input$population_exposed_total, 
@@ -279,7 +279,7 @@ check_bestcost(result_list_bestcost = bestcost_noise_ha_ar,
 # Obtain attributable cases using the bestcost package and input data from niph
 # for multiple geo_sections
 bestcost_noise_ha_ar_geo <- 
-  bestcost::attribute_health_singlebhd(
+  bestcost::attribute(
     method = "absolute_risk",
     exp_central = list(runif_with_seed(5,8,10,1), 
                           runif_with_seed(5,8,10,2), 
@@ -297,7 +297,7 @@ bestcost_noise_ha_ar_geo <-
 ```{r morbidity yld lifetable with single relative risk}
 
 bestcost_pm_yld_singlebhd  <- 
-  bestcost::attribute_health_singlebhd(
+  bestcost::attribute(
     exp_central = 8.85, 
     cutoff = 5,    
     bhd_central = 25000,
@@ -392,6 +392,32 @@ for(d in c("natural", "total")){
 
 bestcost_pm_deaths_lifetable_airqplus <-
   bestcost::attribute_deaths_lifetable_rr(
+    exp_central = airqplus_pm_deaths_yll[["input"]]$mean_concentration, 
+    cutoff = airqplus_pm_deaths_yll[["input"]]$cut_off_value,
+    rr_central = airqplus_pm_deaths_yll[["input"]]$relative_risk,
+    rr_lower = airqplus_pm_deaths_yll[["input"]]$relative_risk_lower,
+    rr_upper = airqplus_pm_deaths_yll[["input"]]$relative_risk_upper,
+    erf_increment = 10, 
+    erf_shape = gsub("-", "_", airqplus_pm_deaths_yll[["input"]]$calculation_method),
+    first_age_pop = first(airqplus_pm_deaths_yll[["pop"]]$age_from...),
+    last_age_pop = last(airqplus_pm_deaths_yll[["pop"]]$age_from...),
+    prob_natural_death_male = prob_dying[["natural"]][["male"]]$prob_dying,
+    prob_natural_death_female = prob_dying[["natural"]][["female"]]$prob_dying,
+    prob_total_death_male = prob_dying[["total"]][["male"]]$prob_dying,
+    prob_total_death_female = prob_dying[["total"]][["female"]]$prob_dying,
+    population_midyear_male = airqplus_pm_deaths_yll[["pop"]]$midyear_population_male,
+    population_midyear_female = airqplus_pm_deaths_yll[["pop"]]$midyear_population_female, 
+    year_of_analysis =  airqplus_pm_deaths_yll[["input"]]$start_year, 
+    min_age = airqplus_pm_deaths_yll[["input"]]$apply_rr_from_age)
+
+
+
+# Calculate premature deaths using bestcost function
+# and input data from an AirQ+ case
+
+bestcost_pm_deaths_lifetable_airqplus <-
+  bestcost::attribute(
+    health_metric = "from_lifetable_to_death",
     exp_central = airqplus_pm_deaths_yll[["input"]]$mean_concentration, 
     cutoff = airqplus_pm_deaths_yll[["input"]]$cut_off_value,
     rr_central = airqplus_pm_deaths_yll[["input"]]$relative_risk,

@@ -22,7 +22,9 @@
 get_impact <-
   function(input){
 
-    if(unique(input$method) == "relative_risk"){
+    if(unique(input$method) == "relative_risk" &
+       unique(input$health_metric) %in% c("same_input_output",
+                                          "from_prevalence_to_yld")){
       # Get PAF and added to the input data frame
       output_raw <-
         bestcost::get_risk_and_paf(input = input) %>%
@@ -39,7 +41,48 @@ get_impact <-
                       everything())
     }
 
-    else if(unique(input$method) == "absolute_risk"){
+    if (unique(input$health_metric) %in% c("from_lifetable_to_death",
+                                             "from_lifetable_to_yll")){
+
+     outcome_metric <- gsub("from_lifetable_to_", "", unique(input$health_metric))
+
+      # Get PAF and add to the input data frame
+      input_risk_paf <-
+        bestcost::get_risk_and_paf(input = input)
+
+      # Get population impact ####
+      pop_impact <-
+        bestcost::get_pop_impact(
+          lifetab_withPop = lifetable_withPop,
+          year_of_analysis = year_of_analysis,
+          pop_fraction = input_risk_paf[, c("erf_ci", "paf")],
+          outcome_metric = outcome_metric)
+
+      if(outcome_metric == "death"){
+        # Calculate deaths ####
+        output_raw <-
+          bestcost::get_deaths(
+            pop_impact = pop_impact,
+            year_of_analysis = year_of_analysis,
+            min_age = min_age,
+            max_age = max_age,
+            meta = input_risk_paf)
+
+      } else if(outcome_metric == "yll"){
+        output_raw <-
+          bestcost::get_yll(
+            pop_impact = pop_impact,
+            year_of_analysis = year_of_analysis,
+            min_age = min_age,
+            max_age = max_age,
+            meta = input_risk_paf)
+      }
+
+
+
+
+    } else if(unique(input$method) == "absolute_risk" &
+              unique(input$health_metric) == "same_input_output"){
 
       # Calculate absolute risk for each exposure category ####
       output_raw <-
@@ -50,8 +93,8 @@ get_impact <-
           impact_rounded = round(impact, 0))
 
 
-    }
 
+    }
     return(output_raw)
 
   }

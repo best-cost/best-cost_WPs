@@ -45,7 +45,7 @@ compile_lifetable_pop <-
 
     lifetable_withPop <- list(
       male =
-        data.frame(
+        tidyr::tibble(
           age = seq(from = first_age_pop,
                     to = last_age_pop,
                     by = 1),
@@ -57,7 +57,7 @@ compile_lifetable_pop <-
           population = population_midyear_male),
 
       female =
-        data.frame(
+        tidyr::tibble(
           age = seq(from = first_age_pop,
                     to = last_age_pop,
                     by = 1),
