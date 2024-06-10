@@ -24,7 +24,9 @@ get_impact <-
            lifetable_withPop = NULL,
            year_of_analysis = NULL,
            min_age = NULL,
-           max_age = NULL){
+           max_age = NULL,
+           disability_weight = NULL,
+           duration = NULL){
 
     if(unique(input$method) == "relative_risk" &
        unique(input$health_metric) %in% c("same_input_output",
@@ -49,7 +51,7 @@ get_impact <-
 
     if (unique(input$method) == "relative_risk" &
         unique(input$health_metric) %in%
-        c("from_lifetable_to_death", "from_lifetable_to_yll")){
+        c("from_lifetable_to_death", "from_lifetable_to_yll", "from_lifetable_to_yld")){
 
      outcome_metric <-
        gsub("from_lifetable_to_", "", unique(input$health_metric))
@@ -84,7 +86,19 @@ get_impact <-
             min_age = min_age,
             max_age = max_age,
             meta = input_risk_paf)
+
+      } else if(outcome_metric == "yld"){
+        output_raw <-
+          bestcost::get_yld(
+            pop_impact = pop_impact,
+            year_of_analysis = year_of_analysis,
+            min_age = min_age,
+            max_age = max_age,
+            disability_weight = disability_weight,
+            duration = duration,
+            meta = input_risk_paf)
       }
+
 
 
 

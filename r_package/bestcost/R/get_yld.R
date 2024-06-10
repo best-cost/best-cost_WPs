@@ -29,14 +29,10 @@ get_yld <-
            year_of_analysis,
            min_age,
            max_age,
-           first_age_pop,
-           last_age_pop,
            meta,
            corrected_discount_rate = 0,
            disability_weight,
-           duration = NULL){
-
-    if (is.null(duration)) {duration <- last_age_pop-first_age_pop}
+           duration){
 
     lifeyears_byYear <- list()
     yld_by_list<-list()

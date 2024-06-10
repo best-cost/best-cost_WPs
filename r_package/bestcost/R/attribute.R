@@ -34,12 +34,14 @@ attribute <-
            erf_c_central = NULL, erf_c_lower = NULL, erf_c_upper = NULL,
            bhd_central = NULL, bhd_lower = NULL, bhd_upper = NULL,
            disability_weight = NULL,
+           duration = NULL,
            first_age_pop = NULL, last_age_pop = NULL,
            prob_natural_death_male = NULL, prob_natural_death_female = NULL,
            prob_total_death_male, prob_total_death_female = NULL,
            population_midyear_male = NULL, population_midyear_female = NULL,
            year_of_analysis = NULL,
            min_age = NULL, max_age = NULL,
+           corrected_discount_rate = NULL,
            geo_id_raw = NULL, geo_id_aggregated = NULL,
            health_metric = "same_input_output",
            method = "relative_risk",
@@ -91,7 +93,9 @@ attribute <-
                            lifetable_withPop = lifetable_withPop,
                            year_of_analysis = year_of_analysis,
                            min_age = min_age,
-                           max_age = max_age)
+                           max_age = max_age,
+                           disability_weight = disability_weight,
+                           duration = duration)
 
     # Get the main and detailed output by aggregating and/or filtering cases (rows)
     output <-
