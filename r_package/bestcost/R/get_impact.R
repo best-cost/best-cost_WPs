@@ -20,13 +20,17 @@
 #' @inherit attribute_deaths_lifetable_rr note
 #' @export
 get_impact <-
-  function(input){
+  function(input,
+           lifetable_withPop = NULL,
+           year_of_analysis = NULL,
+           min_age = NULL,
+           max_age = NULL){
 
     if(unique(input$method) == "relative_risk" &
        unique(input$health_metric) %in% c("same_input_output",
                                           "from_prevalence_to_yld")){
       # Get PAF and added to the input data frame
-      output_raw <-
+      output_raw_main <-
         bestcost::get_risk_and_paf(input = input) %>%
         # Build the result table adding the paf to the input_risk_paf table
         dplyr::mutate(impact = paf * bhd) %>%
@@ -39,12 +43,16 @@ get_impact <-
         dplyr::select(exp_ci, bhd_ci, erf_ci,
                       paf, impact, impact_rounded,
                       everything())
+
+      output_raw <- list(main = output_raw_main)
     }
 
-    if (unique(input$health_metric) %in% c("from_lifetable_to_death",
-                                             "from_lifetable_to_yll")){
+    if (unique(input$method) == "relative_risk" &
+        unique(input$health_metric) %in%
+        c("from_lifetable_to_death", "from_lifetable_to_yll")){
 
-     outcome_metric <- gsub("from_lifetable_to_", "", unique(input$health_metric))
+     outcome_metric <-
+       gsub("from_lifetable_to_", "", unique(input$health_metric))
 
       # Get PAF and add to the input data frame
       input_risk_paf <-
@@ -85,16 +93,19 @@ get_impact <-
               unique(input$health_metric) == "same_input_output"){
 
       # Calculate absolute risk for each exposure category ####
-      output_raw <-
+      output_raw_main <-
         input %>%
         dplyr::mutate(
           absolute_risk_as_percent = bestcost::get_risk(exp = exp, erf_c = erf_c, erf_full = TRUE) ,
           impact = absolute_risk_as_percent/100 * pop_exp,
           impact_rounded = round(impact, 0))
 
+      output_raw <- list(main = output_raw_main)
+
 
 
     }
+
     return(output_raw)
 
   }

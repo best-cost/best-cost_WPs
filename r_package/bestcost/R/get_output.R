@@ -22,14 +22,17 @@
 get_output <-
   function(output_raw){
 
-    output <- list(main = output_raw, detailed = list(raw = output_raw))
+    output <- list(main = output_raw[["main"]],
+                   detailed = list(raw = output_raw[["main"]],
+                                   interim = output_raw[["detailed"]]))
 
-    output_last <- output_raw
 
-    if(unique(output_raw$method) == "absolute_risk"){
+    output_last <- output_raw[["main"]]
+
+    if(unique(output_last$method) == "absolute_risk"){
 
       output[["detailed"]][["agg_exp_cat"]] <-
-        output_raw %>%
+        output_raw[["main"]] %>%
         dplyr::mutate(exp = paste(exp, collapse = ", ")) %>%
         dplyr::group_by(
           across(c(-pop_exp, -exp, -absolute_risk_as_percent, -impact, -impact_rounded))) %>%
@@ -46,12 +49,12 @@ get_output <-
 
     # Aggregate results by higher geo_level
     # only if geo_id_aggregated is defined
-    if("geo_id_aggregated" %in% names(output_raw)){
+    if("geo_id_aggregated" %in% names(output_last)){
 
       output[["detailed"]][["agg_geo"]] <-
         output_last %>%
         # Group by higher geo level
-        dplyr::group_by(geo_id_aggregated, exp_ci, bhd_ci, erf_ci) %>%
+        dplyr::group_by(geo_id_aggregated, exp_ci, bhd_ci, erf_ci, method) %>%
         dplyr::summarise(impact = sum(impact),
                          impact_rounded = round(impact),
                          .groups = "drop")%>%
@@ -67,7 +70,7 @@ get_output <-
     output[["main"]] <-
       output_last %>%
       dplyr::filter(!exp_ci %in% c("lower", "upper"))%>%
-      {if(unique(output_raw$method) == "relative_risk")
+      {if("bhd_ci" %in% names(.))
         dplyr::filter(., !bhd_ci %in% c("lower", "upper")) else .}
 
 

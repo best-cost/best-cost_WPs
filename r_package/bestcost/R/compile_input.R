@@ -109,6 +109,9 @@ compile_input <-
         bhd_central = rep(unlist(bhd_central), each = length_expDist),
         bhd_lower = rep(unlist(bhd_lower), each = length_expDist),
         bhd_upper = rep(unlist(bhd_lower), each = length_expDist),
+        min_age = rep(min_age, each = length_expDist),
+        max_age = rep(max_age, each = length_expDist),
+
         # Second those variables that will have lenght = 1 (no problematic)
         disability_weight = disability_weight,
         duration = duration,

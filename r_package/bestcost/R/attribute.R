@@ -45,6 +45,7 @@ attribute <-
            method = "relative_risk",
            info = NULL){
 
+
     # Compile input data (except lifetable) and calculate paf putting all into a data frame
     input <-
       bestcost::compile_input(
@@ -86,7 +87,11 @@ attribute <-
 
     # Calculate the health impacts for each case (uncertainty, category, geo area...)
     output_raw <-
-      bestcost::get_impact(input = input)
+      bestcost::get_impact(input = input,
+                           lifetable_withPop = lifetable_withPop,
+                           year_of_analysis = year_of_analysis,
+                           min_age = min_age,
+                           max_age = max_age)
 
     # Get the main and detailed output by aggregating and/or filtering cases (rows)
     output <-

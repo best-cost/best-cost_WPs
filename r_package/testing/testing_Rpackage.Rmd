@@ -389,29 +389,6 @@ for(d in c("natural", "total")){
 
 # Calculate premature deaths using bestcost function
 # and input data from an AirQ+ case
-
-bestcost_pm_deaths_lifetable_airqplus <-
-  bestcost::attribute_deaths_lifetable_rr(
-    exp_central = airqplus_pm_deaths_yll[["input"]]$mean_concentration, 
-    cutoff = airqplus_pm_deaths_yll[["input"]]$cut_off_value,
-    rr_central = airqplus_pm_deaths_yll[["input"]]$relative_risk,
-    rr_lower = airqplus_pm_deaths_yll[["input"]]$relative_risk_lower,
-    rr_upper = airqplus_pm_deaths_yll[["input"]]$relative_risk_upper,
-    erf_increment = 10, 
-    erf_shape = gsub("-", "_", airqplus_pm_deaths_yll[["input"]]$calculation_method),
-    first_age_pop = first(airqplus_pm_deaths_yll[["pop"]]$age_from...),
-    last_age_pop = last(airqplus_pm_deaths_yll[["pop"]]$age_from...),
-    prob_natural_death_male = prob_dying[["natural"]][["male"]]$prob_dying,
-    prob_natural_death_female = prob_dying[["natural"]][["female"]]$prob_dying,
-    prob_total_death_male = prob_dying[["total"]][["male"]]$prob_dying,
-    prob_total_death_female = prob_dying[["total"]][["female"]]$prob_dying,
-    population_midyear_male = airqplus_pm_deaths_yll[["pop"]]$midyear_population_male,
-    population_midyear_female = airqplus_pm_deaths_yll[["pop"]]$midyear_population_female, 
-    year_of_analysis =  airqplus_pm_deaths_yll[["input"]]$start_year, 
-    min_age = airqplus_pm_deaths_yll[["input"]]$apply_rr_from_age)
-
-
-
 # Calculate premature deaths using bestcost function
 # and input data from an AirQ+ case
 
@@ -447,6 +424,28 @@ check_bestcost(result_list_bestcost = bestcost_pm_deaths_lifetable_airqplus,
 bestcost_pm_deaths_lifetable_geluft <- 
     bestcost::attribute_deaths_lifetable_rr(
 
+    exp_central = input_data_mortality$exp[2], # PM2.5=8.85 exp in CH in 2019
+    cutoff = input_data_mortality$cutoff[2],   # PM2.5=5,i.e. WHO AQG 2021 
+    rr_central = input_data_mortality[2,"rr_central"], 
+    rr_lower = input_data_mortality[2,"rr_lower"], 
+    rr_upper = input_data_mortality[2,"rr_upper"],
+    erf_increment = 10, 
+    erf_shape = "log_linear",
+    first_age_pop = 0,
+    last_age_pop = 99,
+    prob_natural_death_male = lifetable_withPopulation[["male"]]$death_probability_natural,
+    prob_natural_death_female = lifetable_withPopulation[["female"]]$death_probability_natural,
+    prob_total_death_male = lifetable_withPopulation[["male"]]$death_probability_total,
+    prob_total_death_female = lifetable_withPopulation[["female"]]$death_probability_total,
+    population_midyear_male = lifetable_withPopulation[["male"]]$population, 
+    population_midyear_female = lifetable_withPopulation[["female"]]$population, 
+    year_of_analysis = 2019, 
+    info = input_data_mortality$pollutant[2], 
+    min_age = input_data_mortality$min_age[2])
+
+bestcost_pm_deaths_lifetable_geluft <- 
+    bestcost::attribute(
+    health_metric = "from_lifetable_to_death",
     exp_central = input_data_mortality$exp[2], # PM2.5=8.85 exp in CH in 2019
     cutoff = input_data_mortality$cutoff[2],   # PM2.5=5,i.e. WHO AQG 2021 
     rr_central = input_data_mortality[2,"rr_central"], 
@@ -519,7 +518,8 @@ check_bestcost(result_list_bestcost = bestcost_pm_deaths_lifetable_geluft ,
 # and input data from an AirQ+ case
 
 bestcost_pm_yll_lifetable_airqplus <-
-  bestcost::attribute_yll_lifetable_rr(
+  bestcost::attribute(
+    health_metric = "from_lifetable_to_yll",
     exp_central = airqplus_pm_deaths_yll[["input"]]$mean_concentration, 
     cutoff = airqplus_pm_deaths_yll[["input"]]$cut_off_value,
     rr_central = airqplus_pm_deaths_yll[["input"]]$relative_risk,
@@ -549,30 +549,29 @@ check_bestcost(result_list_bestcost = bestcost_pm_yll_lifetable_airqplus,
                    airqplus_pm_deaths_yll[["output"]]$value_lower_allgenders_yll_over_100_years_age_20_99,
                    airqplus_pm_deaths_yll[["output"]]$value_upper_allgenders_yll_over_100_years_age_20_99))
                  
-
-
 # Now with input data from the Swiss project GeLuft
 bestcost_pm_yll_lifetable_geluft <- 
-  bestcost::attribute_yll_lifetable_rr(
-      exp_central = input_data_mortality$exp[2], #exp CH 2019
-      prop_pop_exp = 1,
-      cutoff = input_data_mortality$cutoff[2], # WHO AQG 2021 
-      rr_central = input_data_mortality[2,"rr_central"], 
-      rr_lower = input_data_mortality[2,"rr_lower"], 
-      rr_upper =input_data_mortality[2,"rr_upper"], 
-      erf_increment = 10, 
-      erf_shape = "log_linear",
-      first_age_pop = 0,
-      last_age_pop = 99,
-      prob_natural_death_male = lifetable_withPopulation[["male"]]$death_probability_natural,
-      prob_natural_death_female = lifetable_withPopulation[["female"]]$death_probability_natural,
-      prob_total_death_male = lifetable_withPopulation[["male"]]$death_probability_total,
-      prob_total_death_female = lifetable_withPopulation[["female"]]$death_probability_total,
-      population_midyear_male = lifetable_withPopulation[["male"]]$population, 
-      population_midyear_female = lifetable_withPopulation[["female"]]$population, 
-      year_of_analysis = 2019, 
-      info = input_data_mortality$pollutant[2], 
-      min_age = if(is.na(input_data_mortality$min_age[2])) NULL else input_data_mortality$min_age[2])
+  bestcost::attribute(
+    health_metric = "from_lifetable_to_yll",
+    exp_central = input_data_mortality$exp[2], #exp CH 2019
+    prop_pop_exp = 1,
+    cutoff = input_data_mortality$cutoff[2], # WHO AQG 2021 
+    rr_central = input_data_mortality[2,"rr_central"], 
+    rr_lower = input_data_mortality[2,"rr_lower"], 
+    rr_upper =input_data_mortality[2,"rr_upper"], 
+    erf_increment = 10, 
+    erf_shape = "log_linear",
+    first_age_pop = 0,
+    last_age_pop = 99,
+    prob_natural_death_male = lifetable_withPopulation[["male"]]$death_probability_natural,
+    prob_natural_death_female = lifetable_withPopulation[["female"]]$death_probability_natural,
+    prob_total_death_male = lifetable_withPopulation[["male"]]$death_probability_total,
+    prob_total_death_female = lifetable_withPopulation[["female"]]$death_probability_total,
+    population_midyear_male = lifetable_withPopulation[["male"]]$population, 
+    population_midyear_female = lifetable_withPopulation[["female"]]$population, 
+    year_of_analysis = 2019, 
+    info = input_data_mortality$pollutant[2], 
+    min_age = if(is.na(input_data_mortality$min_age[2])) NULL else input_data_mortality$min_age[2])
 
 check_bestcost(result_list_bestcost = bestcost_pm_yll_lifetable_geluft,
                result_vector_alternative = c(27742, 14641, 40542))
@@ -587,7 +586,8 @@ check_bestcost(result_list_bestcost = bestcost_pm_yll_lifetable_geluft,
 # with input data from the Swiss project GeLuft
 
 bestcost_pm_yll_lifetable_1rr_geluft <- 
-    bestcost::attribute_yll_lifetable_rr(
+    bestcost::attribute(
+      health_metric = "from_lifetable_to_yll",
       exp_central = input_data_mortality$exp[2], #exp CH 2019
       prop_pop_exp = 1,
       cutoff = input_data_mortality$cutoff[2], 
@@ -620,7 +620,8 @@ check_bestcost(result_list_bestcost = bestcost_pm_yll_lifetable_1rr_geluft,
 # with exposure distribution (instead of population-weighted mean)
 
 bestcost_pm_yll_lifetable_expDistribution_geluft <- 
-    bestcost::attribute_yll_lifetable_rr(
+    bestcost::attribute(
+      health_metric = "from_lifetable_to_yll",
       exp_central = c(8, 9, 10), # Fake data just for testing purposes
       prop_pop_exp = c(0.2, 0.3, 0.5), # Fake data just for testing purposes
       cutoff = input_data_mortality$cutoff[2], # WHO AQG 2021 
