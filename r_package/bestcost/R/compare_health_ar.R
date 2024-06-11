@@ -56,7 +56,7 @@ compare_health_ar <-
     # Identify the columns that are common for scenario 1 and 2
     # grepl instead of %in% because there might be differnt info columns starting with info_
     joining_columns <-
-      names(att_health_1[["main"]])[! grepl(c("exp|rr_conc|absolute_risk_as_percent|population_affected|impact|impact_rounded|info"),
+      names(att_health_1[["main"]])[! grepl(c("exp|rr_conc|paf|absolute_risk_as_percent|population_affected|impact|impact_rounded|info"),
                                              names(att_health_1[["main"]]))]
 
     # Merge the result tables by common columns

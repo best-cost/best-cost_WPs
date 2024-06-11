@@ -37,6 +37,7 @@
 #' @export
 compare_health_singlebhd_rr <-
   function(comparison_method = "delta",
+           risk_method = "relative_risk",
            exp_central_1, exp_lower_1 = NULL, exp_upper_1 = NULL,
            exp_central_2, exp_lower_2 = NULL, exp_upper_2 = NULL,
            prop_pop_exp_1 = 1,
@@ -100,6 +101,7 @@ compare_health_singlebhd_rr <-
     # pif is additonally calculated
     # impact is overwritten with the new values that refer to pif instead of paf
     if(comparison_method == "pif" &
+       !risk_method == "absolute_risk" &
        bhd_central_1 == bhd_central_2 &
        # Either both NULL or identical. Use the function identical() to enable NULL==NULL
        ((is.null(bhd_lower_1) & is.null(bhd_lower_2)) | identical(bhd_lower_1, bhd_lower_2)) &

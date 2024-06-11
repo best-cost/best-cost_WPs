@@ -43,13 +43,15 @@ compare <-
            exp_central_2, exp_lower_2 = NULL, exp_upper_2 = NULL,
            prop_pop_exp_1 = 1,
            prop_pop_exp_2 = 1,
+           pop_exp_1 = NULL,
+           pop_exp_2 = NULL,
            cutoff,
            rr_central = NULL, rr_lower = NULL, rr_upper = NULL,
            erf_increment = NULL,
            erf_shape = NULL,
            erf_c_central = NULL, erf_c_lower = NULL, erf_c_upper = NULL,
-           bhd_central_1, bhd_lower_1 = NULL, bhd_upper_1 = NULL,
-           bhd_central_2, bhd_lower_2 = NULL, bhd_upper_2 = NULL,
+           bhd_central_1 = NULL, bhd_lower_1 = NULL, bhd_upper_1 = NULL,
+           bhd_central_2 = NULL, bhd_lower_2 = NULL, bhd_upper_2 = NULL,
            info_1 = NULL, info_2 = NULL){
 
 
@@ -61,6 +63,7 @@ compare <-
         health_metric = health_metric,
         exp_central = exp_central_1, exp_lower = exp_lower_1, exp_upper = exp_upper_1,
         prop_pop_exp = prop_pop_exp_1,
+        pop_exp = pop_exp_1,
         cutoff = cutoff,
         rr_central = rr_central, rr_lower = rr_lower, rr_upper = rr_upper,
         erf_increment = erf_increment,
@@ -76,6 +79,7 @@ compare <-
         health_metric = health_metric,
         exp_central = exp_central_2, exp_lower = exp_lower_2, exp_upper = exp_upper_2,
         prop_pop_exp = prop_pop_exp_2,
+        pop_exp = pop_exp_2,
         cutoff = cutoff,
         rr_central = rr_central, rr_lower = rr_lower, rr_upper = rr_upper,
         erf_increment = erf_increment,
@@ -86,7 +90,7 @@ compare <-
 
     # Identify the columns that are common for scenario 1 and 2
     joining_columns <-
-      names(att_health_1[["main"]])[! grepl(c("exp|bhd|paf|rr_conc|impact|impact_rounded|info"),
+      names(att_health_1[["main"]])[! grepl(c("exp|bhd|paf|rr_conc|absolute_risk_as_percent|population_affected|impact|impact_rounded|info"),
                                             names(att_health_1[["main"]]))]
 
 
@@ -106,8 +110,9 @@ compare <-
     # pif is additonally calculated
     # impact is overwritten with the new values that refer to pif instead of paf
     if(comparison_method == "pif" &
-       bhd_central_1 == bhd_central_2 &
+       !risk_method == "absolute_risk" &
        # Either both NULL or identical. Use the function identical() to enable NULL==NULL
+       ((is.null(bhd_central_1) & is.null(bhd_central_2)) | identical(bhd_lower_1, bhd_lower_2))&
        ((is.null(bhd_lower_1) & is.null(bhd_lower_2)) | identical(bhd_lower_1, bhd_lower_2)) &
        ((is.null(bhd_upper_1) & is.null(bhd_upper_2)) | identical(bhd_upper_1, bhd_upper_2))){
 

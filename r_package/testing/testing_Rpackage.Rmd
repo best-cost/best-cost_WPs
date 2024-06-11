@@ -769,10 +769,23 @@ check_bestcost(result_list_bestcost = comparison_singlebhd_rr_pif ,
 
 
 ```{r comparison ar}
+
 # Test delta comparison function with fake values
 # No PIF option in ar
+
 comparison_singlebhd_ar_delta <-
   bestcost::compare_health_ar(
+    exp_central_1 = c(57.5, 62.5, 67.5, 72.5, 77.5),# Values as example provided by NIPH
+    exp_central_2 = c(50, 55, 60, 65, 75), # Fake values
+    pop_exp_1 = c(387500, 286000, 191800, 72200, 7700), # Values as example provided by NIPH
+    pop_exp_2 = c(387500, 286000, 191800, 72200, 7700), # Fake values
+    erf_c_central = "78.9270-3.1162*c+0.0342*c^2",
+    info_1 = data.frame(pollutant = "road_noise", outcome = "highly_annoyance", year = 2020),
+    info_2 = data.frame(pollutant = "road_noise", outcome = "highly_annoyance", year = 2022))
+
+comparison_singlebhd_ar_delta <-
+  bestcost::compare(
+    risk_method = "absolute_risk",
     exp_central_1 = c(57.5, 62.5, 67.5, 72.5, 77.5),# Values as example provided by NIPH
     exp_central_2 = c(50, 55, 60, 65, 75), # Fake values
     pop_exp_1 = c(387500, 286000, 191800, 72200, 7700), # Values as example provided by NIPH
