@@ -47,8 +47,7 @@ attribute_health_singlebhd_rr <-
         bhd_central = bhd_central, bhd_lower = bhd_lower, bhd_upper = bhd_upper,
         geo_id_raw = geo_id_raw,
         geo_id_aggregated = geo_id_aggregated,
-        info = info,
-        method = "singlebhd_rr")
+        info = info)
 
     # Get PAF and added to the input data frame
     calculation <-

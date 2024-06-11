@@ -35,10 +35,10 @@
 #' @author Alberto Castro
 #' @note Experimental function
 #' @export
-compare_health_singlebhd_rr <-
+compare <-
   function(comparison_method = "delta",
-           health_metric,
-
+           health_metric = "same_input_output",
+           risk_method = "relative_risk",
            exp_central_1, exp_lower_1 = NULL, exp_upper_1 = NULL,
            exp_central_2, exp_lower_2 = NULL, exp_upper_2 = NULL,
            prop_pop_exp_1 = 1,
@@ -56,7 +56,9 @@ compare_health_singlebhd_rr <-
 
     # Calculate attributable health impacts in the scenario 1
     att_health_1 <-
-      bestcost::attribute_health_singlebhd_rr(
+      bestcost::attribute(
+        risk_method = risk_method,
+        health_metric = health_metric,
         exp_central = exp_central_1, exp_lower = exp_lower_1, exp_upper = exp_upper_1,
         prop_pop_exp = prop_pop_exp_1,
         cutoff = cutoff,
@@ -69,7 +71,9 @@ compare_health_singlebhd_rr <-
 
     # Calculate attributable health impacts in the scenario 2
     att_health_2 <-
-      bestcost::attribute_health_singlebhd_rr(
+      bestcost::attribute(
+        risk_method = risk_method,
+        health_metric = health_metric,
         exp_central = exp_central_2, exp_lower = exp_lower_2, exp_upper = exp_upper_2,
         prop_pop_exp = prop_pop_exp_2,
         cutoff = cutoff,

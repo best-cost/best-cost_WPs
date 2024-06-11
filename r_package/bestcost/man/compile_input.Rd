@@ -28,7 +28,7 @@ compile_input(
   geo_id_raw = NULL,
   geo_id_aggregated = NULL,
   info = NULL,
-  method = NULL,
+  risk_method = NULL,
   health_metric = NULL,
   disability_weight = NULL,
   duration = NULL
@@ -51,7 +51,7 @@ compile_input(
 
 \item{info}{\code{String} showing additional information or id for the pollutant. The suffix "info" will be added to the column name. Default value = NULL.}
 
-\item{method}{\code{String} showing the calculation methods.}
+\item{risk_method}{\code{String} showing the calculation method of the risk.}
 
 \item{exp}{\code{Numeric value} showing the population-weighted mean exposure in ug/m3 or {vector} showing the exposure category in a exposure distribution (this information is linked to the proportion of population exposed).}
 

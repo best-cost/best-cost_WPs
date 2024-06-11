@@ -4,7 +4,15 @@
 \alias{get_impact}
 \title{Attributable health cases based on relative risk}
 \usage{
-get_impact(input)
+get_impact(
+  input,
+  lifetable_withPop = NULL,
+  year_of_analysis = NULL,
+  min_age = NULL,
+  max_age = NULL,
+  disability_weight = NULL,
+  duration = NULL
+)
 }
 \arguments{
 \item{input}{\code{Data frame} containing all input data.}

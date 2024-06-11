@@ -4,13 +4,7 @@
 \alias{get_deaths}
 \title{Get deaths}
 \usage{
-get_deaths(
-  pop_impact,
-  year_of_analysis,
-  meta,
-  min_age = min_age,
-  max_age = max_age
-)
+get_deaths(pop_impact, year_of_analysis, meta, min_age = NULL, max_age = NULL)
 }
 \arguments{
 \item{pop_impact}{\code{Data frame} with shifted population over time.}

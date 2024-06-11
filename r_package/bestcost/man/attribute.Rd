@@ -5,6 +5,8 @@
 \title{Attributable health cases based on relative risk}
 \usage{
 attribute(
+  health_metric = "same_input_output",
+  risk_method = "relative_risk",
   exp_central,
   exp_lower = NULL,
   exp_upper = NULL,
@@ -23,6 +25,7 @@ attribute(
   bhd_lower = NULL,
   bhd_upper = NULL,
   disability_weight = NULL,
+  duration = NULL,
   first_age_pop = NULL,
   last_age_pop = NULL,
   prob_natural_death_male = NULL,
@@ -34,14 +37,15 @@ attribute(
   year_of_analysis = NULL,
   min_age = NULL,
   max_age = NULL,
+  corrected_discount_rate = NULL,
   geo_id_raw = NULL,
   geo_id_aggregated = NULL,
-  health_metric = "same_input_output",
-  method = "relative_risk",
   info = NULL
 )
 }
 \arguments{
+\item{risk_method}{\code{String} showing the calculation method of the risk: "relative_risk" or "absolute_risk".}
+
 \item{prop_pop_exp}{\code{Numeric value} or {Numeric vector} Fraction (values between 0 & 1) of the total population exposed to (one or more) exposure categories, i.e., a exposure distribution, respectively. If a exposure distribution is used, the dimension of this input variable should be the same as "exp". By default, 1 for single exposure value will be assigned to this input variable assuming a single exposure value, but users can change this value.}
 
 \item{cutoff}{\code{Numeric value} showing the cut-off exposure in ug/m3 (i.e. the exposure level below which no health effects occur).}
@@ -77,8 +81,6 @@ attribute(
 \item{min_age}{\code{Numberic value} of the minimal age to be considered for adults (by default 30, i.e. 30+).}
 
 \item{max_age}{\code{Numberic value} of the maximal age to be considered for infants/children (by default 0, i.e. below 1 year old).}
-
-\item{method}{\code{String} showing the calculation method: "relative_risk" or "absolute_risk".}
 
 \item{info}{\code{String} or {data frame} showing additional information or id. The suffix "info" will be added to the column name. Default value = NULL.}
 }
