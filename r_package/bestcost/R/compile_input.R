@@ -15,7 +15,7 @@
 #' @param info \code{String} showing additional information or id for the pollutant. The suffix "info" will be added to the column name. Default value = NULL.
 #' @param min_age \code{Numberic value} of the minimal age to be considered for adults (by default 30, i.e. 30+).
 #' @param max_age \code{Numberic value} of the maximal age to be considered for infants/children (by default 0, i.e. below 1 year old).
-#' @param method \code{String} showing the calculation methods.
+#' @param risk_method \code{String} showing the calculation method of the risk.
 
 #' @return
 #' This function returns a \code{data.frame} with all input data together
@@ -49,7 +49,7 @@ compile_input <-
            geo_id_raw = NULL,
            geo_id_aggregated = NULL,
            info = NULL,
-           method = NULL,
+           risk_method = NULL,
            health_metric = NULL,
            disability_weight = NULL,
            duration = NULL){
@@ -132,8 +132,8 @@ compile_input <-
         age_range = ifelse(!is.null(max_age) & is.null(min_age), paste0("below", max_age + 1),
                            ifelse(!is.null(min_age) & is.null(max_age), paste0("from", min_age),
                                   NA)),
-        # Add the method that refer to the function
-        method = method,
+        # Add the risk_method that refer to the function
+        risk_method = risk_method,
         health_metric = health_metric,
         exposure_type =
           ifelse((is.list(exp_central) &

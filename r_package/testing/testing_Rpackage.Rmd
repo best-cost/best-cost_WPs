@@ -266,7 +266,7 @@ niph_noise_ha_result <-
 # Obtain attributable cases using the bestcost package and input data from niph
 bestcost_noise_ha_ar <- 
   bestcost::attribute(
-    method = "absolute_risk",
+    risk_method = "absolute_risk",
     exp_central = niph_noise_ha_input$exposure_mean,
     pop_exp = niph_noise_ha_input$population_exposed_total, 
     erf_c_central = "78.9270-3.1162*c+0.0342*c^2",
@@ -280,7 +280,7 @@ check_bestcost(result_list_bestcost = bestcost_noise_ha_ar,
 # for multiple geo_sections
 bestcost_noise_ha_ar_geo <- 
   bestcost::attribute(
-    method = "absolute_risk",
+    risk_method = "absolute_risk",
     exp_central = list(runif_with_seed(5,8,10,1), 
                           runif_with_seed(5,8,10,2), 
                           runif_with_seed(5,8,10,3)),
@@ -422,8 +422,8 @@ check_bestcost(result_list_bestcost = bestcost_pm_deaths_lifetable_airqplus,
 ```{r premature deaths with lifetable}
 # Now with input data from the Swiss project GeLuft
 bestcost_pm_deaths_lifetable_geluft <- 
-    bestcost::attribute_deaths_lifetable_rr(
-
+    bestcost::attribute(
+    health_metric = "from_lifetable_to_death",
     exp_central = input_data_mortality$exp[2], # PM2.5=8.85 exp in CH in 2019
     cutoff = input_data_mortality$cutoff[2],   # PM2.5=5,i.e. WHO AQG 2021 
     rr_central = input_data_mortality[2,"rr_central"], 
@@ -479,7 +479,8 @@ check_bestcost(result_list_bestcost = bestcost_pm_deaths_lifetable_geluft ,
 
 # Calculate premature deaths using bestcost function
 bestcost_pm_deaths_lifetable_expDistribution <- 
-    bestcost::attribute_deaths_lifetable_rr(
+    bestcost::attribute(
+      health_metric = "from_lifetable_to_death",
       exp_central = c(8, 9, 10), # Fake data just for testing purposes
       prop_pop_exp = c(0.2, 0.3, 0.5), # Fake data just for testing purposes
       cutoff = input_data_mortality$cutoff[2],   # PM2.5=5, NO2=10, i.e. WHO AQG 2021 

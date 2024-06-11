@@ -5,7 +5,7 @@
 #' @param bhd_central \code{Numeric value} showing the only or central estimate (if confidence interval) of the baseline health data (e.g. incidence of the health outcome in the population).
 #' @param bhd_upper \code{Numeric value} showing the lower bound estimate (confidence interval) of the baseline health data.
 #' @param bhd_lower \code{Numeric value} showing the upper bound estimate (confidence interval) of the baseline health data.
-#' @param method \code{String} showing the calculation method: "relative_risk" or "absolute_risk".
+#' @param risk_method \code{String} showing the calculation method of the risk: "relative_risk" or "absolute_risk".
 #' @return
 #' TBD. E.g. This function returns a \code{data.frame} with one row for each value of the
 #' concentration-response function (i.e. central, lower and upper bound confidence interval.
@@ -24,7 +24,9 @@
 #' @inherit attribute_deaths_lifetable_rr note
 #' @export
 attribute <-
-  function(exp_central, exp_lower = NULL, exp_upper = NULL,
+  function(health_metric = "same_input_output",
+           risk_method = "relative_risk",
+           exp_central, exp_lower = NULL, exp_upper = NULL,
            prop_pop_exp = 1,
            pop_exp = NULL,
            cutoff,
@@ -43,8 +45,6 @@ attribute <-
            min_age = NULL, max_age = NULL,
            corrected_discount_rate = NULL,
            geo_id_raw = NULL, geo_id_aggregated = NULL,
-           health_metric = "same_input_output",
-           method = "relative_risk",
            info = NULL){
 
 
@@ -65,7 +65,7 @@ attribute <-
         info = info,
         health_metric = health_metric,
         disability_weight = disability_weight,
-        method = method)
+        risk_method = risk_method)
 
     # Only if lifetable approach
     # Compile list of life table data frame (by sex)

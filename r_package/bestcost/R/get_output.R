@@ -29,7 +29,7 @@ get_output <-
 
     output_last <- output_raw[["main"]]
 
-    if(unique(output_last$method) == "absolute_risk"){
+    if(unique(output_last$risk_method) == "absolute_risk"){
 
       output[["detailed"]][["agg_exp_cat"]] <-
         output_raw[["main"]] %>%
@@ -54,7 +54,7 @@ get_output <-
       output[["detailed"]][["agg_geo"]] <-
         output_last %>%
         # Group by higher geo level
-        dplyr::group_by(geo_id_aggregated, exp_ci, bhd_ci, erf_ci, method) %>%
+        dplyr::group_by(geo_id_aggregated, exp_ci, bhd_ci, erf_ci, risk_method) %>%
         dplyr::summarise(impact = sum(impact),
                          impact_rounded = round(impact),
                          .groups = "drop")%>%

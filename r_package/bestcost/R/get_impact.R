@@ -28,7 +28,7 @@ get_impact <-
            disability_weight = NULL,
            duration = NULL){
 
-    if(unique(input$method) == "relative_risk" &
+    if(unique(input$risk_method) == "relative_risk" &
        unique(input$health_metric) %in% c("same_input_output",
                                           "from_prevalence_to_yld")){
       # Get PAF and added to the input data frame
@@ -49,7 +49,7 @@ get_impact <-
       output_raw <- list(main = output_raw_main)
     }
 
-    if (unique(input$method) == "relative_risk" &
+    if (unique(input$risk_method) == "relative_risk" &
         unique(input$health_metric) %in%
         c("from_lifetable_to_death", "from_lifetable_to_yll", "from_lifetable_to_yld")){
 
@@ -103,7 +103,7 @@ get_impact <-
 
 
 
-    } else if(unique(input$method) == "absolute_risk" &
+    } else if(unique(input$risk_method) == "absolute_risk" &
               unique(input$health_metric) == "same_input_output"){
 
       # Calculate absolute risk for each exposure category ####
