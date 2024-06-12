@@ -25,7 +25,7 @@
 #' @author Alberto Castro
 #' @note Experimental function
 #' @export
-get_pop_impact <-
+get_pop_impact_copy <-
   function(lifetab_withPop, year_of_analysis, pop_fraction, outcome_metric){
 
 
@@ -36,7 +36,7 @@ get_pop_impact <-
       for(v in pop_fraction$erf_ci){
         popOverTime[[s]][[paste0("erf_ci_",v)]] <-
           # Projects the input population 100 years into the future (e.g. if start year 2019 --> end year 2118)
-          bestcost::project_pop(
+          bestcost::project_pop_copy(
             lifetab_withPop = lifetab_withPop[[s]],
             year_of_analysis = year_of_analysis,
             paf = pop_fraction$paf[pop_fraction$erf_ci %in% v],
@@ -49,22 +49,22 @@ get_pop_impact <-
 
     # Get pop_impact
 
-    pop_impact <- list()
-
-    for(s in names(lifetab_withPop)){
-      for(v in pop_fraction$erf_ci){
-        pop_impact[[s]][[paste0("erf_ci_",v)]] <-
-
-          bestcost::move_rows_up(popOTime = popOverTime[[s]][[paste0("erf_ci_",v)]],
-                                 year_of_analysis = year_of_analysis)
-      }
-    }
+    # pop_impact <- list()
+    #
+    # for(s in names(lifetab_withPop)){
+    #   for(v in pop_fraction$erf_ci){
+    #     pop_impact[[s]][[paste0("erf_ci_",v)]] <-
+    #
+    #       bestcost::move_rows_up(popOTime = popOverTime[[s]][[paste0("erf_ci_",v)]],
+    #                              year_of_analysis = year_of_analysis)
+    #   }
+    # }
 
 
     output <-
       list(paf = pop_fraction,
            popOverTime = popOverTime,
-           pop_impact = pop_impact)
+           pop_impact = popOverTime)
 
 
     return(output)

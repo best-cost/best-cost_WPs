@@ -16,14 +16,14 @@
 #' @author Alberto Castro
 #' @note Experimental function
 #' @export
-project_pop <-
+project_pop_copy <-
   function(lifetab_withPop, year_of_analysis, paf, outcome_metric){
 
 
     # Add the first year of the life table (i.e. YOA) to the population column name (as a suffix)
-    lifetab_withPop <-
-      lifetab_withPop %>%
-      dplyr::rename(!!paste0("population_", year_of_analysis) := population)
+    # lifetab_withPop <-
+    #   lifetab_withPop %>%
+    #   dplyr::rename(!!paste0("population_", year_of_analysis) := population)
 
 
     # Calculate population in the next year assuming
@@ -31,7 +31,7 @@ project_pop <-
     # based on the RR
     # Adds the attributable deaths (=pop * prob. dying * PAF) to the exposure in the YOA in the column to the right one row down
     popOverTime <-
-      bestcost::project_pop_withExp(
+      bestcost::project_pop_withExp_copy(
         lifetable_withPop = lifetab_withPop,
         year_of_analysis = year_of_analysis,
         paf = paf)
@@ -41,7 +41,7 @@ project_pop <-
     # Calculate population over time (from year of analysis + 2 until yoa + 99)
     # without considering air pollution
     popOverTime <-
-      bestcost::project_pop_noExp(
+      bestcost::project_pop_noExp_copy(
         lifetable_withPop = popOverTime,
         year_of_analysis = year_of_analysis)
     }

@@ -5,9 +5,13 @@
 \title{Health impacts based on life tables}
 \usage{
 attribute_yld_lifetable_rr(
-  exp,
+  exp_central,
+  exp_lower = NULL,
+  exp_upper = NULL,
   prop_pop_exp = 1,
-  rr,
+  rr_central = NULL,
+  rr_lower = NULL,
+  rr_upper = NULL,
   erf_increment,
   erf_shape,
   cutoff,
@@ -23,18 +27,16 @@ attribute_yld_lifetable_rr(
   corrected_discount_rate = 0,
   min_age = NULL,
   max_age = NULL,
-  erf_c = NULL,
+  erf_c_central = NULL,
+  erf_c_lower = NULL,
+  erf_c_upper = NULL,
   disability_weight,
   info = NULL,
   duration = NULL
 )
 }
 \arguments{
-\item{exp}{\code{Numeric values} Population-weighted mean exposure in ug/m3 or {vector} showing the exposure category in a exposure distribution (this information is linked to the proportion of population exposed).}
-
 \item{prop_pop_exp}{\code{Numeric value} or {Numeric vector} Fraction (values between 0 & 1) of the total population exposed to (one or more) exposure categories, i.e., a exposure distribution, respectively. If a exposure distribution is used, the dimension of this input variable should be the same as "exp". By default, 1 for single exposure value will be assigned to this input variable assuming a single exposure value, but users can change this value.}
-
-\item{rr}{\code{Numeric vector} of three numeric values referring to the central estimate of the exposure-response function and the corresponding lower and upper 95\% confidence interval bounds.}
 
 \item{erf_increment}{\code{Numeric value} showing the increment of the exposure-response function in ug/m3 (usually 10 or 5).}
 
@@ -71,6 +73,10 @@ attribute_yld_lifetable_rr(
 \item{info}{\code{String} showing additional information or id for the pollutant. The suffix "info" will be added to the column name. Default value = NULL.}
 
 \item{duration}{\code{Numeric value} showing the disease duration}
+
+\item{exp}{\code{Numeric values} Population-weighted mean exposure in ug/m3 or {vector} showing the exposure category in a exposure distribution (this information is linked to the proportion of population exposed).}
+
+\item{rr}{\code{Numeric vector} of three numeric values referring to the central estimate of the exposure-response function and the corresponding lower and upper 95\% confidence interval bounds.}
 }
 \value{
 This function returns a \code{data.frame}

@@ -4,16 +4,27 @@
 \alias{attribute_health_singlebhd_ar}
 \title{Attributable health cases based on absolute risk}
 \usage{
-attribute_health_singlebhd_ar(exp, pop_exp, erf_c, info = NULL)
+attribute_health_singlebhd_ar(
+  exp_central,
+  exp_lower = NULL,
+  exp_upper = NULL,
+  pop_exp,
+  erf_c_central,
+  erf_c_lower = NULL,
+  erf_c_upper = NULL,
+  geo_id_raw = NULL,
+  geo_id_aggregated = NULL,
+  info = NULL
+)
 }
 \arguments{
-\item{exp}{\code{Vector} showing the mid-point exposure in the exposure categories (average of the exposure ranges) in a exposure distribution referring only to the exposed population. The length of exp and pop_exp must be the same.}
-
 \item{pop_exp}{\code{Numeric value} or {vector} showing the population exposed for each of the exposure categories. The length of this input variable must be the same as "exp".}
 
-\item{erf_c}{\code{String} showing the user-defined function that puts the relative risk in relation with concentration. The function must have only one variable: c, which means concentration. E.g. "3+c+c^2". Default value = NULL.}
-
 \item{info}{\code{String} or {data frame} showing additional information or id. The suffix "info" will be added to the column name. Default value = NULL.}
+
+\item{exp}{\code{Vector} showing the mid-point exposure in the exposure categories (average of the exposure ranges) in a exposure distribution referring only to the exposed population. The length of exp and pop_exp must be the same.}
+
+\item{erf_c}{\code{String} showing the user-defined function that puts the relative risk in relation with concentration. The function must have only one variable: c, which means concentration. E.g. "3+c+c^2". Default value = NULL.}
 }
 \value{
 TBD. E.g. This function returns a \code{list} with two \code{data.frames}, one with the total health impact and the second one with a row for each category of the exposure distribution.

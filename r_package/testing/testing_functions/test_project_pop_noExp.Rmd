@@ -1,0 +1,168 @@
+---
+title: "Testing of BEST-COST R package"
+author: "Alberto Castro & Axel Luyten"
+output: html_document
+---
+Goal:
+Develop the restructured "get_pop_impact" function using input data from the project GeLuft and the main function "attribute_yll_lifetable_rr"
+
+For this, first the functions within "attribute_deaths_lifetable_rr" leading up to the 
+"get_pop_impact" call have to be run, which are:
+- "compile_input"
+- "get_risk_and_paf"
+- "compile_lifetable_pop"
+- "get_pop_impact"
+
+"get_pop_impact" consists of the following functions (in that order):
+- compile_input
+- project_pop
+-- project_pop_withExp
+-- project_pop_noExp
+- move_rows_up
+
+
+```{r Load data & packages}
+library(dplyr)
+knitr::opts_knit$set(root.dir = getwd()) 
+load("../testing/testing_functions/test_get_pop_impact.Rdata")
+```
+
+attribute_yll_lifetable_rr()
+```{r Run functions up to get_pop_impact function call}
+input <-
+      bestcost::compile_input(
+        exp_central = airqplus_pm_deaths_yll[["input"]]$mean_concentration, 
+        exp_lower = NULL, 
+        exp_upper = NULL,
+        prop_pop_exp = 1,
+        cutoff = airqplus_pm_deaths_yll[["input"]]$cut_off_value,
+        rr_central = airqplus_pm_deaths_yll[["input"]]$relative_risk,
+        rr_lower = NULL, 
+        rr_upper = NULL,
+        erf_increment = 10, 
+        erf_shape = gsub("-", "_", airqplus_pm_deaths_yll[["input"]]$calculation_method),
+        erf_c_central = NULL, 
+        erf_c_lower = NULL, 
+        erf_c_upper = NULL,
+        min_age = 20,
+        max_age = NULL,
+        method = NULL)
+
+input_risk_paf <-
+      bestcost::get_risk_and_paf(input = input)
+
+lifetable_withPop <-
+      bestcost::compile_lifetable_pop(
+        first_age_pop =  0,
+        last_age_pop = 99,
+        prob_natural_death_male = prob_dying[["natural"]][["male"]]$prob_dying,
+        prob_natural_death_female = prob_dying[["natural"]][["female"]]$prob_dying,
+        prob_total_death_male = prob_dying[["total"]][["male"]]$prob_dying,
+        prob_total_death_female = prob_dying[["total"]][["female"]]$prob_dying,
+        population_midyear_male = airqplus_pm_deaths_yll[["pop"]]$midyear_population_male,
+        population_midyear_female =  airqplus_pm_deaths_yll[["pop"]]$midyear_population_female)
+```
+
+Calculate deaths with original function
+```{r Calculate get_pop_impact, echo=FALSE}
+output_get_impact_original <- bestcost::get_pop_impact(lifetab_withPop = lifetable_withPop,
+                                                       year_of_analysis = year_of_analysis,
+                                                       pop_fraction = input_risk_paf[, c("erf_ci", "paf")],
+                                                       outcome_metric <- "yll")
+  
+original_deaths_male <- sum(output_get_impact_original$pop_impact$male$erf_ci_central$population_2020[21:99])
+original_deaths_female <- sum(output_get_impact_original$pop_impact$female$erf_ci_central$population_2020[21:99])
+
+original_deaths_total <- original_deaths_male + original_deaths_female
+print(original_deaths_total)
+```
+
+
+get_pop_impact()
+```{r include=FALSE}
+
+## Variables in function call of "get_pop_impact()" within "attribute_yll_lifetable"
+lifetab_withPop <- lifetable_withPop
+year_of_analysis <- year_of_analysis
+pop_fraction <- input_risk_paf[, c("erf_ci", "paf")]
+outcome_metric <- "yll"
+
+# Variables in function call of "project_pop()" within "get_pop_impact()"
+lifetab_withPop_male <- lifetab_withPop[["male"]]
+lifetab_withPop_female <- lifetab_withPop$female
+year_of_analysis <- year_of_analysis
+paf <- pop_fraction$paf[pop_fraction$erf_ci %in% "central"]
+outcome_metric <- outcome_metric
+
+# project_pop()
+## MALE
+popOverTime_male <-
+      bestcost::project_pop_withExp_copy(
+      # bestcost::project_pop_withExp(
+        lifetable_withPop = lifetab_withPop_male,
+        year_of_analysis = year_of_analysis,
+        paf = paf)
+
+## FEMALE
+popOverTime_female <-
+      bestcost::project_pop_withExp_copy(
+      # bestcost::project_pop_withExp(
+        lifetable_withPop = lifetab_withPop_female,
+        year_of_analysis = year_of_analysis,
+        paf = paf)
+
+print("Deaths female original"); sum(popOverTime_female$population_2020[1:100])
+print("Deaths male original") ; sum(popOverTime_male$population_2020[1:100])
+print("Deaths total original") ; sum(popOverTime_female$population_2020[1:100]) + sum(popOverTime_male$population_2020[1:100])
+```
+
+project_pop_noExp() function call
+```{r}
+# Arguments of "project_pop_noExp_copy"
+lifetable_withPop <- popOverTime
+year_of_analysis <- year_of_analysis
+```
+
+Code from project_pop_noExp
+```{r}
+# output_project_pop_noExp_original <- project_pop_noExp(lifetable_withPop = popOverTime,
+#                                                        year_of_analysis = year_of_analysis)
+
+
+
+output[1:98, "population_2021"] <- output[1:98, "population_2020"] * (1 - output$death_probability_total[2:99])
+output[1:97, "population_2022"] <- output[1:97, "population_2021"] * (1 - output$death_probability_total[3:99])
+output[1:96, "population_2023"] <- output[1:96, "population_2022"] * (1 - output$death_probability_total[4:99])
+
+output <-
+  lifetable_withPop
+
+# New loop
+years <- c( (year_of_analysis + 1) : ((year_of_analysis + nrow(lifetable_withPop) - 2)) )
+length_period <- length(years)
+
+for (i in 0:(length_period-1)){ # i in 0:97
+  YEAR <- years[i+1]
+  print(YEAR+1)
+  print(i)
+  output[1:((length_period)-i), paste0("population_", YEAR+1)] <- 
+    output[1:((length_period)-i), paste0("population_", YEAR)] * (1 - output$death_probability_total[(i+2):(length_period+1)])
+}
+
+# LOOP WORKS AND OUTPUT IS THE SAME AS THAT OF get_pop_impact()
+
+# Original loop
+# Start of the loop
+year_loopStart = year_of_analysis + 2
+# End of the loop
+year_loopEnd <- year_of_analysis + nrow(lifetable_withPop) - 1
+
+for (yl in year_loopStart : year_loopEnd){
+  output[, paste0("population_", yl)] <- dplyr::lag(output[, paste0("population_", yl-1)]) * (1 - dplyr::lag(output$death_probability_total))
+}
+
+View(output)
+
+
+```
+

@@ -14,6 +14,26 @@
 #' @note Experimental function
 #' @export
 
+# CONTINUE HERE: TRY TO MAKE FUNCTION RUN WITH NEW CODE BELOW INSTEAD OF ORIGINAL CODE
+# move_rows_up <-
+#   function(popOTime, year_of_analysis){
+#
+#     years <- c( (year_of_analysis+1) : (year_of_analysis + nrow(popOTime) - 1) ) # vector indicating which year columns have to be shifted upwards
+#
+#     for(i in (1:length(years))){ # i.e. length(year_loopStart:year_loopEnd)
+#
+#       y <- years[i]
+#
+#       popOTime[, paste0("population_", y)] <-
+#         dplyr::lead(popOTime[, paste0("population_", y)], n = i)
+#
+#     }
+#
+#     return(popOTime)
+#
+#   }
+
+# Original code
 move_rows_up <-
   function(popOTime, year_of_analysis){
 

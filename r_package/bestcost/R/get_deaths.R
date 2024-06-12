@@ -26,7 +26,7 @@ get_deaths <-
     # Input data check ####
     # To be added
 
-    # Add description of what happens in next code chunk ####
+    # Sum all deaths from the column "population_yoa+1" (containing the deaths due to air pollution from exposure in the YOA), taking the specified age ranges into account (min_age & max_age)
     deaths_by_list <- list()
 
     for(s in names(pop_impact[["pop_impact"]])){ # c(male, female)
@@ -34,6 +34,7 @@ get_deaths <-
         population_secondYear_lifetable <-
           paste0("population_", year_of_analysis+1)
 
+        # Apply the min_age & max_age criteria (if inputted)
         deaths_by_list[[s]][[v]]<-
           pop_impact[["pop_impact"]][[s]][[v]] %>%
           # Select only relevant columns
@@ -54,7 +55,7 @@ get_deaths <-
     deaths_by <-
       deaths_by_list %>%
       dplyr::bind_rows(., .id ="sex") %>%
-      # Reshape to long format
+      # Reshape to long format with the columns "sex", "ci", "impact"
       tidyr::pivot_longer(cols = where(is.numeric),
                           names_prefix = "erf_ci_",
                           names_to = "erf_ci",
