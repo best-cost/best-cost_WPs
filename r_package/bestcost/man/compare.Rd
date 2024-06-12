@@ -34,6 +34,8 @@ compare(
   bhd_central_2 = NULL,
   bhd_lower_2 = NULL,
   bhd_upper_2 = NULL,
+  disability_weight = NULL,
+  duration = NULL,
   first_age_pop_1 = NULL,
   last_age_pop_1 = NULL,
   prob_natural_death_male_1 = NULL,
