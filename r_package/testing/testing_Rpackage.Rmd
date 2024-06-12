@@ -798,6 +798,7 @@ check_bestcost(result_list_bestcost = comparison_singlebhd_rr_pif ,
 
 comparison_singlebhd_ar_delta <-
   bestcost::compare(
+    comparison_method = "delta",
     risk_method = "absolute_risk",
     exp_central_1 = c(57.5, 62.5, 67.5, 72.5, 77.5),# Values as example provided by NIPH
     exp_central_2 = c(50, 55, 60, 65, 75), # Fake values

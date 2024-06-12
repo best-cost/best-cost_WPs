@@ -166,134 +166,118 @@ compare <-
             rr_conc_2 = rr_conc_2,
             prop_pop_exp_1 = prop_pop_exp_1,
             prop_pop_exp_2 = prop_pop_exp_1),
-          impact = bhd_1 * pif)
+          impact = bhd_1 * pif)%>%
+        {if(health_metric == "yld_from_prevalence")
+          dplyr::mutate(., impact = impact * disability_weight) else .}
+
+      }else if(
+        comparison_method == "pif" &
+        grepl("lifetable", health_metric)){
+
+        # Error if length of fraction_of_year_lived > 1
+        if (!identical(first_age_pop_1, first_age_pop_2) &
+            !identical(last_age_pop_1, last_age_pop_2) &
+            !identical(prob_natural_death_male_1, prob_natural_death_male_2) &
+            !identical(prob_natural_death_female_1, prob_natural_death_female_2) &
+            !identical(prob_total_death_male_1, prob_total_death_male_2) &
+            !identical(prob_total_death_female_1, prob_total_death_female_2) &
+            !identical(population_midyear_male_1, population_midyear_male_2) &
+            !identical(population_midyear_female_1, population_midyear_female_2) &
+            !identical(year_of_analysis_1, year_of_analysis_2)){
+          stop("Age interval, probability of dying and population in the scenario 1 and 2 have to be identical")
+        }
 
 
-    # If the user choose "pif"  as comparison method
-    # pif is additonally calculated
-    # impact is overwritten with the new values that refer to pif instead of paf
-    }else if(
-      comparison_method == "pif" &
-      grepl("lifetable", health_metric)){
-
-      # Error if length of fraction_of_year_lived > 1
-      if (!identical(first_age_pop_1, first_age_pop_2) &
-          !identical(last_age_pop_1, last_age_pop_2) &
-          !identical(prob_natural_death_male_1, prob_natural_death_male_2) &
-          !identical(prob_natural_death_female_1, prob_natural_death_female_2) &
-          !identical(prob_total_death_male_1, prob_total_death_male_2) &
-          !identical(prob_total_death_female_1, prob_total_death_female_2) &
-          !identical(population_midyear_male_1, population_midyear_male_2) &
-          !identical(population_midyear_female_1, population_midyear_female_2) &
-          !identical(year_of_analysis_1, year_of_analysis_2)){
-        stop("Age interval, probability of dying and population in the scenario 1 and 2 have to be identical")
-      }
-
-
-      # Compile input data of scenario 1
-      input_1 <-
-        bestcost::compile_input(
-          health_metric = health_metric,
-          risk_method = risk_method,
-          exp_central = exp_central_1, exp_lower = exp_lower_1, exp_upper = exp_upper_1,
-          prop_pop_exp = prop_pop_exp_1,
-          cutoff = cutoff,
-          rr_central = rr_central,
-          rr_lower = rr_lower,
-          rr_upper = rr_upper,
-          erf_increment = erf_increment,
-          erf_shape = erf_shape,
-          erf_c_central = erf_c_central, erf_c_lower = erf_c_lower, erf_c_upper = erf_c_upper,
-          min_age = min_age,
-          max_age = max_age,
-          info = info_1)
-
-      # Compile input data of scenario 2
-      input_2 <-
-        bestcost::compile_input(
-          health_metric = health_metric,
-          risk_method = risk_method,
-          exp_central = exp_central_2, exp_lower = exp_lower_2, exp_upper = exp_upper_2,
-          prop_pop_exp = prop_pop_exp_2,
-          cutoff = cutoff,
-          rr_central = rr_central,
-          rr_lower = rr_lower,
-          rr_upper = rr_upper,
-          erf_increment = erf_increment,
-          erf_shape = erf_shape,
-          erf_c_central = erf_c_central, erf_c_lower = erf_c_lower, erf_c_upper = erf_c_upper,
-          min_age = min_age,
-          max_age = max_age,
-          info = info_2)
-
-      # Identify the columns that are common for scenario 1 and 2
-      joining_columns <-
-        names(input_1)[! grepl(c("exp|bhd|paf|rr_conc|absolute_risk_as_percent|population_affected|impact|impact_rounded|info"),
-                               names(input_1))]
-
-
-      # Merge the input tables by common columns
-      input <-
-        dplyr::left_join(
-          input_1,
-          input_2,
-          by = joining_columns,
-          suffix = c("_1", "_2"))
-
-
-      # Get PAF and add to the input data frame
-      input_risk_pif <-
-        bestcost::get_risk_and_pif(input = input)%>%
-        #Replace pif with paf to be able to use the lifetable functions
-        dplyr::rename(paf=pif)
-
-
-
-      # Compile list of life table data frame (by sex)
-      # Col 1: age; col 2: probability of death; col 3: population
-
-      lifetable_withPop <-
-        bestcost::compile_lifetable_pop(
-          first_age_pop =  first_age_pop_1,
-          last_age_pop = last_age_pop_1,
-          prob_natural_death_male = prob_natural_death_male_1,
-          prob_natural_death_female = prob_natural_death_female_1,
-          prob_total_death_male = prob_total_death_male_1,
-          prob_total_death_female = prob_total_death_female_1,
-          population_midyear_male = population_midyear_male_1,
-          population_midyear_female =  population_midyear_female_1)
-
-      # Store the outcome metric of the life table method
-      outcome_metric <- gsub("_from_lifetable", "",
-                             unique(input$health_metric))
-
-
-
-
-      # Get population impact ####
-      pop_impact <-
-        bestcost::get_pop_impact(
-          lifetab_withPop = lifetable_withPop,
-          year_of_analysis = year_of_analysis_1,
-          pop_fraction = input_risk_pif[, c("erf_ci", "paf")],
-          outcome_metric = outcome_metric)
-
-      if(outcome_metric == "death"){
-        # Calculate deaths ####
-        att_health <-
-          bestcost::get_deaths(
-            pop_impact = pop_impact,
-            year_of_analysis = year_of_analysis_1,
+        # Compile input data of scenario 1
+        input_1 <-
+          bestcost::compile_input(
+            health_metric = health_metric,
+            risk_method = risk_method,
+            exp_central = exp_central_1, exp_lower = exp_lower_1, exp_upper = exp_upper_1,
+            prop_pop_exp = prop_pop_exp_1,
+            cutoff = cutoff,
+            rr_central = rr_central,
+            rr_lower = rr_lower,
+            rr_upper = rr_upper,
+            erf_increment = erf_increment,
+            erf_shape = erf_shape,
+            erf_c_central = erf_c_central, erf_c_lower = erf_c_lower, erf_c_upper = erf_c_upper,
             min_age = min_age,
             max_age = max_age,
-            meta = input_risk_pif)$main%>%
-          # Replace paf with pif
-          dplyr::rename(pif = paf)
+            info = info_1)
 
-        }else if(outcome_metric == "yll"){
+        # Compile input data of scenario 2
+        input_2 <-
+          bestcost::compile_input(
+            health_metric = health_metric,
+            risk_method = risk_method,
+            exp_central = exp_central_2, exp_lower = exp_lower_2, exp_upper = exp_upper_2,
+            prop_pop_exp = prop_pop_exp_2,
+            cutoff = cutoff,
+            rr_central = rr_central,
+            rr_lower = rr_lower,
+            rr_upper = rr_upper,
+            erf_increment = erf_increment,
+            erf_shape = erf_shape,
+            erf_c_central = erf_c_central, erf_c_lower = erf_c_lower, erf_c_upper = erf_c_upper,
+            min_age = min_age,
+            max_age = max_age,
+            info = info_2)
+
+        # Identify the columns that are common for scenario 1 and 2
+        joining_columns <-
+          names(input_1)[! grepl(c("exp|bhd|paf|rr_conc|absolute_risk_as_percent|population_affected|impact|impact_rounded|info"),
+                                 names(input_1))]
+
+
+        # Merge the input tables by common columns
+        input <-
+          dplyr::left_join(
+            input_1,
+            input_2,
+            by = joining_columns,
+            suffix = c("_1", "_2"))
+
+
+        # Get PAF and add to the input data frame
+        input_risk_pif <-
+          bestcost::get_risk_and_pif(input = input)%>%
+          #Replace pif with paf to be able to use the lifetable functions
+          dplyr::rename(paf=pif)
+
+
+
+        # Compile list of life table data frame (by sex)
+        # Col 1: age; col 2: probability of death; col 3: population
+
+        lifetable_withPop <-
+          bestcost::compile_lifetable_pop(
+            first_age_pop =  first_age_pop_1,
+            last_age_pop = last_age_pop_1,
+            prob_natural_death_male = prob_natural_death_male_1,
+            prob_natural_death_female = prob_natural_death_female_1,
+            prob_total_death_male = prob_total_death_male_1,
+            prob_total_death_female = prob_total_death_female_1,
+            population_midyear_male = population_midyear_male_1,
+            population_midyear_female =  population_midyear_female_1)
+
+        # Store the outcome metric of the life table method
+        outcome_metric <- gsub("_from_lifetable", "",
+                               unique(input$health_metric))
+
+
+        # Get population impact ####
+        pop_impact <-
+          bestcost::get_pop_impact(
+            lifetab_withPop = lifetable_withPop,
+            year_of_analysis = year_of_analysis_1,
+            pop_fraction = input_risk_pif[, c("erf_ci", "paf")],
+            outcome_metric = outcome_metric)
+
+        if(outcome_metric == "death"){
           # Calculate deaths ####
           att_health <-
-            bestcost::get_yll(
+            bestcost::get_deaths(
               pop_impact = pop_impact,
               year_of_analysis = year_of_analysis_1,
               min_age = min_age,
@@ -302,20 +286,32 @@ compare <-
             # Replace paf with pif
             dplyr::rename(pif = paf)
 
-          }else if(outcome_metric == "yld"){
-        # Calculate deaths ####
-        att_health <-
-          bestcost::get_yld(
-            pop_impact = pop_impact,
-            year_of_analysis = year_of_analysis_1,
-            min_age = min_age,
-            max_age = max_age,
-            disability_weight = disability_weight,
-            duration = duration,
-            meta = input_risk_pif)$main%>%
-          # Replace paf with pif
-          dplyr::rename(pif = paf)}
-      }
+          }else if(outcome_metric == "yll"){
+            # Calculate deaths ####
+            att_health <-
+              bestcost::get_yll(
+                pop_impact = pop_impact,
+                year_of_analysis = year_of_analysis_1,
+                min_age = min_age,
+                max_age = max_age,
+                meta = input_risk_pif)$main%>%
+              # Replace paf with pif
+              dplyr::rename(pif = paf)
+
+            }else if(outcome_metric == "yld"){
+          # Calculate deaths ####
+          att_health <-
+            bestcost::get_yld(
+              pop_impact = pop_impact,
+              year_of_analysis = year_of_analysis_1,
+              min_age = min_age,
+              max_age = max_age,
+              disability_weight = disability_weight,
+              duration = duration,
+              meta = input_risk_pif)$main%>%
+            # Replace paf with pif
+            dplyr::rename(pif = paf)}
+        }
 
 
 
