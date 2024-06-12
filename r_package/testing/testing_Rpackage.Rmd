@@ -385,8 +385,6 @@ for(d in c("natural", "total")){
   }
 }
 
-  
-
 # Calculate premature deaths using bestcost function
 # and input data from an AirQ+ case
 # Calculate premature deaths using bestcost function

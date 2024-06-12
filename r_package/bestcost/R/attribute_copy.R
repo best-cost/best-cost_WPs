@@ -89,7 +89,7 @@ attribute_copy <-
 
     # Calculate the health impacts for each case (uncertainty, category, geo area...)
     output_raw <-
-      bestcost::get_impact(input = input,
+      bestcost::get_impact_copy(input = input,
                            lifetable_withPop = lifetable_withPop,
                            year_of_analysis = year_of_analysis,
                            min_age = min_age,
