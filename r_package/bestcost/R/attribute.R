@@ -51,7 +51,7 @@ attribute <-
     # Compile input data (except lifetable) and calculate paf putting all into a data frame
     input <-
       bestcost::compile_input(
-        exp_central = exp_central, exp_lower =  exp_lower, exp_upper = exp_upper,
+        exp_central = exp_central, exp_lower = exp_lower, exp_upper = exp_upper,
         prop_pop_exp = prop_pop_exp,
         pop_exp = pop_exp,
         cutoff = cutoff,
