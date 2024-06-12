@@ -35,6 +35,11 @@ get_pop_impact_copy <-
     for(s in names(lifetab_withPop)){
       for(v in pop_fraction$erf_ci){
         popOverTime[[s]][[paste0("erf_ci_",v)]] <-
+
+          # Add the first year of the life table to the column name of population
+          lifetab_withPop[[s]] <- lifetab_withPop[[s]] %>%
+            dplyr::rename(!!paste0("population_", year_of_analysis) := population)
+
           bestcost::project_pop(
             lifetab_withPop = lifetab_withPop[[s]],
             year_of_analysis = year_of_analysis,
