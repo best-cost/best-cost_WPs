@@ -7,6 +7,7 @@ Calculates the health impacts between two scenarios (e.g. before and after a int
 \usage{
 compare_health_singlebhd_rr(
   comparison_method = "delta",
+  risk_method = "relative_risk",
   exp_central_1,
   exp_lower_1 = NULL,
   exp_upper_1 = NULL,
