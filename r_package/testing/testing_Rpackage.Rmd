@@ -925,8 +925,9 @@ check_bestcost(result_list_bestcost = comparison_deaths_lifetable_pif[["detailed
 
 # DELTA 
 comparison_yll_lifetable_delta  <-
-  bestcost::compare_yll_lifetable_rr(
+  bestcost::compare(
     comparison_method = "delta",
+    health_metric = "yll_from_lifetable",
     exp_central_1 = 8.85, # Fake data just for testing purposes
     prop_pop_exp_1 = 1, # Fake data just for testing purposes
     exp_central_2 = 6, # Fake data just for testing purposes
@@ -967,12 +968,13 @@ check_bestcost(result_list_bestcost = comparison_yll_lifetable_delta ,
 
 # Additionally check that it produce the first scenario produce the same results as above
 check_bestcost(result_list_bestcost = comparison_yll_lifetable_delta[["detailed"]][["scenario_1"]] ,
-               result_vector_alternative = bestcost_pm_yll_lifetable_geluft[["total"]]$impact_rounded) 
+               result_vector_alternative = bestcost_pm_yll_lifetable_geluft[["main"]]$impact_rounded) 
 
 # PIF
 comparison_yll_lifetable_pif <-
-  bestcost::compare_yll_lifetable_rr(
+  bestcost::compare(
     comparison_method = "pif",
+    health_metric = "yll_from_lifetable",
     exp_central_1 = 8.85, # Fake data just for testing purposes
     prop_pop_exp_1 = 1, # Fake data just for testing purposes
     exp_central_2 = 6, # Fake data just for testing purposes
@@ -1013,7 +1015,7 @@ check_bestcost(result_list_bestcost = comparison_yll_lifetable_pif ,
 
 # Additionally check that it produce the first scenario produce the same results as above
 check_bestcost(result_list_bestcost = comparison_yll_lifetable_pif[["detailed"]][["scenario_1"]],
-               result_vector_alternative = bestcost_pm_yll_lifetable_geluft[["total"]]$impact_rounded)
+               result_vector_alternative = bestcost_pm_yll_lifetable_geluft[["main"]]$impact_rounded)
 
 ```
 
@@ -1026,8 +1028,9 @@ check_bestcost(result_list_bestcost = comparison_yll_lifetable_pif[["detailed"]]
 # DELTA
  
 comparison_yld_lifetable_delta  <-
-  bestcost::compare_yld_lifetable_rr(
+  bestcost::compare(
     comparison_method = "delta",
+    health_metric = "yld_from_lifetable",
     exp_central_1 = 8.85, # Fake data just for testing purposes
     prop_pop_exp_1 = 1, # Fake data just for testing purposes
     exp_central_2 = 6, # Fake data just for testing purposes
@@ -1059,7 +1062,7 @@ comparison_yld_lifetable_delta  <-
     info_1 = input_data_mortality$pollutant[2],
     info_2 = input_data_mortality$pollutant[2], 
     min_age = 20,
-    #duration = 2,
+    duration = 100,
     disability_weight = 1)
 
 # No study to compare bestcost results
@@ -1069,12 +1072,13 @@ check_bestcost(result_list_bestcost = comparison_yld_lifetable_delta ,
 
 # Additionally check that it produce the first scenario produce the same results as above
 check_bestcost(result_list_bestcost = comparison_yld_lifetable_delta[["detailed"]][["scenario_1"]] ,
-               result_vector_alternative = bestcost_pm_yld_lifetable_geluft[["total"]]$impact_rounded) 
+               result_vector_alternative = bestcost_pm_yld_lifetable_geluft[["main"]]$impact_rounded) 
 
 # PIF
 comparison_yld_lifetable_pif <-
-  bestcost::compare_yld_lifetable_rr(
+  bestcost::compare(
     comparison_method = "pif",
+    health_metric = "yld_from_lifetable",
     exp_central_1 = 8.85, # Fake data just for testing purposes
     prop_pop_exp_1 = 1, # Fake data just for testing purposes
     exp_central_2 = 6, # Fake data just for testing purposes
@@ -1106,17 +1110,17 @@ comparison_yld_lifetable_pif <-
     info_1 = NULL,
     info_2 = NULL, 
     min_age = 20,
-    #duration = 2,
+    duration = 100,
     disability_weight = 1)
 
 # No study to compare bestcost results
 # Check only if results stay the same overtime despite developments
-check_bestcost(result_list_bestcost = comparison_yll_lifetable_pif ,
+check_bestcost(result_list_bestcost = comparison_yld_lifetable_pif ,
                result_vector_alternative = c(20650,10870,30257)) # Result on 16 May 2024
 
-# Additionally check that it produce the first scenario produce the same results as above
+# Additionally check that the first scenario produce the same results as above
 check_bestcost(result_list_bestcost = comparison_yld_lifetable_pif[["detailed"]][["scenario_1"]],
-               result_vector_alternative = bestcost_pm_yld_lifetable_geluft[["total"]]$impact_rounded)
+               result_vector_alternative = bestcost_pm_yld_lifetable_geluft[["main"]]$impact_rounded)
 ```
 
 
