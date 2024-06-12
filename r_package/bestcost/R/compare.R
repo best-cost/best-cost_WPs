@@ -52,6 +52,17 @@ compare <-
            erf_c_central = NULL, erf_c_lower = NULL, erf_c_upper = NULL,
            bhd_central_1 = NULL, bhd_lower_1 = NULL, bhd_upper_1 = NULL,
            bhd_central_2 = NULL, bhd_lower_2 = NULL, bhd_upper_2 = NULL,
+           first_age_pop_1 = NULL, last_age_pop_1 = NULL,
+           prob_natural_death_male_1 = NULL, prob_natural_death_female_1 = NULL,
+           prob_total_death_male_1 = NULL, prob_total_death_female_1 = NULL,
+           population_midyear_male_1 = NULL, population_midyear_female_1 = NULL,
+           year_of_analysis_1 = NULL,
+           first_age_pop_2 = NULL, last_age_pop_2 = NULL,
+           prob_natural_death_male_2 = NULL, prob_natural_death_female_2 = NULL,
+           prob_total_death_male_2 = NULL, prob_total_death_female_2 = NULL,
+           population_midyear_male_2 = NULL, population_midyear_female_2 = NULL,
+           year_of_analysis_2 = NULL,
+           min_age = NULL, max_age = NULL,
            info_1 = NULL, info_2 = NULL){
 
 
@@ -70,6 +81,17 @@ compare <-
         erf_shape = erf_shape,
         erf_c_central = erf_c_central, erf_c_lower = erf_c_lower, erf_c_upper = erf_c_upper,
         bhd_central = bhd_central_1, bhd_lower = bhd_lower_1, bhd_upper = bhd_upper_1,
+        first_age_pop = first_age_pop_1,
+        last_age_pop = last_age_pop_1,
+        prob_natural_death_male = prob_natural_death_male_1,
+        prob_natural_death_female = prob_natural_death_female_1,
+        prob_total_death_male = prob_total_death_male_1,
+        prob_total_death_female = prob_total_death_female_1,
+        population_midyear_male = population_midyear_male_1,
+        population_midyear_female = population_midyear_female_1,
+        year_of_analysis = year_of_analysis_1,
+        min_age = min_age,
+        max_age = max_age,
         info = info_1)
 
     # Calculate attributable health impacts in the scenario 2
@@ -86,11 +108,22 @@ compare <-
         erf_shape = erf_shape,
         erf_c_central = erf_c_central, erf_c_lower = erf_c_lower, erf_c_upper = erf_c_upper,
         bhd_central = bhd_central_2, bhd_lower = bhd_lower_2, bhd_upper = bhd_upper_2,
+        first_age_pop = first_age_pop_1,
+        last_age_pop = last_age_pop_1,
+        prob_natural_death_male = prob_natural_death_male_2,
+        prob_natural_death_female = prob_natural_death_female_2,
+        prob_total_death_male = prob_total_death_male_2,
+        prob_total_death_female = prob_total_death_female_2,
+        population_midyear_male = population_midyear_male_2,
+        population_midyear_female = population_midyear_female_2,
+        year_of_analysis = year_of_analysis_2,
+        min_age = min_age,
+        max_age = max_age,
         info = info_2)
 
     # Identify the columns that are common for scenario 1 and 2
     joining_columns <-
-      names(att_health_1[["main"]])[! grepl(c("exp|bhd|paf|rr_conc|absolute_risk_as_percent|population_affected|impact|impact_rounded|info"),
+      names(att_health_1[["main"]])[!grepl(c("exp|bhd|paf|rr_conc|absolute_risk_as_percent|population_affected|impact|impact_rounded|info"),
                                             names(att_health_1[["main"]]))]
 
 
@@ -110,7 +143,8 @@ compare <-
     # pif is additonally calculated
     # impact is overwritten with the new values that refer to pif instead of paf
     if(comparison_method == "pif" &
-       !risk_method == "absolute_risk" &
+       risk_method == "relative_risk" &
+       !grepl("lifetable", health_metric) &
        # Either both NULL or identical. Use the function identical() to enable NULL==NULL
        ((is.null(bhd_central_1) & is.null(bhd_central_2)) | identical(bhd_lower_1, bhd_lower_2))&
        ((is.null(bhd_lower_1) & is.null(bhd_lower_2)) | identical(bhd_lower_1, bhd_lower_2)) &
@@ -127,7 +161,121 @@ compare <-
             prop_pop_exp_2 = prop_pop_exp_1),
           impact = bhd_1 * pif)
 
+
+    # If the user choose "pif"  as comparison method
+    # pif is additonally calculated
+    # impact is overwritten with the new values that refer to pif instead of paf
+    }else if(
+      comparison_method == "pif" &
+      health_metric == "death_from_lifetable"
+      ){
+
+      # Error if length of fraction_of_year_lived > 1
+      if (!identical(first_age_pop_1, first_age_pop_2) &
+          !identical(last_age_pop_1, last_age_pop_2) &
+          !identical(prob_natural_death_male_1, prob_natural_death_male_2) &
+          !identical(prob_natural_death_female_1, prob_natural_death_female_2) &
+          !identical(prob_total_death_male_1, prob_total_death_male_2) &
+          !identical(prob_total_death_female_1, prob_total_death_female_2) &
+          !identical(population_midyear_male_1, population_midyear_male_2) &
+          !identical(population_midyear_female_1, population_midyear_female_2) &
+          !identical(year_of_analysis_1, year_of_analysis_2)){
+        stop("Age interval, probability of dying and population in the scenario 1 and 2 have to be identical")
+      }
+
+      # Compile input data of scenario 1
+      input_1 <-
+        bestcost::compile_input(
+          exp_central = exp_central_1, exp_lower = exp_lower_1, exp_upper = exp_upper_1,
+          prop_pop_exp = prop_pop_exp_1,
+          cutoff = cutoff,
+          rr_central = rr_central,
+          rr_lower = rr_lower,
+          rr_upper = rr_upper,
+          erf_increment = erf_increment,
+          erf_shape = erf_shape,
+          erf_c_central = erf_c_central, erf_c_lower = erf_c_lower, erf_c_upper = erf_c_upper,
+          min_age = min_age,
+          max_age = max_age,
+          info = info_1)
+
+      # Compile input data of scenario 2
+      input_2 <-
+        bestcost::compile_input(
+          exp_central = exp_central_2, exp_lower = exp_lower_2, exp_upper = exp_upper_2,
+          prop_pop_exp = prop_pop_exp_2,
+          cutoff = cutoff,
+          rr_central = rr_central,
+          rr_lower = rr_lower,
+          rr_upper = rr_upper,
+          erf_increment = erf_increment,
+          erf_shape = erf_shape,
+          erf_c_central = erf_c_central, erf_c_lower = erf_c_lower, erf_c_upper = erf_c_upper,
+          min_age = min_age,
+          max_age = max_age,
+          info = info_2)
+
+      # Identify the columns that are common for scenario 1 and 2
+      joining_columns <-
+        names(input_1)[! grepl(c("exp|prop_pop_exp|info"),
+                               names(input_1))]
+
+
+      # Merge the input tables by common columns
+      input <-
+        dplyr::left_join(
+          input_1,
+          input_2,
+          by = joining_columns,
+          suffix = c("_1", "_2"))
+
+
+      # Get PAF and add to the input data frame
+      input_risk_pif <-
+        bestcost::get_risk_and_pif(input = input)%>%
+        #Replace pif with paf to be able to use the lifetable functions
+        dplyr::rename(paf=pif)
+
+
+
+      # Compile list of life table data frame (by sex)
+      # Col 1: age; col 2: probability of death; col 3: population
+
+      lifetable_withPop <-
+        bestcost::compile_lifetable_pop(
+          first_age_pop =  first_age_pop_1,
+          last_age_pop = last_age_pop_1,
+          prob_natural_death_male = prob_natural_death_male_1,
+          prob_natural_death_female = prob_natural_death_female_1,
+          prob_total_death_male = prob_total_death_male_1,
+          prob_total_death_female = prob_total_death_female_1,
+          population_midyear_male = population_midyear_male_1,
+          population_midyear_female =  population_midyear_female_1)
+
+
+      # Get population impact ####
+      pop_impact <-
+        bestcost::get_pop_impact(
+          lifetab_withPop = lifetable_withPop,
+          year_of_analysis = year_of_analysis_1,
+          pop_fraction = input_risk_pif[, c("erf_ci", "paf")],
+          outcome_metric = "death")
+
+
+      # Calculate deaths ####
+      att_health <-
+        bestcost::get_deaths(
+          pop_impact = pop_impact,
+          year_of_analysis = year_of_analysis_1,
+          min_age = min_age,
+          max_age = max_age,
+          meta = input_risk_pif)$main%>%
+        # Replace paf with pif
+        dplyr::rename(pif = paf)
+
+
     }
+
 
 
     # Round results

@@ -30,13 +30,13 @@ get_impact <-
 
     if(unique(input$risk_method) == "relative_risk" &
        unique(input$health_metric) %in% c("same_input_output",
-                                          "from_prevalence_to_yld")){
+                                          "yld_from_prevalence")){
       # Get PAF and added to the input data frame
       output_raw_main <-
         bestcost::get_risk_and_paf(input = input) %>%
         # Build the result table adding the paf to the input_risk_paf table
         dplyr::mutate(impact = paf * bhd) %>%
-        {if(unique(input$health_metric) == "from_prevalence_to_yld")
+        {if(unique(input$health_metric) == "yld_from_prevalence")
           mutate(., impact = impact * disability_weight) else .} %>%
         dplyr::mutate(
           impact_rounded =
@@ -49,12 +49,12 @@ get_impact <-
       output_raw <- list(main = output_raw_main)
     }
 
-    if (unique(input$risk_method) == "relative_risk" &
-        unique(input$health_metric) %in%
-        c("from_lifetable_to_death", "from_lifetable_to_yll", "from_lifetable_to_yld")){
+    else if (unique(input$risk_method) == "relative_risk" &
+             unique(input$health_metric) %in%
+             c("death_from_lifetable", "yll_from_lifetable", "yld_from_lifetable")){
 
      outcome_metric <-
-       gsub("from_lifetable_to_", "", unique(input$health_metric))
+       gsub("_from_lifetable", "", unique(input$health_metric))
 
       # Get PAF and add to the input data frame
       input_risk_paf <-
