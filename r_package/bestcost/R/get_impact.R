@@ -37,7 +37,7 @@ get_impact <-
         # Build the result table adding the paf to the input_risk_paf table
         dplyr::mutate(impact = paf * bhd) %>%
         {if(unique(input$health_metric) == "yld_from_prevalence")
-          mutate(., impact = impact * disability_weight) else .} %>%
+          dplyr::mutate(., impact = impact * disability_weight) else .} %>%
         dplyr::mutate(
           impact_rounded =
             round(impact, 0)) %>%
