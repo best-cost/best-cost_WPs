@@ -54,11 +54,9 @@ attribute(
 
 \item{erf_shape}{\code{String} showing the shape of the exposure-response function to be assumed using the relative risk from the literature as support point. Options: "linear", log_linear", "linear_log", "log_log".}
 
-\item{bhd_central}{\code{Numeric value} showing the only or central estimate (if confidence interval) of the baseline health data (e.g. incidence of the health outcome in the population).}
-
-\item{bhd_lower}{\code{Numeric value} showing the upper bound estimate (confidence interval) of the baseline health data.}
-
-\item{bhd_upper}{\code{Numeric value} showing the lower bound estimate (confidence interval) of the baseline health data.}
+\item{bhd_central, bhd_lower, bhd_upper}{\code{Numeric value} showing the central
+estimate and (optionally) the lower bound and the upper bound of the confidence
+interval of the baseline health data (e.g. incidence of the health outcome in the population).}
 
 \item{first_age_pop}{\code{Numeric value} starting age of the youngest age group from population and life table data (age interval = 1 year)}
 
@@ -83,6 +81,12 @@ attribute(
 \item{max_age}{\code{Numberic value} of the maximal age to be considered for infants/children (by default 0, i.e. below 1 year old).}
 
 \item{info}{\code{String} or {data frame} showing additional information or id. The suffix "info" will be added to the column name. Default value = NULL.}
+
+\item{exp}{\code{Numeric values} Population-weighted mean exposure in ug/m3 or {vector} showing the exposure category in a exposure distribution (this information is linked to the proportion of population exposed).}
+
+\item{rr}{\code{Numeric vector} of three numeric values referring to the central estimate of the exposure-response function and the corresponding lower and upper 95\% confidence interval bounds.}
+
+\item{erf_c}{\code{String} showing the user-defined function that puts the relative risk in relation with concentration. The function must have only one variable: c, which means concentration. E.g. "3+c+c^2". Default value = NULL.}
 }
 \value{
 TBD. E.g. This function returns a \code{data.frame} with one row for each value of the

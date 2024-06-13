@@ -2,13 +2,13 @@
 % Please edit documentation in R/attribute_health.R
 \name{attribute_health}
 \alias{attribute_health}
-\title{Attributable health cases based on relative risk}
+\title{Attribute health impact from the same health metric and using on relative risk}
 \usage{
 attribute_health(
   exp_central,
   exp_lower = NULL,
   exp_upper = NULL,
-  prop_pop_exp = NULL,
+  prop_pop_exp = 1,
   cutoff,
   rr_central = NULL,
   rr_lower = NULL,
@@ -35,17 +35,15 @@ attribute_health(
 
 \item{erf_shape}{\code{String} showing the shape of the exposure-response function to be assumed using the relative risk from the literature as support point. Options: "linear", log_linear", "linear_log", "log_log".}
 
-\item{bhd_central}{\code{Numeric value} showing the only or central estimate (if confidence interval) of the baseline health data (e.g. incidence of the health outcome in the population).}
-
-\item{bhd_lower}{\code{Numeric value} showing the upper bound estimate (confidence interval) of the baseline health data.}
-
-\item{bhd_upper}{\code{Numeric value} showing the lower bound estimate (confidence interval) of the baseline health data.}
+\item{bhd_central, bhd_lower, bhd_upper}{\code{Numeric value} showing the central
+estimate and (optionally) the lower bound and the upper bound of the confidence
+interval of the baseline health data (e.g. incidence of the health outcome in the population).}
 
 \item{info}{\code{String} or {data frame} showing additional information or id. The suffix "info" will be added to the column name. Default value = NULL.}
 }
 \value{
 TBD. E.g. This function returns a \code{data.frame} with one row for each value of the
-concentration-response function (i.e. central, lower and upper bound confidence interval.
+concentration-response function i.e. central, lower and upper bound confidence interval.
 Moreover, the data frame includes columns such as:
 \itemize{
  \item Attributable fraction
@@ -55,7 +53,9 @@ Moreover, the data frame includes columns such as:
 }
 }
 \description{
-Calculates the health impacts, mortality or morbidity, of an environmental stressor using a single value for baseline heath data, i.e. without life table. It provides as a result the mean as well as the lower and the higher bound of the impact based on the confidence interval of the concentration-response function.
+It calculates the health impacts, mortality or morbidity,
+of exposure to an environmental stressor based on the same health metric
+(in the baseline health data as in the result) and using relative risk.
 }
 \note{
 Experimental function

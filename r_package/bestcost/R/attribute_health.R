@@ -1,13 +1,14 @@
-#' Attributable health cases based on relative risk
+#' Attribute health impact from the same health metric and using on relative risk
 
-#' @description Calculates the health impacts, mortality or morbidity, of an environmental stressor using a single value for baseline heath data, i.e. without life table. It provides as a result the mean as well as the lower and the higher bound of the impact based on the confidence interval of the concentration-response function.
-#' @inheritParams attribute_deaths_lifetable_rr
-#' @param bhd_central \code{Numeric value} showing the only or central estimate (if confidence interval) of the baseline health data (e.g. incidence of the health outcome in the population).
-#' @param bhd_upper \code{Numeric value} showing the lower bound estimate (confidence interval) of the baseline health data.
-#' @param bhd_lower \code{Numeric value} showing the upper bound estimate (confidence interval) of the baseline health data.
+#' @description It calculates the health impacts, mortality or morbidity,
+#' of exposure to an environmental stressor based on the same health metric
+#' (in the baseline health data as in the result) and using relative risk.
+
+#' @inheritParams attribute
+
 #' @return
 #' TBD. E.g. This function returns a \code{data.frame} with one row for each value of the
-#' concentration-response function (i.e. central, lower and upper bound confidence interval.
+#' concentration-response function i.e. central, lower and upper bound confidence interval.
 #' Moreover, the data frame includes columns such as:
 #' \itemize{
 #'  \item Attributable fraction
@@ -22,6 +23,7 @@
 #' @author Alberto Castro
 #' @inherit attribute_deaths_lifetable_rr note
 #' @export
+
 attribute_health <-
   function(
     exp_central, exp_lower = NULL, exp_upper = NULL,
