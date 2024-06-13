@@ -438,6 +438,7 @@ bestcost_pm_deaths_lifetable_airqplus_copy <-
 check_bestcost(result_list_bestcost = bestcost_pm_deaths_lifetable_airqplus_copy,
                result_vector_alternative = c(2600.9, 1371, 3804))
 ```
+
 ```{r Speed test premature deaths}
 system.time(replicate(100, bestcost::attribute(
     health_metric = "death_from_lifetable",
@@ -1195,9 +1196,8 @@ check_bestcost(result_list_bestcost = comparison_yll_lifetable_pif[["detailed"]]
 # DELTA
  
 comparison_yld_lifetable_delta  <-
-  bestcost::compare(
+  bestcost::compare_yld_from_lifetable(
     comparison_method = "delta",
-    health_metric = "yld_from_lifetable",
     exp_central_1 = 8.85, # Fake data just for testing purposes
     prop_pop_exp_1 = 1, # Fake data just for testing purposes
     exp_central_2 = 6, # Fake data just for testing purposes
@@ -1243,9 +1243,8 @@ check_bestcost(result_list_bestcost = comparison_yld_lifetable_delta[["detailed"
 
 # PIF
 comparison_yld_lifetable_pif <-
-  bestcost::compare(
+  bestcost::compare_yld_from_lifetable(
     comparison_method = "pif",
-    health_metric = "yld_from_lifetable",
     exp_central_1 = 8.85, # Fake data just for testing purposes
     prop_pop_exp_1 = 1, # Fake data just for testing purposes
     exp_central_2 = 6, # Fake data just for testing purposes
