@@ -699,7 +699,7 @@ check_bestcost(result_list_bestcost = bestcost_pm_yld_lifetable_geluft,
 # DELTA
 
 comparison_singlebhd_rr_delta <-
-  bestcost::compare(
+  bestcost::compare_health(
     comparison_method = "delta",
     exp_central_1 = 8.85, 
     exp_central_2 = 6,
