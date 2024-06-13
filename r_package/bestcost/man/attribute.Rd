@@ -108,9 +108,6 @@ Moreover, the data frame includes columns such as:
 \description{
 Calculates the health impacts, mortality or morbidity, of an environmental stressor using a single value for baseline heath data, i.e. without life table. It provides as a result the mean as well as the lower and the higher bound of the impact based on the confidence interval of the concentration-response function.
 }
-\note{
-Experimental function
-}
 \examples{
 TBD
 }

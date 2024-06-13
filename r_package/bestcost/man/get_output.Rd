@@ -23,9 +23,6 @@ Moreover, the data frame includes columns such as:
 \description{
 Distributes and store outputs by level of detail by aggregating or filtering impacts.
 }
-\note{
-Experimental function
-}
 \examples{
 TBD
 }

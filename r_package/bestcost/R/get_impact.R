@@ -50,7 +50,7 @@ get_impact <-
 
     else if (unique(input$risk_method) == "relative_risk" &
              unique(input$health_metric) %in%
-             c("death_from_lifetable", "yll_from_lifetable", "yld_from_lifetable")){
+             c("deaths_from_lifetable", "yll_from_lifetable", "yld_from_lifetable")){
 
      outcome_metric <-
        gsub("_from_lifetable", "", unique(input$health_metric))
@@ -67,7 +67,7 @@ get_impact <-
           pop_fraction = input_risk_paf[, c("erf_ci", "paf")],
           outcome_metric = outcome_metric)
 
-      if(outcome_metric == "death"){
+      if(outcome_metric == "deaths"){
         # Calculate deaths ####
         output_raw <-
           bestcost:::get_deaths(

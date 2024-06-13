@@ -1,7 +1,7 @@
 #' Attributable health cases based on relative risk
 
 #' @description Calculates the health impacts, mortality or morbidity, of an environmental stressor using a single value for baseline heath data, i.e. without life table. It provides as a result the mean as well as the lower and the higher bound of the impact based on the confidence interval of the concentration-response function.
-#' @inheritParams attribute_deaths_lifetable_rr
+#' @inheritParams attribute
 #' @param bhd_central \code{Numeric value} showing the only or central estimate (if confidence interval) of the baseline health data (e.g. incidence of the health outcome in the population).
 #' @param bhd_upper \code{Numeric value} showing the lower bound estimate (confidence interval) of the baseline health data.
 #' @param bhd_lower \code{Numeric value} showing the upper bound estimate (confidence interval) of the baseline health data.
@@ -21,7 +21,6 @@
 #' @examples
 #' TBD
 #' @author Alberto Castro
-#' @inherit attribute_deaths_lifetable_rr note
 #' @export
 attribute_copy <-
   function(health_metric = "same_input_output",

@@ -21,7 +21,6 @@
 #' @examples
 #' TBD
 #' @author Alberto Castro
-#' @inherit attribute_deaths_lifetable_rr note
 #' @export
 
 attribute_health <-

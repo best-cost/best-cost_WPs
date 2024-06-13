@@ -31,9 +31,6 @@ Moreover, the data frame includes columns such as:
 \description{
 Calculates the health impacts for each uncertainty and geo area.
 }
-\note{
-Experimental function
-}
 \examples{
 TBD
 }

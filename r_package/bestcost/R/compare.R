@@ -274,7 +274,7 @@ compare <-
             pop_fraction = input_risk_pif[, c("erf_ci", "paf")],
             outcome_metric = outcome_metric)
 
-        if(outcome_metric == "death"){
+        if(outcome_metric == "deaths"){
           # Calculate deaths ####
           att_health <-
             bestcost:::get_deaths(

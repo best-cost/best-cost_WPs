@@ -2,7 +2,7 @@
 
 export(attribute)
 export(attribute_copy)
-export(attribute_deaths_lifetable_rr)
+export(attribute_deaths_from_lifetable)
 export(attribute_health)
 export(attribute_health_ar)
 export(attribute_yld_from_prevalence)

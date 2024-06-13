@@ -65,9 +65,6 @@ It calculates the health impacts, mortality or morbidity,
 of exposure to an environmental stressor based on the same health metric
 (in the baseline health data as in the result) and using relative risk.
 }
-\note{
-Experimental function
-}
 \examples{
 TBD
 }
