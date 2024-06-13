@@ -650,8 +650,7 @@ check_bestcost(result_list_bestcost = bestcost_pm_yll_lifetable_expDistribution_
 # with input data from the Swiss project GeLuft
 
 bestcost_pm_yld_lifetable_geluft  <- 
-  attribute(
-    health_metric = "yld_from_lifetable",
+  attribute_yld_from_lifetable(
     exp_central = input_data_mortality$exp[2],
     # exp_central = c(8, 9, 10), # Fake data. Deactivate to test exposure distribution.
     prop_pop_exp = 1,

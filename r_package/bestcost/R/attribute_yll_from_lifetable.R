@@ -45,7 +45,7 @@ attribute_yll_from_lifetable <-
            prop_pop_exp = 1,
            cutoff,
            rr_central = NULL, rr_lower = NULL, rr_upper = NULL,
-           erf_increment, erf_shape,
+           erf_increment = NULL, erf_shape = NULL,
            erf_c_central = NULL, erf_c_lower = NULL, erf_c_upper = NULL,
            first_age_pop, last_age_pop,
            prob_natural_death_male, prob_natural_death_female,
