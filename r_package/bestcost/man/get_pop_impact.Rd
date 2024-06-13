@@ -5,14 +5,14 @@
 \title{Get population impact over time}
 \usage{
 get_pop_impact(
-  lifetable_withPop,
+  lifetable_with_pop,
   year_of_analysis,
   pop_fraction,
   outcome_metric
 )
 }
 \arguments{
-\item{lifetable_withPop}{\code{Data frame} with three columns: the first one should refer to age, the second one to the probability of dying and the third one to the population (sex specific),}
+\item{lifetable_with_pop}{\code{Data frame} with three columns: the first one should refer to age, the second one to the probability of dying and the third one to the population (sex specific),}
 
 \item{year_of_analysis}{\code{Numeric value} of the year of analysis, which corresponds to the first year of the life table}
 

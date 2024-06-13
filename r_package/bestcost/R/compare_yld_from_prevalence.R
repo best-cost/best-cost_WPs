@@ -64,7 +64,7 @@ compare_yld_from_prevalence <-
         pop_exp_1 = NULL,
         pop_exp_2 = NULL,
         cutoff = cutoff,
-        rr_central = rr_central , rr_lower = rr_lower, rr_upper = rr_upper,
+        rr_central = rr_central, rr_lower = rr_lower, rr_upper = rr_upper,
         erf_increment = erf_increment,
         erf_shape = erf_shape,
         erf_c_central = erf_c_central, erf_c_lower = erf_c_lower, erf_c_upper = erf_c_upper,
@@ -83,9 +83,8 @@ compare_yld_from_prevalence <-
         population_midyear_male_2 = NULL, population_midyear_female_2 = NULL,
         year_of_analysis_2 = NULL,
         min_age = NULL, max_age = NULL,
-        info_1 = info_1 , info_2 = info_2)
+        info_1 = info_1, info_2 = info_2)
 
 
     return(output)
   }
-

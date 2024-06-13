@@ -139,7 +139,7 @@ compare_deaths_lifetable_rr <-
         att_health_1[["main"]],
         att_health_2[["main"]],
         by = joining_columns,
-        suffix = c("_1", "_2"))%>%
+        suffix = c("_1", "_2")) %>%
       # Calculate the delta (difference) between scenario 1 and 2
       dplyr::mutate(impact = impact_1 - impact_2)
     }
@@ -211,16 +211,16 @@ compare_deaths_lifetable_rr <-
 
       # Get PAF and add to the input data frame
       input_risk_pif <-
-        bestcost:::get_risk_and_pif(input = input)%>%
-        #Replace pif with paf to be able to use the lifetable functions
-        dplyr::rename(paf=pif)
+        bestcost:::get_risk_and_pif(input = input) %>%
+        # Replace pif with paf to be able to use the lifetable functions
+        dplyr::rename(paf = pif)
 
 
 
       # Compile list of life table data frame (by sex)
       # Col 1: age; col 2: probability of death; col 3: population
 
-      lifetable_withPop <-
+      lifetable_with_Pop <-
         bestcost:::compile_lifetable_pop(
           first_age_pop =  first_age_pop_1,
           last_age_pop = last_age_pop_1,
@@ -235,7 +235,7 @@ compare_deaths_lifetable_rr <-
       # Get population impact ####
       pop_impact <-
         bestcost:::get_pop_impact(
-          lifetab_withPop = lifetable_withPop,
+          lifetab_with_pop = lifetable_with_pop,
           year_of_analysis = year_of_analysis_1,
           pop_fraction = input_risk_pif[, c("erf_ci", "paf")],
           outcome_metric = "death")
@@ -248,7 +248,7 @@ compare_deaths_lifetable_rr <-
           year_of_analysis = year_of_analysis_1,
           min_age = min_age,
           max_age = max_age,
-          meta = input_risk_pif)$main%>%
+          meta = input_risk_pif)$main %>%
         # Replace paf with pif
         dplyr::rename(pif = paf)
 
@@ -261,11 +261,10 @@ compare_deaths_lifetable_rr <-
         att_health %>%
         mutate(impact_rounded = round(impact, 0))
 
-   output <- list(main = att_health,
+    output <- list(main = att_health,
                   detailed = list(scenario_1 = att_health_1,
                                   scenario_2 = att_health_2))
 
 
     return(output)
   }
-

@@ -25,7 +25,7 @@ attribute_health_ar <-
            geo_id_raw = NULL, geo_id_aggregated = NULL,
            info = NULL){
 
-    output<-
+    output <-
       bestcost::attribute(
         health_metric = "same_input_output",
         risk_method = "absolute_risk",
@@ -42,7 +42,7 @@ attribute_health_ar <-
         duration = NULL,
         first_age_pop = NULL, last_age_pop = NULL,
         prob_natural_death_male = NULL, prob_natural_death_female = NULL,
-        prob_total_death_male= NULL, prob_total_death_female = NULL,
+        prob_total_death_male = NULL, prob_total_death_female = NULL,
         population_midyear_male = NULL, population_midyear_female = NULL,
         year_of_analysis = NULL,
         min_age = NULL, max_age = NULL,

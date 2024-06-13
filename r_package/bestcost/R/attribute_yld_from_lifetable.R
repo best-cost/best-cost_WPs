@@ -69,7 +69,7 @@ attribute_yld_from_lifetable <-
         year_of_analysis = year_of_analysis,
         min_age = min_age, max_age = max_age,
         corrected_discount_rate = corrected_discount_rate,
-        geo_id_raw = NULL , geo_id_aggregated = NULL,
+        geo_id_raw = NULL, geo_id_aggregated = NULL,
         info = info)
 
     return(output)

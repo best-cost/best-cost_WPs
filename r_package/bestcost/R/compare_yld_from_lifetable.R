@@ -95,7 +95,7 @@ compare_yld_from_lifetable <-
         pop_exp_1 = NULL,
         pop_exp_2 = NULL,
         cutoff = cutoff,
-        rr_central = rr_central , rr_lower = rr_lower, rr_upper = rr_upper,
+        rr_central = rr_central, rr_lower = rr_lower, rr_upper = rr_upper,
         erf_increment = erf_increment,
         erf_shape = erf_shape,
         erf_c_central = erf_c_central, erf_c_lower = erf_c_lower, erf_c_upper = erf_c_upper,
@@ -108,15 +108,14 @@ compare_yld_from_lifetable <-
         prob_total_death_male_1 = prob_total_death_male_1, prob_total_death_female_1 = prob_total_death_female_1,
         population_midyear_male_1 = population_midyear_male_1, population_midyear_female_1 = population_midyear_female_1,
         year_of_analysis_1 = year_of_analysis_1,
-        first_age_pop_2 = first_age_pop_2, last_age_pop_2 = last_age_pop_2 ,
+        first_age_pop_2 = first_age_pop_2, last_age_pop_2 = last_age_pop_2,
         prob_natural_death_male_2 = prob_natural_death_male_2, prob_natural_death_female_2 = prob_natural_death_female_2,
         prob_total_death_male_2 = prob_total_death_male_2, prob_total_death_female_2 = prob_total_death_female_2,
         population_midyear_male_2 = population_midyear_male_2, population_midyear_female_2 = population_midyear_female_2,
         year_of_analysis_2 = year_of_analysis_2,
         min_age = min_age, max_age = max_age,
-        info_1 = info_1 , info_2 = info_2)
+        info_1 = info_1, info_2 = info_2)
 
 
     return(output)
   }
-

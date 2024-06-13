@@ -126,10 +126,10 @@ compare_yll_lifetable_rr <-
 
     if(comparison_method == "delta"){
 
-    # Identify the columns that are common for scenario 1 and 2
-    joining_columns <-
-      names(att_health_1[["main"]])[! grepl(c("exp|bhd|paf|rr_conc|impact|impact_rounded|info"),
-                                             names(att_health_1[["main"]]))]
+      # Identify the columns that are common for scenario 1 and 2
+      joining_columns <-
+        names(att_health_1[["main"]])[! grepl(c("exp|bhd|paf|rr_conc|impact|impact_rounded|info"),
+                                              names(att_health_1[["main"]]))]
 
 
     # Merge the result tables by common columns
@@ -138,7 +138,7 @@ compare_yll_lifetable_rr <-
         att_health_1[["main"]],
         att_health_2[["main"]],
         by = joining_columns,
-        suffix = c("_1", "_2"))%>%
+        suffix = c("_1", "_2")) %>%
       # Calculate the delta (difference) between scenario 1 and 2
       dplyr::mutate(impact = impact_1 - impact_2)
     }
@@ -222,7 +222,7 @@ compare_yll_lifetable_rr <-
       # Compile list of life table data frame (by sex)
       # Col 1: age; col 2: probability of death; col 3: population
 
-      lifetable_withPop <-
+      lifetable_with_pop <-
         bestcost:::compile_lifetable_pop(
           first_age_pop =  first_age_pop_1,
           last_age_pop = last_age_pop_1,
@@ -238,7 +238,7 @@ compare_yll_lifetable_rr <-
       # Get population impact ####
       pop_impact <-
         bestcost:::get_pop_impact(
-          lifetab_withPop = lifetable_withPop,
+          lifetab_withPop = lifetable_with_pop,
           year_of_analysis = year_of_analysis_1,
           pop_fraction = input_risk_pif[, c("erf_ci", "paf")],
           outcome_metric = "yll")
@@ -251,7 +251,7 @@ compare_yll_lifetable_rr <-
           year_of_analysis = year_of_analysis_1,
           min_age = min_age,
           max_age = max_age,
-          meta = input_risk_pif)$main%>%
+          meta = input_risk_pif)$main %>%
         # Replace paf with pif
         dplyr::rename(pif = paf)
 
@@ -271,4 +271,3 @@ compare_yll_lifetable_rr <-
 
     return(output)
   }
-

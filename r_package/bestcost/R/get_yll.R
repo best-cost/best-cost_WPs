@@ -34,7 +34,7 @@ get_yll <-
            meta,
            corrected_discount_rate=0){
 
-    lifeyears_byYear <- list()
+    lifeyears_by_year <- list()
     yll_by_list<-list()
 
     discount_factor <- corrected_discount_rate + 1
@@ -44,7 +44,7 @@ get_yll <-
       for (v in unique(unlist(purrr::map(pop_impact[["pop_impact"]], names)))){ # c(central, lower, upper) or only central
 
         ## Sum life years by year (result is data frame with 2 columns "year" & "impact" [which contains YLL]) ####
-        lifeyears_byYear[[s]][[v]] <-
+        lifeyears_by_year[[s]][[v]] <-
           pop_impact[["pop_impact"]][[s]][[v]] %>%
 
           # Filter keeping only the relevant age
@@ -69,15 +69,15 @@ get_yll <-
 
         ## Calculate total, not discounted YLL (single number) per sex & ci ####
         yll_by_list[[s]][[v]][["noDiscount"]] <-
-          lifeyears_byYear[[s]][[v]]%>%
+          lifeyears_by_year[[s]][[v]]%>%
           # Sum among years to obtain the total impact (single value)
-          dplyr::summarise(impact = sum(impact), .groups = 'drop')
+          dplyr::summarise(impact = sum(impact), .groups = "drop")
 
 
 
         ## Calculate total, discounted life years (single value) per sex & ci ####
         yll_by_list[[s]][[v]][["discounted"]] <-
-          lifeyears_byYear[[s]][[v]]%>%
+          lifeyears_by_year[[s]][[v]]%>%
           # Convert year to numeric
           dplyr::mutate(year = as.numeric(year))%>%
           # Calculate discount rate for each year

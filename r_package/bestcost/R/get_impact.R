@@ -20,7 +20,7 @@
 #' @keywords internal
 get_impact <-
   function(input,
-           lifetable_withPop = NULL,
+           lifetable_with_pop = NULL,
            year_of_analysis = NULL,
            min_age = NULL,
            max_age = NULL,
@@ -62,7 +62,7 @@ get_impact <-
       # Get population impact ####
       pop_impact <-
         bestcost:::get_pop_impact(
-          lifetable_withPop = lifetable_withPop,
+          lifetable_with_pop = lifetable_with_pop,
           year_of_analysis = year_of_analysis,
           pop_fraction = input_risk_paf[, c("erf_ci", "paf")],
           outcome_metric = outcome_metric)

@@ -71,10 +71,7 @@ attribute <-
            geo_id_raw = NULL, geo_id_aggregated = NULL,
            info = NULL){
 
-    # Check input data ####
-    #TBD If absolute risk --> length(exp) == length(pop_exp)
-
-    # Check input data ####
+    # Check input data
     #stopifnot(exprs = {
     #length(exp) == length(prop_pop_exp)
     #})
@@ -106,7 +103,7 @@ attribute <-
 
     if(grepl("lifetable", health_metric)){
 
-      lifetable_withPop <-
+      lifetable_with_pop <-
         bestcost:::compile_lifetable_pop(
           first_age_pop =  first_age_pop,
           last_age_pop = last_age_pop,
@@ -123,7 +120,7 @@ attribute <-
     # Calculate the health impacts for each case (uncertainty, category, geo area...)
     output_raw <-
       bestcost:::get_impact(input = input,
-                           lifetable_withPop = lifetable_withPop,
+                           lifetable_with_pop = lifetable_withPop,
                            year_of_analysis = year_of_analysis,
                            min_age = min_age,
                            max_age = max_age,
