@@ -29,7 +29,7 @@
 #' @param bhd_central,bhd_lower,bhd_upper \code{Numeric value} showing the central
 #' @param disability_weight \code{Numeric value} showing the disability weight associated with the morbidity health outcome
 #' @param duration \code{Numeric value} showing the disease duration
-#' @param corrected_discount_rate \code{Numeric value} showing the discount rate for future years including correction from inflaction rate
+#' @param corrected_discount_rate \code{Numeric value} showing the discount rate for future years including correction from inflation rate
 #' estimate and (optionally) the lower bound and the upper bound of the confidence
 #' interval of the baseline health data (e.g. incidence of the health outcome in the population).
 #' @return
