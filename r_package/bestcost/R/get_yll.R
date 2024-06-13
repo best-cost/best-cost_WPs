@@ -26,9 +26,7 @@
 #' TBD
 #' @author Alberto Castro
 #' @note Experimental function
-#' @export
-
-
+#' @keywords internal
 
 get_yll <-
   function(pop_impact, year_of_analysis,

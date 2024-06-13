@@ -24,16 +24,46 @@
 #' TBD
 #' @author Alberto Castro
 #' @note Experimental function
-#' @export
+#' @keywords internal
+
 get_pop_impact_copy <-
   function(lifetab_withPop, year_of_analysis, pop_fraction, outcome_metric){
 
+<<<<<<< HEAD
     lifetable_withPop <- lifetab_withPop # To be done: change function argument name to "lifetable_withPop
     # popOverTime <- list()
+=======
+
+    # Get popOvertime
+    popOverTime <- list()
+
+    for(s in names(lifetab_withPop)){
+      for(v in pop_fraction$erf_ci){
+        popOverTime[[s]][[paste0("erf_ci_",v)]] <-
+
+          # Add the first year of the life table to the column name of population
+          lifetab_withPop[[s]] <- lifetab_withPop[[s]] %>%
+            dplyr::rename(!!paste0("population_", year_of_analysis) := population)
+
+          bestcost:::project_pop(
+            lifetab_withPop = lifetab_withPop[[s]],
+            year_of_analysis = year_of_analysis,
+            paf = pop_fraction$paf[pop_fraction$erf_ci %in% v],
+            outcome_metric = outcome_metric)
+      }
+    }
+
+
+
+
+    # Get pop_impact
+
+>>>>>>> b1afc47de11d1feefd5eee23a51812fc42767ad3
     pop_impact <- list()
 
     lifetable_withPop_backup <- lifetable_withPop
 
+<<<<<<< HEAD
     for(s in names(lifetable_withPop)){
       lifetable_withPop <- lifetable_withPop_backup
       # print(s)
@@ -95,6 +125,10 @@ get_pop_impact_copy <-
         # popOverTime[[s]][[paste0("erf_ci_",v)]] <- lifetable_withPop
         # pop_impact[[s]][[paste0("erf_ci_",v)]] <- popOverTime[[s]][[paste0("erf_ci_",v)]]# New code replacing the call of move_rows_up
         pop_impact[[s]][[paste0("erf_ci_",v)]] <- lifetable_withPop
+=======
+          bestcost:::move_rows_up(popOTime = popOverTime[[s]][[paste0("erf_ci_",v)]],
+                                 year_of_analysis = year_of_analysis)
+>>>>>>> b1afc47de11d1feefd5eee23a51812fc42767ad3
       }
     }
     output <-

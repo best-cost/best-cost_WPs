@@ -13,7 +13,7 @@
 #' TBD
 #' @author Alberto Castro
 #' @note Experimental function
-#' @export
+#' @keywords internal
 
 project_pop_withExp <-
   function(lifetable_withPop, year_of_analysis, paf){

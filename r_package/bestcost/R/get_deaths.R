@@ -16,7 +16,7 @@
 #' TBD
 #' @author Alberto Castro
 #' @note Experimental function
-#' @export
+#' @keywords internal
 
 get_deaths <-
   function(pop_impact, year_of_analysis,

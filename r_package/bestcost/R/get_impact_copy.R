@@ -17,8 +17,7 @@
 #' @examples
 #' TBD
 #' @author Alberto Castro
-#' @inherit attribute_deaths_lifetable_rr note
-#' @export
+#' @keywords internal
 get_impact_copy <-
   function(input,
            lifetable_withPop = NULL,
@@ -33,7 +32,7 @@ get_impact_copy <-
                                           "yld_from_prevalence")){
       # Get PAF and added to the input data frame
       output_raw_main <-
-        bestcost::get_risk_and_paf(input = input) %>%
+        bestcost:::get_risk_and_paf(input = input) %>%
         # Build the result table adding the paf to the input_risk_paf table
         dplyr::mutate(impact = paf * bhd) %>%
         {if(unique(input$health_metric) == "yld_from_prevalence")
@@ -51,27 +50,27 @@ get_impact_copy <-
 
     else if (unique(input$risk_method) == "relative_risk" &
              unique(input$health_metric) %in%
-             c("death_from_lifetable", "yll_from_lifetable", "yld_from_lifetable")){
+             c("deaths_from_lifetable", "yll_from_lifetable", "yld_from_lifetable")){
 
      outcome_metric <-
        gsub("_from_lifetable", "", unique(input$health_metric))
 
       # Get PAF and add to the input data frame
       input_risk_paf <-
-        bestcost::get_risk_and_paf(input = input)
+        bestcost:::get_risk_and_paf(input = input)
 
       # Get population impact ####
       pop_impact <-
-        bestcost::get_pop_impact_copy(
+        bestcost:::get_pop_impact_copy(
           lifetab_withPop = lifetable_withPop,
           year_of_analysis = year_of_analysis,
           pop_fraction = input_risk_paf[, c("erf_ci", "paf")],
           outcome_metric = outcome_metric)
 
-      if(outcome_metric == "death"){
+      if(outcome_metric == "deaths"){
         # Calculate deaths ####
         output_raw <-
-          bestcost::get_deaths(
+          bestcost:::get_deaths(
             pop_impact = pop_impact,
             year_of_analysis = year_of_analysis,
             min_age = min_age,
@@ -80,7 +79,7 @@ get_impact_copy <-
 
       } else if(outcome_metric == "yll"){
         output_raw <-
-          bestcost::get_yll(
+          bestcost:::get_yll(
             pop_impact = pop_impact,
             year_of_analysis = year_of_analysis,
             min_age = min_age,
@@ -89,7 +88,7 @@ get_impact_copy <-
 
       } else if(outcome_metric == "yld"){
         output_raw <-
-          bestcost::get_yld(
+          bestcost:::get_yld(
             pop_impact = pop_impact,
             year_of_analysis = year_of_analysis,
             min_age = min_age,

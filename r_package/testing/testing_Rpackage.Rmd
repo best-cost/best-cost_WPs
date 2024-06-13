@@ -93,7 +93,7 @@ load("../testing/input/data/input_data_for_testing_Rpackage.RData")
 ```{r single exposure value}
 # Assess attributable cases using the AirQ+ export as input data
 bestcost_pm_copd <-
-  bestcost::attribute(
+  bestcost::attribute_health(
     exp_central = airqplus_pm_copd$mean_concentration,
     cutoff = airqplus_pm_copd$cut_off_value,   
     bhd_central = airqplus_pm_copd$incidents_per_100_000_per_year/1E5*airqplus_pm_copd$population_at_risk,
@@ -122,7 +122,7 @@ check_bestcost(result_list_bestcost = bestcost_pm_copd,
 # Assess attributable cases for multiple uncertainties at the same time
 # i.e. rr, bhd and exp
 bestcost_pm_copd_multiple <-
-  bestcost::attribute(
+  bestcost::attribute_health(
     exp_central = airqplus_pm_copd$mean_concentration,
     exp_lower = 8,
     exp_upper = 9,
@@ -140,7 +140,7 @@ bestcost_pm_copd_multiple <-
 
 # Assess iteration geographical sections keeping the multiple uncertainties
 system.time(bestcost_pm_copd_geo <-
-  bestcost::attribute(
+  bestcost::attribute_health(
     exp_central = as.list(runif_with_seed(1E4, 8.0, 9.0, 1)),
     exp_lower = as.list(runif_with_seed(1E4, 8.0, 9.0, 1)-0.1),
     exp_upper = as.list(runif_with_seed(1E4, 8.0, 9.0, 1)+0.1),
@@ -164,7 +164,7 @@ system.time(bestcost_pm_copd_geo <-
 
 # Assess attributable cases using the AirQ+ export as input data
 bestcost_pm_copd_1rr <-
-  bestcost::attribute(
+  bestcost::attribute_health(
     exp_central = airqplus_pm_copd$mean_concentration,
     cutoff = airqplus_pm_copd$cut_off_value,   
     bhd_central = airqplus_pm_copd$incidents_per_100_000_per_year/1E5*airqplus_pm_copd$population_at_risk,
@@ -207,7 +207,7 @@ niph_noise_ihd_result <-
 
 # Obtain attributable cases using the bestcost package and input data from niph
 bestcost_noise_ihd_expDist <- 
-  bestcost::attribute(
+  bestcost::attribute_health(
     exp_central = niph_noise_ihd_input$exposure_mean,
     prop_pop_exp = niph_noise_ihd_input$prop_exposed,
     cutoff = min(niph_noise_ihd_input$exposure_mean), 
@@ -224,7 +224,7 @@ check_bestcost(result_list_bestcost = bestcost_noise_ihd_expDist,
 # Obtain attributable cases using the bestcost package
 # for multiple geo_sections
 bestcost_noise_ihd_expDist_geo <- 
-  bestcost::attribute(
+  bestcost::attribute_health(
     exp_central = list(runif_with_seed(5,8,10,1), 
                        runif_with_seed(5,8,10,2), 
                        runif_with_seed(5,8,10,3)),
@@ -265,8 +265,7 @@ niph_noise_ha_result <-
 
 # Obtain attributable cases using the bestcost package and input data from niph
 bestcost_noise_ha_ar <- 
-  bestcost::attribute(
-    risk_method = "absolute_risk",
+  bestcost::attribute_health_ar(
     exp_central = niph_noise_ha_input$exposure_mean,
     pop_exp = niph_noise_ha_input$population_exposed_total, 
     erf_c_central = "78.9270-3.1162*c+0.0342*c^2",
@@ -279,8 +278,7 @@ check_bestcost(result_list_bestcost = bestcost_noise_ha_ar,
 # Obtain attributable cases using the bestcost package and input data from niph
 # for multiple geo_sections
 bestcost_noise_ha_ar_geo <- 
-  bestcost::attribute(
-    risk_method = "absolute_risk",
+  bestcost::attribute_health_ar(
     exp_central = list(runif_with_seed(5,8,10,1), 
                           runif_with_seed(5,8,10,2), 
                           runif_with_seed(5,8,10,3)),
@@ -297,7 +295,7 @@ bestcost_noise_ha_ar_geo <-
 ```{r morbidity yld lifetable with single relative risk}
 
 bestcost_pm_yld_singlebhd  <- 
-  bestcost::attribute(
+  bestcost::attribute_yld_from_prevalence(
     exp_central = 8.85, 
     cutoff = 5,    
     bhd_central = 25000,
@@ -306,8 +304,7 @@ bestcost_pm_yld_singlebhd  <-
     rr_upper = 1.179,
     erf_increment = 10, 
     erf_shape = "log_linear", 
-    disability_weight = 0.5,
-    health_metric = "yld_from_prevalence")
+    disability_weight = 0.5)
 
 # No study to compare bestcost results
 # Check only if results stay the same overtime despite developments
@@ -391,8 +388,7 @@ for(d in c("natural", "total")){
 # and input data from an AirQ+ case
 
 bestcost_pm_deaths_lifetable_airqplus <-
-  bestcost::attribute(
-    health_metric = "death_from_lifetable",
+  bestcost::attribute_deaths_from_lifetable(
     exp_central = airqplus_pm_deaths_yll[["input"]]$mean_concentration, 
     cutoff = airqplus_pm_deaths_yll[["input"]]$cut_off_value,
     rr_central = airqplus_pm_deaths_yll[["input"]]$relative_risk,
@@ -414,10 +410,13 @@ bestcost_pm_deaths_lifetable_airqplus <-
 
 check_bestcost(result_list_bestcost = bestcost_pm_deaths_lifetable_airqplus,
                result_vector_alternative = c(2600.9, 1371, 3804))
+```
 
+
+```{r premature deaths with lifetable, eval=FALSE, include=FALSE}
 bestcost_pm_deaths_lifetable_airqplus_copy <-
   bestcost::attribute_copy(
-    health_metric = "death_from_lifetable",
+    health_metric = "deaths_from_lifetable",
     exp_central = airqplus_pm_deaths_yll[["input"]]$mean_concentration, 
     cutoff = airqplus_pm_deaths_yll[["input"]]$cut_off_value,
     rr_central = airqplus_pm_deaths_yll[["input"]]$relative_risk,
@@ -484,9 +483,11 @@ system.time(replicate(100, bestcost::attribute_copy(
 
 ```{r premature deaths with lifetable}
 # Now with input data from the Swiss project GeLuft
+
+<<<<<<< HEAD
+=======
 bestcost_pm_deaths_lifetable_geluft <- 
-    bestcost::attribute(
-    health_metric = "death_from_lifetable",
+    bestcost::attribute_deaths_from_lifetable(
     exp_central = input_data_mortality$exp[2], # PM2.5=8.85 exp in CH in 2019
     cutoff = input_data_mortality$cutoff[2],   # PM2.5=5,i.e. WHO AQG 2021 
     rr_central = input_data_mortality[2,"rr_central"], 
@@ -506,6 +507,8 @@ bestcost_pm_deaths_lifetable_geluft <-
     info = input_data_mortality$pollutant[2], 
     min_age = input_data_mortality$min_age[2])
 
+
+>>>>>>> b1afc47de11d1feefd5eee23a51812fc42767ad3
 check_bestcost(result_list_bestcost = bestcost_pm_deaths_lifetable_geluft ,
                result_vector_alternative = c(2610, 1378, 3815))
 ```
@@ -516,8 +519,7 @@ check_bestcost(result_list_bestcost = bestcost_pm_deaths_lifetable_geluft ,
 
 # Calculate premature deaths using bestcost function
 bestcost_pm_deaths_lifetable_expDistribution <- 
-    bestcost::attribute(
-      health_metric = "death_from_lifetable",
+    bestcost::attribute_deaths_from_lifetable(
       exp_central = c(8, 9, 10), # Fake data just for testing purposes
       prop_pop_exp = c(0.2, 0.3, 0.5), # Fake data just for testing purposes
       cutoff = input_data_mortality$cutoff[2],   # PM2.5=5, NO2=10, i.e. WHO AQG 2021 
@@ -556,8 +558,7 @@ check_bestcost(result_list_bestcost = bestcost_pm_deaths_lifetable_geluft ,
 # and input data from an AirQ+ case
 
 bestcost_pm_yll_lifetable_airqplus <-
-  bestcost::attribute(
-    health_metric = "yll_from_lifetable",
+  bestcost::attribute_yll_from_lifetable(
     exp_central = airqplus_pm_deaths_yll[["input"]]$mean_concentration, 
     cutoff = airqplus_pm_deaths_yll[["input"]]$cut_off_value,
     rr_central = airqplus_pm_deaths_yll[["input"]]$relative_risk,
@@ -625,8 +626,7 @@ check_bestcost(result_list_bestcost = bestcost_pm_yll_lifetable_airqplus_new,
                  
 # Now with input data from the Swiss project GeLuft
 bestcost_pm_yll_lifetable_geluft <- 
-  bestcost::attribute(
-    health_metric = "yll_from_lifetable",
+  bestcost::attribute_yll_from_lifetable(
     exp_central = input_data_mortality$exp[2], #exp CH 2019
     prop_pop_exp = 1,
     cutoff = input_data_mortality$cutoff[2], # WHO AQG 2021 
@@ -702,8 +702,7 @@ system.time(replicate(100, bestcost::attribute_copy(
 # with input data from the Swiss project GeLuft
 
 bestcost_pm_yll_lifetable_1rr_geluft <- 
-    bestcost::attribute(
-      health_metric = "yll_from_lifetable",
+    bestcost::attribute_yll_from_lifetable(
       exp_central = input_data_mortality$exp[2], #exp CH 2019
       prop_pop_exp = 1,
       cutoff = input_data_mortality$cutoff[2], 
@@ -736,8 +735,7 @@ check_bestcost(result_list_bestcost = bestcost_pm_yll_lifetable_1rr_geluft,
 # with exposure distribution (instead of population-weighted mean)
 
 bestcost_pm_yll_lifetable_expDistribution_geluft <- 
-    bestcost::attribute(
-      health_metric = "yll_from_lifetable",
+    bestcost::attribute_yll_from_lifetable(
       exp_central = c(8, 9, 10), # Fake data just for testing purposes
       prop_pop_exp = c(0.2, 0.3, 0.5), # Fake data just for testing purposes
       cutoff = input_data_mortality$cutoff[2], # WHO AQG 2021 
@@ -774,8 +772,7 @@ check_bestcost(result_list_bestcost = bestcost_pm_yll_lifetable_expDistribution_
 # with input data from the Swiss project GeLuft
 
 bestcost_pm_yld_lifetable_geluft  <- 
-  attribute(
-    health_metric = "yld_from_lifetable",
+  attribute_yld_from_lifetable(
     exp_central = input_data_mortality$exp[2],
     # exp_central = c(8, 9, 10), # Fake data. Deactivate to test exposure distribution.
     prop_pop_exp = 1,
@@ -854,24 +851,9 @@ check_bestcost(result_list_bestcost = bestcost_pm_yld_lifetable_geluft_new,
 ```{r comparison singlebhd_rr}
 # Test delta comparison function with fake values
 # DELTA
-comparison_singlebhd_rr_delta <-
-  bestcost::compare_health_singlebhd_rr(
-    comparison_method = "delta",
-    exp_central_1 = 8.85, 
-    exp_central_2 = 6,
-    cutoff = 5,    
-    bhd_central_1 = 25000,
-    bhd_central_2 = 25000,
-    rr_central = 1.118, 
-    rr_lower = 1.060, 
-    rr_upper = 1.179,
-    erf_increment = 10, 
-    erf_shape = "log_linear", 
-    info_1 = "PM2.5_mortality_2010",
-    info_2 = "PM2.5_mortality_2020")
 
 comparison_singlebhd_rr_delta <-
-  bestcost::compare(
+  bestcost::compare_health(
     comparison_method = "delta",
     exp_central_1 = 8.85, 
     exp_central_2 = 6,
@@ -954,7 +936,7 @@ check_bestcost(result_list_bestcost = comparison_singlebhd_ar_delta ,
 comparison_deaths_lifetable_delta <-
   bestcost::compare(
     comparison_method = "delta",
-    health_metric = "death_from_lifetable",
+    health_metric = "deaths_from_lifetable",
     exp_central_1 = 8.85, # Fake data just for testing purposes
     prop_pop_exp_1 = 1, # Fake data just for testing purposes
     exp_central_2 = 6, # Fake data just for testing purposes
@@ -1002,7 +984,7 @@ check_bestcost(result_list_bestcost = comparison_deaths_lifetable_delta[["detail
 comparison_deaths_lifetable_pif  <-
   bestcost::compare(
     comparison_method = "pif",
-    health_metric = "death_from_lifetable",
+    health_metric = "deaths_from_lifetable",
     exp_central_1 = 8.85, # Fake data just for testing purposes
     prop_pop_exp_1 = 1, # Fake data just for testing purposes
     exp_central_2 = 6, # Fake data just for testing purposes

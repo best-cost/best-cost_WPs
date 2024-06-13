@@ -29,11 +29,13 @@
 #' @author Axel Luyten
 #' @note Experimental function
 #' @export
-attribute_yld_lifetable_rr <-
+attribute_yld_from_lifetable <-
   function(exp_central, exp_lower = NULL, exp_upper = NULL,
            prop_pop_exp = 1,
+           cutoff,
            rr_central = NULL, rr_lower = NULL, rr_upper = NULL,
-           erf_increment, erf_shape, cutoff,
+           erf_increment = NULL, erf_shape = NULL,
+           erf_c_central = NULL, erf_c_lower = NULL, erf_c_upper = NULL,
            first_age_pop, last_age_pop,
            prob_natural_death_male, prob_natural_death_female,
            prob_total_death_male, prob_total_death_female,
@@ -41,76 +43,34 @@ attribute_yld_lifetable_rr <-
            year_of_analysis,
            corrected_discount_rate = 0,
            min_age = NULL, max_age = NULL,
-           erf_c_central = NULL, erf_c_lower = NULL, erf_c_upper = NULL,
            disability_weight,
-           info = NULL,
-           duration = NULL){
+           duration,
+           info = NULL){
 
-    # Check input data ####
-
-    # Compile input data and calculate paf putting all into a data frame
-    input <-
-      bestcost::compile_input(
+    output<-
+      bestcost::attribute(
+        health_metric = "yld_from_lifetable",
+        risk_method = "relative_risk",
         exp_central = exp_central, exp_lower = exp_lower, exp_upper = exp_upper,
         prop_pop_exp = prop_pop_exp,
-        disability_weight = disability_weight,
-        duration = duration,
+        pop_exp = NULL,
         cutoff = cutoff,
         rr_central = rr_central, rr_lower = rr_lower, rr_upper = rr_upper,
         erf_increment = erf_increment,
         erf_shape = erf_shape,
         erf_c_central = erf_c_central, erf_c_lower = erf_c_lower, erf_c_upper = erf_c_upper,
-        min_age = min_age,
-        max_age = max_age,
-        info = info,
-        method = paste0("lifetable_rr_corrected"))
-
-
-    # Get PAF and add to the input data frame
-    input_risk_paf <-
-      bestcost::get_risk_and_paf(input = input)
-
-    # Compile list of life table data frame (by sex)
-    # Col 1: age; col 2: probability of death; col 3: population
-
-    lifetable_withPop <-
-      bestcost::compile_lifetable_pop(
-        first_age_pop =  first_age_pop,
-        last_age_pop = last_age_pop,
-        prob_natural_death_male = prob_natural_death_male,
-        prob_natural_death_female = prob_natural_death_female,
-        prob_total_death_male = prob_total_death_male,
-        prob_total_death_female = prob_total_death_female,
-        population_midyear_male = population_midyear_male,
-        population_midyear_female =  population_midyear_female)
-
-    # Get attributable cases in YOA + 1 ####
-
-    pop_impact <-
-      bestcost::get_pop_impact(
-        lifetab_withPop = lifetable_withPop,
+        bhd_central = NULL, bhd_lower = NULL, bhd_upper = NULL,
+        disability_weight,
+        duration = duration,
+        first_age_pop = first_age_pop, last_age_pop = last_age_pop,
+        prob_natural_death_male = prob_natural_death_male, prob_natural_death_female = prob_natural_death_female,
+        prob_total_death_male = prob_total_death_male, prob_total_death_female = prob_total_death_female,
+        population_midyear_male = population_midyear_male, population_midyear_female = population_midyear_female,
         year_of_analysis = year_of_analysis,
-        pop_fraction = input_risk_paf[, c("erf_ci", "paf")],
-        outcome_metric = "yld")
-
-    yld <-
-        bestcost::get_yld(
-          pop_impact = pop_impact,
-          year_of_analysis = year_of_analysis,
-          min_age = min_age,
-          max_age = max_age,
-          first_age_pop = first_age_pop,
-          last_age_pop = last_age_pop,
-          meta = input_risk_paf,
-          disability_weight = disability_weight,
-          duration = duration)
-
-    # Compile output ####
-    output <-
-      list(
-        main = yld[["main"]],
-        detailed = list(by_age_year_sex = pop_impact[["pop_impact"]],
-                        by_sex = yld[["detailed"]]))
+        min_age = min_age, max_age = max_age,
+        corrected_discount_rate = corrected_discount_rate,
+        geo_id_raw = NULL , geo_id_aggregated = NULL,
+        info = info)
 
     return(output)
 

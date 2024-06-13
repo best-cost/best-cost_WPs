@@ -33,6 +33,7 @@
 #' @author Alberto Castro
 #' @note Experimental function
 #' @export
+#' @keywords internal
 
 compile_input <-
   function(exp_central, exp_lower = NULL, exp_upper = NULL,
@@ -125,7 +126,7 @@ compile_input <-
       # Add rr with a cross join to produce all likely combinations
       dplyr::bind_cols(., erf_data) %>%
       # Add additional (meta-)information
-      bestcost::add_info(df=., info=info) %>%
+      bestcost:::add_info(df=., info=info) %>%
       # Information derived from input data
       dplyr::mutate(
         # Add age_max and age_min (not needed without life table)

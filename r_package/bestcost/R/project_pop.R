@@ -15,7 +15,8 @@
 #' TBD
 #' @author Alberto Castro
 #' @note Experimental function
-#' @export
+#' @keywords internal
+
 project_pop <-
   function(lifetab_withPop, year_of_analysis, paf, outcome_metric){
 
@@ -30,7 +31,7 @@ project_pop <-
     # the change in /level of air pollution
     # based on the RR
     popOverTime <-
-      bestcost::project_pop_withExp(
+      bestcost:::project_pop_withExp(
         lifetable_withPop = lifetab_withPop,
         year_of_analysis = year_of_analysis,
         paf = paf)
@@ -40,7 +41,7 @@ project_pop <-
     # Now calculate population over time (for the rest of years)
     # without considering air pollution
     popOverTime <-
-      bestcost::project_pop_noExp(
+      bestcost:::project_pop_noExp(
         lifetable_withPop = popOverTime,
         year_of_analysis = year_of_analysis)
     }
