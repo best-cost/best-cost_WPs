@@ -36,7 +36,7 @@
 #' @author Alberto Castro
 #' @note Experimental function
 #' @export
-compare_yld_singlebhd_rr <-
+compare_yld_from_prevalence <-
   function(comparison_method = "delta",
            exp_central_1, exp_lower_1 = NULL, exp_upper_1 = NULL,
            exp_central_2, exp_lower_2 = NULL, exp_upper_2 = NULL,
@@ -52,80 +52,38 @@ compare_yld_singlebhd_rr <-
            disability_weight,
            info_1 = NULL, info_2 = NULL){
 
-
-
-    # Calculate attributable health impacts in the scenario 1
-    att_health_1 <-
-      bestcost::attribute_yld_singlebhd_rr(
-        exp_central = exp_central_1,  exp_lower = exp_lower_1, exp_upper = exp_upper_1,
-        prop_pop_exp = prop_pop_exp_1,
+    output <-
+      bestcost::compare(
+        comparison_method = comparison_method,
+        health_metric = "yld_from_prevalence",
+        risk_method = "relative_risk",
+        exp_central_1, exp_lower_1 = exp_lower_1, exp_upper_1 = exp_upper_1,
+        exp_central_2, exp_lower_2 = exp_lower_2, exp_upper_2 = exp_upper_2,
+        prop_pop_exp_1 = prop_pop_exp_1,
+        prop_pop_exp_2 = prop_pop_exp_2,
+        pop_exp_1 = NULL,
+        pop_exp_2 = NULL,
         cutoff = cutoff,
-        rr_central = rr_central, rr_lower = rr_lower, rr_upper = rr_upper,
+        rr_central = rr_central , rr_lower = rr_lower, rr_upper = rr_upper,
         erf_increment = erf_increment,
         erf_shape = erf_shape,
         erf_c_central = erf_c_central, erf_c_lower = erf_c_lower, erf_c_upper = erf_c_upper,
-        bhd_central = bhd_central_1, bhd_lower = bhd_lower_1, bhd_upper = bhd_upper_1,
+        bhd_central_1 = bhd_central_1, bhd_lower_1 = bhd_lower_1, bhd_upper_1 = bhd_upper_1,
+        bhd_central_2 = bhd_central_2, bhd_lower_2 = bhd_lower_2, bhd_upper_2 = bhd_upper_2,
         disability_weight = disability_weight,
-        info = info_1)
-
-    # Calculate attributable health impacts in the scenario 2
-    att_health_2 <-
-      bestcost::attribute_yld_singlebhd_rr(
-        exp_central = exp_central_2, exp_lower = exp_lower_2, exp_upper = exp_upper_2,
-        prop_pop_exp = prop_pop_exp_2,
-        cutoff = cutoff,
-        rr_central = rr_central, rr_lower = rr_lower, rr_upper = rr_upper,
-        erf_increment = erf_increment,
-        erf_shape = erf_shape,
-        erf_c_central = erf_c_central, erf_c_lower = erf_c_lower, erf_c_upper = erf_c_upper,
-        bhd_central = bhd_central_2, bhd_lower = bhd_lower_2, bhd_upper = bhd_upper_2,
-        disability_weight = disability_weight,
-        info = info_2)
-
-    # Identify the columns that are common for scenario 1 and 2
-    joining_columns <-
-      names(att_health_1[["main"]])[! grepl(c("exp|bhd|paf|rr_conc|impact|impact_rounded|info"),
-                                             names(att_health_1[["main"]]))]
-
-
-    # Merge the result tables by common columns
-    att_health <-
-      dplyr::left_join(
-        att_health_1[["main"]],
-        att_health_2[["main"]],
-        by = joining_columns,
-        suffix = c("_1", "_2"))%>%
-      # Calculate the delta (difference) between scenario 1 and 2
-      dplyr::mutate(impact = impact_1 - impact_2)
-
-
-
-    # If the user choose "pif"  as comparison method
-    # pif is additionally calculated
-    # impact is overwritten with the new values that refer to pif instead of paf
-    if(comparison_method == "pif" & bhd_central_1 == bhd_central_2){
-      att_health <-
-        att_health %>%
-        rowwise(.) %>%
-        dplyr::mutate(
-          pif = bestcost::get_pif(
-            rr_conc_1 = rr_conc_1,
-            rr_conc_2 = rr_conc_2,
-            prop_pop_exp_1 = prop_pop_exp_1,
-            prop_pop_exp_2 = prop_pop_exp_1),
-          impact = bhd_central_1 * pif * disability_weight)
-
-    }
-
-
-      # Round results
-      att_health <-
-        att_health %>%
-        mutate(impact_rounded = round(impact, 0))
-
-   output <- list(main = att_health,
-                  detailed = list(scenario_1 = att_health_1,
-                                  scenario_2 = att_health_2))
+        duration = NULL,
+        first_age_pop_1 = NULL, last_age_pop_1 = NULL,
+        prob_natural_death_male_1 = NULL, prob_natural_death_female_1 = NULL,
+        prob_total_death_male_1 = NULL, prob_total_death_female_1 = NULL,
+        population_midyear_male_1 = NULL, population_midyear_female_1 = NULL,
+        year_of_analysis_1 = NULL,
+        first_age_pop_2 = NULL, last_age_pop_2 = NULL,
+        prob_natural_death_male_2 = NULL, prob_natural_death_female_2 = NULL,
+        prob_total_death_male_2 = NULL, prob_total_death_female_2 = NULL,
+        population_midyear_male_2 = NULL, population_midyear_female_2 = NULL,
+        year_of_analysis_2 = NULL,
+        min_age = NULL, max_age = NULL,
+        info_1 = info_1 , info_2 = info_2)
 
 
     return(output)

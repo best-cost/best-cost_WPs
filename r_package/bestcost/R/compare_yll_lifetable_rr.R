@@ -214,7 +214,7 @@ compare_yll_lifetable_rr <-
 
       # Get PAF and add to the input data frame
       input_risk_pif <-
-        bestcost::get_risk_and_pif(input = input)%>%
+        bestcost:::get_risk_and_pif(input = input)%>%
         #Replace pif with paf to be able to use the lifetable functions
         dplyr::rename(paf=pif)
 

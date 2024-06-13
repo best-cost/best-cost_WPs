@@ -412,6 +412,8 @@ check_bestcost(result_list_bestcost = bestcost_pm_deaths_lifetable_airqplus,
                result_vector_alternative = c(2600.9, 1371, 3804))
 ```
 
+
+
 ```{r premature deaths with lifetable}
 # Now with input data from the Swiss project GeLuft
 
@@ -722,9 +724,8 @@ check_bestcost(result_list_bestcost = comparison_singlebhd_rr_pif ,
 
 
 comparison_singlebhd_ar_delta <-
-  bestcost::compare(
+  bestcost::compare_health_ar(
     comparison_method = "delta",
-    risk_method = "absolute_risk",
     exp_central_1 = c(57.5, 62.5, 67.5, 72.5, 77.5),# Values as example provided by NIPH
     exp_central_2 = c(50, 55, 60, 65, 75), # Fake values
     pop_exp_1 = c(387500, 286000, 191800, 72200, 7700), # Values as example provided by NIPH
@@ -743,7 +744,69 @@ check_bestcost(result_list_bestcost = comparison_singlebhd_ar_delta ,
 
 ```
 
+```{r comparison yld singlebhd_rr}
+# DELTA
+# Test delta comparison function with fake values
+comparison_yld_singlebhd_rr_delta <-
+  bestcost::compare_yld_from_prevalence(
+    comparison_method = "delta",
+    exp_central_1 = 8.85, 
+    exp_central_2 = 6,
+    cutoff = 5,    
+    bhd_central_1 = 25000,
+    bhd_central_2 = 25000,
+    rr_central = 1.118,
+    rr_lower = 1.060,
+    rr_upper = 1.179,
+    erf_increment = 10, 
+    erf_shape = "log_linear", 
+    disability_weight = 0.5,
+    info_1 = "PM2.5_yld_before",
+    info_2 = "PM2.5_yld_after")
 
+# No study to compare bestcost results
+# Check only if results stay the same overtime despite developments
+check_bestcost(result_list_bestcost = comparison_yld_singlebhd_rr_delta ,
+               result_vector_alternative = c(387, 205, 564)) # Result on 16 May 2024
+
+# Additionally check that it produce the first scenario produce the same results as above
+check_bestcost(result_list_bestcost = comparison_yld_singlebhd_rr_delta[["detailed"]][["scenario_1"]] ,
+               result_vector_alternative = bestcost_pm_yld_singlebhd[["main"]]$impact_rounded) 
+
+#PIF
+# Test pif comparison function with fake values
+comparison_yld_singlebhd_rr_pif <-
+  bestcost::compare_yld_from_prevalence(
+    comparison_method = "pif",
+    exp_central_1 = 8.85,  
+    exp_central_2 = 6,
+    cutoff = 5,    
+    bhd_central_1 = 25000,
+    bhd_central_2 = 25000,
+    rr_central = 1.118,
+    rr_lower = 1.060,
+    rr_upper = 1.179,
+    erf_increment = 10, 
+    erf_shape = "log_linear", 
+    disability_weight = 0.5,
+    info_1 = "PM2.5_yld_before",
+    info_2 = "PM2.5_yld_after")
+
+
+
+# No study to compare bestcost results
+# Check only if results stay the same overtime despite developments
+check_bestcost(result_list_bestcost = comparison_yld_singlebhd_rr_pif ,
+               result_vector_alternative = c(391,206,573)) # Result on 16 May 2024
+
+# Additionally check that it produce the first scenario produce the same results as above
+check_bestcost(result_list_bestcost = comparison_yld_singlebhd_rr_pif[["detailed"]][["scenario_1"]] ,
+               result_vector_alternative = bestcost_pm_yld_singlebhd[["main"]]$impact_rounded) 
+
+
+```
+
+### Lifetable
 ```{r comparison deaths lifetable}
 
 # DELTA
@@ -952,9 +1015,8 @@ check_bestcost(result_list_bestcost = comparison_yll_lifetable_pif[["detailed"]]
 # DELTA
  
 comparison_yld_lifetable_delta  <-
-  bestcost::compare(
+  bestcost::compare_yld_from_lifetable(
     comparison_method = "delta",
-    health_metric = "yld_from_lifetable",
     exp_central_1 = 8.85, # Fake data just for testing purposes
     prop_pop_exp_1 = 1, # Fake data just for testing purposes
     exp_central_2 = 6, # Fake data just for testing purposes
@@ -1000,9 +1062,8 @@ check_bestcost(result_list_bestcost = comparison_yld_lifetable_delta[["detailed"
 
 # PIF
 comparison_yld_lifetable_pif <-
-  bestcost::compare(
+  bestcost::compare_yld_from_lifetable(
     comparison_method = "pif",
-    health_metric = "yld_from_lifetable",
     exp_central_1 = 8.85, # Fake data just for testing purposes
     prop_pop_exp_1 = 1, # Fake data just for testing purposes
     exp_central_2 = 6, # Fake data just for testing purposes
@@ -1047,68 +1108,6 @@ check_bestcost(result_list_bestcost = comparison_yld_lifetable_pif[["detailed"]]
                result_vector_alternative = bestcost_pm_yld_lifetable_geluft[["main"]]$impact_rounded)
 ```
 
-
-```{r comparison yld singlebhd_rr}
-# DELTA
-# Test delta comparison function with fake values
-comparison_yld_singlebhd_rr_delta <-
-  bestcost::compare_yld_singlebhd_rr(
-    comparison_method = "delta",
-    exp_central_1 = 8.85, 
-    exp_central_2 = 6,
-    cutoff = 5,    
-    bhd_central_1 = 25000,
-    bhd_central_2 = 25000,
-    rr_central = 1.118,
-    rr_lower = 1.060,
-    rr_upper = 1.179,
-    erf_increment = 10, 
-    erf_shape = "log_linear", 
-    disability_weight = 0.5,
-    info_1 = "PM2.5_yld_before",
-    info_2 = "PM2.5_yld_after")
-
-# No study to compare bestcost results
-# Check only if results stay the same overtime despite developments
-check_bestcost(result_list_bestcost = comparison_yld_singlebhd_rr_delta ,
-               result_vector_alternative = c(387, 205, 564)) # Result on 16 May 2024
-
-# Additionally check that it produce the first scenario produce the same results as above
-check_bestcost(result_list_bestcost = comparison_yld_singlebhd_rr_delta[["detailed"]][["scenario_1"]] ,
-               result_vector_alternative = bestcost_pm_yld_singlebhd[["total"]]$impact_rounded) 
-
-#PIF
-# Test pif comparison function with fake values
-comparison_yld_singlebhd_rr_pif <-
-  bestcost::compare_yld_singlebhd_rr(
-    comparison_method = "pif",
-    exp_central_1 = 8.85,  
-    exp_central_2 = 6,
-    cutoff = 5,    
-    bhd_central_1 = 25000,
-    bhd_central_2 = 25000,
-    rr_central = 1.118,
-    rr_lower = 1.060,
-    rr_upper = 1.179,
-    erf_increment = 10, 
-    erf_shape = "log_linear", 
-    disability_weight = 0.5,
-    info_1 = "PM2.5_yld_before",
-    info_2 = "PM2.5_yld_after")
-
-
-
-# No study to compare bestcost results
-# Check only if results stay the same overtime despite developments
-check_bestcost(result_list_bestcost = comparison_yld_singlebhd_rr_pif ,
-               result_vector_alternative = c(391,206,573)) # Result on 16 May 2024
-
-# Additionally check that it produce the first scenario produce the same results as above
-check_bestcost(result_list_bestcost = comparison_yld_singlebhd_rr_pif[["detailed"]][["scenario_1"]] ,
-               result_vector_alternative = bestcost_pm_yld_singlebhd[["total"]]$impact_rounded) 
-
-
-```
 
 # Export 
 

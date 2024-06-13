@@ -82,8 +82,7 @@ compare_health <-
         population_midyear_male_2 = NULL, population_midyear_female_2 = NULL,
         year_of_analysis_2 = NULL,
         min_age = NULL, max_age = NULL,
-        info_1 = NULL, info_2 = NULL
-      )
+        info_1 = info_1 , info_2 = info_2)
 
     return(output)
   }
