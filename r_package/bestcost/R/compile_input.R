@@ -56,7 +56,7 @@ compile_input <-
            corrected_discount_rate = NULL,
            duration = NULL){
 
-    # Check input data ####
+    # Check input data
     stopifnot(exprs = {
       #length(exp) == length(prop_pop_exp)
       #is.null(min_age) == FALSE
@@ -64,12 +64,12 @@ compile_input <-
     })
 
 
-    # Input data in data frame ####
+    # Input data in data frame
 
     # If the erf is defined by rr, increment, shape and cutoff
 
     if(is.null(erf_c_central)){
-      # Input data in data frame ####
+      # Input data in data frame
       # Compile rr data to assign categories
       erf_data <-
         # tibble instead of data.frame because tibble converts NULL into NA
@@ -93,7 +93,7 @@ compile_input <-
 
     # Store the lentgh of the exposure distribution (to be used below)
     # Let's take the first element
-    length_expDist <-
+    length_exp_dist <-
       ifelse(is.list(exp_central),
              length(exp_central[[1]]),
              length(exp_central))
@@ -106,13 +106,13 @@ compile_input <-
         # ie. those which require adjustment to have the same dimension
         # as those with multiple dimension because of exposure distribution
         # Let's use rep() to ensure that there is dimension match
-        geo_id_raw = rep(geo_id_raw, each = length_expDist) ,
-        geo_id_aggregated = rep(geo_id_aggregated, each = length_expDist),
-        bhd_central = rep(unlist(bhd_central), each = length_expDist),
-        bhd_lower = rep(unlist(bhd_lower), each = length_expDist),
-        bhd_upper = rep(unlist(bhd_lower), each = length_expDist),
-        min_age = rep(min_age, each = length_expDist),
-        max_age = rep(max_age, each = length_expDist),
+        geo_id_raw = rep(geo_id_raw, each = length_exp_dist) ,
+        geo_id_aggregated = rep(geo_id_aggregated, each = length_exp_dist),
+        bhd_central = rep(unlist(bhd_central), each = length_exp_dist),
+        bhd_lower = rep(unlist(bhd_lower), each = length_exp_dist),
+        bhd_upper = rep(unlist(bhd_lower), each = length_exp_dist),
+        min_age = rep(min_age, each = length_exp_dist),
+        max_age = rep(max_age, each = length_exp_dist),
 
         # Second those variables that will have lenght = 1 (no problematic)
         disability_weight = disability_weight,
@@ -129,7 +129,7 @@ compile_input <-
       # Add rr with a cross join to produce all likely combinations
       dplyr::bind_cols(., erf_data) %>%
       # Add additional (meta-)information
-      bestcost:::add_info(df=., info=info) %>%
+      bestcost:::add_info(df = ., info = info) %>%
       # Information derived from input data
       dplyr::mutate(
         # Add age_max and age_min (not needed without life table)
@@ -145,9 +145,9 @@ compile_input <-
                    (is.vector(exp_central) &
                       length(exp_central) == 1),
                  "population_weighted_mean",
-                 "exposure_distribution"))%>%
+                 "exposure_distribution")) %>%
       # Remove all columns with all values being NA
-      dplyr::select(where(~ !all(is.na(.))))%>%
+      dplyr::select(where(~ !all(is.na(.)))) %>%
       # Pivot longer to show all combinations of central, lower and upper estimate
       # (relevant for iteration)
       ## For exposure,
@@ -176,7 +176,5 @@ compile_input <-
                             names_to = "bhd_ci",
                             names_prefix = "bhd_",
                             values_to = "bhd") else .}
-
-
 
   }

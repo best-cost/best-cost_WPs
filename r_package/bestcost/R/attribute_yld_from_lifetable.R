@@ -70,6 +70,7 @@ attribute_yld_from_lifetable <-
         disability_weight = disability_weight,
         duration = duration,
         geo_id_raw = NULL , geo_id_aggregated = NULL,
+
         info = info)
 
     return(output)

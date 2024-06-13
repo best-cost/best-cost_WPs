@@ -34,7 +34,7 @@ get_yld <-
            disability_weight,
            duration){
 
-    lifeyears_byYear <- list()
+    lifeyears_by_year <- list()
     yld_by_list<-list()
 
 
@@ -43,7 +43,7 @@ get_yld <-
       for (v in unique(unlist(purrr::map(pop_impact[["pop_impact"]], names)))){ # c(central, lower, upper) or only central
 
         ## Sum life years by year (result is data frame with 2 columns "year" & "impact" [which contains YLD]) ####
-        lifeyears_byYear[[s]][[v]] <-
+        lifeyears_by_year[[s]][[v]] <-
           pop_impact[["pop_impact"]][[s]][[v]] %>%
 
           # Filter keeping only the relevant age
@@ -70,7 +70,7 @@ get_yld <-
 
         ## Calculate total, not discounted YLD (single number) per sex & ci ####
         yld_by_list[[s]][[v]][["noDiscount"]] <-
-          lifeyears_byYear[[s]][[v]] %>%
+          lifeyears_by_year[[s]][[v]] %>%
           # Filter for the relevant years
           filter(year < (year_of_analysis + duration + 1)) %>%
           # Sum among years to obtain the total impact (single value)
@@ -91,6 +91,7 @@ get_yld <-
             # Sum among years to obtain the total impact (single value)
             dplyr::summarise(impact = sum(discounted_impact) * disability_weight, .groups = 'drop')
         }
+
       }
     }
 

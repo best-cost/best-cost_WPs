@@ -56,7 +56,7 @@ attribute_yll_from_lifetable <-
            min_age = NULL, max_age = NULL,
            info = NULL){
 
-    output<-
+    output <-
       bestcost::attribute(
         health_metric = "yll_from_lifetable",
         risk_method = "relative_risk",
@@ -78,14 +78,9 @@ attribute_yll_from_lifetable <-
         year_of_analysis = year_of_analysis,
         min_age = min_age, max_age = max_age,
         corrected_discount_rate = corrected_discount_rate,
-        geo_id_raw = NULL , geo_id_aggregated = NULL,
+        geo_id_raw = NULL, geo_id_aggregated = NULL,
         info = info)
 
     return(output)
 
   }
-
-
-
-
-

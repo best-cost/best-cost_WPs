@@ -63,7 +63,7 @@ compare_health <-
         pop_exp_1 = NULL,
         pop_exp_2 = NULL,
         cutoff = cutoff,
-        rr_central = rr_central , rr_lower = rr_lower, rr_upper = rr_upper,
+        rr_central = rr_central, rr_lower = rr_lower, rr_upper = rr_upper,
         erf_increment = erf_increment,
         erf_shape = erf_shape,
         erf_c_central = erf_c_central, erf_c_lower = erf_c_lower, erf_c_upper = erf_c_upper,
@@ -85,6 +85,6 @@ compare_health <-
         duration = NULL,
         info_1 = info_1 , info_2 = info_2)
 
+
     return(output)
   }
-

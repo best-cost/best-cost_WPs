@@ -78,4 +78,3 @@ get_output <-
 
     return(output)
   }
-

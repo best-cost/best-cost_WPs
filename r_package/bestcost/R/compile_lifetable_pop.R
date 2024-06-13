@@ -43,7 +43,7 @@ compile_lifetable_pop <-
     # The first column has to be the age. Second, probability of death. Third, population.
     # Rename column names to standard names
 
-    lifetable_withPop <- list(
+    lifetable_with_pop <- list(
       male =
         tidyr::tibble(
           age = seq(from = first_age_pop,
@@ -68,10 +68,4 @@ compile_lifetable_pop <-
           death_probability_total = prob_total_death_female,
           population = population_midyear_female))
 
-
   }
-
-
-
-
-

@@ -25,18 +25,18 @@
 
 attribute_health <-
   function(
-    exp_central, exp_lower = NULL, exp_upper = NULL,
-    prop_pop_exp = 1,
-    cutoff,
-    rr_central = NULL, rr_lower = NULL, rr_upper = NULL,
-    erf_increment = NULL,
-    erf_shape = NULL,
-    erf_c_central = NULL, erf_c_lower = NULL, erf_c_upper = NULL,
-    bhd_central, bhd_lower = NULL, bhd_upper = NULL,
-    geo_id_raw = NULL, geo_id_aggregated = NULL,
-    info = NULL){
+      exp_central, exp_lower = NULL, exp_upper = NULL,
+      prop_pop_exp = 1,
+      cutoff,
+      rr_central = NULL, rr_lower = NULL, rr_upper = NULL,
+      erf_increment = NULL,
+      erf_shape = NULL,
+      erf_c_central = NULL, erf_c_lower = NULL, erf_c_upper = NULL,
+      bhd_central, bhd_lower = NULL, bhd_upper = NULL,
+      geo_id_raw = NULL, geo_id_aggregated = NULL,
+      info = NULL){
 
-    output<-
+    output <-
       bestcost::attribute(
         health_metric = "same_input_output",
         risk_method = "relative_risk",
@@ -51,7 +51,7 @@ attribute_health <-
         bhd_central = bhd_central, bhd_lower = bhd_lower, bhd_upper = bhd_lower,
         first_age_pop = NULL, last_age_pop = NULL,
         prob_natural_death_male = NULL, prob_natural_death_female = NULL,
-        prob_total_death_male= NULL, prob_total_death_female = NULL,
+        prob_total_death_male = NULL, prob_total_death_female = NULL,
         population_midyear_male = NULL, population_midyear_female = NULL,
         year_of_analysis = NULL,
         min_age = NULL, max_age = NULL,
@@ -59,10 +59,10 @@ attribute_health <-
         disability_weight = NULL,
         duration = NULL,
         geo_id_raw = geo_id_raw , geo_id_aggregated = geo_id_aggregated,
+
         info = info)
 
     return(output)
 
 
   }
-

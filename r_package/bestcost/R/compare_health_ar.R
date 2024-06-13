@@ -48,7 +48,7 @@ compare_health_ar <-
         pop_exp_1 = pop_exp_1,
         pop_exp_2 = pop_exp_2,
         cutoff = NULL,
-        rr_central = NULL , rr_lower = NULL, rr_upper = NULL,
+        rr_central = NULL, rr_lower = NULL, rr_upper = NULL,
         erf_increment = NULL,
         erf_shape = NULL,
         erf_c_central = erf_c_central, erf_c_lower = erf_c_lower, erf_c_upper = erf_c_upper,
@@ -72,4 +72,3 @@ compare_health_ar <-
 
     return(output)
   }
-

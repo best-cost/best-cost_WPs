@@ -116,4 +116,3 @@ compare_deaths_from_lifetable <-
 
     return(output)
   }
-

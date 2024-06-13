@@ -31,7 +31,7 @@ get_deaths <-
 
     for(s in names(pop_impact[["pop_impact"]])){ # c(male, female)
       for (v in unique(unlist(purrr::map(pop_impact[["pop_impact"]], names)))){ # c(central, lower, upper) or only central
-        population_secondYear_lifetable <-
+        population_second_year_lifetable <-
           paste0("population_", year_of_analysis+1)
 
         deaths_by_list[[s]][[v]]<-
@@ -44,7 +44,7 @@ get_deaths <-
           {if(!is.null(min_age))
             dplyr::filter(., age >= min_age)
             else .} %>%
-          dplyr::select(all_of(population_secondYear_lifetable)) %>%
+          dplyr::select(all_of(population_second_year_lifetable)) %>%
           sum(., na.rm = TRUE)
       }
     }
