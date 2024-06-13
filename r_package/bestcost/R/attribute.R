@@ -120,7 +120,7 @@ attribute <-
     # Calculate the health impacts for each case (uncertainty, category, geo area...)
     output_raw <-
       bestcost:::get_impact(input = input,
-                           lifetable_with_pop = lifetable_withPop,
+                           lifetable_with_pop = lifetable_with_pop,
                            year_of_analysis = year_of_analysis,
                            min_age = min_age,
                            max_age = max_age,
