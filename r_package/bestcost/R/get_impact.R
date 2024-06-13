@@ -32,7 +32,7 @@ get_impact <-
                                           "yld_from_prevalence")){
       # Get PAF and added to the input data frame
       output_raw_main <-
-        bestcost::get_risk_and_paf(input = input) %>%
+        bestcost:::get_risk_and_paf(input = input) %>%
         # Build the result table adding the paf to the input_risk_paf table
         dplyr::mutate(impact = paf * bhd) %>%
         {if(unique(input$health_metric) == "yld_from_prevalence")
@@ -57,11 +57,11 @@ get_impact <-
 
       # Get PAF and add to the input data frame
       input_risk_paf <-
-        bestcost::get_risk_and_paf(input = input)
+        bestcost:::get_risk_and_paf(input = input)
 
       # Get population impact ####
       pop_impact <-
-        bestcost::get_pop_impact(
+        bestcost:::get_pop_impact(
           lifetab_withPop = lifetable_withPop,
           year_of_analysis = year_of_analysis,
           pop_fraction = input_risk_paf[, c("erf_ci", "paf")],
@@ -70,7 +70,7 @@ get_impact <-
       if(outcome_metric == "death"){
         # Calculate deaths ####
         output_raw <-
-          bestcost::get_deaths(
+          bestcost:::get_deaths(
             pop_impact = pop_impact,
             year_of_analysis = year_of_analysis,
             min_age = min_age,
@@ -79,7 +79,7 @@ get_impact <-
 
       } else if(outcome_metric == "yll"){
         output_raw <-
-          bestcost::get_yll(
+          bestcost:::get_yll(
             pop_impact = pop_impact,
             year_of_analysis = year_of_analysis,
             min_age = min_age,
@@ -88,7 +88,7 @@ get_impact <-
 
       } else if(outcome_metric == "yld"){
         output_raw <-
-          bestcost::get_yld(
+          bestcost:::get_yld(
             pop_impact = pop_impact,
             year_of_analysis = year_of_analysis,
             min_age = min_age,

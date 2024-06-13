@@ -18,6 +18,14 @@ attribute_health_ar(
 )
 }
 \arguments{
+\item{exp_central, exp_lower, exp_upper}{\code{Numeric values} of the exposure
+to the environmental stressor referring to the central estimate and (optionally)
+to lower and upper bound of the confidence interval. If only one value is provided,
+it will be assumed that it refers to population-weighted mean exposure in ug/m3.
+If a {vector} is provided, it will be assumed that it refers to the exposure categories
+(average exposure in the category) in a exposure distribution
+(this information is linked to the proportion of population exposed).}
+
 \item{pop_exp}{\code{Numeric value} or {vector} showing the population exposed for each of the exposure categories. The length of this input variable must be the same as "exp".}
 
 \item{info}{\code{String} or {data frame} showing additional information or id. The suffix "info" will be added to the column name. Default value = NULL.}

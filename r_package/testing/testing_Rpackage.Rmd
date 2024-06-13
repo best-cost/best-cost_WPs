@@ -295,7 +295,7 @@ bestcost_noise_ha_ar_geo <-
 ```{r morbidity yld lifetable with single relative risk}
 
 bestcost_pm_yld_singlebhd  <- 
-  bestcost::attribute(
+  bestcost::attribute_yld_from_prevalence(
     exp_central = 8.85, 
     cutoff = 5,    
     bhd_central = 25000,
@@ -304,8 +304,7 @@ bestcost_pm_yld_singlebhd  <-
     rr_upper = 1.179,
     erf_increment = 10, 
     erf_shape = "log_linear", 
-    disability_weight = 0.5,
-    health_metric = "yld_from_prevalence")
+    disability_weight = 0.5)
 
 # No study to compare bestcost results
 # Check only if results stay the same overtime despite developments
@@ -724,21 +723,6 @@ check_bestcost(result_list_bestcost = bestcost_pm_yld_lifetable_geluft,
 ```{r comparison singlebhd_rr}
 # Test delta comparison function with fake values
 # DELTA
-comparison_singlebhd_rr_delta <-
-  bestcost::compare_health_singlebhd_rr(
-    comparison_method = "delta",
-    exp_central_1 = 8.85, 
-    exp_central_2 = 6,
-    cutoff = 5,    
-    bhd_central_1 = 25000,
-    bhd_central_2 = 25000,
-    rr_central = 1.118, 
-    rr_lower = 1.060, 
-    rr_upper = 1.179,
-    erf_increment = 10, 
-    erf_shape = "log_linear", 
-    info_1 = "PM2.5_mortality_2010",
-    info_2 = "PM2.5_mortality_2020")
 
 comparison_singlebhd_rr_delta <-
   bestcost::compare(

@@ -59,7 +59,7 @@ attribute_deaths_lifetable_rr <-
 
 
     input <-
-      bestcost::compile_input(
+      bestcost:::compile_input(
         exp_central = exp_central, exp_lower =  exp_lower, exp_upper = exp_upper,
         prop_pop_exp = prop_pop_exp,
         cutoff = cutoff,
@@ -75,14 +75,14 @@ attribute_deaths_lifetable_rr <-
 
     # Get PAF and add to the input data frame
     input_risk_paf <-
-      bestcost::get_risk_and_paf(input = input)
+      bestcost:::get_risk_and_paf(input = input)
 
 
     # Compile list of life table data frame (by sex)
     # Col 1: age; col 2: probability of death; col 3: population
 
     lifetable_withPop <-
-      bestcost::compile_lifetable_pop(
+      bestcost:::compile_lifetable_pop(
         first_age_pop =  first_age_pop,
         last_age_pop = last_age_pop,
         prob_natural_death_male = prob_natural_death_male,
@@ -94,7 +94,7 @@ attribute_deaths_lifetable_rr <-
 
     # Get population impact ####
     pop_impact <-
-      bestcost::get_pop_impact(
+      bestcost:::get_pop_impact(
         lifetab_withPop = lifetable_withPop,
         year_of_analysis = year_of_analysis,
         pop_fraction = input_risk_paf[, c("erf_ci", "paf")],
@@ -103,7 +103,7 @@ attribute_deaths_lifetable_rr <-
 
     # Calculate deaths ####
     deaths <-
-      bestcost::get_deaths(
+      bestcost:::get_deaths(
         pop_impact = pop_impact,
         year_of_analysis = year_of_analysis,
         min_age = min_age,

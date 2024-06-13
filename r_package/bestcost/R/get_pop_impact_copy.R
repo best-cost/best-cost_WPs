@@ -41,7 +41,7 @@ get_pop_impact_copy <-
           lifetab_withPop[[s]] <- lifetab_withPop[[s]] %>%
             dplyr::rename(!!paste0("population_", year_of_analysis) := population)
 
-          bestcost::project_pop(
+          bestcost:::project_pop(
             lifetab_withPop = lifetab_withPop[[s]],
             year_of_analysis = year_of_analysis,
             paf = pop_fraction$paf[pop_fraction$erf_ci %in% v],
@@ -60,7 +60,7 @@ get_pop_impact_copy <-
       for(v in pop_fraction$erf_ci){
         pop_impact[[s]][[paste0("erf_ci_",v)]] <-
 
-          bestcost::move_rows_up(popOTime = popOverTime[[s]][[paste0("erf_ci_",v)]],
+          bestcost:::move_rows_up(popOTime = popOverTime[[s]][[paste0("erf_ci_",v)]],
                                  year_of_analysis = year_of_analysis)
       }
     }

@@ -190,7 +190,7 @@ compare <-
 
         # Compile input data of scenario 1
         input_1 <-
-          bestcost::compile_input(
+          bestcost:::compile_input(
             health_metric = health_metric,
             risk_method = risk_method,
             exp_central = exp_central_1, exp_lower = exp_lower_1, exp_upper = exp_upper_1,
@@ -208,7 +208,7 @@ compare <-
 
         # Compile input data of scenario 2
         input_2 <-
-          bestcost::compile_input(
+          bestcost:::compile_input(
             health_metric = health_metric,
             risk_method = risk_method,
             exp_central = exp_central_2, exp_lower = exp_lower_2, exp_upper = exp_upper_2,
@@ -251,7 +251,7 @@ compare <-
         # Col 1: age; col 2: probability of death; col 3: population
 
         lifetable_withPop <-
-          bestcost::compile_lifetable_pop(
+          bestcost:::compile_lifetable_pop(
             first_age_pop =  first_age_pop_1,
             last_age_pop = last_age_pop_1,
             prob_natural_death_male = prob_natural_death_male_1,
@@ -268,7 +268,7 @@ compare <-
 
         # Get population impact ####
         pop_impact <-
-          bestcost::get_pop_impact(
+          bestcost:::get_pop_impact(
             lifetab_withPop = lifetable_withPop,
             year_of_analysis = year_of_analysis_1,
             pop_fraction = input_risk_pif[, c("erf_ci", "paf")],
@@ -277,7 +277,7 @@ compare <-
         if(outcome_metric == "death"){
           # Calculate deaths ####
           att_health <-
-            bestcost::get_deaths(
+            bestcost:::get_deaths(
               pop_impact = pop_impact,
               year_of_analysis = year_of_analysis_1,
               min_age = min_age,
@@ -289,7 +289,7 @@ compare <-
           }else if(outcome_metric == "yll"){
             # Calculate deaths ####
             att_health <-
-              bestcost::get_yll(
+              bestcost:::get_yll(
                 pop_impact = pop_impact,
                 year_of_analysis = year_of_analysis_1,
                 min_age = min_age,
@@ -301,7 +301,7 @@ compare <-
             }else if(outcome_metric == "yld"){
           # Calculate deaths ####
           att_health <-
-            bestcost::get_yld(
+            bestcost:::get_yld(
               pop_impact = pop_impact,
               year_of_analysis = year_of_analysis_1,
               min_age = min_age,

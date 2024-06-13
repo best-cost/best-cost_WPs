@@ -28,7 +28,7 @@
 #' @author Axel Luyten
 #' @note Experimental function
 #' @export
-attribute_yld_singlebhd_rr <-
+attribute_yld_from_prevalence <-
   function(exp_central, exp_lower = NULL, exp_upper = NULL,
            prop_pop_exp = 1,
            cutoff,
@@ -40,32 +40,31 @@ attribute_yld_singlebhd_rr <-
            disability_weight,
            info = NULL){
 
-    # Check input data ####
-    stopifnot(exprs = {
-      #length(exp) == length(prop_pop_exp)
-    })
 
-    # Call attribute_health_singlebhd_rr
-    dat <-
-      bestcost::attribute_health_singlebhd_rr(
+    output<-
+      bestcost::attribute(
+        health_metric = "yld_from_prevalence",
+        risk_method = "relative_risk",
         exp_central = exp_central, exp_lower = exp_lower, exp_upper = exp_upper,
         prop_pop_exp = prop_pop_exp,
+        pop_exp = NULL,
         cutoff = cutoff,
         rr_central = rr_central, rr_lower = rr_lower, rr_upper = rr_upper,
         erf_increment = erf_increment,
         erf_shape = erf_shape,
         erf_c_central = erf_c_central, erf_c_lower = erf_c_lower, erf_c_upper = erf_c_upper,
-        bhd_central = bhd_central, bhd_lower = bhd_lower, bhd_upper = bhd_upper,
+        bhd_central = bhd_central, bhd_lower = bhd_lower, bhd_upper = bhd_lower,
+        disability_weight = disability_weight,
+        duration = NULL,
+        first_age_pop = NULL, last_age_pop = NULL,
+        prob_natural_death_male = NULL, prob_natural_death_female = NULL,
+        prob_total_death_male= NULL, prob_total_death_female = NULL,
+        population_midyear_male = NULL, population_midyear_female = NULL,
+        year_of_analysis = NULL,
+        min_age = NULL, max_age = NULL,
+        corrected_discount_rate = NULL,
+        geo_id_raw = geo_id_raw , geo_id_aggregated = geo_id_aggregated,
         info = info)
-
-    # Calculate YLD and add as column
-    output <-
-      dat %>%
-      purrr::map(., function(x)
-        dplyr::mutate(x,
-                      impact = paf * bhd * disability_weight,
-                      impact_rounded = round(impact, 0)))
-
 
 
     return(output)

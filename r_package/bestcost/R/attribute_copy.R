@@ -50,7 +50,7 @@ attribute_copy <-
 
     # Compile input data (except lifetable) and calculate paf putting all into a data frame
     input <-
-      bestcost::compile_input(
+      bestcost:::compile_input(
         exp_central = exp_central, exp_lower =  exp_lower, exp_upper = exp_upper,
         prop_pop_exp = prop_pop_exp,
         pop_exp = pop_exp,
@@ -74,7 +74,7 @@ attribute_copy <-
     if(grepl("lifetable", health_metric)){
 
       lifetable_withPop <-
-        bestcost::compile_lifetable_pop(
+        bestcost:::compile_lifetable_pop(
           first_age_pop =  first_age_pop,
           last_age_pop = last_age_pop,
           prob_natural_death_male = prob_natural_death_male,
@@ -89,7 +89,7 @@ attribute_copy <-
 
     # Calculate the health impacts for each case (uncertainty, category, geo area...)
     output_raw <-
-      bestcost::get_impact_copy(input = input,
+      bestcost:::get_impact_copy(input = input,
                            lifetable_withPop = lifetable_withPop,
                            year_of_analysis = year_of_analysis,
                            min_age = min_age,
@@ -99,7 +99,7 @@ attribute_copy <-
 
     # Get the main and detailed output by aggregating and/or filtering cases (rows)
     output <-
-      bestcost::get_output(output_raw)
+      bestcost:::get_output(output_raw)
 
 
 
