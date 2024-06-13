@@ -27,45 +27,45 @@
 #' @keywords internal
 
 get_pop_impact <-
-  function(lifetab_withPop, year_of_analysis, pop_fraction, outcome_metric){
-
-
-    # Get popOvertime
-    popOverTime <- list()
-
-    for(s in names(lifetab_withPop)){
-      for(v in pop_fraction$erf_ci){
-        popOverTime[[s]][[paste0("erf_ci_",v)]] <-
-          bestcost:::project_pop(
-            lifetab_withPop = lifetab_withPop[[s]],
-            year_of_analysis = year_of_analysis,
-            paf = pop_fraction$paf[pop_fraction$erf_ci %in% v],
-            outcome_metric = outcome_metric)
-      }
-    }
-
-
-
-
-    # Get pop_impact
+  function(lifetable_withPop, year_of_analysis, pop_fraction, outcome_metric){
 
     pop_impact <- list()
+    lifetable_withPop_backup <- lifetable_withPop
 
-    for(s in names(lifetab_withPop)){
+    for(s in names(lifetable_withPop)){
+      lifetable_withPop <- lifetable_withPop_backup
       for(v in pop_fraction$erf_ci){
-        pop_impact[[s]][[paste0("erf_ci_",v)]] <-
 
-          bestcost:::move_rows_up(popOTime = popOverTime[[s]][[paste0("erf_ci_",v)]],
-                                 year_of_analysis = year_of_analysis)
+        lifetable_withPop <- lifetable_withPop_backup[[s]]
+        paf <- pop_fraction$paf[pop_fraction$erf_ci %in% v]
+        second_year <- year_of_analysis + 1
+
+        lifetable_withPop <- lifetable_withPop %>%
+          dplyr::rename(!!paste0("population_", year_of_analysis) := population) %>%
+          # Calculate the population the second year (first column after first year) considering the health effect of air pollution
+          dplyr::mutate("population_{second_year}" :=
+                          dplyr::lag(!!as.symbol(paste0("population_",year_of_analysis))) * dplyr::lag(death_probability_natural) * paf) %>%
+          # Move column up one row
+          dplyr::mutate("population_{second_year}" := lead(!!as.symbol(paste0("population_", second_year))))
+
+        if(outcome_metric %in% c("yll", "yld")){
+          # Now calculate population over time for the rest of year starting with YOA without considering air pollution
+
+          years <- c( (year_of_analysis + 1) : ((year_of_analysis + nrow(lifetable_withPop) - 2)) )
+          length_period <- length(years)
+
+          for (i in 0:(length_period-1)){ # i in 0:97
+            YEAR <- years[i+1]
+            lifetable_withPop[1:((length_period)-i), paste0("population_", YEAR+1)] <-
+              lifetable_withPop[1:((length_period)-i), paste0("population_", YEAR)] * (1 - lifetable_withPop$death_probability_total[(i+2):(length_period+1)])
+          }
+        }
+       pop_impact[[s]][[paste0("erf_ci_",v)]] <- lifetable_withPop
       }
     }
-
-
     output <-
       list(paf = pop_fraction,
-           popOverTime = popOverTime,
            pop_impact = pop_impact)
-
 
     return(output)
 
