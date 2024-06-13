@@ -12,7 +12,8 @@
 #' TBD
 #' @author Alberto Castro
 #' @note Experimental function
-#' @export
+#' @keywords internal
+
 get_pop_diff <- function(popOverTime_AP, popOverTime_noAP)
   {
   popOverTime_diff <-

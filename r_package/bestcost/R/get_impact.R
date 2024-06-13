@@ -17,8 +17,7 @@
 #' @examples
 #' TBD
 #' @author Alberto Castro
-#' @inherit attribute_deaths_lifetable_rr note
-#' @export
+#' @keywords internal
 get_impact <-
   function(input,
            lifetable_withPop = NULL,

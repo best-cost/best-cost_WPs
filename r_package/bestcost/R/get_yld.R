@@ -22,7 +22,7 @@
 #' TBD
 #' @author Axel Luyten
 #' @note Experimental function
-#' @export
+#' @keywords internal
 
 get_yld <-
   function(pop_impact,

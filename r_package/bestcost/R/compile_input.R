@@ -32,7 +32,7 @@
 #' TBD
 #' @author Alberto Castro
 #' @note Experimental function
-#' @export
+#' @keywords internal
 
 compile_input <-
   function(exp_central, exp_lower = NULL, exp_upper = NULL,

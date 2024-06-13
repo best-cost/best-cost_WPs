@@ -12,7 +12,7 @@
 #' TBD
 #' @author Alberto Castro
 #' @note Experimental function
-#' @export
+#' @keywords internal
 
 move_rows_up <-
   function(popOTime, year_of_analysis){

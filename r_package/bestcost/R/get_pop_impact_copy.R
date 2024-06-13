@@ -24,7 +24,8 @@
 #' TBD
 #' @author Alberto Castro
 #' @note Experimental function
-#' @export
+#' @keywords internal
+
 get_pop_impact_copy <-
   function(lifetab_withPop, year_of_analysis, pop_fraction, outcome_metric){
 

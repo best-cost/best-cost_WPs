@@ -30,7 +30,7 @@
 #' TBD
 #' @author Alberto Castro
 #' @note Experimental function
-#' @export
+#' @keywords internal
 #'
 #'
 compile_lifetable_pop <-
