@@ -410,7 +410,10 @@ bestcost_pm_deaths_lifetable_airqplus <-
 
 check_bestcost(result_list_bestcost = bestcost_pm_deaths_lifetable_airqplus,
                result_vector_alternative = c(2600.9, 1371, 3804))
+```
 
+
+```{r premature deaths with lifetable, eval=FALSE, include=FALSE}
 bestcost_pm_deaths_lifetable_airqplus_copy <-
   bestcost::attribute_copy(
     health_metric = "deaths_from_lifetable",
