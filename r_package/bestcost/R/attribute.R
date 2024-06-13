@@ -1,6 +1,8 @@
 #' Attributable health cases based on relative risk
 
 #' @description Calculates the health impacts, mortality or morbidity, of an environmental stressor using a single value for baseline heath data, i.e. without life table. It provides as a result the mean as well as the lower and the higher bound of the impact based on the confidence interval of the concentration-response function.
+#' @param outcome_metric \code{String} showing the change in outcome metric to assess attributable health impacts. To choose between "same_input_output" (default), "yld_from_prevalence", "deaths_from_lifetable", "yll_from_lifetable" and "yld_from_lifetable".
+#' @param risk_method \code{String} showing the risk risk method. To choose between: "relative_risk" (default) or "absolute_risk".
 #' @param exp_central,exp_lower,exp_upper \code{Numeric values} of the exposure
 #' to the environmental stressor referring to the central estimate and (optionally)
 #' to lower and upper bound of the confidence interval. If only one value is provided,
@@ -27,9 +29,9 @@
 #' @param bhd_central,bhd_lower,bhd_upper \code{Numeric value} showing the central
 #' @param disability_weight \code{Numeric value} showing the disability weight associated with the morbidity health outcome
 #' @param duration \code{Numeric value} showing the disease duration
+#' @param corrected_discount_rate \code{Numeric value} showing the discount rate for future years including correction from inflaction rate
 #' estimate and (optionally) the lower bound and the upper bound of the confidence
 #' interval of the baseline health data (e.g. incidence of the health outcome in the population).
-#' @param risk_method \code{String} showing the calculation method of the risk: "relative_risk" or "absolute_risk".
 #' @return
 #' TBD. E.g. This function returns a \code{data.frame} with one row for each value of the
 #' concentration-response function (i.e. central, lower and upper bound confidence interval.
@@ -59,14 +61,14 @@ attribute <-
            erf_shape = NULL,
            erf_c_central = NULL, erf_c_lower = NULL, erf_c_upper = NULL,
            bhd_central = NULL, bhd_lower = NULL, bhd_upper = NULL,
-           disability_weight = NULL,
-           duration = NULL,
            first_age_pop = NULL, last_age_pop = NULL,
            prob_natural_death_male = NULL, prob_natural_death_female = NULL,
            prob_total_death_male, prob_total_death_female = NULL,
            population_midyear_male = NULL, population_midyear_female = NULL,
            year_of_analysis = NULL,
            min_age = NULL, max_age = NULL,
+           disability_weight = NULL,
+           duration = NULL,
            corrected_discount_rate = NULL,
            geo_id_raw = NULL, geo_id_aggregated = NULL,
            info = NULL){
@@ -127,6 +129,7 @@ attribute <-
                            year_of_analysis = year_of_analysis,
                            min_age = min_age,
                            max_age = max_age,
+                           corrected_discount_rate = corrected_discount_rate,
                            disability_weight = disability_weight,
                            duration = duration)
 

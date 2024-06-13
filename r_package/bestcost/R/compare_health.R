@@ -69,8 +69,6 @@ compare_health <-
         erf_c_central = erf_c_central, erf_c_lower = erf_c_lower, erf_c_upper = erf_c_upper,
         bhd_central_1 = bhd_central_1, bhd_lower_1 = bhd_lower_1, bhd_upper_1 = bhd_upper_1,
         bhd_central_2 = bhd_central_2, bhd_lower_2 = bhd_lower_2, bhd_upper_2 = bhd_upper_2,
-        disability_weight = NULL,
-        duration = NULL,
         first_age_pop_1 = NULL, last_age_pop_1 = NULL,
         prob_natural_death_male_1 = NULL, prob_natural_death_female_1 = NULL,
         prob_total_death_male_1 = NULL, prob_total_death_female_1 = NULL,
@@ -82,6 +80,9 @@ compare_health <-
         population_midyear_male_2 = NULL, population_midyear_female_2 = NULL,
         year_of_analysis_2 = NULL,
         min_age = NULL, max_age = NULL,
+        corrected_discount_rate = corrected_discount_rate,
+        disability_weight = NULL,
+        duration = NULL,
         info_1 = info_1 , info_2 = info_2)
 
     return(output)

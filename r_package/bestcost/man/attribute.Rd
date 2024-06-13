@@ -24,8 +24,6 @@ attribute(
   bhd_central = NULL,
   bhd_lower = NULL,
   bhd_upper = NULL,
-  disability_weight = NULL,
-  duration = NULL,
   first_age_pop = NULL,
   last_age_pop = NULL,
   prob_natural_death_male = NULL,
@@ -37,6 +35,8 @@ attribute(
   year_of_analysis = NULL,
   min_age = NULL,
   max_age = NULL,
+  disability_weight = NULL,
+  duration = NULL,
   corrected_discount_rate = NULL,
   geo_id_raw = NULL,
   geo_id_aggregated = NULL,
@@ -44,7 +44,7 @@ attribute(
 )
 }
 \arguments{
-\item{risk_method}{\code{String} showing the calculation method of the risk: "relative_risk" or "absolute_risk".}
+\item{risk_method}{\code{String} showing the risk risk method. To choose between: "relative_risk" (default) or "absolute_risk".}
 
 \item{exp_central, exp_lower, exp_upper}{\code{Numeric values} of the exposure
 to the environmental stressor referring to the central estimate and (optionally)
@@ -68,12 +68,6 @@ If a {vector} is provided, it will be assumed that it refers to the exposure cat
 
 \item{bhd_central, bhd_lower, bhd_upper}{\code{Numeric value} showing the central}
 
-\item{disability_weight}{\code{Numeric value} showing the disability weight associated with the morbidity health outcome}
-
-\item{duration}{\code{Numeric value} showing the disease duration
-estimate and (optionally) the lower bound and the upper bound of the confidence
-interval of the baseline health data (e.g. incidence of the health outcome in the population).}
-
 \item{first_age_pop}{\code{Numeric value} starting age of the youngest age group from population and life table data (age interval = 1 year)}
 
 \item{last_age_pop}{\code{Numeric value} ending age of the oldest age group from population and life table data (age interval = 1 year)}
@@ -90,7 +84,17 @@ interval of the baseline health data (e.g. incidence of the health outcome in th
 
 \item{max_age}{\code{Numberic value} of the maximal age to be considered for infants/children (by default 0, i.e. below 1 year old).}
 
+\item{disability_weight}{\code{Numeric value} showing the disability weight associated with the morbidity health outcome}
+
+\item{duration}{\code{Numeric value} showing the disease duration}
+
+\item{corrected_discount_rate}{\code{Numeric value} showing the discount rate for future years including correction from inflaction rate
+estimate and (optionally) the lower bound and the upper bound of the confidence
+interval of the baseline health data (e.g. incidence of the health outcome in the population).}
+
 \item{info}{\code{String} or {data frame} showing additional information or id. The suffix "info" will be added to the column name. Default value = NULL.}
+
+\item{outcome_metric}{\code{String} showing the change in outcome metric to assess attributable health impacts. To choose between "same_input_output" (default), "yld_from_prevalence", "deaths_from_lifetable", "yll_from_lifetable" and "yld_from_lifetable".}
 
 \item{erf_c}{\code{String} showing the user-defined function that puts the relative risk in relation with concentration. The function must have only one variable: c, which means concentration. E.g. "3+c+c^2". Default value = NULL.}
 }

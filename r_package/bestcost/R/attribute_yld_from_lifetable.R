@@ -41,7 +41,7 @@ attribute_yld_from_lifetable <-
            prob_total_death_male, prob_total_death_female,
            population_midyear_male, population_midyear_female,
            year_of_analysis,
-           corrected_discount_rate = 0,
+           corrected_discount_rate = NULL,
            min_age = NULL, max_age = NULL,
            disability_weight,
            duration,
@@ -60,8 +60,6 @@ attribute_yld_from_lifetable <-
         erf_shape = erf_shape,
         erf_c_central = erf_c_central, erf_c_lower = erf_c_lower, erf_c_upper = erf_c_upper,
         bhd_central = NULL, bhd_lower = NULL, bhd_upper = NULL,
-        disability_weight,
-        duration = duration,
         first_age_pop = first_age_pop, last_age_pop = last_age_pop,
         prob_natural_death_male = prob_natural_death_male, prob_natural_death_female = prob_natural_death_female,
         prob_total_death_male = prob_total_death_male, prob_total_death_female = prob_total_death_female,
@@ -69,6 +67,8 @@ attribute_yld_from_lifetable <-
         year_of_analysis = year_of_analysis,
         min_age = min_age, max_age = max_age,
         corrected_discount_rate = corrected_discount_rate,
+        disability_weight = disability_weight,
+        duration = duration,
         geo_id_raw = NULL , geo_id_aggregated = NULL,
         info = info)
 

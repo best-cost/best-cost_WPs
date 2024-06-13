@@ -36,7 +36,9 @@
 #' @keywords internal
 
 compile_input <-
-  function(exp_central, exp_lower = NULL, exp_upper = NULL,
+  function(risk_method = NULL,
+           health_metric = NULL,
+           exp_central, exp_lower = NULL, exp_upper = NULL,
            prop_pop_exp = NULL,
            pop_exp = NULL,
            cutoff = NULL,
@@ -50,9 +52,8 @@ compile_input <-
            geo_id_raw = NULL,
            geo_id_aggregated = NULL,
            info = NULL,
-           risk_method = NULL,
-           health_metric = NULL,
            disability_weight = NULL,
+           corrected_discount_rate = NULL,
            duration = NULL){
 
     # Check input data ####
@@ -116,6 +117,8 @@ compile_input <-
         # Second those variables that will have lenght = 1 (no problematic)
         disability_weight = disability_weight,
         duration = duration,
+        corrected_discount_rate = corrected_discount_rate,
+
         # Finally, those variables that are multi-dimentional (exposure distribution)
         exp_central = unlist(exp_central),
         exp_lower = unlist(exp_lower),

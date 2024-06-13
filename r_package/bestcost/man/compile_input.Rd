@@ -6,6 +6,8 @@
 Compiles the input data of the main function and calculates the population attributable fraction based on the input data (all in one data frame)}
 \usage{
 compile_input(
+  risk_method = NULL,
+  health_metric = NULL,
   exp_central,
   exp_lower = NULL,
   exp_upper = NULL,
@@ -28,13 +30,14 @@ compile_input(
   geo_id_raw = NULL,
   geo_id_aggregated = NULL,
   info = NULL,
-  risk_method = NULL,
-  health_metric = NULL,
   disability_weight = NULL,
+  corrected_discount_rate = NULL,
   duration = NULL
 )
 }
 \arguments{
+\item{risk_method}{\code{String} showing the calculation method of the risk.}
+
 \item{prop_pop_exp}{\code{Numeric value} or {vector} showing the proportion of population exposed (as a fraction, i.e. values between 0 and 1) for a single exposure value or for multiple categories, i.e., a exposure distribution, respectively. If a exposure distribution is used, the dimension of this input variable should be the same as "exp". By default, 1 for single exposure value will be assigned to this input variable assuming a single exposure value, but users can change this value.}
 
 \item{pop_exp}{\code{Numeric value} or {vector} showing the population exposed for each of the exposure categories. The length of this input variable must be the same as "exp".}
@@ -50,8 +53,6 @@ compile_input(
 \item{max_age}{\code{Numberic value} of the maximal age to be considered for infants/children (by default 0, i.e. below 1 year old).}
 
 \item{info}{\code{String} showing additional information or id for the pollutant. The suffix "info" will be added to the column name. Default value = NULL.}
-
-\item{risk_method}{\code{String} showing the calculation method of the risk.}
 
 \item{exp}{\code{Numeric value} showing the population-weighted mean exposure in ug/m3 or {vector} showing the exposure category in a exposure distribution (this information is linked to the proportion of population exposed).}
 

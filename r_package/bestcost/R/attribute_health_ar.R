@@ -38,8 +38,6 @@ attribute_health_ar <-
         erf_shape = NULL,
         erf_c_central = erf_c_central, erf_c_lower = erf_c_lower, erf_c_upper = erf_c_upper,
         bhd_central = NULL, bhd_lower = NULL, bhd_upper = NULL,
-        disability_weight = NULL,
-        duration = NULL,
         first_age_pop = NULL, last_age_pop = NULL,
         prob_natural_death_male = NULL, prob_natural_death_female = NULL,
         prob_total_death_male= NULL, prob_total_death_female = NULL,
@@ -47,6 +45,8 @@ attribute_health_ar <-
         year_of_analysis = NULL,
         min_age = NULL, max_age = NULL,
         corrected_discount_rate = NULL,
+        disability_weight = NULL,
+        duration = NULL,
         geo_id_raw = geo_id_raw , geo_id_aggregated = geo_id_aggregated,
         info = info)
 

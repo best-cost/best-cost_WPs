@@ -46,6 +46,7 @@ compare_yld_from_lifetable(
   max_age = NULL,
   disability_weight,
   duration = NULL,
+  corrected_discount_rate = NULL,
   info_1 = NULL,
   info_2 = NULL
 )

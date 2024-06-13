@@ -10,6 +10,7 @@ get_impact(
   year_of_analysis = NULL,
   min_age = NULL,
   max_age = NULL,
+  corrected_discount_rate = NULL,
   disability_weight = NULL,
   duration = NULL
 )

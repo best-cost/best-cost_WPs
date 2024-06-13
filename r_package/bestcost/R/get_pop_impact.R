@@ -63,6 +63,7 @@ get_pop_impact <-
        pop_impact[[s]][[paste0("erf_ci_",v)]] <- lifetable_withPop
       }
     }
+
     output <-
       list(paf = pop_fraction,
            pop_impact = pop_impact)

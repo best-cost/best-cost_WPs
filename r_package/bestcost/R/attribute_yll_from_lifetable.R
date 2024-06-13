@@ -52,7 +52,7 @@ attribute_yll_from_lifetable <-
            prob_total_death_male, prob_total_death_female,
            population_midyear_male, population_midyear_female,
            year_of_analysis,
-           corrected_discount_rate = 0,
+           corrected_discount_rate = NULL,
            min_age = NULL, max_age = NULL,
            info = NULL){
 

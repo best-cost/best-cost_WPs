@@ -10,7 +10,7 @@ get_yld(
   min_age,
   max_age,
   meta,
-  corrected_discount_rate = 0,
+  corrected_discount_rate,
   disability_weight,
   duration
 )

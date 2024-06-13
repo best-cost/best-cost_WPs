@@ -52,8 +52,6 @@ compare <-
            erf_c_central = NULL, erf_c_lower = NULL, erf_c_upper = NULL,
            bhd_central_1 = NULL, bhd_lower_1 = NULL, bhd_upper_1 = NULL,
            bhd_central_2 = NULL, bhd_lower_2 = NULL, bhd_upper_2 = NULL,
-           disability_weight = NULL,
-           duration = NULL,
            first_age_pop_1 = NULL, last_age_pop_1 = NULL,
            prob_natural_death_male_1 = NULL, prob_natural_death_female_1 = NULL,
            prob_total_death_male_1 = NULL, prob_total_death_female_1 = NULL,
@@ -65,6 +63,9 @@ compare <-
            population_midyear_male_2 = NULL, population_midyear_female_2 = NULL,
            year_of_analysis_2 = NULL,
            min_age = NULL, max_age = NULL,
+           disability_weight = NULL,
+           duration = NULL,
+           corrected_discount_rate = NULL,
            info_1 = NULL, info_2 = NULL){
 
 
@@ -83,8 +84,6 @@ compare <-
         erf_shape = erf_shape,
         erf_c_central = erf_c_central, erf_c_lower = erf_c_lower, erf_c_upper = erf_c_upper,
         bhd_central = bhd_central_1, bhd_lower = bhd_lower_1, bhd_upper = bhd_upper_1,
-        disability_weight = disability_weight,
-        duration = duration,
         first_age_pop = first_age_pop_1,
         last_age_pop = last_age_pop_1,
         prob_natural_death_male = prob_natural_death_male_1,
@@ -96,6 +95,9 @@ compare <-
         year_of_analysis = year_of_analysis_1,
         min_age = min_age,
         max_age = max_age,
+        corrected_discount_rate = corrected_discount_rate,
+        disability_weight = disability_weight,
+        duration = duration,
         info = info_1)
 
     # Calculate attributable health impacts in the scenario 2
@@ -112,8 +114,6 @@ compare <-
         erf_shape = erf_shape,
         erf_c_central = erf_c_central, erf_c_lower = erf_c_lower, erf_c_upper = erf_c_upper,
         bhd_central = bhd_central_2, bhd_lower = bhd_lower_2, bhd_upper = bhd_upper_2,
-        disability_weight = disability_weight,
-        duration = duration,
         first_age_pop = first_age_pop_1,
         last_age_pop = last_age_pop_1,
         prob_natural_death_male = prob_natural_death_male_2,
@@ -125,6 +125,9 @@ compare <-
         year_of_analysis = year_of_analysis_2,
         min_age = min_age,
         max_age = max_age,
+        corrected_discount_rate = corrected_discount_rate,
+        disability_weight = disability_weight,
+        duration = duration,
         info = info_2)
 
     # Identify the columns that are common for scenario 1 and 2
@@ -269,7 +272,7 @@ compare <-
         # Get population impact ####
         pop_impact <-
           bestcost:::get_pop_impact(
-            lifetab_withPop = lifetable_withPop,
+            lifetable_withPop = lifetable_withPop,
             year_of_analysis = year_of_analysis_1,
             pop_fraction = input_risk_pif[, c("erf_ci", "paf")],
             outcome_metric = outcome_metric)
@@ -306,6 +309,7 @@ compare <-
               year_of_analysis = year_of_analysis_1,
               min_age = min_age,
               max_age = max_age,
+              corrected_discount_rate = corrected_discount_rate,
               disability_weight = disability_weight,
               duration = duration,
               meta = input_risk_pif)$main%>%

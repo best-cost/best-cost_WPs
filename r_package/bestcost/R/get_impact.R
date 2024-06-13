@@ -24,6 +24,7 @@ get_impact <-
            year_of_analysis = NULL,
            min_age = NULL,
            max_age = NULL,
+           corrected_discount_rate = NULL,
            disability_weight = NULL,
            duration = NULL){
 
@@ -84,6 +85,7 @@ get_impact <-
             year_of_analysis = year_of_analysis,
             min_age = min_age,
             max_age = max_age,
+            corrected_discount_rate = corrected_discount_rate,
             meta = input_risk_paf)
 
       } else if(outcome_metric == "yld"){
@@ -93,6 +95,7 @@ get_impact <-
             year_of_analysis = year_of_analysis,
             min_age = min_age,
             max_age = max_age,
+            corrected_discount_rate = corrected_discount_rate,
             disability_weight = disability_weight,
             duration = duration,
             meta = input_risk_paf)

@@ -27,7 +27,7 @@ attribute_yld_from_lifetable(
   population_midyear_male,
   population_midyear_female,
   year_of_analysis,
-  corrected_discount_rate = 0,
+  corrected_discount_rate = NULL,
   min_age = NULL,
   max_age = NULL,
   disability_weight,

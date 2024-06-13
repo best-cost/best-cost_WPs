@@ -541,6 +541,7 @@ bestcost_pm_yll_lifetable_geluft <-
     population_midyear_male = lifetable_withPopulation[["male"]]$population, 
     population_midyear_female = lifetable_withPopulation[["female"]]$population, 
     year_of_analysis = 2019, 
+    corrected_discount_rate = 0,
     info = input_data_mortality$pollutant[2], 
     min_age = if(is.na(input_data_mortality$min_age[2])) NULL else input_data_mortality$min_age[2])
 
@@ -812,9 +813,8 @@ check_bestcost(result_list_bestcost = comparison_yld_singlebhd_rr_pif[["detailed
 # DELTA
 
 comparison_deaths_lifetable_delta <-
-  bestcost::compare(
+  bestcost::compare_deaths_from_lifetable(
     comparison_method = "delta",
-    health_metric = "deaths_from_lifetable",
     exp_central_1 = 8.85, # Fake data just for testing purposes
     prop_pop_exp_1 = 1, # Fake data just for testing purposes
     exp_central_2 = 6, # Fake data just for testing purposes
@@ -860,9 +860,8 @@ check_bestcost(result_list_bestcost = comparison_deaths_lifetable_delta[["detail
 # PIF
 
 comparison_deaths_lifetable_pif  <-
-  bestcost::compare(
+  bestcost::compare_deaths_from_lifetable(
     comparison_method = "pif",
-    health_metric = "deaths_from_lifetable",
     exp_central_1 = 8.85, # Fake data just for testing purposes
     prop_pop_exp_1 = 1, # Fake data just for testing purposes
     exp_central_2 = 6, # Fake data just for testing purposes
@@ -912,9 +911,8 @@ check_bestcost(result_list_bestcost = comparison_deaths_lifetable_pif[["detailed
 
 # DELTA 
 comparison_yll_lifetable_delta  <-
-  bestcost::compare(
+  bestcost::compare_yll_from_lifetable(
     comparison_method = "delta",
-    health_metric = "yll_from_lifetable",
     exp_central_1 = 8.85, # Fake data just for testing purposes
     prop_pop_exp_1 = 1, # Fake data just for testing purposes
     exp_central_2 = 6, # Fake data just for testing purposes
@@ -959,9 +957,8 @@ check_bestcost(result_list_bestcost = comparison_yll_lifetable_delta[["detailed"
 
 # PIF
 comparison_yll_lifetable_pif <-
-  bestcost::compare(
+  bestcost::compare_yll_from_lifetable(
     comparison_method = "pif",
-    health_metric = "yll_from_lifetable",
     exp_central_1 = 8.85, # Fake data just for testing purposes
     prop_pop_exp_1 = 1, # Fake data just for testing purposes
     exp_central_2 = 6, # Fake data just for testing purposes

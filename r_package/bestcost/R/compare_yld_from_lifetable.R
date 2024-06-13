@@ -79,6 +79,7 @@ compare_yld_from_lifetable <-
            min_age = NULL, max_age = NULL,
            disability_weight,
            duration = NULL,
+           corrected_discount_rate = NULL,
            info_1 = NULL, info_2 = NULL){
 
 
@@ -101,8 +102,6 @@ compare_yld_from_lifetable <-
         erf_c_central = erf_c_central, erf_c_lower = erf_c_lower, erf_c_upper = erf_c_upper,
         bhd_central_1 = NULL, bhd_lower_1 = NULL, bhd_upper_1 = NULL,
         bhd_central_2 = NULL, bhd_lower_2 = NULL, bhd_upper_2 = NULL,
-        disability_weight = disability_weight,
-        duration = duration,
         first_age_pop_1 = first_age_pop_1, last_age_pop_1 = last_age_pop_1,
         prob_natural_death_male_1 = prob_natural_death_male_1, prob_natural_death_female_1 = prob_natural_death_female_1,
         prob_total_death_male_1 = prob_total_death_male_1, prob_total_death_female_1 = prob_total_death_female_1,
@@ -114,6 +113,9 @@ compare_yld_from_lifetable <-
         population_midyear_male_2 = population_midyear_male_2, population_midyear_female_2 = population_midyear_female_2,
         year_of_analysis_2 = year_of_analysis_2,
         min_age = min_age, max_age = max_age,
+        disability_weight = disability_weight,
+        duration = duration,
+        corrected_discount_rate = corrected_discount_rate,
         info_1 = info_1 , info_2 = info_2)
 
 

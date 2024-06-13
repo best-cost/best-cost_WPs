@@ -34,8 +34,6 @@ compare(
   bhd_central_2 = NULL,
   bhd_lower_2 = NULL,
   bhd_upper_2 = NULL,
-  disability_weight = NULL,
-  duration = NULL,
   first_age_pop_1 = NULL,
   last_age_pop_1 = NULL,
   prob_natural_death_male_1 = NULL,
@@ -56,6 +54,9 @@ compare(
   year_of_analysis_2 = NULL,
   min_age = NULL,
   max_age = NULL,
+  disability_weight = NULL,
+  duration = NULL,
+  corrected_discount_rate = NULL,
   info_1 = NULL,
   info_2 = NULL
 )
