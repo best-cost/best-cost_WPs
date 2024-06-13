@@ -514,8 +514,7 @@ check_bestcost(result_list_bestcost = bestcost_pm_deaths_lifetable_geluft ,
 # and input data from an AirQ+ case
 
 bestcost_pm_yll_lifetable_airqplus <-
-  bestcost::attribute(
-    health_metric = "yll_from_lifetable",
+  bestcost::attribute_yll_from_lifetable(
     exp_central = airqplus_pm_deaths_yll[["input"]]$mean_concentration, 
     cutoff = airqplus_pm_deaths_yll[["input"]]$cut_off_value,
     rr_central = airqplus_pm_deaths_yll[["input"]]$relative_risk,
@@ -547,8 +546,7 @@ check_bestcost(result_list_bestcost = bestcost_pm_yll_lifetable_airqplus,
                  
 # Now with input data from the Swiss project GeLuft
 bestcost_pm_yll_lifetable_geluft <- 
-  bestcost::attribute(
-    health_metric = "yll_from_lifetable",
+  bestcost::attribute_yll_from_lifetable(
     exp_central = input_data_mortality$exp[2], #exp CH 2019
     prop_pop_exp = 1,
     cutoff = input_data_mortality$cutoff[2], # WHO AQG 2021 
@@ -582,8 +580,7 @@ check_bestcost(result_list_bestcost = bestcost_pm_yll_lifetable_geluft,
 # with input data from the Swiss project GeLuft
 
 bestcost_pm_yll_lifetable_1rr_geluft <- 
-    bestcost::attribute(
-      health_metric = "yll_from_lifetable",
+    bestcost::attribute_yll_from_lifetable(
       exp_central = input_data_mortality$exp[2], #exp CH 2019
       prop_pop_exp = 1,
       cutoff = input_data_mortality$cutoff[2], 
@@ -616,8 +613,7 @@ check_bestcost(result_list_bestcost = bestcost_pm_yll_lifetable_1rr_geluft,
 # with exposure distribution (instead of population-weighted mean)
 
 bestcost_pm_yll_lifetable_expDistribution_geluft <- 
-    bestcost::attribute(
-      health_metric = "yll_from_lifetable",
+    bestcost::attribute_yll_from_lifetable(
       exp_central = c(8, 9, 10), # Fake data just for testing purposes
       prop_pop_exp = c(0.2, 0.3, 0.5), # Fake data just for testing purposes
       cutoff = input_data_mortality$cutoff[2], # WHO AQG 2021 

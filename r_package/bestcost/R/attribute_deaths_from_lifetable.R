@@ -37,9 +37,6 @@ attribute_deaths_from_lifetable <-
            min_age = NULL, max_age = NULL,
            info = NULL){
 
-    # Check input data ####
-
-
     output<-
       bestcost::attribute(
         health_metric = "deaths_from_lifetable",
