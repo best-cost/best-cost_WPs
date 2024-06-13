@@ -63,7 +63,7 @@ attribute_yld_from_prevalence <-
         year_of_analysis = NULL,
         min_age = NULL, max_age = NULL,
         corrected_discount_rate = NULL,
-        geo_id_raw = geo_id_raw , geo_id_aggregated = geo_id_aggregated,
+        geo_id_raw = NULL , geo_id_aggregated = NULL,
         info = info)
 
 
