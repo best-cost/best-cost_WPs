@@ -484,8 +484,7 @@ system.time(replicate(100, bestcost::attribute_copy(
 ```{r premature deaths with lifetable}
 # Now with input data from the Swiss project GeLuft
 
-<<<<<<< HEAD
-=======
+
 bestcost_pm_deaths_lifetable_geluft <- 
     bestcost::attribute_deaths_from_lifetable(
     exp_central = input_data_mortality$exp[2], # PM2.5=8.85 exp in CH in 2019
@@ -507,8 +506,6 @@ bestcost_pm_deaths_lifetable_geluft <-
     info = input_data_mortality$pollutant[2], 
     min_age = input_data_mortality$min_age[2])
 
-
->>>>>>> b1afc47de11d1feefd5eee23a51812fc42767ad3
 check_bestcost(result_list_bestcost = bestcost_pm_deaths_lifetable_geluft ,
                result_vector_alternative = c(2610, 1378, 3815))
 ```
