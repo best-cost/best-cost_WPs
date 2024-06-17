@@ -26,7 +26,8 @@ Calculates the probability of dying (natural, non-natural or all cause deaths) b
 Experimental function
 }
 \examples{
-get_prob_dying_by_single_age(first_age_pop = 0, last_age_pop = 99, population_midyear = rep(5000, 99), deaths = rep(100, 99))
+get_prob_dying_by_single_age(first_age_pop = 0, last_age_pop = 99,
+population_midyear = rep(5000, 99), deaths = rep(100, 99))
 
 }
 \author{

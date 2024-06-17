@@ -5,6 +5,7 @@
 #' Calculates the YLDs using a single value for baseline heath data, i.e. without life table. It provides as a result the mean as well as the lower and the higher bounds of the morbidity impact based on the confidence interval of the exposure-response function. Assumption: cases happen at the start of the year.
 #' @inheritParams attribute
 #'
+#' @return
 #' This function returns a \code{data.frame} with one row for each value of the
 #' concentration-response function (i.e. central estimate, lower and upper bound confidence interval.
 #' The YLDs are listed in the columns:
