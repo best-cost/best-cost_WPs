@@ -6,23 +6,32 @@
 Calculates the health impacts between two scenarios (e.g. before and after a intervention in a health impact assessments). It provides as a result the central estimate as well as the lower and the higher bound of the confidence interval based on the uncertainty of the exposure-response function.}
 \usage{
 compare_health_ar(
-  exp_1,
-  exp_2,
+  comparison_method = "delta",
+  exp_central_1,
+  exp_lower_1 = NULL,
+  exp_upper_1 = NULL,
+  exp_central_2,
+  exp_lower_2 = NULL,
+  exp_upper_2 = NULL,
   pop_exp_1,
   pop_exp_2,
-  erf_c,
+  erf_c_central,
+  erf_c_lower = NULL,
+  erf_c_upper = NULL,
   info_1 = NULL,
   info_2 = NULL
 )
 }
 \arguments{
-\item{exp_1}{\code{Numeric value} showing the population-weighted mean exposure in ug/m3 or {vector} showing the exposure category in a exposure distribution in the scenario 1.}
+\item{comparison_method}{\code{String} showing the method of comparison. Options: "delta" or "pif".}
 
-\item{exp_2}{\code{Numeric value} showing the population-weighted mean exposure in ug/m3 or {vector} showing the exposure category in a exposure distribution in the scenario 2.}
+\item{exp_central_1}{\code{Numeric value} showing the population-weighted mean exposure in ug/m3 or {vector} showing the exposure category in a exposure distribution in the scenario 1.}
 
-\item{pop_exp_1}{\code{Numeric value} or {vector} showing the population exposed for each of the exposure categories in the scenario 1. The length of this input variable must be the same as "exp".}
+\item{exp_central_2}{\code{Numeric value} showing the population-weighted mean exposure in ug/m3 or {vector} showing the exposure category in a exposure distribution in the scenario 2.}
 
-\item{erf_c}{\code{String} showing the user-defined function that puts the relative risk in relation with concentration. The function must have only one variable: c, which means concentration. E.g. "3+c+c^2". Default value = NULL.}
+\item{pop_exp_1}{\code{Numeric value} or {vector} showing the population exposed for each of the exposure categories for the scenario 1. The length of this input variable must be the same as "exp".}
+
+\item{pop_exp_2}{\code{Numeric value} or {vector} showing the population exposed for each of the exposure categories for the scenario 2. The length of this input variable must be the same as "exp".}
 
 \item{info_1}{\code{String} or {data frame} showing additional information or id of the scenario 1. The suffix "info" will be added to the column name. Default value = NULL.}
 

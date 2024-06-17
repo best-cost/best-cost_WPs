@@ -10,7 +10,7 @@ get_yll(
   min_age = min_age,
   max_age = max_age,
   meta,
-  corrected_discount_rate = 0
+  corrected_discount_rate = NULL
 )
 }
 \arguments{
@@ -49,3 +49,4 @@ TBD
 \author{
 Alberto Castro
 }
+\keyword{internal}

@@ -1,0 +1,8 @@
+linters: all_linters(
+    line_length_linter = NULL,
+    brace_linter = NULL, # checks for a space before an opening curly brace
+    paren_body_linter = NULL,
+    vector_logic_linter = NULL
+    # implicit_integer_linter = NULL,
+    # spaces_left_parantheses_linter = NULL
+  )

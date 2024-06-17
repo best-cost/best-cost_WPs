@@ -26,27 +26,24 @@
 #' TBD
 #' @author Alberto Castro
 #' @note Experimental function
-#' @export
-
-
+#' @keywords internal
 
 get_yll <-
   function(pop_impact, year_of_analysis,
            min_age = min_age, max_age = max_age,
            meta,
-           corrected_discount_rate=0){
+           corrected_discount_rate = NULL){
 
-    lifeyears_byYear <- list()
+    lifeyears_by_year <- list()
     yll_by_list<-list()
 
-    discount_factor <- corrected_discount_rate + 1
 
     # Calculate YLL ####
     for(s in names(pop_impact[["pop_impact"]])){ # c(male, female)
       for (v in unique(unlist(purrr::map(pop_impact[["pop_impact"]], names)))){ # c(central, lower, upper) or only central
 
         ## Sum life years by year (result is data frame with 2 columns "year" & "impact" [which contains YLL]) ####
-        lifeyears_byYear[[s]][[v]] <-
+        lifeyears_by_year[[s]][[v]] <-
           pop_impact[["pop_impact"]][[s]][[v]] %>%
 
           # Filter keeping only the relevant age
@@ -71,23 +68,28 @@ get_yll <-
 
         ## Calculate total, not discounted YLL (single number) per sex & ci ####
         yll_by_list[[s]][[v]][["noDiscount"]] <-
-          lifeyears_byYear[[s]][[v]]%>%
+          lifeyears_by_year[[s]][[v]]%>%
           # Sum among years to obtain the total impact (single value)
-          dplyr::summarise(impact = sum(impact), .groups = 'drop')
+          dplyr::summarise(impact = sum(impact), .groups = "drop")
+
+        if(!is.null(corrected_discount_rate)){
+
+          discount_factor <- corrected_discount_rate + 1
+
+          ## Calculate total, discounted life years (single value) per sex & ci ####
+          yll_by_list[[s]][[v]][["discounted"]] <-
+            lifeyears_byYear[[s]][[v]]%>%
+            # Convert year to numeric
+            dplyr::mutate(year = as.numeric(year))%>%
+            # Calculate discount rate for each year
+            dplyr::mutate(discount = 1/(discount_factor^(year-(year_of_analysis+1))))%>%
+            # Calculate life years discounted
+            dplyr::mutate(discounted_impact = impact*discount)%>%
+            # Sum among years to obtain the total impact (single value)
+            dplyr::summarise(impact = sum(discounted_impact), .groups = 'drop')
+        }
 
 
-
-        ## Calculate total, discounted life years (single value) per sex & ci ####
-        yll_by_list[[s]][[v]][["discounted"]] <-
-          lifeyears_byYear[[s]][[v]]%>%
-          # Convert year to numeric
-          dplyr::mutate(year = as.numeric(year))%>%
-          # Calculate discount rate for each year
-          dplyr::mutate(discount = 1/(discount_factor^(year-(year_of_analysis+1))))%>%
-          # Calculate life years discounted
-          dplyr::mutate(discounted_impact = impact*discount)%>%
-          # Sum among years to obtain the total impact (single value)
-          dplyr::summarise(impact = sum(discounted_impact), .groups = 'drop')
       }
     }
 
@@ -116,7 +118,7 @@ get_yll <-
       # Sum among sex adding total
       dplyr::bind_rows(
         group_by(.,
-                 discounted, erf_ci, corrected_discount_rate) %>%
+                 discounted, erf_ci) %>%
           summarise(.,
                     across(.cols=c(impact), sum),
                     across(where(is.character), ~"total"),
@@ -138,26 +140,14 @@ get_yll <-
       # Order rows
       dplyr::arrange(discounted, sex, erf_ci)
 
-    yll <-
-      dplyr::filter(yll_detailed, sex %in% "total")
-
     # If the user does not want any discount
     # keep only the no-discount rows removing the ones with discount
     # in both tables
-    if(corrected_discount_rate == 0){
-      yll <-
-        dplyr::filter(yll, discounted %in% FALSE)
 
-      yll_detailed <-
-        dplyr::filter(yll_detailed, discounted %in% FALSE)
-
-
-    } else {
-      # If a discount is desired then show the discounting in the main results
-      yll <-
-        yll %>%
-        dplyr::filter(discounted %in% TRUE)
-    }
+    yll <-
+      dplyr::filter(yll_detailed, sex %in% "total") %>%
+      {if(!is.null(corrected_discount_rate))
+        dplyr::filter(., discounted %in% TRUE) else .}
 
 
     output <- list(main = yll, detailed = yll_detailed)
