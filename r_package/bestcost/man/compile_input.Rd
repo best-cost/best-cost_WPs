@@ -6,25 +6,37 @@
 Compiles the input data of the main function and calculates the population attributable fraction based on the input data (all in one data frame)}
 \usage{
 compile_input(
-  exp,
+  risk_method = NULL,
+  health_metric = NULL,
+  exp_central,
+  exp_lower = NULL,
+  exp_upper = NULL,
   prop_pop_exp = NULL,
   pop_exp = NULL,
   cutoff = NULL,
-  rr = NULL,
+  rr_central,
+  rr_lower = NULL,
+  rr_upper = NULL,
   erf_increment = NULL,
   erf_shape = NULL,
-  erf_c = NULL,
-  bhd = NULL,
+  erf_c_central = NULL,
+  erf_c_lower = NULL,
+  erf_c_upper = NULL,
+  bhd_central = NULL,
+  bhd_lower = NULL,
+  bhd_upper = NULL,
   min_age = NULL,
   max_age = NULL,
+  geo_id_raw = NULL,
+  geo_id_aggregated = NULL,
   info = NULL,
-  method = NULL,
   disability_weight = NULL,
+  corrected_discount_rate = NULL,
   duration = NULL
 )
 }
 \arguments{
-\item{exp}{\code{Numeric value} showing the population-weighted mean exposure in ug/m3 or {vector} showing the exposure category in a exposure distribution (this information is linked to the proportion of population exposed).}
+\item{risk_method}{\code{String} showing the calculation method of the risk.}
 
 \item{prop_pop_exp}{\code{Numeric value} or {vector} showing the proportion of population exposed (as a fraction, i.e. values between 0 and 1) for a single exposure value or for multiple categories, i.e., a exposure distribution, respectively. If a exposure distribution is used, the dimension of this input variable should be the same as "exp". By default, 1 for single exposure value will be assigned to this input variable assuming a single exposure value, but users can change this value.}
 
@@ -32,15 +44,9 @@ compile_input(
 
 \item{cutoff}{\code{Numeric value} showing the cut-off exposure in ug/m3 (i.e. the exposure level below which no health effects occur).}
 
-\item{rr}{\code{Vector} of three numeric values referring to the central estimate as well as the lower and upper bound of the confidence interval.}
-
 \item{erf_increment}{\code{Numeric value} showing the increment of the concentration-response function in ug/m3 (usually 10 or 5).}
 
 \item{erf_shape}{\code{String} showing the shape of the exposure-response function to be assumed using the relative risk from the literature as support point. Options: "linear", log_linear", "linear_log", "log_log".}
-
-\item{erf_c}{\code{String} showing the user-defined function that puts the relative risk in relation with concentration. The function must have only one variable: c, which means concentration. E.g. "3+c+c^2". Default value = NULL.}
-
-\item{bhd}{\code{Numeric value} showing the baseline health data (incidence of the health outcome in the population).}
 
 \item{min_age}{\code{Numberic value} of the minimal age to be considered for adults (by default 30, i.e. 30+).}
 
@@ -48,7 +54,13 @@ compile_input(
 
 \item{info}{\code{String} showing additional information or id for the pollutant. The suffix "info" will be added to the column name. Default value = NULL.}
 
-\item{method}{\code{String} showing the calculation methods.}
+\item{exp}{\code{Numeric value} showing the population-weighted mean exposure in ug/m3 or {vector} showing the exposure category in a exposure distribution (this information is linked to the proportion of population exposed).}
+
+\item{rr}{\code{Vector} of three numeric values referring to the central estimate as well as the lower and upper bound of the confidence interval.}
+
+\item{erf_c}{\code{String} showing the user-defined function that puts the relative risk in relation with concentration. The function must have only one variable: c, which means concentration. E.g. "3+c+c^2". Default value = NULL.}
+
+\item{bhd}{\code{Numeric value} showing the baseline health data (incidence of the health outcome in the population).}
 }
 \value{
 This function returns a \code{data.frame} with all input data together
@@ -73,3 +85,4 @@ TBD
 \author{
 Alberto Castro
 }
+\keyword{internal}

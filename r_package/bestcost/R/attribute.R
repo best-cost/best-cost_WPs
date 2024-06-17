@@ -1,0 +1,141 @@
+#' Attributable health cases based on relative risk
+
+#' @description Calculates the health impacts, mortality or morbidity, of an environmental stressor using a single value for baseline heath data, i.e. without life table. It provides as a result the mean as well as the lower and the higher bound of the impact based on the confidence interval of the concentration-response function.
+#' @param outcome_metric \code{String} showing the change in outcome metric to assess attributable health impacts. To choose between "same_input_output" (default), "yld_from_prevalence", "deaths_from_lifetable", "yll_from_lifetable" and "yld_from_lifetable".
+#' @param risk_method \code{String} showing the risk risk method. To choose between: "relative_risk" (default) or "absolute_risk".
+#' @param exp_central,exp_lower,exp_upper \code{Numeric values} of the exposure
+#' to the environmental stressor referring to the central estimate and (optionally)
+#' to lower and upper bound of the confidence interval. If only one value is provided,
+#' it will be assumed that it refers to population-weighted mean exposure in ug/m3.
+#' If a {vector} is provided, it will be assumed that it refers to the exposure categories
+#' (average exposure in the category) in a exposure distribution
+#' (this information is linked to the proportion of population exposed).
+#' @param prop_pop_exp \code{Numeric value} or {Numeric vector} Fraction (values between 0 & 1) of the total population exposed to (one or more) exposure categories, i.e., a exposure distribution, respectively. If a exposure distribution is used, the dimension of this input variable should be the same as "exp". By default, 1 for single exposure value will be assigned to this input variable assuming a single exposure value, but users can change this value.
+#' @param pop_exp \code{Numeric value} or {vector} showing the population exposed for each of the exposure categories. The length of this input variable must be the same as "exp".
+#' @param cutoff \code{Numeric value} showing the cut-off exposure in ug/m3 (i.e. the exposure level below which no health effects occur).
+#' @param rr_central,rr_lower,rr_upper \code Three {numeric values} referring to the central estimate of the relative risk and the corresponding lower and upper 95\% confidence interval bounds.
+#' @param erf_increment \code{Numeric value} showing the increment of the exposure-response function in ug/m3 (usually 10 or 5).
+#' @param erf_shape \code{String} showing the shape of the exposure-response function to be assumed using the relative risk from the literature as support point. Options: "linear", log_linear", "linear_log", "log_log".
+#' @param erf_c \code{String} showing the user-defined function that puts the relative risk in relation with concentration. The function must have only one variable: c, which means concentration. E.g. "3+c+c^2". Default value = NULL.
+#' @param first_age_pop \code{Numeric value} starting age of the youngest age group from population and life table data (age interval = 1 year)
+#' @param last_age_pop \code{Numeric value} ending age of the oldest age group from population and life table data (age interval = 1 year)
+#' @param prob_natural_death_male,prob_natural_death_female \code{Numeric vector} containing the probability of dying due to natural cause (excluding non-natural deaths due to violence or accidents) by age or age group for male and female respectively.
+#' @param prob_total_death_male,prob_total_death_female  \code{Numeric vector} containing the probability of dying due to all causes (including non-natural deaths due to violence or accidents) by age or age group for male and female respectively.
+#' @param population_midyear_male,population_midyear_female \code{Numeric vector} containing the mid-year male population for the year of analysis for male and female respectively.
+#' @param year_of_analysis \code{Numeric value} of the year of analysis, which corresponds to the first year of the life table.
+#' @param min_age \code{Numberic value} of the minimal age to be considered for adults (by default 30, i.e. 30+).
+#' @param max_age \code{Numberic value} of the maximal age to be considered for infants/children (by default 0, i.e. below 1 year old).
+#' @param info \code{String} or {data frame} showing additional information or id. The suffix "info" will be added to the column name. Default value = NULL.
+#' @param bhd_central,bhd_lower,bhd_upper \code{Numeric value} showing the central
+#' @param disability_weight \code{Numeric value} showing the disability weight associated with the morbidity health outcome
+#' @param duration \code{Numeric value} showing the disease duration
+#' @param corrected_discount_rate \code{Numeric value} showing the discount rate for future years including correction from inflation rate
+#' estimate and (optionally) the lower bound and the upper bound of the confidence
+#' interval of the baseline health data (e.g. incidence of the health outcome in the population).
+#' @return
+#' TBD. E.g. This function returns a \code{data.frame} with one row for each value of the
+#' concentration-response function (i.e. central, lower and upper bound confidence interval.
+#' Moreover, the data frame includes columns such as:
+#' \itemize{
+#'  \item Attributable fraction
+#'  \item Health impact
+#'  \item Outcome metric
+#'  \item And many more.
+#' }
+#' @import dplyr
+#' @import purrr
+#' @examples
+#' TBD
+#' @author Alberto Castro
+#' @export
+
+attribute <-
+  function(health_metric = "same_input_output",
+           risk_method = "relative_risk",
+           exp_central, exp_lower = NULL, exp_upper = NULL,
+           prop_pop_exp = 1,
+           pop_exp = NULL,
+           cutoff,
+           rr_central = NULL, rr_lower = NULL, rr_upper = NULL,
+           erf_increment = NULL,
+           erf_shape = NULL,
+           erf_c_central = NULL, erf_c_lower = NULL, erf_c_upper = NULL,
+           bhd_central = NULL, bhd_lower = NULL, bhd_upper = NULL,
+           first_age_pop = NULL, last_age_pop = NULL,
+           prob_natural_death_male = NULL, prob_natural_death_female = NULL,
+           prob_total_death_male, prob_total_death_female = NULL,
+           population_midyear_male = NULL, population_midyear_female = NULL,
+           year_of_analysis = NULL,
+           min_age = NULL, max_age = NULL,
+           disability_weight = NULL,
+           duration = NULL,
+           corrected_discount_rate = NULL,
+           geo_id_raw = NULL, geo_id_aggregated = NULL,
+           info = NULL){
+
+    # Check input data
+    #stopifnot(exprs = {
+    #length(exp) == length(prop_pop_exp)
+    #})
+
+
+
+    # Compile input data (except lifetable) and calculate paf putting all into a data frame
+    input <-
+      bestcost:::compile_input(
+        exp_central = exp_central, exp_lower = exp_lower, exp_upper = exp_upper,
+        prop_pop_exp = prop_pop_exp,
+        pop_exp = pop_exp,
+        cutoff = cutoff,
+        rr_central = rr_central, rr_lower = rr_lower, rr_upper = rr_upper,
+        erf_increment = erf_increment,
+        erf_shape = erf_shape,
+        erf_c_central = erf_c_central, erf_c_lower = erf_c_lower, erf_c_upper = erf_c_upper,
+        bhd_central = bhd_central, bhd_lower = bhd_lower, bhd_upper = bhd_upper,
+        geo_id_raw = geo_id_raw,
+        geo_id_aggregated = geo_id_aggregated,
+        info = info,
+        health_metric = health_metric,
+        disability_weight = disability_weight,
+        risk_method = risk_method)
+
+    # Only if lifetable approach
+    # Compile list of life table data frame (by sex)
+    # Col 1: age; col 2: probability of death; col 3: population
+
+    if(grepl("lifetable", health_metric)){
+
+      lifetable_with_pop <-
+        bestcost:::compile_lifetable_pop(
+          first_age_pop =  first_age_pop,
+          last_age_pop = last_age_pop,
+          prob_natural_death_male = prob_natural_death_male,
+          prob_natural_death_female = prob_natural_death_female,
+          prob_total_death_male = prob_total_death_male,
+          prob_total_death_female = prob_total_death_female,
+          population_midyear_male = population_midyear_male,
+          population_midyear_female =  population_midyear_female)
+
+    }
+
+
+    # Calculate the health impacts for each case (uncertainty, category, geo area...)
+    output_raw <-
+      bestcost:::get_impact(input = input,
+                           lifetable_with_pop = lifetable_with_pop,
+                           year_of_analysis = year_of_analysis,
+                           min_age = min_age,
+                           max_age = max_age,
+                           corrected_discount_rate = corrected_discount_rate,
+                           disability_weight = disability_weight,
+                           duration = duration)
+
+    # Get the main and detailed output by aggregating and/or filtering cases (rows)
+    output <-
+      bestcost:::get_output(output_raw)
+
+
+
+
+    return(output)
+  }

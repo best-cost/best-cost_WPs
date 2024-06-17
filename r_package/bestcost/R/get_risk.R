@@ -24,6 +24,7 @@
 #' @author Alberto Castro
 #' @note Experimental function
 #' @export
+
 get_risk <-
   function(rr,
            exp,

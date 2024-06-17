@@ -1,0 +1,608 @@
+---
+title: "Testing of BEST-COST R package"
+author: "Alberto Castro & Axel Luyten"
+output: html_document
+---
+Goal:
+Develop the restructured "get_pop_impact" function using input data from AirQ+ 
+
+For this, first the functions within "attribute" leading up to the 
+"get_pop_impact" call have to be run
+
+```{r Load data & packages}
+library(dplyr)
+knitr::opts_knit$set(root.dir = getwd()) 
+load("../testing/testing_functions/test_get_pop_impact.Rdata")
+devtools::load_all()
+```
+
+```{r Un-nested function code without loop}
+# attribute() ######################################################################################
+input <- 
+  bestcost::compile_input(exp_central = exp_central, 
+                          exp_lower =  exp_lower, 
+                          exp_upper = exp_upper,
+                          prop_pop_exp = prop_pop_exp,
+                          pop_exp = pop_exp,
+                          cutoff = cutoff,
+                          rr_central = rr_central, 
+                          rr_lower = rr_lower, 
+                          rr_upper = rr_upper,
+                          erf_increment = erf_increment,
+                          erf_shape = erf_shape,
+                          erf_c_central = erf_c_central,
+                          erf_c_lower = erf_c_lower,
+                          erf_c_upper = erf_c_upper,
+                          bhd_central = bhd_central,
+                          bhd_lower = bhd_lower,
+                          bhd_upper = bhd_upper,
+                          geo_id_raw = geo_id_raw,
+                          geo_id_aggregated = geo_id_aggregated,
+                          info = info,
+                          health_metric = health_metric,
+                          disability_weight = disability_weight,
+                          risk_method = risk_method)
+
+# Only if lifetable approach
+# Compile list of life table data frame (by sex)
+# Col 1: age; col 2: probability of death; col 3: population
+
+if(grepl("lifetable", health_metric)){
+
+      lifetable_withPop <-
+        bestcost::compile_lifetable_pop(
+          first_age_pop =  first_age_pop,
+          last_age_pop = last_age_pop,
+          prob_natural_death_male = prob_natural_death_male,
+          prob_natural_death_female = prob_natural_death_female,
+          prob_total_death_male = prob_total_death_male,
+          prob_total_death_female = prob_total_death_female,
+          population_midyear_male = population_midyear_male,
+          population_midyear_female =  population_midyear_female)
+
+}
+
+# Calculate the health impacts for each case (uncertainty, category, geo area...)
+# output_raw <-
+      # bestcost::get_impact(
+# input = input
+# lifetable_withPop = lifetable_withPop
+# year_of_analysis = year_of_analysis
+# min_age = min_age
+# max_age = max_age
+# disability_weight = disability_weight
+# duration = duration
+# )
+
+## get_impact() #####################################################################################
+
+# if(unique(input$risk_method) == "relative_risk" &
+#        unique(input$health_metric) %in% c("same_input_output",
+#                                           "yld_from_prevalence")){
+#       # Get PAF and added to the input data frame
+#       output_raw_main <-
+#         bestcost::get_risk_and_paf(input = input) %>%
+#         # Build the result table adding the paf to the input_risk_paf table
+#         dplyr::mutate(impact = paf * bhd) %>%
+#         {if(unique(input$health_metric) == "yld_from_prevalence")
+#           mutate(., impact = impact * disability_weight) else .} %>%
+#         dplyr::mutate(
+#           impact_rounded =
+#             round(impact, 0)) %>%
+#         # Order columns
+#         dplyr::select(exp_ci, bhd_ci, erf_ci,
+#                       paf, impact, impact_rounded,
+#                       everything())
+# 
+#       output_raw <- list(main = output_raw_main)
+#     }
+# 
+#     else if (unique(input$risk_method) == "relative_risk" &
+#              unique(input$health_metric) %in%
+#              c("death_from_lifetable", "yll_from_lifetable", "yld_from_lifetable")){
+
+outcome_metric <-
+  gsub("_from_lifetable", "", unique(input$health_metric))
+
+# Get PAF and add to the input data frame
+input_risk_paf <-
+  bestcost::get_risk_and_paf(input = input)
+
+# Get population impact
+# pop_impact <-
+        # bestcost::get_pop_impact_copy(
+lifetable_withPop = lifetable_withPop
+year_of_analysis = year_of_analysis
+pop_fraction = input_risk_paf[, c("erf_ci", "paf")]
+outcome_metric = "yll"
+# )
+
+
+# Get original function output NEW CODE ############################################################
+pop_impact_original <-
+        bestcost::get_pop_impact_copy(
+lifetab_withPop = lifetable_withPop,
+year_of_analysis = year_of_analysis,
+pop_fraction = input_risk_paf[, c("erf_ci", "paf")],
+outcome_metric = "yll"
+)
+
+### get_pop_impact ###################################################################################
+
+# Get popOvertime
+popOverTime <- list()
+pop_impact <- list()
+
+lifetable_withPop_backup <- lifetable_withPop
+# LOOP SHOULD START HERE ####
+for(s in names(lifetable_withPop)){
+  lifetable_withPop <- lifetable_withPop_backup
+  print(s)
+for(v in pop_fraction$erf_ci){
+  print(v)
+#     popOverTime[[s]][[paste0("erf_ci_",v)]] <- # ASSIGNMENT HAPPENS LATER
+# SET "s" AND "v" TO "central" TO TEST ####
+# s <- "female" ; v <- "central"
+# s <- "male" ; v <- "central"
+
+# popOverTime[[s]][[paste0("erf_ci_",v)]] <-
+
+# bestcost::project_pop_copy(
+lifetable_withPop = lifetable_withPop_backup[[s]]
+# year_of_analysis = year_of_analysis
+paf = pop_fraction$paf[pop_fraction$erf_ci %in% v]
+# outcome_metric = outcome_metric
+# )
+
+    # }
+  # }
+    
+#### project_pop code #################################################################################
+
+# Add the first year of the life table to the column name of population
+lifetable_withPop <- lifetable_withPop %>% 
+  dplyr::rename(!!paste0("population_", year_of_analysis) := population)
+
+# Calculate population in the next year assuming
+# the change in /level of air pollution
+# based on the RR
+# popOverTime <-
+#   bestcost::project_pop_withExp_copy(
+# lifetable_withPop = lifetable_withPop
+# year_of_analysis = year_of_analysis
+# paf = paf
+# )
+
+##### project_pop_withExp ##############################################################################
+second_year <- year_of_analysis + 1
+
+lifetable_withPop <-
+  lifetable_withPop %>%
+  # Calculate the population the second year (first column after first year) considering the health effect of air pollution
+    dplyr::mutate("population_{second_year}" := dplyr::lag(!!as.symbol(paste0("population_",
+                                        year_of_analysis))) * dplyr::lag(death_probability_natural) * paf) %>% 
+  # Move column up one row
+  dplyr::mutate("population_{second_year}" := lead(!!as.symbol(paste0("population_",
+                                        second_year))))
+
+# return(output)
+
+#### project_pop code ##############################################################################
+
+
+if(outcome_metric %in% c("yll", "yld")){
+  # Now calculate population over time (for the rest of years)
+  # without considering air pollution
+  
+  # popOverTime <-
+    # bestcost::project_pop_noExp_copy(
+      lifetable_withPop = lifetable_withPop
+      year_of_analysis = year_of_analysis
+    # )
+      
+##### project_pop_noExp #######################################################################
+  lifetable_withPop <-
+    lifetable_withPop
+
+  years <- c( (year_of_analysis + 1) : ((year_of_analysis + nrow(lifetable_withPop) - 2)) )
+  length_period <- length(years)
+
+  for (i in 0:(length_period-1)){ # i in 0:97
+    YEAR <- years[i+1]
+    # print(YEAR+1)
+    # print(i)
+    lifetable_withPop[1:((length_period)-i), paste0("population_", YEAR+1)] <-
+      lifetable_withPop[1:((length_period)-i), paste0("population_", YEAR)] * (1 - lifetable_withPop$death_probability_total[(i+2):(length_period+1)])
+  }
+
+  # return(output)
+  # popOverTime <- lifetable_withPop
+}
+
+#### project_pop ###################################################################################
+# output <- popOverTime
+
+### get_pop_impact #################################################################################
+popOverTime[[s]][[paste0("erf_ci_",v)]] <- lifetable_withPop
+
+pop_impact[[s]][[paste0("erf_ci_",v)]] <- popOverTime[[s]][[paste0("erf_ci_",v)]]# New code replacing the call of move_rows_up
+
+# LOOP SHOULD END HERE ####
+    }
+  }
+output <-
+      list(paf = pop_fraction,
+           popOverTime = popOverTime,
+           pop_impact = pop_impact)
+
+
+# return(output)
+pop_impact <- output
+
+# Check results
+if (s == "female"){
+  print(deaths_original_female <- sum(pop_impact_original$pop_impact$female$erf_ci_central$population_2020[20:99]))
+  print(deaths_new_female<- sum(pop_impact$pop_impact$female$erf_ci_central$population_2020[20:99]))
+}
+# 1284.961
+
+if (s == "male"){
+  print(deaths_original_male <- sum(pop_impact_original$pop_impact$male$erf_ci_central$population_2020[20:99]))
+  print(deaths_new_male<- sum(pop_impact$pop_impact$population_2020[20:99]))
+}
+# 1232.646
+
+
+## get_impact ######################################################################################
+```
+
+```{r compare pop_impact_new and pop_impact_original}
+# Run one of the two blocks, depending on current value of "s"
+
+print(deaths_original_male <- sum(pop_impact_original$pop_impact$male$erf_ci_central$population_2020[1:99]))
+print(deaths_new_male <- sum(pop_impact$pop_impact$male$erf_ci_central$population_2020[1:99]))
+
+
+
+```
+
+
+```{r compare attribute outputs}
+bestcost_pm_deaths_lifetable_airqplus <-
+  bestcost::attribute(
+    health_metric = health_metric,
+    exp_central = exp_central, 
+    cutoff = cutoff,
+    rr_central = rr_central,
+    rr_lower = rr_lower,
+    rr_upper = rr_upper,
+    erf_increment = erf_increment, 
+    erf_shape = erf_shape,
+    first_age_pop = first_age_pop,
+    last_age_pop = last_age_pop,
+    prob_natural_death_male = prob_natural_death_male,
+    prob_natural_death_female = prob_natural_death_female,
+    prob_total_death_male = prob_total_death_male,
+    prob_total_death_female = prob_total_death_female,
+    population_midyear_male = population_midyear_male,
+    population_midyear_female = population_midyear_female, 
+    year_of_analysis =  year_of_analysis, 
+    min_age = min_age)
+
+check_bestcost(result_list_bestcost = result_list_bestcost,
+               result_vector_alternative = result_vector_alternative)
+
+check_bestcost(result_list_bestcost = bestcost_pm_deaths_lifetable_airqplus,
+               result_vector_alternative = result_vector_alternative)
+```
+
+```{r Code after get_pop_impact}
+
+### get_deaths #####################################################################################
+
+# Input data check 
+# To be added
+
+# Add description of what happens in next code chunk
+deaths_by_list <- list()
+
+# for(s in names(pop_impact[["pop_impact"]])){ # c(male, female)
+  # for (v in unique(unlist(purrr::map(pop_impact[["pop_impact"]], names)))){ # c(central, lower, upper) or only central
+population_secondYear_lifetable <-
+  paste0("population_", year_of_analysis+1)
+
+deaths_by_list[[s]][[v]]<-
+  pop_impact[["pop_impact"]][[s]][[v]] %>%
+   # Filter keeping only the relevant age
+  {if(!is.null(max_age))
+    dplyr::filter(., age <= max_age)
+  else .} %>%
+  {if(!is.null(min_age))
+    dplyr::filter(., age >= min_age)
+  else .} %>%
+    dplyr::select(all_of(population_secondYear_lifetable)) %>%
+  sum(., na.rm = TRUE)
+      # }
+    # }
+
+    # Convert list into data frame
+    deaths_by <-
+      deaths_by_list %>%
+      dplyr::bind_rows(., .id ="sex") %>%
+      # Reshape to long format
+      tidyr::pivot_longer(cols = where(is.numeric),
+                          names_prefix = "erf_ci_",
+                          names_to = "erf_ci",
+                          values_to = "impact")
+    # Add up deaths
+    deaths_detailed <-
+      deaths_by %>%
+      # Sum among age groups
+      # Sum among sex
+      dplyr::bind_rows(
+        group_by(., erf_ci) %>%
+          summarise(.,
+                    across(.cols=c(impact), sum),
+                    # Mean to keep the value (since it is the mean of male and female
+                    # and both have the same value)
+                    across(where(is.character), ~"total"),
+                    .groups = "keep")) %>%
+      # Round column impact
+      dplyr::mutate(impact_rounded = round(impact, 0)) %>%
+
+      # Add approach and metric and round
+      # dplyr::mutate(impact_metric = "Premature deaths") %>%
+
+      # Data wrangling
+      # Add input data and info_ data
+      dplyr::left_join(.,
+                       meta,
+                       by = "erf_ci") %>%
+      # Order rows
+      dplyr::arrange(sex, erf_ci)
+
+
+    deaths <-
+      deaths_detailed %>%
+      dplyr::filter(sex %in% "total")
+
+
+    output <- list(main = deaths,
+                   detailed = deaths_detailed)
+
+```
+
+```{r WORKING Un-nested function code without loop (no code changes)}
+# attribute()
+input <- 
+  bestcost::compile_input(exp_central = exp_central, 
+                          exp_lower =  exp_lower, 
+                          exp_upper = exp_upper,
+                          prop_pop_exp = prop_pop_exp,
+                          pop_exp = pop_exp,
+                          cutoff = cutoff,
+                          rr_central = rr_central, 
+                          rr_lower = rr_lower, 
+                          rr_upper = rr_upper,
+                          erf_increment = erf_increment,
+                          erf_shape = erf_shape,
+                          erf_c_central = erf_c_central,
+                          erf_c_lower = erf_c_lower,
+                          erf_c_upper = erf_c_upper,
+                          bhd_central = bhd_central,
+                          bhd_lower = bhd_lower,
+                          bhd_upper = bhd_upper,
+                          geo_id_raw = geo_id_raw,
+                          geo_id_aggregated = geo_id_aggregated,
+                          info = info,
+                          health_metric = health_metric,
+                          disability_weight = disability_weight,
+                          risk_method = risk_method)
+
+# Only if lifetable approach
+# Compile list of life table data frame (by sex)
+# Col 1: age; col 2: probability of death; col 3: population
+
+if(grepl("lifetable", health_metric)){
+
+      lifetable_withPop <-
+        bestcost::compile_lifetable_pop(
+          first_age_pop =  first_age_pop,
+          last_age_pop = last_age_pop,
+          prob_natural_death_male = prob_natural_death_male,
+          prob_natural_death_female = prob_natural_death_female,
+          prob_total_death_male = prob_total_death_male,
+          prob_total_death_female = prob_total_death_female,
+          population_midyear_male = population_midyear_male,
+          population_midyear_female =  population_midyear_female)
+
+}
+
+# Calculate the health impacts for each case (uncertainty, category, geo area...)
+# output_raw <-
+      # bestcost::get_impact(
+input = input
+lifetable_withPop = lifetable_withPop
+year_of_analysis = year_of_analysis
+min_age = min_age
+max_age = max_age
+disability_weight = disability_weight
+duration = duration
+# )
+
+## get_impact() 
+
+# if(unique(input$risk_method) == "relative_risk" &
+#        unique(input$health_metric) %in% c("same_input_output",
+#                                           "yld_from_prevalence")){
+#       # Get PAF and added to the input data frame
+#       output_raw_main <-
+#         bestcost::get_risk_and_paf(input = input) %>%
+#         # Build the result table adding the paf to the input_risk_paf table
+#         dplyr::mutate(impact = paf * bhd) %>%
+#         {if(unique(input$health_metric) == "yld_from_prevalence")
+#           mutate(., impact = impact * disability_weight) else .} %>%
+#         dplyr::mutate(
+#           impact_rounded =
+#             round(impact, 0)) %>%
+#         # Order columns
+#         dplyr::select(exp_ci, bhd_ci, erf_ci,
+#                       paf, impact, impact_rounded,
+#                       everything())
+# 
+#       output_raw <- list(main = output_raw_main)
+#     }
+# 
+#     else if (unique(input$risk_method) == "relative_risk" &
+#              unique(input$health_metric) %in%
+#              c("death_from_lifetable", "yll_from_lifetable", "yld_from_lifetable")){
+
+outcome_metric <-
+  gsub("_from_lifetable", "", unique(input$health_metric))
+
+# Get PAF and add to the input data frame
+input_risk_paf <-
+  bestcost::get_risk_and_paf(input = input)
+
+# Get population impact
+# pop_impact <-
+        # bestcost::get_pop_impact_copy(
+lifetab_withPop = lifetable_withPop
+year_of_analysis = year_of_analysis
+pop_fraction = input_risk_paf[, c("erf_ci", "paf")]
+outcome_metric = "yll"
+# )
+
+
+# Get original function output
+pop_impact_original <-
+        bestcost::get_pop_impact_copy(
+lifetab_withPop = lifetable_withPop,
+year_of_analysis = year_of_analysis,
+pop_fraction = input_risk_paf[, c("erf_ci", "paf")],
+outcome_metric = "yll"
+)
+
+### get_pop_impact 
+
+# Get popOvertime
+popOverTime <- list()
+
+# LOOP SHOULD START HERE 
+# for(s in names(lifetab_withPop)){
+# for(v in pop_fraction$erf_ci){
+#     popOverTime[[s]][[paste0("erf_ci_",v)]] <- # ASSIGNMENT HAPPENS LATER
+# SET "s" AND "v" TO "central" TO TEST 
+s <- "female" ; v <- "central"
+# s <- "male" ; v <- "central"
+
+# popOverTime[[s]][[paste0("erf_ci_",v)]] <-
+
+# bestcost::project_pop_copy(
+lifetab_withPop = lifetab_withPop[[s]]
+year_of_analysis = year_of_analysis
+paf = pop_fraction$paf[pop_fraction$erf_ci %in% v]
+outcome_metric = outcome_metric
+# )
+
+    # }
+  # }
+    
+#### project_pop code 
+
+# Add the first year of the life table to the column name of population
+lifetab_withPop <- lifetab_withPop %>% 
+  dplyr::rename(!!paste0("population_", year_of_analysis) := population)
+
+# Calculate population in the next year assuming
+# the change in /level of air pollution
+# based on the RR
+# popOverTime <-
+#   bestcost::project_pop_withExp_copy(
+lifetable_withPop = lifetab_withPop
+year_of_analysis = year_of_analysis
+paf = paf
+# )
+
+##### project_pop_withExp 
+second_year <- year_of_analysis + 1
+
+output <-
+  lifetable_withPop %>%
+  # Calculate the population the second year (first column after first year) considering the health effect of air pollution
+    dplyr::mutate("population_{second_year}" := dplyr::lag(!!as.symbol(paste0("population_",
+                                        year_of_analysis))) * dplyr::lag(death_probability_natural) * paf) %>% 
+  # Move column up one row
+  dplyr::mutate("population_{second_year}" := lead(!!as.symbol(paste0("population_",
+                                        second_year))))
+
+# return(output)
+
+#### project_pop code 
+popOverTime <- output
+
+if(outcome_metric %in% c("yll", "yld")){
+  # Now calculate population over time (for the rest of years)
+  # without considering air pollution
+  
+  # popOverTime <-
+    # bestcost::project_pop_noExp_copy(
+      lifetable_withPop = popOverTime
+      year_of_analysis = year_of_analysis
+    # )
+      
+##### project_pop_noExp 
+  output <-
+    lifetable_withPop
+
+  years <- c( (year_of_analysis + 1) : ((year_of_analysis + nrow(lifetable_withPop) - 2)) )
+  length_period <- length(years)
+
+  for (i in 0:(length_period-1)){ # i in 0:97
+    YEAR <- years[i+1]
+    # print(YEAR+1)
+    # print(i)
+    output[1:((length_period)-i), paste0("population_", YEAR+1)] <-
+      output[1:((length_period)-i), paste0("population_", YEAR)] * (1 - output$death_probability_total[(i+2):(length_period+1)])
+  }
+
+  # return(output)
+  popOverTime <- output
+}
+
+#### project_pop 
+output <- popOverTime
+
+### get_pop_impact 
+popOverTime[[s]][[paste0("erf_ci_",v)]] <- output
+
+pop_impact <- popOverTime[[s]][[paste0("erf_ci_",v)]]# New code replacing the call of move_rows_up
+
+# LOOP SHOULD END HERE 
+  #   }
+  # }
+output <-
+      list(paf = pop_fraction,
+           popOverTime = popOverTime,
+           pop_impact = pop_impact)
+
+
+# return(output)
+pop_impact <- output
+
+# Check results
+if (s == "female"){
+  print(deaths_original_female <- sum(pop_impact_original$pop_impact$female$erf_ci_central$population_2020[20:99]))
+  print(deaths_new_female<- sum(pop_impact$pop_impact$population_2020[20:99]))
+}
+# 1284.961
+
+if (s == "male"){
+  print(deaths_original_male <- sum(pop_impact_original$pop_impact$male$erf_ci_central$population_2020[20:99]))
+  print(deaths_new_male<- sum(pop_impact$pop_impact$population_2020[20:99]))
+}
+# 1232.646
+
+
+## get_impact 
+```

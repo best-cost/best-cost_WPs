@@ -22,33 +22,28 @@
 #' TBD
 #' @author Axel Luyten
 #' @note Experimental function
-#' @export
+#' @keywords internal
 
 get_yld <-
   function(pop_impact,
            year_of_analysis,
            min_age,
            max_age,
-           first_age_pop,
-           last_age_pop,
            meta,
-           corrected_discount_rate = 0,
+           corrected_discount_rate,
            disability_weight,
-           duration = NULL){
+           duration){
 
-    if (is.null(duration)) {duration <- last_age_pop-first_age_pop}
-
-    lifeyears_byYear <- list()
+    lifeyears_by_year <- list()
     yld_by_list<-list()
 
-    discount_factor <- corrected_discount_rate + 1
 
     # Calculate YLD ####
     for(s in names(pop_impact[["pop_impact"]])){ # c(male, female)
       for (v in unique(unlist(purrr::map(pop_impact[["pop_impact"]], names)))){ # c(central, lower, upper) or only central
 
         ## Sum life years by year (result is data frame with 2 columns "year" & "impact" [which contains YLD]) ####
-        lifeyears_byYear[[s]][[v]] <-
+        lifeyears_by_year[[s]][[v]] <-
           pop_impact[["pop_impact"]][[s]][[v]] %>%
 
           # Filter keeping only the relevant age
@@ -75,23 +70,28 @@ get_yld <-
 
         ## Calculate total, not discounted YLD (single number) per sex & ci ####
         yld_by_list[[s]][[v]][["noDiscount"]] <-
-          lifeyears_byYear[[s]][[v]] %>%
+          lifeyears_by_year[[s]][[v]] %>%
           # Filter for the relevant years
           filter(year < (year_of_analysis + duration + 1)) %>%
           # Sum among years to obtain the total impact (single value)
           dplyr::summarise(impact = sum(impact) * disability_weight, .groups = 'drop')
 
-        # ## Calculate total, discounted life years (single value) per sex & ci ####
-        yld_by_list[[s]][[v]][["discounted"]] <-
-          lifeyears_byYear[[s]][[v]]%>%
-          # Calculate discount rate for each year
-          dplyr::mutate(discount = 1/(discount_factor^(year-(year_of_analysis+1)))) %>%
-          # Calculate life years discounted
-          dplyr::mutate(discounted_impact = impact*discount) %>%
-          # Filter for the relevant years
-          filter(year < (year_of_analysis + duration + 1)) %>%
-          # Sum among years to obtain the total impact (single value)
-          dplyr::summarise(impact = sum(discounted_impact) * disability_weight, .groups = 'drop')
+        if(!is.null(corrected_discount_rate)){
+          discount_factor <- corrected_discount_rate + 1
+
+          # ## Calculate total, discounted life years (single value) per sex & ci ####
+          yld_by_list[[s]][[v]][["discounted"]] <-
+            lifeyears_byYear[[s]][[v]]%>%
+            # Calculate discount rate for each year
+            dplyr::mutate(discount = 1/(discount_factor^(year-(year_of_analysis+1)))) %>%
+            # Calculate life years discounted
+            dplyr::mutate(discounted_impact = impact*discount) %>%
+            # Filter for the relevant years
+            filter(year < (year_of_analysis + duration + 1)) %>%
+            # Sum among years to obtain the total impact (single value)
+            dplyr::summarise(impact = sum(discounted_impact) * disability_weight, .groups = 'drop')
+        }
+
       }
     }
 
@@ -99,10 +99,14 @@ get_yld <-
     # Convert list into data frame
     yld_by <-
       yld_by_list%>%
-      purrr::map(map, dplyr::bind_rows, .id = "discount")%>%
+      purrr::map(map, dplyr::bind_rows, .id = "discounted")%>%
       purrr::map(dplyr::bind_rows, .id = "erf_ci" )%>%
       dplyr::bind_rows(., .id = "sex")%>%
-      dplyr::mutate(erf_ci = gsub("erf_ci_", "", erf_ci))
+      dplyr::mutate(
+        discounted = ifelse(discounted %in% "discounted", TRUE,
+                            ifelse(discounted %in% "noDiscount", FALSE,
+                                   NA)),
+        erf_ci = gsub("erf_ci_", "", erf_ci))
 
     ## Compile information needed for detailed yld results ####
     yld_detailed <-
@@ -110,7 +114,7 @@ get_yld <-
       # Sum among sex adding total
       dplyr::bind_rows(
         group_by(.,
-                 discount, erf_ci) %>%
+                 discounted, erf_ci) %>%
           summarise(.,
                     across(.cols=c(impact), sum),
                     across(where(is.character), ~"total"),
@@ -128,14 +132,14 @@ get_yld <-
       dplyr::mutate(impact_rounded = round(impact, 0))%>%
 
       # Order columns
-      dplyr::select(discount, sex, erf_ci, everything())%>%
+      dplyr::select(discounted, sex, erf_ci, everything())%>%
       # Order rows
-      dplyr::arrange(discount, sex, erf_ci)
+      dplyr::arrange(discounted, sex, erf_ci)
 
     yld <-
-      yld_detailed %>%
-      dplyr::filter(sex %in% "total",
-                    discount %in% "discounted")
+      dplyr::filter(yld_detailed, sex %in% "total") %>%
+      {if(!is.null(corrected_discount_rate))
+        dplyr::filter(., discounted %in% TRUE) else .}
 
 
     output <- list(main = yld, detailed = yld_detailed)
