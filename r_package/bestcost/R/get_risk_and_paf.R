@@ -19,7 +19,8 @@
 #' TBD
 #' @author Alberto Castro
 #' @note Experimental function
-#' @export
+#' @keywords internal
+
 get_risk_and_paf <-
   function(input){
 

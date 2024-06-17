@@ -3,20 +3,8 @@
 #' Compile input
 
 #' Compiles the input data of the main function and calculates the population attributable fraction based on the input data (all in one data frame)
-#' @param exp \code{Numeric value} showing the population-weighted mean exposure in ug/m3 or {vector} showing the exposure category in a exposure distribution (this information is linked to the proportion of population exposed).
-#' @param prop_pop_exp \code{Numeric value} or {vector} showing the proportion of population exposed (as a fraction, i.e. values between 0 and 1) for a single exposure value or for multiple categories, i.e., a exposure distribution, respectively. If a exposure distribution is used, the dimension of this input variable should be the same as "exp". By default, 1 for single exposure value will be assigned to this input variable assuming a single exposure value, but users can change this value.
-#' @param pop_exp \code{Numeric value} or {vector} showing the population exposed for each of the exposure categories. The length of this input variable must be the same as "exp".
-#' @param cutoff \code{Numeric value} showing the cut-off exposure in ug/m3 (i.e. the exposure level below which no health effects occur).
-#' @param rr \code{Vector} of three numeric values referring to the central estimate as well as the lower and upper bound of the confidence interval.
-#' @param erf_increment \code{Numeric value} showing the increment of the concentration-response function in ug/m3 (usually 10 or 5).
-#' @param erf_shape \code{String} showing the shape of the exposure-response function to be assumed using the relative risk from the literature as support point. Options: "linear", log_linear", "linear_log", "log_log".
-#' @param erf_c \code{String} showing the user-defined function that puts the relative risk in relation with concentration. The function must have only one variable: c, which means concentration. E.g. "3+c+c^2". Default value = NULL.
-#' @param bhd \code{Numeric value} showing the baseline health data (incidence of the health outcome in the population).
-#' @param info \code{String} showing additional information or id for the pollutant. The suffix "info" will be added to the column name. Default value = NULL.
-#' @param min_age \code{Numberic value} of the minimal age to be considered for adults (by default 30, i.e. 30+).
-#' @param max_age \code{Numberic value} of the maximal age to be considered for infants/children (by default 0, i.e. below 1 year old).
-#' @param method \code{String} showing the calculation methods.
-
+#' @inheritParams compare
+#'
 #' @return
 #' This function returns a \code{data.frame} with all input data together
 #' Moreover, the data frame includes columns such as:
@@ -33,9 +21,12 @@
 #' @author Alberto Castro
 #' @note Experimental function
 #' @export
+#' @keywords internal
 
 compile_input <-
-  function(exp_central, exp_lower = NULL, exp_upper = NULL,
+  function(risk_method = NULL,
+           health_metric = NULL,
+           exp_central, exp_lower = NULL, exp_upper = NULL,
            prop_pop_exp = NULL,
            pop_exp = NULL,
            cutoff = NULL,
@@ -49,11 +40,11 @@ compile_input <-
            geo_id_raw = NULL,
            geo_id_aggregated = NULL,
            info = NULL,
-           method = NULL,
            disability_weight = NULL,
+           corrected_discount_rate = NULL,
            duration = NULL){
 
-    # Check input data ####
+    # Check input data
     stopifnot(exprs = {
       #length(exp) == length(prop_pop_exp)
       #is.null(min_age) == FALSE
@@ -61,12 +52,12 @@ compile_input <-
     })
 
 
-    # Input data in data frame ####
+    # Input data in data frame
 
     # If the erf is defined by rr, increment, shape and cutoff
 
     if(is.null(erf_c_central)){
-      # Input data in data frame ####
+      # Input data in data frame
       # Compile rr data to assign categories
       erf_data <-
         # tibble instead of data.frame because tibble converts NULL into NA
@@ -90,7 +81,7 @@ compile_input <-
 
     # Store the lentgh of the exposure distribution (to be used below)
     # Let's take the first element
-    length_expDist <-
+    length_exp_dist <-
       ifelse(is.list(exp_central),
              length(exp_central[[1]]),
              length(exp_central))
@@ -103,14 +94,19 @@ compile_input <-
         # ie. those which require adjustment to have the same dimension
         # as those with multiple dimension because of exposure distribution
         # Let's use rep() to ensure that there is dimension match
-        geo_id_raw = rep(geo_id_raw, each = length_expDist) ,
-        geo_id_aggregated = rep(geo_id_aggregated, each = length_expDist),
-        bhd_central = rep(unlist(bhd_central), each = length_expDist),
-        bhd_lower = rep(unlist(bhd_lower), each = length_expDist),
-        bhd_upper = rep(unlist(bhd_lower), each = length_expDist),
+        geo_id_raw = rep(geo_id_raw, each = length_exp_dist) ,
+        geo_id_aggregated = rep(geo_id_aggregated, each = length_exp_dist),
+        bhd_central = rep(unlist(bhd_central), each = length_exp_dist),
+        bhd_lower = rep(unlist(bhd_lower), each = length_exp_dist),
+        bhd_upper = rep(unlist(bhd_lower), each = length_exp_dist),
+        min_age = rep(min_age, each = length_exp_dist),
+        max_age = rep(max_age, each = length_exp_dist),
+
         # Second those variables that will have lenght = 1 (no problematic)
         disability_weight = disability_weight,
         duration = duration,
+        corrected_discount_rate = corrected_discount_rate,
+
         # Finally, those variables that are multi-dimentional (exposure distribution)
         exp_central = unlist(exp_central),
         exp_lower = unlist(exp_lower),
@@ -121,24 +117,25 @@ compile_input <-
       # Add rr with a cross join to produce all likely combinations
       dplyr::bind_cols(., erf_data) %>%
       # Add additional (meta-)information
-      bestcost::add_info(df=., info=info) %>%
+      bestcost:::add_info(df = ., info = info) %>%
       # Information derived from input data
       dplyr::mutate(
         # Add age_max and age_min (not needed without life table)
         age_range = ifelse(!is.null(max_age) & is.null(min_age), paste0("below", max_age + 1),
                            ifelse(!is.null(min_age) & is.null(max_age), paste0("from", min_age),
                                   NA)),
-        # Add the method that refer to the function
-        method = method,
+        # Add the risk_method that refer to the function
+        risk_method = risk_method,
+        health_metric = health_metric,
         exposure_type =
           ifelse((is.list(exp_central) &
                    unique(purrr::map_int(exp_central, function(x) length(x))) == 1) |
                    (is.vector(exp_central) &
                       length(exp_central) == 1),
                  "population_weighted_mean",
-                 "exposure_distribution"))%>%
+                 "exposure_distribution")) %>%
       # Remove all columns with all values being NA
-      dplyr::select(where(~ !all(is.null(.))))%>%
+      dplyr::select(where(~ !all(is.na(.)))) %>%
       # Pivot longer to show all combinations of central, lower and upper estimate
       # (relevant for iteration)
       ## For exposure,
@@ -167,7 +164,5 @@ compile_input <-
                             names_to = "bhd_ci",
                             names_prefix = "bhd_",
                             values_to = "bhd") else .}
-
-
 
   }

@@ -16,12 +16,12 @@
 #' TBD
 #' @author Alberto Castro
 #' @note Experimental function
-#' @export
+#' @keywords internal
 
 get_deaths <-
   function(pop_impact, year_of_analysis,
            meta,
-           min_age = min_age, max_age = max_age){
+           min_age = NULL, max_age = NULL){
 
     # Input data check ####
     # To be added
@@ -31,13 +31,12 @@ get_deaths <-
 
     for(s in names(pop_impact[["pop_impact"]])){ # c(male, female)
       for (v in unique(unlist(purrr::map(pop_impact[["pop_impact"]], names)))){ # c(central, lower, upper) or only central
-        population_secondYear_lifetable <-
+        population_second_year_lifetable <-
           paste0("population_", year_of_analysis+1)
 
         deaths_by_list[[s]][[v]]<-
           pop_impact[["pop_impact"]][[s]][[v]] %>%
-          # Select only relevant columns
-          dplyr::select(., age, all_of(population_secondYear_lifetable)) %>%
+          # Filter keeping only the relevant age
           # Filter keeping only the relevant age
           {if(!is.null(max_age))
             dplyr::filter(., age <= max_age)
@@ -45,7 +44,7 @@ get_deaths <-
           {if(!is.null(min_age))
             dplyr::filter(., age >= min_age)
             else .} %>%
-          dplyr::select(all_of(population_secondYear_lifetable)) %>%
+          dplyr::select(all_of(population_second_year_lifetable)) %>%
           sum(., na.rm = TRUE)
       }
     }
@@ -76,15 +75,13 @@ get_deaths <-
       dplyr::mutate(impact_rounded = round(impact, 0)) %>%
 
       # Add approach and metric and round
-      dplyr::mutate(impact_metric = "Premature deaths") %>%
+      # dplyr::mutate(impact_metric = "Premature deaths") %>%
 
       # Data wrangling ####
       # Add input data and info_ data
       dplyr::left_join(.,
                        meta,
                        by = "erf_ci") %>%
-      # Order columns
-      dplyr::select(sex, erf_ci, everything()) %>%
       # Order rows
       dplyr::arrange(sex, erf_ci)
 

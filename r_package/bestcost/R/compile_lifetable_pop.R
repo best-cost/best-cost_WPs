@@ -30,7 +30,7 @@
 #' TBD
 #' @author Alberto Castro
 #' @note Experimental function
-#' @export
+#' @keywords internal
 #'
 #'
 compile_lifetable_pop <-
@@ -43,9 +43,9 @@ compile_lifetable_pop <-
     # The first column has to be the age. Second, probability of death. Third, population.
     # Rename column names to standard names
 
-    lifetable_withPop <- list(
+    lifetable_with_pop <- list(
       male =
-        data.frame(
+        tidyr::tibble(
           age = seq(from = first_age_pop,
                     to = last_age_pop,
                     by = 1),
@@ -57,7 +57,7 @@ compile_lifetable_pop <-
           population = population_midyear_male),
 
       female =
-        data.frame(
+        tidyr::tibble(
           age = seq(from = first_age_pop,
                     to = last_age_pop,
                     by = 1),
@@ -68,10 +68,4 @@ compile_lifetable_pop <-
           death_probability_total = prob_total_death_female,
           population = population_midyear_female))
 
-
   }
-
-
-
-
-

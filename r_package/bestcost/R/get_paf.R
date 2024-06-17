@@ -12,6 +12,7 @@
 #' @author Alberto Castro
 #' @note Experimental function
 #' @export
+
 get_paf <-
   function(rr_conc, prop_pop_exp){
     # Sources:
