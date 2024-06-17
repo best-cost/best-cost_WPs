@@ -1,5 +1,5 @@
 Package: bestcost
-Title: Quantification and monetarization of health impacts of environmental stressors.
+Title: Quantification and monetarization of health impacts of environmental stressors
 Version: 0.0.0.1
 Author: Alberto Castro [aut, cre], Axel Luyten [aut, cre]
 Maintainer: Alberto Castro <alberto.castrofernandez@swisstph.ch>
@@ -7,8 +7,13 @@ Description: This R package was developed within the framework of the EU project
 License: GPL
 Encoding: UTF-8
 RoxygenNote: 7.3.1
+Imports:
+  stats,
+  dplyr,
+  purrr,
+  tidyr
 Depends: 
-    R (>= 2.10)
+    R (>= 3.5.0)
 LazyData: true
 Suggests: 
     testthat (>= 3.0.0)

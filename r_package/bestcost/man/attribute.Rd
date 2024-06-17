@@ -60,7 +60,7 @@ If a {vector} is provided, it will be assumed that it refers to the exposure cat
 
 \item{cutoff}{\code{Numeric value} showing the cut-off exposure in ug/m3 (i.e. the exposure level below which no health effects occur).}
 
-\item{rr_central, rr_lower, rr_upper}{\code Three {numeric values} referring to the central estimate of the relative risk and the corresponding lower and upper 95\% confidence interval bounds.}
+\item{rr_central, rr_lower, rr_upper}{Three \code{numeric values} referring to the central estimate of the relative risk and the corresponding lower and upper 95\% confidence interval bounds.}
 
 \item{erf_increment}{\code{Numeric value} showing the increment of the exposure-response function in ug/m3 (usually 10 or 5).}
 
@@ -88,7 +88,7 @@ If a {vector} is provided, it will be assumed that it refers to the exposure cat
 
 \item{duration}{\code{Numeric value} showing the disease duration}
 
-\item{corrected_discount_rate}{\code{Numeric value} showing the discount rate for future years including correction from inflaction rate
+\item{corrected_discount_rate}{\code{Numeric value} showing the discount rate for future years including correction from inflation rate
 estimate and (optionally) the lower bound and the upper bound of the confidence
 interval of the baseline health data (e.g. incidence of the health outcome in the population).}
 
@@ -111,9 +111,6 @@ Moreover, the data frame includes columns such as:
 }
 \description{
 Calculates the health impacts, mortality or morbidity, of an environmental stressor using a single value for baseline heath data, i.e. without life table. It provides as a result the mean as well as the lower and the higher bound of the impact based on the confidence interval of the concentration-response function.
-}
-\examples{
-TBD
 }
 \author{
 Alberto Castro

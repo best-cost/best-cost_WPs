@@ -16,7 +16,8 @@
 #' This function returns a \code{data frame} showing the probability of dying by age interval.
 #'
 #' @examples
-#' get_prob_dying_by_single_age(first_age_pop = 0, last_age_pop = 99, population_midyear = rep(5000, 99), deaths = rep(100, 99))
+#' get_prob_dying_by_single_age(first_age_pop = 0, last_age_pop = 99,
+#' population_midyear = rep(5000, 99), deaths = rep(100, 99))
 #'
 #' @author Alberto Castro
 #' @note Experimental function

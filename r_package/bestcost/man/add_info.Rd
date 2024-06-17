@@ -20,9 +20,6 @@ Add meta-information of the input data within the data frame containing the inpu
 \note{
 Experimental function
 }
-\examples{
-TBD
-}
 \author{
 Alberto Castro
 }

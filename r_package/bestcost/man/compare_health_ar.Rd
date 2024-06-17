@@ -23,17 +23,19 @@ compare_health_ar(
 )
 }
 \arguments{
-\item{pop_exp_1}{\code{Numeric value} or {vector} showing the population exposed for each of the exposure categories in the scenario 1. The length of this input variable must be the same as "exp".}
+\item{comparison_method}{\code{String} showing the method of comparison. Options: "delta" or "pif".}
+
+\item{exp_central_1}{\code{Numeric value} showing the population-weighted mean exposure in ug/m3 or {vector} showing the exposure category in a exposure distribution in the scenario 1.}
+
+\item{exp_central_2}{\code{Numeric value} showing the population-weighted mean exposure in ug/m3 or {vector} showing the exposure category in a exposure distribution in the scenario 2.}
+
+\item{pop_exp_1}{\code{Numeric value} or {vector} showing the population exposed for each of the exposure categories for the scenario 1. The length of this input variable must be the same as "exp".}
+
+\item{pop_exp_2}{\code{Numeric value} or {vector} showing the population exposed for each of the exposure categories for the scenario 2. The length of this input variable must be the same as "exp".}
 
 \item{info_1}{\code{String} or {data frame} showing additional information or id of the scenario 1. The suffix "info" will be added to the column name. Default value = NULL.}
 
 \item{info_2}{\code{String} or {data frame} showing additional information or id of the scenario 1. The suffix "info" will be added to the column name. Default value = NULL.}
-
-\item{exp_1}{\code{Numeric value} showing the population-weighted mean exposure in ug/m3 or {vector} showing the exposure category in a exposure distribution in the scenario 1.}
-
-\item{exp_2}{\code{Numeric value} showing the population-weighted mean exposure in ug/m3 or {vector} showing the exposure category in a exposure distribution in the scenario 2.}
-
-\item{erf_c}{\code{String} showing the user-defined function that puts the relative risk in relation with concentration. The function must have only one variable: c, which means concentration. E.g. "3+c+c^2". Default value = NULL.}
 }
 \value{
 TBD. E.g. This function returns a \code{data.frame} with one row for each value of the
