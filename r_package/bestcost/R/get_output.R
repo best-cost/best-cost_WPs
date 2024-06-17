@@ -50,14 +50,14 @@ get_output <-
     # only if geo_id_aggregated is defined
     if("geo_id_aggregated" %in% names(output_last)){
 
-      output[["detailed"]][["agg_geo"]] <-
+      output[["detailed"]][["agg_geo"]]  <-
         output_last %>%
         # Group by higher geo level
-        dplyr::group_by(geo_id_aggregated, exp_ci, bhd_ci, erf_ci, risk_method) %>%
+        dplyr::group_by(geo_id_aggregated, exp_ci, bhd_ci, erf_ci) %>%
         dplyr::summarise(impact = sum(impact),
                          impact_rounded = round(impact),
-                         .groups = "drop")%>%
-        dplyr::bind_rows(output_last, .)
+                         .groups = "drop")
+
 
       output_last <- output[["detailed"]][["agg_geo"]]
 
