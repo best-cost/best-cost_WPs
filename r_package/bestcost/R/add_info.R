@@ -22,7 +22,7 @@ add_info <- function(df, info){
 
   if(is.null(info)){
     output <-
-      dplyr::mutate(df, info = NA)
+      dplyr::mutate(df, info = NULL)
 
   } else if(is.vector(info) & length(info) == 1) {
     output <-

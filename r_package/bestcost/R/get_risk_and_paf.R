@@ -26,30 +26,34 @@ get_risk_and_paf <-
     # Calculate health impact attributable to exposure ####
     input_and_risk <-
       input %>%
+      dplyr::rowwise(.) %>%
       dplyr::mutate(
+        # Obtain the relative risk for the relevant concentration
         rr_conc =
           bestcost::get_risk(rr = rr,
                              exp = exp,
                              cutoff = cutoff,
-                             rr_increment = rr_increment,
-                             erf_shape = unique(erf_shape)
+                             erf_increment = erf_increment,
+                             erf_shape = erf_shape
                              ))
 
     # Calculate population attributable fraction (PAF) ####
     input_risk_paf <-
       input_and_risk %>%
       # Group by exp in case that there are different exposure categories
-      dplyr::group_by(erf_ci) %>%
+      dplyr::group_by(erf_ci, exp_ci) %>%
       dplyr::summarize(paf = bestcost::get_paf(rr_conc = rr_conc,
-                                               prop_pop_exp = prop_pop_exp))%>%
+                                               prop_pop_exp = prop_pop_exp),
+                       .groups = "drop")%>%
+
       # Join the input table with paf values
       dplyr::left_join(., input_and_risk,
-                       by = "erf_ci")
+                       by = c("erf_ci", "exp_ci"))
 
     # Data wrangling ####
     # Only if exposure distribution (multiple exposure categories)
     # then reduce the number of rows to keep the same number as in rr
-    if(length(unique(input_and_risk$exp))>1){
+    if(unique(input$exposure_type) == "exposure_distribution"){
       input_risk_paf <-
         input_risk_paf %>%
         dplyr::mutate(

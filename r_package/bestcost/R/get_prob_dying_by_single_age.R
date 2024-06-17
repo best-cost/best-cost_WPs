@@ -87,7 +87,8 @@ get_prob_dying_by_single_age  <-
     # If the user-defined age interval is higher than 1,
     if(interval_age_pop > 1){
       # this second step is needed to standardize to single-year age interval
-      names(data_original_interval) <- paste0(names(data_original_interval), "_group")
+      names(data_original_interval) <-
+        paste0(names(data_original_interval), "_group")
 
       # Create data frame with the start and end age of single years intervals
       # and the the start year of the multiple year to use it as link for the join
@@ -160,7 +161,7 @@ get_prob_dying_by_single_age  <-
     output <-
       output %>%
       dplyr::select(age_start, age_end, fraction_of_year_lived,
-                    population_entry, deaths, population_midyear,
+                    deaths, population_midyear,
                     prob_dying, prob_surviving)
 
 
