@@ -157,21 +157,47 @@ compare <-
         geo_id_aggregated = geo_id_aggregated,
         info = info_2)
 
-    # Identify the columns that are common for scenario 1 and 2
-    joining_columns <-
-      names(att_health_1[["main"]])[!grepl(c("exp|bhd|paf|rr_conc|absolute_risk_as_percent|population_affected|impact|impact_rounded|info"),
-                                            names(att_health_1[["main"]]))]
+    # If the user choose "pif"  as comparison method
+    # pif is additonally calculated
+    # impact is overwritten with the new values that refer to pif instead of paf
 
 
-    # Merge the result tables by common columns
-    att_health <-
-      dplyr::left_join(
-        att_health_1[["main"]],
-        att_health_2[["main"]],
-        by = joining_columns,
-        suffix = c("_1", "_2")) %>%
-      # Calculate the delta (difference) between scenario 1 and 2
-      dplyr::mutate(impact = impact_1 - impact_2)
+      # Identify the columns that are common for scenario 1 and 2
+      joining_columns <-
+        names(att_health_1[["detailed"]][["raw"]])[names(att_health_1[["detailed"]][["raw"]]) %in% c("erf_ci", "exp_ci", "bhd_ci", "cutoff", "risk_method", "health_metric",
+          "rr", "erf_c", "erf_shape", "erf_increment", "geo_id_raw", "geo_id_aggregated")]
+        #grep("exp|bhd|paf|rr_conc|absolute_risk_as_percent|population_affected|impact|impact_rounded|info",
+        #grep("erf_ci|exp_ci|bhd_ci|cutoff|risk_method|health_metric|rr|erf_c|erf_shape|erf_increment",
+             #names(att_health_1[["detailed"]][["raw"]]),
+             #value = TRUE)
+             #,
+             #invert = TRUE)
+
+
+      # Merge the result tables by common columns
+      att_health <-
+        dplyr::left_join(
+          att_health_1[["detailed"]][["raw"]],
+          att_health_2[["detailed"]][["raw"]],
+          by = joining_columns,
+          suffix = c("_1", "_2")) %>%
+        # Calculate the delta (difference) between scenario 1 and 2
+        dplyr::mutate(impact = impact_1 - impact_2,
+                      impact_rounded = round(impact, 0))
+
+      if(comparison_method == "delta"){
+
+      output <-
+        bestcost:::get_output(output_raw = list(main = att_health,
+                                                detailed = NA))
+
+      # Add the individual results of each scenario in delta and pif method
+
+      output[["detailed"]] <- list(scenario_1 = att_health_1,
+                                   scenario_2 = att_health_2,
+                                   raw = att_health)
+
+    }
 
 
     # If the user choose "pif"  as comparison method
@@ -342,18 +368,16 @@ compare <-
               meta = input_risk_pif)$main %>%
             # Replace paf with pif
             dplyr::rename(pif = paf)}
-        }
+
+        # Round results
+        att_health <-
+          att_health %>%
+          mutate(impact_rounded = round(impact, 0))
 
 
+      }
 
-    # Round results
-    att_health <-
-      att_health %>%
-      mutate(impact_rounded = round(impact, 0))
 
-    output <- list(main = att_health,
-                   detailed = list(scenario_1 = att_health_1,
-                                   scenario_2 = att_health_2))
 
 
     return(output)

@@ -740,7 +740,7 @@ check_bestcost(result_list_bestcost = comparison_singlebhd_rr_pif ,
 
 ```{r comparison singlebhd_rr geo iteration, eval=FALSE, include=FALSE}
 # Assess iteration geographical sections keeping the multiple uncertainties
-system.time(comparison_singlebhd_rr_geo <-
+comparison_singlebhd_rr_geo <-
   bestcost::compare_health(
     comparison_method = "delta",
     exp_central_1 = as.list(runif_with_seed(1E4, 8.0, 9.0, 1)),
@@ -764,7 +764,7 @@ system.time(comparison_singlebhd_rr_geo <-
     geo_id_raw = 1:1E4, 
     geo_id_aggregated = rep("CH", 1E4),
     info_1 = "PM2.5_mortality_2010",
-    info_2 = "PM2.5_mortality_2020"))
+    info_2 = "PM2.5_mortality_2020")
 ```
 
 
