@@ -713,6 +713,30 @@ comparison_singlebhd_rr_delta <-
 check_bestcost(result_list_bestcost = comparison_singlebhd_rr_delta ,
                result_vector_alternative = c(774, 409, 1127)) # Result on 16 May 2024
 
+# With iteration
+comparison_singlebhd_rr_delta_geo <-
+  bestcost::compare_health(
+    comparison_method = "delta",
+    exp_central_1 = list(8.85, 8.0),
+    exp_central_2 = list(6, 6.5),
+    cutoff = 5,    
+    bhd_central_1 = list(25000, 20000),
+    bhd_central_2 = list(25000, 20000),
+    rr_central = 1.118, 
+    rr_lower = 1.060, 
+    rr_upper = 1.179,
+    erf_increment = 10, 
+    erf_shape = "log_linear", 
+    info_1 = "PM2.5_mortality_2010",
+    info_2 = "PM2.5_mortality_2020",
+    geo_id_raw = c("a", "b"),
+    geo_id_aggregated = rep("ch", 2))
+
+# No study to compare bestcost results
+# Check only if results stay the same overtime despite developments
+check_bestcost(result_list_bestcost = comparison_singlebhd_rr_delta_geo ,
+               result_vector_alternative = c(2023, 1096, 2883)) # Result on 19 June 2024
+
 #PIF
 # Test pif comparison function with fake values
 comparison_singlebhd_rr_pif <-
@@ -735,11 +759,35 @@ comparison_singlebhd_rr_pif <-
 # Check only if results stay the same overtime despite developments
 check_bestcost(result_list_bestcost = comparison_singlebhd_rr_pif ,
                result_vector_alternative = c(782, 412, 1146)) # Result on 16 May 2024
+
+# With iteration
+comparison_singlebhd_rr_pif_geo <-
+  bestcost::compare_health(
+    comparison_method = "pif",
+    exp_central_1 = list(8.85, 8.0),
+    exp_central_2 = list(6, 6.5),
+    cutoff = 5,    
+    bhd_central_1 = list(25000, 20000),
+    bhd_central_2 = list(25000, 20000),
+    rr_central = 1.118, 
+    rr_lower = 1.060, 
+    rr_upper = 1.179,
+    erf_increment = 10, 
+    erf_shape = "log_linear", 
+    info_1 = "PM2.5_mortality_2010",
+    info_2 = "PM2.5_mortality_2020",
+    geo_id_raw = c("a", "b"),
+    geo_id_aggregated = rep("ch", 2))
+
+# No study to compare bestcost results
+# Check only if results stay the same overtime despite developments
+check_bestcost(result_list_bestcost = comparison_singlebhd_rr_pif_geo ,
+               result_vector_alternative = c(1114, 586, 1634)) # Result on 19 June 2024
 ```
 
 
 ```{r comparison singlebhd_rr geo iteration, eval=FALSE, include=FALSE}
-# Assess iteration geographical sections keeping the multiple uncertainties
+# Assess iteration in many geographical areas (geo_id) keeping the multiple uncertainties
 comparison_singlebhd_rr_geo <-
   bestcost::compare_health(
     comparison_method = "delta",
@@ -772,8 +820,6 @@ comparison_singlebhd_rr_geo <-
 
 # Test delta comparison function with fake values
 # No PIF option in ar
-
-
 comparison_singlebhd_ar_delta <-
   bestcost::compare_health_ar(
     comparison_method = "delta",
@@ -804,7 +850,8 @@ comparison_singlebhd_ar_delta_geo <-
     geo_id_aggregated = rep("ch", 2))
 
 
-
+check_bestcost(result_list_bestcost = comparison_singlebhd_ar_delta_geo ,
+               result_vector_alternative = 115869) # Result on 19 June 2024
 
 ```
 

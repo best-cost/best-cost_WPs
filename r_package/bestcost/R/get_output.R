@@ -47,6 +47,8 @@ get_output <-
                                 c("geo_id_raw",
                                   "pop_exp",
                                   paste0("exp", c("", "_1", "_2")),
+                                  paste0("rr_conc", c("", "_1", "_2")),
+                                  paste0("paf", c("", "_1", "_2")),
                                   paste0("absolute_risk_as_percent", c("", "_1", "_2")),
                                   paste0("impact", c("", "_1", "_2"))))))) %>%
         dplyr::summarize(
