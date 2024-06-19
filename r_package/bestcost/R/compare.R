@@ -157,21 +157,20 @@ compare <-
         geo_id_aggregated = geo_id_aggregated,
         info = info_2)
 
+
     # If the user choose "pif"  as comparison method
     # pif is additonally calculated
     # impact is overwritten with the new values that refer to pif instead of paf
 
+    # Identify the columns that are common for scenario 1 and 2
+    common_columns <-
+      intersect(names(att_health_1[["detailed"]][["raw"]]),
+                names(att_health_2[["detailed"]][["raw"]]))
 
-      # Identify the columns that are common for scenario 1 and 2
-      joining_columns <-
-        names(att_health_1[["detailed"]][["raw"]])[names(att_health_1[["detailed"]][["raw"]]) %in% c("erf_ci", "exp_ci", "bhd_ci", "cutoff", "risk_method", "health_metric",
-          "rr", "erf_c", "erf_shape", "erf_increment", "geo_id_raw", "geo_id_aggregated")]
-        #grep("exp|bhd|paf|rr_conc|absolute_risk_as_percent|population_affected|impact|impact_rounded|info",
-        #grep("erf_ci|exp_ci|bhd_ci|cutoff|risk_method|health_metric|rr|erf_c|erf_shape|erf_increment",
-             #names(att_health_1[["detailed"]][["raw"]]),
-             #value = TRUE)
-             #,
-             #invert = TRUE)
+    identical_columns <-
+      common_columns %>%
+      purrr::keep(~ identical(att_health_1[["detailed"]][["raw"]][[.x]],
+                              att_health_2[["detailed"]][["raw"]][[.x]]))
 
 
       # Merge the result tables by common columns
@@ -179,7 +178,7 @@ compare <-
         dplyr::left_join(
           att_health_1[["detailed"]][["raw"]],
           att_health_2[["detailed"]][["raw"]],
-          by = joining_columns,
+          by = identical_columns,
           suffix = c("_1", "_2")) %>%
         # Calculate the delta (difference) between scenario 1 and 2
         dplyr::mutate(impact = impact_1 - impact_2,

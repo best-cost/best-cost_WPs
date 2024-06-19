@@ -32,13 +32,31 @@ get_output <-
 
       output[["detailed"]][["agg_exp_cat"]] <-
         output_raw[["main"]] %>%
-        dplyr::mutate(exp = paste(exp, collapse = ", ")) %>%
+        # Remove all impact rounded because
+        # we have to round final results
+        # not summing rounded results ("too rounded")
+        dplyr::select(-all_of(intersect(paste0("impact_rounded", c("", "_1", "_2")),
+                                        names(.)))) %>%
+        # Collapse the exposure categories to have only a vector
+        dplyr::mutate(across(all_of(intersect(paste0("exp", c("", "_1", "_2")),
+                                              names(.))),
+                             ~ paste(., collapse = ", ")))%>%
+        # Sum columns to summarize
         dplyr::group_by(
-          across(c(-pop_exp, -exp, -absolute_risk_as_percent, -impact, -impact_rounded))) %>%
+          across(all_of(setdiff(names(.),
+                                c("geo_id_raw",
+                                  "pop_exp",
+                                  paste0("exp", c("", "_1", "_2")),
+                                  paste0("absolute_risk_as_percent", c("", "_1", "_2")),
+                                  paste0("impact", c("", "_1", "_2"))))))) %>%
         dplyr::summarize(
-          across(c(pop_exp, absolute_risk_as_percent, impact),
-                 sum),
+          across(all_of(intersect(c("pop_exp",
+                                    paste0("absolute_risk_as_percent", c("", "_1", "_2")),
+                                    paste0("impact", c("", "_1", "_2"))),
+                                  names(.))),
+                 ~sum(.x, na.rm = TRUE)),
           .groups = "drop") %>%
+        # Round impact
         dplyr::mutate(impact_rounded = round(impact, 0))
 
 
@@ -53,7 +71,9 @@ get_output <-
       output[["detailed"]][["agg_geo"]]  <-
         output_last %>%
         # Group by higher geo level
-        dplyr::group_by(geo_id_aggregated, exp_ci, bhd_ci, erf_ci) %>%
+        dplyr::group_by(across(all_of(intersect(c("geo_id_aggregated", "exp_ci",
+                                                  "bhd_ci", "erf_ci"),
+                                                names(.)))))%>%
         dplyr::summarise(impact = sum(impact),
                          impact_rounded = round(impact),
                          .groups = "drop")
