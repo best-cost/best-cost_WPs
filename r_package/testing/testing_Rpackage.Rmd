@@ -837,6 +837,28 @@ check_bestcost(result_list_bestcost = comparison_yld_singlebhd_rr_delta ,
 check_bestcost(result_list_bestcost = comparison_yld_singlebhd_rr_delta[["detailed"]][["scenario_1"]] ,
                result_vector_alternative = bestcost_pm_yld_singlebhd[["main"]]$impact_rounded) 
 
+
+# Iteration
+comparison_yld_singlebhd_rr_delta_geo <-
+  bestcost::compare_yld_from_prevalence(
+    comparison_method = "delta",
+    exp_central_1 = list(8.85, 8.0),
+    exp_central_2 = list(6, 6.5),
+    cutoff = 5,    
+    bhd_central_1 = 25000,
+    bhd_central_2 = 25000,
+    rr_central = 1.118,
+    rr_lower = 1.060,
+    rr_upper = 1.179,
+    erf_increment = 10, 
+    erf_shape = "log_linear", 
+    disability_weight = 0.5,
+    info_1 = "PM2.5_yld_before",
+    info_2 = "PM2.5_yld_after",
+    geo_id_raw = c("a", "b"),
+    geo_id_aggregated = rep("ch", 2))
+
+
 #PIF
 # Test pif comparison function with fake values
 comparison_yld_singlebhd_rr_pif <-

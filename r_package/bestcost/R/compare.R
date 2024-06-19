@@ -184,20 +184,6 @@ compare <-
         dplyr::mutate(impact = impact_1 - impact_2,
                       impact_rounded = round(impact, 0))
 
-      if(comparison_method == "delta"){
-
-      output <-
-        bestcost:::get_output(output_raw = list(main = att_health,
-                                                detailed = NA))
-
-      # Add the individual results of each scenario in delta and pif method
-
-      output[["detailed"]] <- list(scenario_1 = att_health_1,
-                                   scenario_2 = att_health_2,
-                                   raw = att_health)
-
-    }
-
 
     # If the user choose "pif"  as comparison method
     # pif is additonally calculated
@@ -221,7 +207,8 @@ compare <-
             rr_conc_2 = rr_conc_2,
             prop_pop_exp_1 = prop_pop_exp_1,
             prop_pop_exp_2 = prop_pop_exp_1),
-          impact = bhd_1 * pif) %>%
+          impact = bhd * pif,
+          impact_rounded= round(impact, 0)) %>%
         {if(health_metric == "yld_from_prevalence")
           dplyr::mutate(., impact = impact * disability_weight) else .}
 
@@ -376,7 +363,15 @@ compare <-
 
       }
 
+      # Organize output
+      # Classify the individual results of each scenario in delta and pif method
+      # in a list
 
+      output <-
+        bestcost:::get_output(output_raw = list(main = att_health,
+                                                detailed = list(scenario_1 = att_health_1,
+                                                                scenario_2 = att_health_2,
+                                                                raw = att_health)))
 
 
     return(output)
