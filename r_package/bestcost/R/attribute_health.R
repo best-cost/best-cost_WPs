@@ -59,7 +59,6 @@ attribute_health <-
         disability_weight = NULL,
         duration = NULL,
         geo_id_raw = geo_id_raw , geo_id_aggregated = geo_id_aggregated,
-
         info = info)
 
     return(output)

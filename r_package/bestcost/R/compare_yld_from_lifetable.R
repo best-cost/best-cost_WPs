@@ -47,6 +47,8 @@ compare_yld_from_lifetable <-
            disability_weight,
            duration = NULL,
            corrected_discount_rate = NULL,
+           geo_id_raw = NULL,
+           geo_id_aggregated = NULL,
            info_1 = NULL, info_2 = NULL){
 
 
@@ -83,6 +85,8 @@ compare_yld_from_lifetable <-
         disability_weight = disability_weight,
         duration = duration,
         corrected_discount_rate = corrected_discount_rate,
+        geo_id_raw = geo_id_raw,
+        geo_id_aggregated = geo_id_aggregated,
         info_1 = info_1 , info_2 = info_2)
 
 

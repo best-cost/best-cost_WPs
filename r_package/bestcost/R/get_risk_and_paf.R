@@ -35,8 +35,7 @@ get_risk_and_paf <-
                              exp = exp,
                              cutoff = cutoff,
                              erf_increment = erf_increment,
-                             erf_shape = erf_shape
-                             ))
+                             erf_shape = erf_shape))
 
     # Calculate population attributable fraction (PAF) ####
     input_risk_paf <-

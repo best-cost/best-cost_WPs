@@ -94,7 +94,7 @@ compile_input <-
         # ie. those which require adjustment to have the same dimension
         # as those with multiple dimension because of exposure distribution
         # Let's use rep() to ensure that there is dimension match
-        geo_id_raw = rep(geo_id_raw, each = length_exp_dist) ,
+        geo_id_raw = rep(geo_id_raw, each = length_exp_dist),
         geo_id_aggregated = rep(geo_id_aggregated, each = length_exp_dist),
         bhd_central = rep(unlist(bhd_central), each = length_exp_dist),
         bhd_lower = rep(unlist(bhd_lower), each = length_exp_dist),
@@ -107,7 +107,7 @@ compile_input <-
         duration = duration,
         corrected_discount_rate = corrected_discount_rate,
 
-        # Finally, those variables that are multi-dimentional (exposure distribution)
+        # Finally, those variables that are multi-dimensional (exposure distribution)
         exp_central = unlist(exp_central),
         exp_lower = unlist(exp_lower),
         exp_upper = unlist(exp_upper),
@@ -127,11 +127,12 @@ compile_input <-
         # Add the risk_method that refer to the function
         risk_method = risk_method,
         health_metric = health_metric,
+        # Using {{}} to call the argument instead of the column (same name)
         exposure_type =
-          ifelse((is.list(exp_central) &
-                   unique(purrr::map_int(exp_central, function(x) length(x))) == 1) |
-                   (is.vector(exp_central) &
-                      length(exp_central) == 1),
+          ifelse((is.list({{exp_central}}) &
+                   unique(purrr::map_int({{exp_central}}, function(x) length(x))) == 1) |
+                   (!is.list({{exp_central}}) &
+                      length({{exp_central}}) == 1),
                  "population_weighted_mean",
                  "exposure_distribution")) %>%
       # Remove all columns with all values being NA

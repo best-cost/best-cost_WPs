@@ -36,6 +36,8 @@ compare_yld_from_prevalence <-
            bhd_central_1, bhd_lower_1 = NULL, bhd_upper_1 = NULL,
            bhd_central_2, bhd_lower_2 = NULL, bhd_upper_2 = NULL,
            disability_weight,
+           geo_id_raw = NULL,
+           geo_id_aggregated = NULL,
            info_1 = NULL, info_2 = NULL){
 
     output <-
@@ -69,6 +71,8 @@ compare_yld_from_prevalence <-
         population_midyear_male_2 = NULL, population_midyear_female_2 = NULL,
         year_of_analysis_2 = NULL,
         min_age = NULL, max_age = NULL,
+        geo_id_raw = geo_id_raw,
+        geo_id_aggregated = geo_id_aggregated,
         info_1 = info_1, info_2 = info_2)
 
 
