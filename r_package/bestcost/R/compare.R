@@ -210,7 +210,9 @@ compare <-
           impact = bhd * pif,
           impact_rounded= round(impact, 0)) %>%
         {if(health_metric == "yld_from_prevalence")
-          dplyr::mutate(., impact = impact * disability_weight) else .}
+          dplyr::mutate(.,
+                        impact = impact * disability_weight,
+                        impact_rounded = round(impact, 0)) else .}
 
       }else if(
         comparison_method == "pif" &
@@ -266,10 +268,14 @@ compare <-
             max_age = max_age,
             info = info_2)
 
-        # Identify the columns that are common for scenario 1 and 2
-        joining_columns <-
-          names(input_1)[! grepl(c("exp|bhd|paf|rr_conc|absolute_risk_as_percent|population_affected|impact|impact_rounded|info"),
-                                 names(input_1))]
+        common_columns_input <-
+          intersect(names(input_1),
+                    names(input_2))
+
+        identical_columns_input <-
+          common_columns_input %>%
+          purrr::keep(~ identical(input_1[[.x]],
+                                  input_2[[.x]]))
 
 
         # Merge the input tables by common columns
@@ -277,7 +283,7 @@ compare <-
           dplyr::left_join(
             input_1,
             input_2,
-            by = joining_columns,
+            by = identical_columns_input,
             suffix = c("_1", "_2"))
 
 
@@ -356,9 +362,9 @@ compare <-
             dplyr::rename(pif = paf)}
 
         # Round results
-        att_health <-
-          att_health %>%
-          mutate(impact_rounded = round(impact, 0))
+        #att_health <-
+          #att_health %>%
+          #mutate(impact_rounded = round(impact, 0))
 
 
       }
@@ -369,9 +375,11 @@ compare <-
 
       output <-
         bestcost:::get_output(output_raw = list(main = att_health,
-                                                detailed = list(scenario_1 = att_health_1,
-                                                                scenario_2 = att_health_2,
-                                                                raw = att_health)))
+                                                detailed = NA))
+
+      output[["detailed"]][["scenario_1"]] <- att_health_1
+      output[["detailed"]][["scenario_2"]] <- att_health_2
+
 
 
     return(output)

@@ -87,7 +87,7 @@ get_output <-
 
 
     # Filter for total list element
-    # Keep only exp_ci = central and bhd_ci=central
+    # Keep only exp_ci = central and bhd_ci = central
     output[["main"]] <-
       output_last %>%
       dplyr::filter(!exp_ci %in% c("lower", "upper"))%>%
