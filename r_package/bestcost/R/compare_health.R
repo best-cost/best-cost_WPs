@@ -35,6 +35,8 @@ compare_health <-
            erf_c_central = NULL, erf_c_lower = NULL, erf_c_upper = NULL,
            bhd_central_1, bhd_lower_1 = NULL, bhd_upper_1 = NULL,
            bhd_central_2, bhd_lower_2 = NULL, bhd_upper_2 = NULL,
+           geo_id_raw = NULL,
+           geo_id_aggregated = NULL,
            info_1 = NULL, info_2 = NULL){
 
 
@@ -67,9 +69,11 @@ compare_health <-
         population_midyear_male_2 = NULL, population_midyear_female_2 = NULL,
         year_of_analysis_2 = NULL,
         min_age = NULL, max_age = NULL,
-        corrected_discount_rate = corrected_discount_rate,
+        corrected_discount_rate = NULL,
         disability_weight = NULL,
         duration = NULL,
+        geo_id_raw = geo_id_raw,
+        geo_id_aggregated = geo_id_aggregated,
         info_1 = info_1 , info_2 = info_2)
 
 

@@ -64,9 +64,17 @@ compare(
 \arguments{
 \item{comparison_method}{\code{String} showing the method of comparison. Options: "delta" or "pif".}
 
+\item{exp_central_1}{\code{Numeric value} showing the population-weighted mean exposure in ug/m3 or {vector} showing the exposure category in a exposure distribution in the scenario 1.}
+
+\item{exp_central_2}{\code{Numeric value} showing the population-weighted mean exposure in ug/m3 or {vector} showing the exposure category in a exposure distribution in the scenario 2.}
+
 \item{prop_pop_exp_1}{\code{Numeric value} or {vector} showing the proportion of population exposed in the scenario 1. The value is a fraction, i.e. values between 0 and 1) for a single exposure value or for multiple categories, i.e., a exposure distribution, respectively. If a exposure distribution is used, the dimension of this input variable should be the same as "exp". By default, 1 for single exposure value will be assigned to this input variable assuming a single exposure value, but users can change this value.}
 
 \item{prop_pop_exp_2}{\code{Numeric value} or {vector} showing the proportion of population exposed in the scenario 2. The value is a fraction, i.e. values between 0 and 1) for a single exposure value or for multiple categories, i.e., a exposure distribution, respectively. If a exposure distribution is used, the dimension of this input variable should be the same as "exp". By default, 1 for single exposure value will be assigned to this input variable assuming a single exposure value, but users can change this value.}
+
+\item{pop_exp_1}{\code{Numeric value} or {vector} showing the population exposed for each of the exposure categories for the scenario 1. The length of this input variable must be the same as "exp".}
+
+\item{pop_exp_2}{\code{Numeric value} or {vector} showing the population exposed for each of the exposure categories for the scenario 2. The length of this input variable must be the same as "exp".}
 
 \item{cutoff}{\code{Numeric value} showing the cut-off exposure in ug/m3 (i.e. the exposure level below which no health effects occur).}
 
@@ -74,21 +82,59 @@ compare(
 
 \item{erf_shape}{\code{String} showing the shape of the exposure-response function to be assumed using the relative risk from the literature as support point. Options: "linear", log_linear", "linear_log", "log_log".}
 
+\item{first_age_pop_1}{\code{Numeric value} starting age of the youngest age group from population and life table data in the scenario 1.}
+
+\item{last_age_pop_1}{\code{Numeric value} ending age of the oldest age group from population and life table data in the scenario 1.}
+
+\item{prob_natural_death_female_1}{\code{Numeric vector} containing the probability of dying due to natural cause (excluding non-natural deaths due to violence or accidents) by age or age group for females in the scenario 1.}
+
+\item{prob_total_death_male_1}{\code{Numeric vector} containing the probability of dying due to all causes (including non-natural deaths due to violence or accidents) by age or age group for males in the scenario 1.}
+
+\item{prob_total_death_female_1}{\code{Numeric vector} containing the probability of dying due to all causes (including non-natural deaths due to violence or accidents) by age or age group for females in the scenario 1.}
+
+\item{population_midyear_male_1}{\code{Numeric vector} containing the mid-year male population for the year of analysis of the scenario 1.}
+
+\item{population_midyear_female_1}{\code{Vector} containing the mid-year female population for the year of analysis.}
+
+\item{year_of_analysis_1}{\code{Numeric value} of the year of analysis, which corresponds to the first year of the life table in the scenario 2.}
+
+\item{first_age_pop_2}{\code{Numeric value} starting age of the youngest age group from population and life table data in the scenario 2.}
+
+\item{last_age_pop_2}{\code{Numeric value} ending age of the oldest age group from population and life table data in the scenario 2.}
+
+\item{prob_natural_death_male_2}{\code{Numeric vector} containing the probability of dying due to natural cause (excluding non-natural deaths due to violence or accidents) by age or age group for males in the scenario 2.}
+
+\item{prob_natural_death_female_2}{\code{Numeric vector} containing the probability of dying due to natural cause (excluding non-natural deaths due to violence or accidents) by age or age group for females in the scenario 2.}
+
+\item{prob_total_death_male_2}{\code{Numeric vector} containing the probability of dying due to all causes (including non-natural deaths due to violence or accidents) by age or age group for males in the scenario 2.}
+
+\item{prob_total_death_female_2}{\code{Numeric vector} containing the probability of dying due to all causes (including non-natural deaths due to violence or accidents) by age or age group for females in the scenario 2.}
+
+\item{population_midyear_male_2}{\code{Numeric vector} containing the mid-year male population for the year of analysis of the scenario 2.}
+
+\item{population_midyear_female_2}{\code{Vector} containing the mid-year female population for the year of analysis.}
+
+\item{year_of_analysis_2}{\code{Numeric value} of the year of analysis, which corresponds to the first year of the life table.}
+
+\item{min_age}{\code{Numberic value} of the minimal age to be considered for adults (by default 30, i.e. 30+).}
+
+\item{max_age}{\code{Numberic value} of the maximal age to be considered for infants/children (by default 0, i.e. below 1 year old).}
+
+\item{disability_weight}{\code{Numeric value} showing the disability weight associated with the morbidity health outcome}
+
+\item{duration}{\code{Numeric value} showing the disease duration}
+
+\item{corrected_discount_rate}{\code{Numeric value} showing the discount rate for future years including correction from inflation rate}
+
 \item{info_1}{\code{String} or {data frame} showing additional information or id of the scenario 1. The suffix "info" will be added to the column name. Default value = NULL.}
 
 \item{info_2}{\code{String} or {data frame} showing additional information or id of the scenario 1. The suffix "info" will be added to the column name. Default value = NULL.}
-
-\item{exp_1}{\code{Numeric value} showing the population-weighted mean exposure in ug/m3 or {vector} showing the exposure category in a exposure distribution in the scenario 1.}
-
-\item{exp_2}{\code{Numeric value} showing the population-weighted mean exposure in ug/m3 or {vector} showing the exposure category in a exposure distribution in the scenario 2.}
 
 \item{rr}{\code{Vector} of three numeric values referring to the central estimate as well as the lower and upper bound of the confidence interval.}
 
 \item{erf_c}{\code{String} showing the user-defined function that puts the relative risk in relation with concentration. The function must have only one variable: c, which means concentration. E.g. "3+c+c^2". Default value = NULL.}
 
-\item{bhd_1}{\code{Numeric value} showing the baseline health data (incidence of the health outcome in the population) in the scenario 1.}
-
-\item{bhd_2}{\code{Numeric value} showing the baseline health data (incidence of the health outcome in the population) in the scenario 1.}
+\item{prob_natural_death_male-1}{\code{Numeric vector} containing the probability of dying due to natural cause (excluding non-natural deaths due to violence or accidents) by age or age group for males in the scenario 1.}
 }
 \value{
 TBD. E.g. This function returns a \code{data.frame} with one row for each value of the
@@ -107,9 +153,6 @@ Calculates the health impacts between two scenarios (e.g. before and after a int
 }
 \note{
 Experimental function
-}
-\examples{
-TBD
 }
 \author{
 Alberto Castro

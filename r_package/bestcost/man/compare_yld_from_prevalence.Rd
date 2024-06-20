@@ -52,19 +52,11 @@ compare_yld_from_prevalence(
 
 \item{erf_shape}{\code{String} showing the shape of the exposure-response function to be assumed using the relative risk from the literature as support point. Options: "linear", log_linear", "linear_log", "log_log".}
 
-\item{bhd_central_1}{\code{Numeric value} showing the baseline health data (incidence of the health outcome in the population) in the scenario 1.}
-
-\item{bhd_central_2}{\code{Numeric value} showing the baseline health data (incidence of the health outcome in the population) in the scenario 1.}
-
 \item{disability_weight}{\code{Numeric value} showing the disability weight associated with the morbidity health outcome}
 
 \item{info_1}{\code{String} or {data frame} showing additional information or id of the scenario 1. The suffix "info" will be added to the column name. Default value = NULL.}
 
 \item{info_2}{\code{String} or {data frame} showing additional information or id of the scenario 1. The suffix "info" will be added to the column name. Default value = NULL.}
-
-\item{rr}{\code{Vector} of three numeric values referring to the central estimate as well as the lower and upper bound of the confidence interval.}
-
-\item{erf_c}{\code{String} showing the user-defined function that puts the relative risk in relation with concentration. The function must have only one variable: c, which means concentration. E.g. "3+c+c^2". Default value = NULL.}
 }
 \value{
 TBD. E.g. This function returns a \code{data.frame} with one row for each value of the

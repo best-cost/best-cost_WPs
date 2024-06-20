@@ -1,8 +1,9 @@
 #' Health impacts based on life tables
-#'
+
 #' Calculates the years lived with disability attributable to the exposure to an environmental stressor using a life table approach. It provides the central estimate of the impact and the corresponding 95\% confidence intervals (based on the 95\% confidence interval exposure-response function).
 #' @inheritParams attribute
-#'
+
+#' @return
 #' This function returns a \code{data.frame}
 #' @import dplyr
 #' @import purrr

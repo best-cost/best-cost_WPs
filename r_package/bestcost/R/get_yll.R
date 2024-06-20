@@ -78,7 +78,7 @@ get_yll <-
 
           ## Calculate total, discounted life years (single value) per sex & ci ####
           yll_by_list[[s]][[v]][["discounted"]] <-
-            lifeyears_byYear[[s]][[v]]%>%
+            lifeyears_by_year[[s]][[v]]%>%
             # Convert year to numeric
             dplyr::mutate(year = as.numeric(year))%>%
             # Calculate discount rate for each year

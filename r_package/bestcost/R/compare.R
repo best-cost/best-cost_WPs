@@ -38,6 +38,7 @@
 #' @param disability_weight \code{Numeric value} showing the disability weight associated with the morbidity health outcome
 #' @param duration \code{Numeric value} showing the disease duration
 #' @param corrected_discount_rate \code{Numeric value} showing the discount rate for future years including correction from inflation rate
+#' @param geo_id_raw \code{Vector} showing the id code of the each geographic area considered in the assessment. If a vector is entered here, the data for each geographical area have to be provided as list in the corresponding arguments.
 #' @param info_1 \code{String} or {data frame} showing additional information or id of the scenario 1. The suffix "info" will be added to the column name. Default value = NULL.
 #' @param info_2 \code{String} or {data frame} showing additional information or id of the scenario 1. The suffix "info" will be added to the column name. Default value = NULL.
 
@@ -52,10 +53,6 @@
 #'  \item Outcome metric
 #'  \item And many more.
 #' }
-#' @import dplyr
-#' @import purrr
-#' @examples
-#' TBD
 #' @author Alberto Castro
 #' @note Experimental function
 #' @export
@@ -90,6 +87,8 @@ compare <-
            disability_weight = NULL,
            duration = NULL,
            corrected_discount_rate = NULL,
+           geo_id_raw = NULL,
+           geo_id_aggregated = NULL,
            info_1 = NULL, info_2 = NULL){
 
 
@@ -121,6 +120,8 @@ compare <-
         max_age = max_age,
         corrected_discount_rate = corrected_discount_rate,
         disability_weight = disability_weight,
+        geo_id_raw = geo_id_raw,
+        geo_id_aggregated = geo_id_aggregated,
         duration = duration,
         info = info_1)
 
@@ -152,23 +153,36 @@ compare <-
         corrected_discount_rate = corrected_discount_rate,
         disability_weight = disability_weight,
         duration = duration,
+        geo_id_raw = geo_id_raw,
+        geo_id_aggregated = geo_id_aggregated,
         info = info_2)
 
+
+    # If the user choose "pif"  as comparison method
+    # pif is additonally calculated
+    # impact is overwritten with the new values that refer to pif instead of paf
+
     # Identify the columns that are common for scenario 1 and 2
-    joining_columns <-
-      names(att_health_1[["main"]])[!grepl(c("exp|bhd|paf|rr_conc|absolute_risk_as_percent|population_affected|impact|impact_rounded|info"),
-                                            names(att_health_1[["main"]]))]
+    common_columns <-
+      intersect(names(att_health_1[["detailed"]][["raw"]]),
+                names(att_health_2[["detailed"]][["raw"]]))
+
+    identical_columns <-
+      common_columns %>%
+      purrr::keep(~ identical(att_health_1[["detailed"]][["raw"]][[.x]],
+                              att_health_2[["detailed"]][["raw"]][[.x]]))
 
 
-    # Merge the result tables by common columns
-    att_health <-
-      dplyr::left_join(
-        att_health_1[["main"]],
-        att_health_2[["main"]],
-        by = joining_columns,
-        suffix = c("_1", "_2")) %>%
-      # Calculate the delta (difference) between scenario 1 and 2
-      dplyr::mutate(impact = impact_1 - impact_2)
+      # Merge the result tables by common columns
+      att_health <-
+        dplyr::left_join(
+          att_health_1[["detailed"]][["raw"]],
+          att_health_2[["detailed"]][["raw"]],
+          by = identical_columns,
+          suffix = c("_1", "_2")) %>%
+        # Calculate the delta (difference) between scenario 1 and 2
+        dplyr::mutate(impact = impact_1 - impact_2,
+                      impact_rounded = round(impact, 0))
 
 
     # If the user choose "pif"  as comparison method
@@ -193,9 +207,12 @@ compare <-
             rr_conc_2 = rr_conc_2,
             prop_pop_exp_1 = prop_pop_exp_1,
             prop_pop_exp_2 = prop_pop_exp_1),
-          impact = bhd_1 * pif) %>%
+          impact = bhd * pif,
+          impact_rounded= round(impact, 0)) %>%
         {if(health_metric == "yld_from_prevalence")
-          dplyr::mutate(., impact = impact * disability_weight) else .}
+          dplyr::mutate(.,
+                        impact = impact * disability_weight,
+                        impact_rounded = round(impact, 0)) else .}
 
       }else if(
         comparison_method == "pif" &
@@ -251,10 +268,14 @@ compare <-
             max_age = max_age,
             info = info_2)
 
-        # Identify the columns that are common for scenario 1 and 2
-        joining_columns <-
-          names(input_1)[! grepl(c("exp|bhd|paf|rr_conc|absolute_risk_as_percent|population_affected|impact|impact_rounded|info"),
-                                 names(input_1))]
+        common_columns_input <-
+          intersect(names(input_1),
+                    names(input_2))
+
+        identical_columns_input <-
+          common_columns_input %>%
+          purrr::keep(~ identical(input_1[[.x]],
+                                  input_2[[.x]]))
 
 
         # Merge the input tables by common columns
@@ -262,7 +283,7 @@ compare <-
           dplyr::left_join(
             input_1,
             input_2,
-            by = joining_columns,
+            by = identical_columns_input,
             suffix = c("_1", "_2"))
 
 
@@ -339,18 +360,26 @@ compare <-
               meta = input_risk_pif)$main %>%
             # Replace paf with pif
             dplyr::rename(pif = paf)}
-        }
+
+        # Round results
+        #att_health <-
+          #att_health %>%
+          #mutate(impact_rounded = round(impact, 0))
 
 
+      }
 
-    # Round results
-    att_health <-
-      att_health %>%
-      mutate(impact_rounded = round(impact, 0))
+      # Organize output
+      # Classify the individual results of each scenario in delta and pif method
+      # in a list
 
-    output <- list(main = att_health,
-                   detailed = list(scenario_1 = att_health_1,
-                                   scenario_2 = att_health_2))
+      output <-
+        bestcost:::get_output(output_raw = list(main = att_health,
+                                                detailed = NA))
+
+      output[["detailed"]][["scenario_1"]] <- att_health_1
+      output[["detailed"]][["scenario_2"]] <- att_health_2
+
 
 
     return(output)
