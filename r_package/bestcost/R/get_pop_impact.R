@@ -27,24 +27,24 @@
 #' @keywords internal
 
 get_pop_impact <-
-  function(lifetable_with_pop, year_of_analysis, pop_fraction, outcome_metric){
+  function(lifetable_with_pop, year_of_analysis, input_risk_pop_fraction, outcome_metric){
 
     pop_impact <- list()
     lifetable_with_pop_backup <- lifetable_with_pop
 
     for(s in names(lifetable_with_pop)){
       lifetable_with_pop <- lifetable_with_pop_backup
-      for(v in pop_fraction$erf_ci){
+      for(v in input_risk_pop_fraction$erf_ci){
 
         lifetable_with_pop <- lifetable_with_pop_backup[[s]]
-        paf <- pop_fraction$paf[pop_fraction$erf_ci %in% v]
+        pop_fraction <- input_risk_pop_fraction$pop_fraction[input_risk_pop_fraction$erf_ci %in% v]
         second_year <- year_of_analysis + 1
 
         lifetable_with_pop <- lifetable_with_pop %>%
           dplyr::rename(!!paste0("population_", year_of_analysis) := population) %>%
           # Calculate the population the second year (first column after first year) considering the health effect of air pollution
           dplyr::mutate("population_{second_year}" :=
-                          dplyr::lag(!!as.symbol(paste0("population_",year_of_analysis))) * dplyr::lag(death_probability_natural) * paf) %>%
+                          dplyr::lag(!!as.symbol(paste0("population_",year_of_analysis))) * dplyr::lag(death_probability_natural) * pop_fraction) %>%
           # Move column up one row
           dplyr::mutate("population_{second_year}" := lead(!!as.symbol(paste0("population_", second_year))))
 
@@ -65,7 +65,7 @@ get_pop_impact <-
     }
 
     output <-
-      list(paf = pop_fraction,
+      list(pop_fraction = pop_fraction,
            pop_impact = pop_impact)
 
     return(output)

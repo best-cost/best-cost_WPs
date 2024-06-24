@@ -18,6 +18,8 @@ compare_health_ar(
   erf_c_central,
   erf_c_lower = NULL,
   erf_c_upper = NULL,
+  geo_id_raw = NULL,
+  geo_id_aggregated = NULL,
   info_1 = NULL,
   info_2 = NULL
 )
@@ -32,6 +34,8 @@ compare_health_ar(
 \item{pop_exp_1}{\code{Numeric value} or {vector} showing the population exposed for each of the exposure categories for the scenario 1. The length of this input variable must be the same as "exp".}
 
 \item{pop_exp_2}{\code{Numeric value} or {vector} showing the population exposed for each of the exposure categories for the scenario 2. The length of this input variable must be the same as "exp".}
+
+\item{geo_id_raw}{\code{Vector} showing the id code of the each geographic area considered in the assessment. If a vector is entered here, the data for each geographical area have to be provided as list in the corresponding arguments.}
 
 \item{info_1}{\code{String} or {data frame} showing additional information or id of the scenario 1. The suffix "info" will be added to the column name. Default value = NULL.}
 

@@ -30,6 +30,8 @@ compare_health(
   bhd_central_2,
   bhd_lower_2 = NULL,
   bhd_upper_2 = NULL,
+  geo_id_raw = NULL,
+  geo_id_aggregated = NULL,
   info_1 = NULL,
   info_2 = NULL
 )
@@ -50,6 +52,8 @@ compare_health(
 \item{erf_increment}{\code{Numeric value} showing the increment of the concentration-response function in ug/m3 (usually 10 or 5).}
 
 \item{erf_shape}{\code{String} showing the shape of the exposure-response function to be assumed using the relative risk from the literature as support point. Options: "linear", log_linear", "linear_log", "log_log".}
+
+\item{geo_id_raw}{\code{Vector} showing the id code of the each geographic area considered in the assessment. If a vector is entered here, the data for each geographical area have to be provided as list in the corresponding arguments.}
 
 \item{info_1}{\code{String} or {data frame} showing additional information or id of the scenario 1. The suffix "info" will be added to the column name. Default value = NULL.}
 
