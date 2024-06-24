@@ -17,12 +17,10 @@
 
 get_pif <-
   function(rr_conc_1, rr_conc_2, prop_pop_exp_1, prop_pop_exp_2){
-    # Just use get_pop_fraction() with all arguments and the result is the PIF
-    pif <-
-      bestcost::get_pop_fraction(rr_conc_1 = rr_conc_1,
-                                 rr_conc_2 = rr_conc_2,
-                                 prop_pop_exp_1 = prop_pop_exp_1,
-                                 prop_pop_exp_2 = prop_pop_exp_2)
+    # Source:
+    # https://www.ncbi.nlm.nih.gov/pmc/articles/PMC156894/
+    pif <- (sum(prop_pop_exp_1 * rr_conc_1) - sum(prop_pop_exp_2 * rr_conc_2)) / (sum(prop_pop_exp_1 * rr_conc_1))
+
     return(pif)
   }
 

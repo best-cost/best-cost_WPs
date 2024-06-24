@@ -158,13 +158,17 @@ compare <-
         info = info_2)
 
 
-    # Identify the columns that are identical for scenario 1 and 2
-    identical_columns <-
-      # Firt identify the columns that are common for scenario 1 and 2
+    # If the user choose "pif"  as comparison method
+    # pif is additonally calculated
+    # impact is overwritten with the new values that refer to pif instead of paf
+
+    # Identify the columns that are common for scenario 1 and 2
+    common_columns <-
       intersect(names(att_health_1[["detailed"]][["raw"]]),
-                names(att_health_2[["detailed"]][["raw"]]))%>%
-      # Second, the identical columns of the common ones
-      # They are the colums to be used when joining data frames
+                names(att_health_2[["detailed"]][["raw"]]))
+
+    identical_columns <-
+      common_columns %>%
       purrr::keep(~ identical(att_health_1[["detailed"]][["raw"]][[.x]],
                               att_health_2[["detailed"]][["raw"]][[.x]]))
 
@@ -194,7 +198,6 @@ compare <-
          stop("Baseline health data have to be identical for scenario 1 and 2.")
        }
 
-      # Get pif and put it in a column
       att_health <-
         att_health %>%
         rowwise() %>%
@@ -204,11 +207,9 @@ compare <-
             rr_conc_2 = rr_conc_2,
             prop_pop_exp_1 = prop_pop_exp_1,
             prop_pop_exp_2 = prop_pop_exp_1),
-          # Calculate impact
           impact = bhd * pif,
           impact_rounded= round(impact, 0)) %>%
         {if(health_metric == "yld_from_prevalence")
-          # If yld from prevalence, then multiply by disability weight
           dplyr::mutate(.,
                         impact = impact * disability_weight,
                         impact_rounded = round(impact, 0)) else .}
@@ -267,10 +268,12 @@ compare <-
             max_age = max_age,
             info = info_2)
 
-        # Get identical columns to join data frames (as above)
-        identical_columns_input <-
+        common_columns_input <-
           intersect(names(input_1),
-                    names(input_2))%>%
+                    names(input_2))
+
+        identical_columns_input <-
+          common_columns_input %>%
           purrr::keep(~ identical(input_1[[.x]],
                                   input_2[[.x]]))
 
@@ -282,6 +285,13 @@ compare <-
             input_2,
             by = identical_columns_input,
             suffix = c("_1", "_2"))
+
+
+        # Get PAF and add to the input data frame
+        input_risk_pif <-
+          bestcost:::get_risk_and_pif(input = input)%>%
+          #Replace pif with paf to be able to use the lifetable functions
+          dplyr::rename(paf=pif)
 
 
 
@@ -298,15 +308,6 @@ compare <-
             prob_total_death_female = prob_total_death_female_1,
             population_midyear_male = population_midyear_male_1,
             population_midyear_female =  population_midyear_female_1)
-
-
-        # Get PAF and add to the input data frame
-        input_risk_pif <-
-          bestcost:::get_risk_and_pif(input = input)%>%
-          #Replace pif with paf to be able to use the lifetable functions
-          dplyr::rename(paf=pif)
-
-
 
         # Store the outcome metric of the life table method
         outcome_metric <- gsub("_from_lifetable", "",

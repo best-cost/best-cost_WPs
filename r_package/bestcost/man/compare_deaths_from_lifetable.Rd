@@ -44,8 +44,6 @@ compare_deaths_from_lifetable(
   year_of_analysis_2,
   min_age = NULL,
   max_age = NULL,
-  geo_id_raw = NULL,
-  geo_id_aggregated = NULL,
   info_1 = NULL,
   info_2 = NULL
 )
@@ -104,8 +102,6 @@ compare_deaths_from_lifetable(
 \item{min_age}{\code{Numberic value} of the minimal age to be considered for adults (by default 30, i.e. 30+).}
 
 \item{max_age}{\code{Numberic value} of the maximal age to be considered for infants/children (by default 0, i.e. below 1 year old).}
-
-\item{geo_id_raw}{\code{Vector} showing the id code of the each geographic area considered in the assessment. If a vector is entered here, the data for each geographical area have to be provided as list in the corresponding arguments.}
 
 \item{info_1}{\code{String} or {data frame} showing additional information or id of the scenario 1. The suffix "info" will be added to the column name. Default value = NULL.}
 
