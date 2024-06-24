@@ -47,6 +47,8 @@ compare_yld_from_lifetable(
   disability_weight,
   duration = NULL,
   corrected_discount_rate = NULL,
+  geo_id_raw = NULL,
+  geo_id_aggregated = NULL,
   info_1 = NULL,
   info_2 = NULL
 )
@@ -111,6 +113,8 @@ compare_yld_from_lifetable(
 \item{duration}{\code{Numeric value} showing the disease duration}
 
 \item{corrected_discount_rate}{\code{Numeric value} showing the discount rate for future years including correction from inflation rate}
+
+\item{geo_id_raw}{\code{Vector} showing the id code of the each geographic area considered in the assessment. If a vector is entered here, the data for each geographical area have to be provided as list in the corresponding arguments.}
 
 \item{info_1}{\code{String} or {data frame} showing additional information or id of the scenario 1. The suffix "info" will be added to the column name. Default value = NULL.}
 
