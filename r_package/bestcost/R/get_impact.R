@@ -26,15 +26,17 @@ get_impact <-
            max_age = NULL,
            corrected_discount_rate = NULL,
            disability_weight = NULL,
-           duration = NULL){
+           duration = NULL,
+           pop_fraction_type){
 
     if(unique(input$risk_method) == "relative_risk" &
        unique(input$health_metric) %in% c("same_input_output",
                                           "yld_from_prevalence")){
       # Get pop_fraction and added to the input data frame
       output_raw_main <-
-        bestcost:::get_risk_and_pop_fraction(input = input) %>%
-        # Build the result table adding the pop_fraction to the input table
+        bestcost:::get_risk_and_pop_fraction(input = input,
+                                             pop_fraction_type = pop_fraction_type) %>%
+        # Build the result table adding the impact to the input table
         dplyr::mutate(impact = pop_fraction * bhd) %>%
         {if(unique(input$health_metric) == "yld_from_prevalence")
           dplyr::mutate(., impact = impact * disability_weight) else .} %>%
@@ -57,15 +59,16 @@ get_impact <-
        gsub("_from_lifetable", "", unique(input$health_metric))
 
       # Get pop_fraction and add to the input data frame
-      input_risk_pop_fraction <-
-        bestcost:::get_risk_and_pop_fraction(input = input)
+      input_with_risk_and_pop_fraction <-
+        bestcost:::get_risk_and_pop_fraction(input = input,
+                                             pop_fraction_type = pop_fraction_type)
 
       # Get population impact ####
       pop_impact <-
         bestcost:::get_pop_impact(
           lifetable_with_pop = lifetable_with_pop,
           year_of_analysis = year_of_analysis,
-          input_risk_pop_fraction = input_risk_pop_fraction,
+          input_with_risk_and_pop_fraction = input_with_risk_and_pop_fraction,
           outcome_metric = outcome_metric)
 
       if(outcome_metric == "deaths"){
@@ -76,7 +79,7 @@ get_impact <-
             year_of_analysis = year_of_analysis,
             min_age = min_age,
             max_age = max_age,
-            meta = input_risk_pop_fraction)
+            meta = input_with_risk_and_pop_fraction)
 
       } else if(outcome_metric == "yll"){
         output_raw <-
@@ -86,7 +89,7 @@ get_impact <-
             min_age = min_age,
             max_age = max_age,
             corrected_discount_rate = corrected_discount_rate,
-            meta = input_risk_pop_fraction)
+            meta = input_with_risk_and_pop_fraction)
 
       } else if(outcome_metric == "yld"){
         output_raw <-
@@ -98,7 +101,7 @@ get_impact <-
             corrected_discount_rate = corrected_discount_rate,
             disability_weight = disability_weight,
             duration = duration,
-            meta = input_risk_pop_fraction)
+            meta = input_with_risk_and_pop_fraction)
       }
 
 

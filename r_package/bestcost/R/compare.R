@@ -139,8 +139,8 @@ compare <-
         erf_shape = erf_shape,
         erf_c_central = erf_c_central, erf_c_lower = erf_c_lower, erf_c_upper = erf_c_upper,
         bhd_central = bhd_central_2, bhd_lower = bhd_lower_2, bhd_upper = bhd_upper_2,
-        first_age_pop = first_age_pop_1,
-        last_age_pop = last_age_pop_1,
+        first_age_pop = first_age_pop_2,
+        last_age_pop = last_age_pop_2,
         prob_natural_death_male = prob_natural_death_male_2,
         prob_natural_death_female = prob_natural_death_female_2,
         prob_total_death_male = prob_total_death_male_2,
@@ -199,13 +199,13 @@ compare <-
         att_health %>%
         rowwise() %>%
         dplyr::mutate(
-          pif = bestcost::get_pif(
+          pop_fraction = bestcost::get_pop_fraction(
             rr_conc_1 = rr_conc_1,
             rr_conc_2 = rr_conc_2,
             prop_pop_exp_1 = prop_pop_exp_1,
             prop_pop_exp_2 = prop_pop_exp_1),
           # Calculate impact
-          impact = bhd * pif,
+          impact = bhd * pop_fraction,
           impact_rounded= round(impact, 0)) %>%
         {if(health_metric == "yld_from_prevalence")
           # If yld from prevalence, then multiply by disability weight
@@ -247,7 +247,9 @@ compare <-
             erf_c_central = erf_c_central, erf_c_lower = erf_c_lower, erf_c_upper = erf_c_upper,
             min_age = min_age,
             max_age = max_age,
-            info = info_1)
+            info = info_1,
+            geo_id_raw = geo_id_raw,
+            geo_id_aggregated = geo_id_aggregated)
 
         # Compile input data of scenario 2
         input_2 <-
@@ -265,7 +267,9 @@ compare <-
             erf_c_central = erf_c_central, erf_c_lower = erf_c_lower, erf_c_upper = erf_c_upper,
             min_age = min_age,
             max_age = max_age,
-            info = info_2)
+            info = info_2,
+            geo_id_raw = geo_id_raw,
+            geo_id_aggregated = geo_id_aggregated)
 
         # Get identical columns to join data frames (as above)
         identical_columns_input <-
@@ -301,10 +305,12 @@ compare <-
 
 
         # Get PAF and add to the input data frame
-        input_risk_pif <-
-          bestcost:::get_risk_and_pif(input = input)%>%
+        input_with_risk_and_pop_fraction <-
+          bestcost:::get_risk_and_pop_fraction(input = input,
+                                               pop_fraction_type = "pif")
+
           #Replace pif with paf to be able to use the lifetable functions
-          dplyr::rename(paf=pif)
+          #dplyr::rename(paf=pif)
 
 
 
@@ -318,7 +324,7 @@ compare <-
           bestcost:::get_pop_impact(
             lifetable_with_pop = lifetable_with_pop,
             year_of_analysis = year_of_analysis_1,
-            pop_fraction = input_risk_pif[, c("erf_ci", "paf")],
+            input_with_risk_and_pop_fraction = input_with_risk_and_pop_fraction,
             outcome_metric = outcome_metric)
 
         if(outcome_metric == "deaths"){
@@ -329,9 +335,9 @@ compare <-
               year_of_analysis = year_of_analysis_1,
               min_age = min_age,
               max_age = max_age,
-              meta = input_risk_pif)$main %>%
+              meta = input_with_risk_and_pop_fraction)$main
             # Replace paf with pif
-            dplyr::rename(pif = paf)
+            #dplyr::rename(pif = paf)
 
           }else if(outcome_metric == "yll"){
             # Calculate deaths ####
@@ -341,9 +347,9 @@ compare <-
                 year_of_analysis = year_of_analysis_1,
                 min_age = min_age,
                 max_age = max_age,
-                meta = input_risk_pif)$main %>%
+                meta = input_with_risk_and_pop_fraction)$main
               # Replace paf with pif
-              dplyr::rename(pif = paf)
+              #dplyr::rename(pif = paf)
 
             }else if(outcome_metric == "yld"){
           # Calculate deaths ####
@@ -356,9 +362,10 @@ compare <-
               corrected_discount_rate = corrected_discount_rate,
               disability_weight = disability_weight,
               duration = duration,
-              meta = input_risk_pif)$main %>%
+              meta = input_with_risk_and_pop_fraction)$main
             # Replace paf with pif
-            dplyr::rename(pif = paf)}
+            #dplyr::rename(pif = paf)
+            }
 
         # Round results
         #att_health <-

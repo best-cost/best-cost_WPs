@@ -732,7 +732,7 @@ comparison_singlebhd_rr_delta_geo <-
 # No study to compare bestcost results
 # Check only if results stay the same overtime despite developments
 check_bestcost(result_list_bestcost = comparison_singlebhd_rr_delta_geo ,
-               result_vector_alternative = c(2023, 1096, 2883)) # Result on 19 June 2024
+               result_vector_alternative = c(1100, 582, 1603)) # Result on 26 June 2024
 
 #PIF
 # Test pif comparison function with fake values
@@ -905,7 +905,7 @@ comparison_yld_singlebhd_rr_delta_geo <-
 # No study to compare bestcost results
 # Check only if results stay the same overtime despite developments
 check_bestcost(result_list_bestcost = comparison_yld_singlebhd_rr_delta_geo ,
-               result_vector_alternative = c(1124, 609, 1602)) # Result on 20 June 2024
+               result_vector_alternative = c(591, 313, 861)) # Result on 26 June 2024
 
 
 #PIF
@@ -1055,7 +1055,7 @@ comparison_deaths_lifetable_delta_geo <-
 # No study to compare bestcost results
 # Check only if results stay the same overtime despite developments
 check_bestcost(result_list_bestcost = comparison_deaths_lifetable_delta_geo ,
-               result_vector_alternative = c(5584, 3024, 7957)) # Result on 20 June 2024
+               result_vector_alternative = c(2932, 1551, 4274)) # Result on 20 June 2024
 
 
 # PIF
@@ -1144,7 +1144,7 @@ comparison_deaths_lifetable_pif_geo <-
 # No study to compare bestcost results
 # Check only if results stay the same overtime despite developments
 check_bestcost(result_list_bestcost = comparison_deaths_lifetable_pif_geo ,
-               result_vector_alternative = c(1489,782,2186)) # Result on 20 June 2024
+               result_vector_alternative = c(2970,1562,4358)) # Result on 26 June 2024
 
 
 ```
@@ -1239,7 +1239,7 @@ comparison_yll_lifetable_delta_geo <-
 # No study to compare bestcost results
 # Check only if results stay the same overtime despite developments
 check_bestcost(result_list_bestcost = comparison_yll_lifetable_delta_geo ,
-               result_vector_alternative = c(59340, 32137, 84566)) # Result on 20 June 2024
+               result_vector_alternative = c(31185, 16497, 45465)) # Result on 26 June 2024
 
 # PIF
 comparison_yll_lifetable_pif <-
@@ -1327,7 +1327,7 @@ comparison_yll_lifetable_pif_geo <-
 # No study to compare bestcost results
 # Check only if results stay the same overtime despite developments
 check_bestcost(result_list_bestcost = comparison_yll_lifetable_pif_geo ,
-               result_vector_alternative = c(15823, 8313, 23229)) # Result on 20 June 2024
+               result_vector_alternative = c(31595, 16610, 46351)) # Result on 26 June 2024
 
 ```
 
@@ -1426,7 +1426,7 @@ comparison_yld_lifetable_delta_geo <-
 # No study to compare bestcost results
 # Check only if results stay the same overtime despite developments
 check_bestcost(result_list_bestcost = comparison_yld_lifetable_delta_geo ,
-               result_vector_alternative = c(59340, 32137, 84566)) # Result on 20 June 2024
+               result_vector_alternative = c(31185, 16497, 45465)) # Result on 26 June 2024
 
 
 # PIF
@@ -1518,7 +1518,7 @@ comparison_yld_lifetable_pif_geo <-
 # No study to compare bestcost results
 # Check only if results stay the same overtime despite developments
 check_bestcost(result_list_bestcost = comparison_yld_lifetable_pif_geo ,
-               result_vector_alternative = c(15823, 8313, 23229)) # Result on 20 June 2024
+               result_vector_alternative = c(31595, 16610, 46351)) # Result on 26 June 2024
 
 ```
 

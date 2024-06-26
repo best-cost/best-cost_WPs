@@ -5,7 +5,7 @@
 \title{Get input data and PAF
 Calculates the population attributable fraction (PAF) based on the input data and puts the results in additional columns joined to the input data frame.}
 \usage{
-get_risk_and_pop_fraction(input)
+get_risk_and_pop_fraction(input, pop_fraction_type)
 }
 \arguments{
 \item{input}{\code{Data frame} with the input data}

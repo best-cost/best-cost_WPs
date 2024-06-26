@@ -27,10 +27,7 @@
 #' @keywords internal
 
 get_pop_impact <-
-  function(lifetable_with_pop,
-           year_of_analysis,
-           input_with_risk_and_pop_fraction,
-           outcome_metric){
+  function(lifetable_with_pop, year_of_analysis, input_with_risk_and_pop_fraction, outcome_metric){
 
     pop_impact <- list()
     lifetable_with_pop_backup <- lifetable_with_pop

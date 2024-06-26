@@ -127,7 +127,8 @@ attribute <-
                             max_age = max_age,
                             corrected_discount_rate = corrected_discount_rate,
                             disability_weight = disability_weight,
-                            duration = duration)
+                            duration = duration,
+                            pop_fraction_type = "paf")
 
     # Get the main and detailed output by aggregating and/or filtering cases (rows)
     output <-
