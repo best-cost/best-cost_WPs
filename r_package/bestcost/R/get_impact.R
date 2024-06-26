@@ -29,84 +29,81 @@ get_impact <-
            duration = NULL,
            pop_fraction_type){
 
-    if(unique(input$risk_method) == "relative_risk" &
-       unique(input$health_metric) %in% c("same_input_output",
-                                          "yld_from_prevalence")){
-      # Get pop_fraction and added to the input data frame
-      output_raw_main <-
-        bestcost:::get_risk_and_pop_fraction(input = input,
-                                             pop_fraction_type = pop_fraction_type) %>%
-        # Build the result table adding the impact to the input table
-        dplyr::mutate(impact = pop_fraction * bhd) %>%
-        {if(unique(input$health_metric) == "yld_from_prevalence")
-          dplyr::mutate(., impact = impact * disability_weight) else .} %>%
-        dplyr::mutate(
-          impact_rounded =
-            round(impact, 0)) %>%
-        # Order columns
-        dplyr::select(exp_ci, bhd_ci, erf_ci,
-                      pop_fraction, impact, impact_rounded,
-                      everything())
-
-      output_raw <- list(main = output_raw_main)
-    }
-
-    else if (unique(input$risk_method) == "relative_risk" &
-             unique(input$health_metric) %in%
-             c("deaths_from_lifetable", "yll_from_lifetable", "yld_from_lifetable")){
-
-     outcome_metric <-
-       gsub("_from_lifetable", "", unique(input$health_metric))
-
+    if(unique(input$risk_method) == "relative_risk"){
       # Get pop_fraction and add to the input data frame
       input_with_risk_and_pop_fraction <-
         bestcost:::get_risk_and_pop_fraction(input = input,
                                              pop_fraction_type = pop_fraction_type)
 
-      # Get population impact ####
-      pop_impact <-
-        bestcost:::get_pop_impact(
-          lifetable_with_pop = lifetable_with_pop,
-          year_of_analysis = year_of_analysis,
-          input_with_risk_and_pop_fraction = input_with_risk_and_pop_fraction,
-          outcome_metric = outcome_metric)
+      if(unique(input$health_metric) %in% c("same_input_output",
+                                            "yld_from_prevalence")){
+        # Get pop_fraction and added to the input data frame
+        output_raw_main <-
+          input_with_risk_and_pop_fraction %>%
+          # Build the result table adding the impact to the input table
+          dplyr::mutate(impact = pop_fraction * bhd) %>%
+          {if(unique(input$health_metric) == "yld_from_prevalence")
+            dplyr::mutate(., impact = impact * disability_weight) else .} %>%
+          dplyr::mutate(
+            impact_rounded =
+              round(impact, 0)) %>%
+          # Order columns
+          dplyr::select(exp_ci, bhd_ci, erf_ci,
+                        pop_fraction, impact, impact_rounded,
+                        everything())
 
-      if(outcome_metric == "deaths"){
-        # Calculate deaths ####
-        output_raw <-
-          bestcost:::get_deaths(
-            pop_impact = pop_impact,
-            year_of_analysis = year_of_analysis,
-            min_age = min_age,
-            max_age = max_age,
-            meta = input_with_risk_and_pop_fraction)
+        output_raw <- list(main = output_raw_main)
 
-      } else if(outcome_metric == "yll"){
-        output_raw <-
-          bestcost:::get_yll(
-            pop_impact = pop_impact,
-            year_of_analysis = year_of_analysis,
-            min_age = min_age,
-            max_age = max_age,
-            corrected_discount_rate = corrected_discount_rate,
-            meta = input_with_risk_and_pop_fraction)
+        } else if (unique(input$health_metric) %in%
+                 c("deaths_from_lifetable", "yll_from_lifetable", "yld_from_lifetable")){
 
-      } else if(outcome_metric == "yld"){
-        output_raw <-
-          bestcost:::get_yld(
-            pop_impact = pop_impact,
-            year_of_analysis = year_of_analysis,
-            min_age = min_age,
-            max_age = max_age,
-            corrected_discount_rate = corrected_discount_rate,
-            disability_weight = disability_weight,
-            duration = duration,
-            meta = input_with_risk_and_pop_fraction)
-      }
+          outcome_metric <-
+            gsub("_from_lifetable", "", unique(input$health_metric))
 
 
+          # Get population impact ####
+          pop_impact <-
+            bestcost:::get_pop_impact(
+              lifetable_with_pop = lifetable_with_pop,
+              year_of_analysis = year_of_analysis,
+              input_with_risk_and_pop_fraction = input_with_risk_and_pop_fraction,
+              outcome_metric = outcome_metric)
+
+          if(outcome_metric == "deaths"){
+            # Calculate deaths ####
+            output_raw <-
+              bestcost:::get_deaths(
+                pop_impact = pop_impact,
+                year_of_analysis = year_of_analysis,
+                min_age = min_age,
+                max_age = max_age,
+                meta = input_with_risk_and_pop_fraction)
+
+          } else if(outcome_metric == "yll"){
+            output_raw <-
+              bestcost:::get_yll(
+                pop_impact = pop_impact,
+                year_of_analysis = year_of_analysis,
+                min_age = min_age,
+                max_age = max_age,
+                corrected_discount_rate = corrected_discount_rate,
+                meta = input_with_risk_and_pop_fraction)
+
+          } else if(outcome_metric == "yld"){
+            output_raw <-
+              bestcost:::get_yld(
+                pop_impact = pop_impact,
+                year_of_analysis = year_of_analysis,
+                min_age = min_age,
+                max_age = max_age,
+                corrected_discount_rate = corrected_discount_rate,
+                disability_weight = disability_weight,
+                duration = duration,
+                meta = input_with_risk_and_pop_fraction)
+          }
 
 
+        }
 
     } else if(unique(input$risk_method) == "absolute_risk" &
               unique(input$health_metric) == "same_input_output"){
