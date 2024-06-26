@@ -90,6 +90,7 @@ get_risk_and_pop_fraction <-
           exp_mean = mean(exp),
           # Replace the actual values with "multiple" to enable reduction of rows
           exp = paste(exp, collapse = ", "),
+          exposure_dimension = paste("1:", max(exposure_dimension)),
           prop_pop_exp = paste(prop_pop_exp, collapse = ", "),
           rr_conc = paste(rr_conc, collapse = ", ")) %>%
         # Keep only rows that are distinct

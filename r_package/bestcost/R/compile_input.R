@@ -86,6 +86,11 @@ compile_input <-
              length(exp_central[[1]]),
              length(exp_central))
 
+    length_exp_list <-
+      ifelse(is.list(exp_central),
+             length(exp_central),
+             1)
+
 
     input <-
       # Build a tibble instead  a data.frame because tibble converts NULL into NA
@@ -128,11 +133,10 @@ compile_input <-
         risk_method = risk_method,
         health_metric = health_metric,
         # Using {{}} to call the argument instead of the column (same name)
+        exposure_dimension =
+          rep(1:length_exp_dist, length_exp_list),
         exposure_type =
-          ifelse((is.list({{exp_central}}) &
-                   unique(purrr::map_int({{exp_central}}, function(x) length(x))) == 1) |
-                   (!is.list({{exp_central}}) &
-                      length({{exp_central}}) == 1),
+          ifelse(length_exp_dist == 1,
                  "population_weighted_mean",
                  "exposure_distribution")) %>%
       # Remove all columns with all values being NA

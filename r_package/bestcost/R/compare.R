@@ -91,10 +91,8 @@ compare <-
            geo_id_aggregated = NULL,
            info_1 = NULL, info_2 = NULL){
 
-
-
     # Calculate attributable health impacts in the scenario 1
-    att_health_1 <-
+    impact_raw_1 <-
       bestcost::attribute(
         risk_method = risk_method,
         health_metric = health_metric,
@@ -126,7 +124,7 @@ compare <-
         info = info_1)
 
     # Calculate attributable health impacts in the scenario 2
-    att_health_2 <-
+    impact_raw_2 <-
       bestcost::attribute(
         risk_method = risk_method,
         health_metric = health_metric,
@@ -159,26 +157,36 @@ compare <-
 
 
     # Identify the columns that are identical for scenario 1 and 2
-    identical_columns <-
+    identical_columns_output <-
       # Firt identify the columns that are common for scenario 1 and 2
-      intersect(names(att_health_1[["detailed"]][["raw"]]),
-                names(att_health_2[["detailed"]][["raw"]]))%>%
+      intersect(names(impact_raw_1[["detailed"]][["raw"]]),
+                names(impact_raw_2[["detailed"]][["raw"]]))%>%
       # Second, the identical columns of the common ones
-      # They are the colums to be used when joining data frames
-      purrr::keep(~ identical(att_health_1[["detailed"]][["raw"]][[.x]],
-                              att_health_2[["detailed"]][["raw"]][[.x]]))
+      # They are the columns to be used when joining data frames
+      purrr::keep(~ identical(impact_raw_1[["detailed"]][["raw"]][[.x]],
+                              impact_raw_2[["detailed"]][["raw"]][[.x]]))
+
+    scenario_specific_arguments <-
+      grep("_1|_2", names(formals(compare)), value = TRUE) %>%
+      gsub("_1|_2", "", .)%>%
+      unique(.)
+
+    joining_columns_output <-
+      dplyr::setdiff(identical_columns_output, scenario_specific_arguments)
 
 
       # Merge the result tables by common columns
-      att_health <-
+      impact_raw_main <-
         dplyr::left_join(
-          att_health_1[["detailed"]][["raw"]],
-          att_health_2[["detailed"]][["raw"]],
-          by = identical_columns,
+          impact_raw_1[["detailed"]][["raw"]],
+          impact_raw_2[["detailed"]][["raw"]],
+          by = joining_columns_output,
           suffix = c("_1", "_2")) %>%
         # Calculate the delta (difference) between scenario 1 and 2
         dplyr::mutate(impact = impact_1 - impact_2,
                       impact_rounded = round(impact, 0))
+
+      impact_raw <- list(main =  impact_raw_main)
 
 
     # If the user choose "pif"  as comparison method
@@ -195,8 +203,8 @@ compare <-
        }
 
       # Get pif and put it in a column
-      att_health <-
-        att_health %>%
+      impact_raw_main <-
+        impact_raw_main %>%
         rowwise() %>%
         dplyr::mutate(
           pop_fraction = bestcost::get_pop_fraction(
@@ -212,6 +220,8 @@ compare <-
           dplyr::mutate(.,
                         impact = impact * disability_weight,
                         impact_rounded = round(impact, 0)) else .}
+
+      impact_raw <- list(main = impact_raw_main)
 
       }else if(
         comparison_method == "pif" &
@@ -278,13 +288,16 @@ compare <-
           purrr::keep(~ identical(input_1[[.x]],
                                   input_2[[.x]]))
 
+        joining_columns_input <-
+          dplyr::setdiff(identical_columns_input, scenario_specific_arguments)
+
 
         # Merge the input tables by common columns
         input <-
           dplyr::left_join(
             input_1,
             input_2,
-            by = identical_columns_input,
+            by = joining_columns_input,
             suffix = c("_1", "_2"))
 
 
@@ -303,58 +316,71 @@ compare <-
             population_midyear_male = population_midyear_male_1,
             population_midyear_female =  population_midyear_female_1)
 
+        # Calculate the health impacts for each case (uncertainty, category, geo area...)
+        impact_raw <-
+          bestcost:::get_impact(input = input,
+                                lifetable_with_pop = lifetable_with_pop,
+                                year_of_analysis = year_of_analysis,
+                                min_age = min_age,
+                                max_age = max_age,
+                                corrected_discount_rate = corrected_discount_rate,
+                                disability_weight = disability_weight,
+                                duration = duration,
+                                pop_fraction_type = "pif")
 
-        # Get PAF and add to the input data frame
-        input_with_risk_and_pop_fraction <-
-          bestcost:::get_risk_and_pop_fraction(input = input,
-                                               pop_fraction_type = "pif")
-
-        # Store the outcome metric of the life table method
-        outcome_metric <- gsub("_from_lifetable", "",
-                               unique(input$health_metric))
 
 
-        # Get population impact ####
-        pop_impact <-
-          bestcost:::get_pop_impact(
-            lifetable_with_pop = lifetable_with_pop,
-            year_of_analysis = year_of_analysis_1,
-            input_with_risk_and_pop_fraction = input_with_risk_and_pop_fraction,
-            outcome_metric = outcome_metric)
-
-        if(outcome_metric == "deaths"){
-          # Calculate deaths ####
-          att_health <-
-            bestcost:::get_deaths(
-              pop_impact = pop_impact,
-              year_of_analysis = year_of_analysis_1,
-              min_age = min_age,
-              max_age = max_age,
-              meta = input_with_risk_and_pop_fraction)$main
-
-          }else if(outcome_metric == "yll"){
-            # Calculate deaths ####
-            att_health <-
-              bestcost:::get_yll(
-                pop_impact = pop_impact,
-                year_of_analysis = year_of_analysis_1,
-                min_age = min_age,
-                max_age = max_age,
-                meta = input_with_risk_and_pop_fraction)$main
-
-            }else if(outcome_metric == "yld"){
-          # Calculate deaths ####
-          att_health <-
-            bestcost:::get_yld(
-              pop_impact = pop_impact,
-              year_of_analysis = year_of_analysis_1,
-              min_age = min_age,
-              max_age = max_age,
-              corrected_discount_rate = corrected_discount_rate,
-              disability_weight = disability_weight,
-              duration = duration,
-              meta = input_with_risk_and_pop_fraction)$main
-            }
+        # # Get PAF and add to the input data frame
+        # input_with_risk_and_pop_fraction <-
+        #   bestcost:::get_risk_and_pop_fraction(input = input,
+        #                                        pop_fraction_type = "pif")
+        #
+        # # Store the outcome metric of the life table method
+        # outcome_metric <- gsub("_from_lifetable", "",
+        #                        unique(input$health_metric))
+        #
+        #
+        # # Get population impact ####
+        # pop_impact <-
+        #   bestcost:::get_pop_impact(
+        #     lifetable_with_pop = lifetable_with_pop,
+        #     year_of_analysis = year_of_analysis_1,
+        #     input_with_risk_and_pop_fraction = input_with_risk_and_pop_fraction,
+        #     outcome_metric = outcome_metric)
+        #
+        # if(outcome_metric == "deaths"){
+        #   # Calculate deaths ####
+        #   att_health <-
+        #     bestcost:::get_deaths(
+        #       pop_impact = pop_impact,
+        #       year_of_analysis = year_of_analysis_1,
+        #       min_age = min_age,
+        #       max_age = max_age,
+        #       meta = input_with_risk_and_pop_fraction)$main
+        #
+        #   }else if(outcome_metric == "yll"){
+        #     # Calculate deaths ####
+        #     att_health <-
+        #       bestcost:::get_yll(
+        #         pop_impact = pop_impact,
+        #         year_of_analysis = year_of_analysis_1,
+        #         min_age = min_age,
+        #         max_age = max_age,
+        #         meta = input_with_risk_and_pop_fraction)$main
+        #
+        #     }else if(outcome_metric == "yld"){
+        #   # Calculate deaths ####
+        #   att_health <-
+        #     bestcost:::get_yld(
+        #       pop_impact = pop_impact,
+        #       year_of_analysis = year_of_analysis_1,
+        #       min_age = min_age,
+        #       max_age = max_age,
+        #       corrected_discount_rate = corrected_discount_rate,
+        #       disability_weight = disability_weight,
+        #       duration = duration,
+        #       meta = input_with_risk_and_pop_fraction)$main
+        #     }
 
 
 
@@ -365,11 +391,10 @@ compare <-
       # in a list
 
       output <-
-        bestcost:::get_output(output_raw = list(main = att_health,
-                                                detailed = NA))
+        bestcost:::get_output(impact_raw = impact_raw)
 
-      output[["detailed"]][["scenario_1"]] <- att_health_1
-      output[["detailed"]][["scenario_2"]] <- att_health_2
+      output[["detailed"]][["scenario_1"]] <- impact_raw_1
+      output[["detailed"]][["scenario_2"]] <- impact_raw_2
 
 
 

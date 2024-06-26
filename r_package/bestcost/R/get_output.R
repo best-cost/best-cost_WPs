@@ -1,7 +1,7 @@
 #' Attributable health cases based on relative risk
 
 #' @description Distributes and store outputs by level of detail by aggregating or filtering impacts.
-#' @param output_raw \code{Data frame} containing all input data and the calculation of health impacts.
+#' @param impact_raw \code{Data frame} containing all input data and the calculation of health impacts.
 #' @return
 #' TBD. E.g. This function returns a \code{data.frame} with one row for each value of the
 #' concentration-response function (i.e. central, lower and upper bound confidence interval.
@@ -19,26 +19,28 @@
 #' @author Alberto Castro
 #' @keywords internal
 get_output <-
-  function(output_raw){
+  function(impact_raw){
 
-    output <- list(main = output_raw[["main"]],
-                   detailed = list(raw = output_raw[["main"]],
-                                   interim = output_raw[["detailed"]]))
+    output <- list(main = impact_raw[["main"]],
+                   detailed = list(raw = impact_raw[["main"]],
+                                   interim = impact_raw[["detailed"]]))
 
 
-    output_last <- output_raw[["main"]]
+    output_last <- impact_raw[["main"]]
 
-    if(unique(output_last$risk_method) == "absolute_risk"){
+    if(unique(impact_raw[["main"]]$risk_method) == "absolute_risk"){
 
       output[["detailed"]][["agg_exp_cat"]] <-
-        output_raw[["main"]] %>%
+        output_last %>%
         # Remove all impact rounded because
         # we have to round final results
         # not summing rounded results ("too rounded")
         dplyr::select(-all_of(intersect(paste0("impact_rounded", c("", "_1", "_2")),
                                         names(.)))) %>%
         # Collapse the exposure categories to have only a vector
-        dplyr::mutate(across(all_of(intersect(paste0("exp", c("", "_1", "_2")),
+        dplyr::mutate(across(all_of(intersect(c(paste0("exp", c("", "_1", "_2")),
+                                                paste0("pop_exp", c("", "_1", "_2")),
+                                                "exposure_dimension"),
                                               names(.))),
                              ~ paste(., collapse = ", ")))%>%
         # Sum columns to summarize
@@ -47,13 +49,13 @@ get_output <-
                                 c("geo_id_raw",
                                   "pop_exp",
                                   paste0("exp", c("", "_1", "_2")),
+                                  paste0("pop_exp", c("", "_1", "_2")),
                                   paste0("rr_conc", c("", "_1", "_2")),
                                   paste0("pop_fraction", c("", "_1", "_2")),
                                   paste0("absolute_risk_as_percent", c("", "_1", "_2")),
                                   paste0("impact", c("", "_1", "_2"))))))) %>%
         dplyr::summarize(
-          across(all_of(intersect(c("pop_exp",
-                                    paste0("absolute_risk_as_percent", c("", "_1", "_2")),
+          across(all_of(intersect(c(paste0("absolute_risk_as_percent", c("", "_1", "_2")),
                                     paste0("impact", c("", "_1", "_2"))),
                                   names(.))),
                  ~sum(.x, na.rm = TRUE)),

@@ -157,25 +157,6 @@ system.time(bestcost_pm_copd_geo <-
     geo_id_aggregated = rep("CH", 1E4),
     info = "PM2.5_copd"))
 
-# Assess iteration geographical sections keeping the multiple uncertainties
-bestcost_pm_copd_geo <-
-  bestcost::attribute_health(
-    exp_central = as.list(runif_with_seed(1E4, 8.0, 9.0, 1)),
-    exp_lower = as.list(runif_with_seed(1E4, 8.0, 9.0, 1)-0.1),
-    exp_upper = as.list(runif_with_seed(1E4, 8.0, 9.0, 1)+0.1),
-    cutoff = 5,   
-    bhd_central = as.list(runif_with_seed(1E4, 25000, 35000, 1)),
-    bhd_lower = as.list(runif_with_seed(1E4, 25000, 35000, 1)),
-    bhd_upper = as.list(runif_with_seed(1E4, 25000, 35000, 1)),
-    rr_central = 1.369, 
-    rr_lower = 1.124,
-    rr_upper = 1.664,
-    erf_increment = 10, 
-    erf_shape = "log_linear", 
-    geo_id_raw = 1:1E4, 
-    geo_id_aggregated = rep("CH", 1E4),
-    info = "PM2.5_copd")
-
 ```
 
 

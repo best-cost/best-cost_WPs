@@ -38,7 +38,7 @@ get_impact <-
       if(unique(input$health_metric) %in% c("same_input_output",
                                             "yld_from_prevalence")){
         # Get pop_fraction and added to the input data frame
-        output_raw_main <-
+        impact_raw_main <-
           input_with_risk_and_pop_fraction %>%
           # Build the result table adding the impact to the input table
           dplyr::mutate(impact = pop_fraction * bhd) %>%
@@ -51,8 +51,7 @@ get_impact <-
           dplyr::select(exp_ci, bhd_ci, erf_ci,
                         pop_fraction, impact, impact_rounded,
                         everything())
-
-        output_raw <- list(main = output_raw_main)
+        impact_raw = list(main = impact_raw_main)
 
         } else if (unique(input$health_metric) %in%
                  c("deaths_from_lifetable", "yll_from_lifetable", "yld_from_lifetable")){
@@ -71,7 +70,7 @@ get_impact <-
 
           if(outcome_metric == "deaths"){
             # Calculate deaths ####
-            output_raw <-
+            impact_raw <-
               bestcost:::get_deaths(
                 pop_impact = pop_impact,
                 year_of_analysis = year_of_analysis,
@@ -80,7 +79,7 @@ get_impact <-
                 meta = input_with_risk_and_pop_fraction)
 
           } else if(outcome_metric == "yll"){
-            output_raw <-
+            impact_raw <-
               bestcost:::get_yll(
                 pop_impact = pop_impact,
                 year_of_analysis = year_of_analysis,
@@ -90,7 +89,7 @@ get_impact <-
                 meta = input_with_risk_and_pop_fraction)
 
           } else if(outcome_metric == "yld"){
-            output_raw <-
+            impact_raw <-
               bestcost:::get_yld(
                 pop_impact = pop_impact,
                 year_of_analysis = year_of_analysis,
@@ -109,20 +108,20 @@ get_impact <-
               unique(input$health_metric) == "same_input_output"){
 
       # Calculate absolute risk for each exposure category ####
-      output_raw_main <-
+      impact_raw_main <-
         input %>%
         dplyr::mutate(
           absolute_risk_as_percent = bestcost::get_risk(exp = exp, erf_c = erf_c, erf_full = TRUE) ,
           impact = absolute_risk_as_percent/100 * pop_exp,
           impact_rounded = round(impact, 0))
 
-      output_raw <- list(main = output_raw_main)
-
-
+      impact_raw = list(main = impact_raw_main)
 
     }
 
-    return(output_raw)
+
+
+    return(impact_raw)
 
   }
 
