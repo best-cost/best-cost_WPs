@@ -309,11 +309,6 @@ compare <-
           bestcost:::get_risk_and_pop_fraction(input = input,
                                                pop_fraction_type = "pif")
 
-          #Replace pif with paf to be able to use the lifetable functions
-          #dplyr::rename(paf=pif)
-
-
-
         # Store the outcome metric of the life table method
         outcome_metric <- gsub("_from_lifetable", "",
                                unique(input$health_metric))
@@ -336,8 +331,6 @@ compare <-
               min_age = min_age,
               max_age = max_age,
               meta = input_with_risk_and_pop_fraction)$main
-            # Replace paf with pif
-            #dplyr::rename(pif = paf)
 
           }else if(outcome_metric == "yll"){
             # Calculate deaths ####
@@ -348,8 +341,6 @@ compare <-
                 min_age = min_age,
                 max_age = max_age,
                 meta = input_with_risk_and_pop_fraction)$main
-              # Replace paf with pif
-              #dplyr::rename(pif = paf)
 
             }else if(outcome_metric == "yld"){
           # Calculate deaths ####
@@ -363,14 +354,8 @@ compare <-
               disability_weight = disability_weight,
               duration = duration,
               meta = input_with_risk_and_pop_fraction)$main
-            # Replace paf with pif
-            #dplyr::rename(pif = paf)
             }
 
-        # Round results
-        #att_health <-
-          #att_health %>%
-          #mutate(impact_rounded = round(impact, 0))
 
 
       }
