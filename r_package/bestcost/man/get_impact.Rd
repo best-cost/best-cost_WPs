@@ -12,7 +12,8 @@ get_impact(
   max_age = NULL,
   corrected_discount_rate = NULL,
   disability_weight = NULL,
-  duration = NULL
+  duration = NULL,
+  pop_fraction_type
 )
 }
 \arguments{
