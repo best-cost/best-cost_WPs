@@ -156,152 +156,137 @@ compare <-
         info = info_2)
 
 
-    # Identify the columns that are identical for scenario 1 and 2
-    identical_columns_output <-
-      # Firt identify the columns that are common for scenario 1 and 2
-      intersect(names(impact_raw_1[["detailed"]][["raw"]]),
-                names(impact_raw_2[["detailed"]][["raw"]]))%>%
-      # Second, the identical columns of the common ones
-      # They are the columns to be used when joining data frames
-      purrr::keep(~ identical(impact_raw_1[["detailed"]][["raw"]][[.x]],
-                              impact_raw_2[["detailed"]][["raw"]][[.x]]))
-
+    # Identify the arguments that have _1 or _2 in the name (scenario specific)
+    # This useful for joining data frames below
     scenario_specific_arguments <-
       grep("_1|_2", names(formals(compare)), value = TRUE) %>%
-      gsub("_1|_2", "", .)%>%
+      gsub("_1|_2", "", .) %>%
       unique(.)
 
-    joining_columns_output <-
-      dplyr::setdiff(identical_columns_output, scenario_specific_arguments)
+    # If the user choose "pif"  as comparison method
+    # pif is additonally calculated
+    # impact is overwritten with the new values that refer to pif instead of paf
+    if(comparison_method == "delta"){
+
+      # Identify the columns that are to be used to join impact_raw_1 and _2
+      joining_columns_output <-
+        # Firt identify the columns that are common for scenario 1 and 2
+        intersect(names(impact_raw_1[["detailed"]][["raw"]]),
+                  names(impact_raw_2[["detailed"]][["raw"]]))%>%
+        # Second, the identical columns of the common ones
+        # They are the columns to be used when joining data frames
+        purrr::keep(~ identical(impact_raw_1[["detailed"]][["raw"]][[.x]],
+                                impact_raw_2[["detailed"]][["raw"]][[.x]]))%>%
+        # Finally exclude scenario specific columns
+        dplyr::setdiff(., scenario_specific_arguments)
 
 
-      # Merge the result tables by common columns
-      impact_raw_main <-
-        dplyr::left_join(
-          impact_raw_1[["detailed"]][["raw"]],
-          impact_raw_2[["detailed"]][["raw"]],
-          by = joining_columns_output,
-          suffix = c("_1", "_2")) %>%
-        # Calculate the delta (difference) between scenario 1 and 2
-        dplyr::mutate(impact = impact_1 - impact_2,
-                      impact_rounded = round(impact, 0))
+        # Merge the result tables by common columns
+        impact_raw_main <-
+          dplyr::left_join(
+            impact_raw_1[["detailed"]][["raw"]],
+            impact_raw_2[["detailed"]][["raw"]],
+            by = joining_columns_output,
+            suffix = c("_1", "_2")) %>%
+          # Calculate the delta (difference) between scenario 1 and 2
+          dplyr::mutate(impact = impact_1 - impact_2,
+                        impact_rounded = round(impact, 0))
 
-      impact_raw <- list(main =  impact_raw_main)
+        impact_raw <- list(main =  impact_raw_main)
+    }
 
 
     # If the user choose "pif"  as comparison method
     # pif is additonally calculated
     # impact is overwritten with the new values that refer to pif instead of paf
-    if(comparison_method == "pif" &
-       risk_method == "relative_risk" &
-       !grepl("lifetable", health_metric)){
+    # Use if instead of else if becuase otherwise the package will read here inside
+    # and produce an error because the variables are different
+    if(comparison_method == "pif"){
+      # Either both NULL or identical. Use the function identical() to enable NULL==NULL
+      if(!identical(bhd_lower_1, bhd_lower_2) & identical(bhd_lower_1, bhd_lower_2) & identical(bhd_upper_1, bhd_upper_2)){
+        stop("Baseline health data have to be identical for scenario 1 and 2.")
+      }
 
-
-       # Either both NULL or identical. Use the function identical() to enable NULL==NULL
-       if(!identical(bhd_lower_1, bhd_lower_2) & identical(bhd_lower_1, bhd_lower_2) & identical(bhd_upper_1, bhd_upper_2)){
-         stop("Baseline health data have to be identical for scenario 1 and 2.")
-       }
-
-      # Get pif and put it in a column
-      impact_raw_main <-
-        impact_raw_main %>%
-        rowwise() %>%
-        dplyr::mutate(
-          pop_fraction = bestcost::get_pop_fraction(
-            rr_conc_1 = rr_conc_1,
-            rr_conc_2 = rr_conc_2,
-            prop_pop_exp_1 = prop_pop_exp_1,
-            prop_pop_exp_2 = prop_pop_exp_1),
-          # Calculate impact
-          impact = bhd * pop_fraction,
-          impact_rounded= round(impact, 0)) %>%
-        {if(health_metric == "yld_from_prevalence")
-          # If yld from prevalence, then multiply by disability weight
-          dplyr::mutate(.,
-                        impact = impact * disability_weight,
-                        impact_rounded = round(impact, 0)) else .}
-
-      impact_raw <- list(main = impact_raw_main)
-
-      }else if(
-        comparison_method == "pif" &
-        grepl("lifetable", health_metric)){
-
-        # Error if length of fraction_of_year_lived > 1
-        if (!identical(first_age_pop_1, first_age_pop_2) &
-            !identical(last_age_pop_1, last_age_pop_2) &
-            !identical(prob_natural_death_male_1, prob_natural_death_male_2) &
-            !identical(prob_natural_death_female_1, prob_natural_death_female_2) &
-            !identical(prob_total_death_male_1, prob_total_death_male_2) &
-            !identical(prob_total_death_female_1, prob_total_death_female_2) &
-            !identical(population_midyear_male_1, population_midyear_male_2) &
-            !identical(population_midyear_female_1, population_midyear_female_2) &
-            !identical(year_of_analysis_1, year_of_analysis_2)){
+      # Error if length of fraction_of_year_lived > 1
+      if (!identical(first_age_pop_1, first_age_pop_2) &
+          !identical(last_age_pop_1, last_age_pop_2) &
+          !identical(prob_natural_death_male_1, prob_natural_death_male_2) &
+          !identical(prob_natural_death_female_1, prob_natural_death_female_2) &
+          !identical(prob_total_death_male_1, prob_total_death_male_2) &
+          !identical(prob_total_death_female_1, prob_total_death_female_2) &
+          !identical(population_midyear_male_1, population_midyear_male_2) &
+          !identical(population_midyear_female_1, population_midyear_female_2) &
+          !identical(year_of_analysis_1, year_of_analysis_2)){
           stop("Age interval, probability of dying and population in the scenario 1 and 2 have to be identical")
-        }
+      }
 
 
-        # Compile input data of scenario 1
-        input_1 <-
-          bestcost:::compile_input(
-            health_metric = health_metric,
-            risk_method = risk_method,
-            exp_central = exp_central_1, exp_lower = exp_lower_1, exp_upper = exp_upper_1,
-            prop_pop_exp = prop_pop_exp_1,
-            cutoff = cutoff,
-            rr_central = rr_central,
-            rr_lower = rr_lower,
-            rr_upper = rr_upper,
-            erf_increment = erf_increment,
-            erf_shape = erf_shape,
-            erf_c_central = erf_c_central, erf_c_lower = erf_c_lower, erf_c_upper = erf_c_upper,
-            min_age = min_age,
-            max_age = max_age,
-            info = info_1,
-            geo_id_raw = geo_id_raw,
-            geo_id_aggregated = geo_id_aggregated)
+      # Compile input data of scenario 1
+      input_1 <-
+        bestcost:::compile_input(
+          health_metric = health_metric,
+          risk_method = risk_method,
+          exp_central = exp_central_1, exp_lower = exp_lower_1, exp_upper = exp_upper_1,
+          prop_pop_exp = prop_pop_exp_1,
+          cutoff = cutoff,
+          bhd_central = bhd_central_1, bhd_lower = bhd_lower_1, bhd_upper = bhd_upper_1,
+          rr_central = rr_central,
+          rr_lower = rr_lower,
+          rr_upper = rr_upper,
+          erf_increment = erf_increment,
+          erf_shape = erf_shape,
+          erf_c_central = erf_c_central, erf_c_lower = erf_c_lower, erf_c_upper = erf_c_upper,
+          min_age = min_age,
+          max_age = max_age,
+          info = info_1,
+          geo_id_raw = geo_id_raw,
+          geo_id_aggregated = geo_id_aggregated)
 
-        # Compile input data of scenario 2
-        input_2 <-
-          bestcost:::compile_input(
-            health_metric = health_metric,
-            risk_method = risk_method,
-            exp_central = exp_central_2, exp_lower = exp_lower_2, exp_upper = exp_upper_2,
-            prop_pop_exp = prop_pop_exp_2,
-            cutoff = cutoff,
-            rr_central = rr_central,
-            rr_lower = rr_lower,
-            rr_upper = rr_upper,
-            erf_increment = erf_increment,
-            erf_shape = erf_shape,
-            erf_c_central = erf_c_central, erf_c_lower = erf_c_lower, erf_c_upper = erf_c_upper,
-            min_age = min_age,
-            max_age = max_age,
-            info = info_2,
-            geo_id_raw = geo_id_raw,
-            geo_id_aggregated = geo_id_aggregated)
+      # Compile input data of scenario 2
+      input_2 <-
+        bestcost:::compile_input(
+          health_metric = health_metric,
+          risk_method = risk_method,
+          exp_central = exp_central_2, exp_lower = exp_lower_2, exp_upper = exp_upper_2,
+          prop_pop_exp = prop_pop_exp_2,
+          cutoff = cutoff,
+          bhd_central = bhd_central_2, bhd_lower = bhd_lower_2, bhd_upper = bhd_upper_2,
+          rr_central = rr_central,
+          rr_lower = rr_lower,
+          rr_upper = rr_upper,
+          erf_increment = erf_increment,
+          erf_shape = erf_shape,
+          erf_c_central = erf_c_central, erf_c_lower = erf_c_lower, erf_c_upper = erf_c_upper,
+          min_age = min_age,
+          max_age = max_age,
+          info = info_2,
+          geo_id_raw = geo_id_raw,
+          geo_id_aggregated = geo_id_aggregated)
 
-        # Get identical columns to join data frames (as above)
-        identical_columns_input <-
-          intersect(names(input_1),
-                    names(input_2))%>%
-          purrr::keep(~ identical(input_1[[.x]],
-                                  input_2[[.x]]))
-
-        joining_columns_input <-
-          dplyr::setdiff(identical_columns_input, scenario_specific_arguments)
-
-
-        # Merge the input tables by common columns
-        input <-
-          dplyr::left_join(
-            input_1,
-            input_2,
-            by = joining_columns_input,
-            suffix = c("_1", "_2"))
+      # Get identical columns to join data frames (as above)
+      joining_columns_input <-
+        # First identify common columns (in theory all of them but just in case)
+        intersect(names(input_1),
+                  names(input_2))%>%
+        # Then keep only those that have identical columns in input
+        purrr::keep(~ identical(input_1[[.x]],
+                                input_2[[.x]]))%>%
+        # Finally exclude those htat are scenario specific
+        # except bhd because bhd_1=bhd_2 by definition in the pif method
+        dplyr::setdiff(., setdiff(scenario_specific_arguments, c("bhd_1", "bhd_2")))
 
 
+      # Merge the input tables by common columns
+      input <-
+        dplyr::left_join(
+          input_1,
+          input_2,
+          by = joining_columns_input,
+          suffix = c("_1", "_2"))
 
+      # Only if it is a lifetable approach, lifetable data have to be compiled
+
+      if(grepl("lifetable", health_metric)){
         # Compile list of life table data frame (by sex)
         # Col 1: age; col 2: probability of death; col 3: population
 
@@ -315,76 +300,23 @@ compare <-
             prob_total_death_female = prob_total_death_female_1,
             population_midyear_male = population_midyear_male_1,
             population_midyear_female =  population_midyear_female_1)
-
-        # Calculate the health impacts for each case (uncertainty, category, geo area...)
-        impact_raw <-
-          bestcost:::get_impact(input = input,
-                                lifetable_with_pop = lifetable_with_pop,
-                                year_of_analysis = year_of_analysis,
-                                min_age = min_age,
-                                max_age = max_age,
-                                corrected_discount_rate = corrected_discount_rate,
-                                disability_weight = disability_weight,
-                                duration = duration,
-                                pop_fraction_type = "pif")
-
-
-
-        # # Get PAF and add to the input data frame
-        # input_with_risk_and_pop_fraction <-
-        #   bestcost:::get_risk_and_pop_fraction(input = input,
-        #                                        pop_fraction_type = "pif")
-        #
-        # # Store the outcome metric of the life table method
-        # outcome_metric <- gsub("_from_lifetable", "",
-        #                        unique(input$health_metric))
-        #
-        #
-        # # Get population impact ####
-        # pop_impact <-
-        #   bestcost:::get_pop_impact(
-        #     lifetable_with_pop = lifetable_with_pop,
-        #     year_of_analysis = year_of_analysis_1,
-        #     input_with_risk_and_pop_fraction = input_with_risk_and_pop_fraction,
-        #     outcome_metric = outcome_metric)
-        #
-        # if(outcome_metric == "deaths"){
-        #   # Calculate deaths ####
-        #   att_health <-
-        #     bestcost:::get_deaths(
-        #       pop_impact = pop_impact,
-        #       year_of_analysis = year_of_analysis_1,
-        #       min_age = min_age,
-        #       max_age = max_age,
-        #       meta = input_with_risk_and_pop_fraction)$main
-        #
-        #   }else if(outcome_metric == "yll"){
-        #     # Calculate deaths ####
-        #     att_health <-
-        #       bestcost:::get_yll(
-        #         pop_impact = pop_impact,
-        #         year_of_analysis = year_of_analysis_1,
-        #         min_age = min_age,
-        #         max_age = max_age,
-        #         meta = input_with_risk_and_pop_fraction)$main
-        #
-        #     }else if(outcome_metric == "yld"){
-        #   # Calculate deaths ####
-        #   att_health <-
-        #     bestcost:::get_yld(
-        #       pop_impact = pop_impact,
-        #       year_of_analysis = year_of_analysis_1,
-        #       min_age = min_age,
-        #       max_age = max_age,
-        #       corrected_discount_rate = corrected_discount_rate,
-        #       disability_weight = disability_weight,
-        #       duration = duration,
-        #       meta = input_with_risk_and_pop_fraction)$main
-        #     }
-
-
-
       }
+
+
+      # Calculate the health impacts for each case (uncertainty, category, geo area...)
+      impact_raw <-
+        bestcost:::get_impact(
+          input = input,
+          lifetable_with_pop = lifetable_with_pop,
+          year_of_analysis = year_of_analysis,
+          min_age = min_age,
+          max_age = max_age,
+          corrected_discount_rate = corrected_discount_rate,
+          disability_weight = disability_weight,
+          duration = duration,
+          pop_fraction_type = "pif")
+      }
+
 
       # Organize output
       # Classify the individual results of each scenario in delta and pif method
