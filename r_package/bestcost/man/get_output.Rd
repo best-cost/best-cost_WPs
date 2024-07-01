@@ -4,10 +4,10 @@
 \alias{get_output}
 \title{Attributable health cases based on relative risk}
 \usage{
-get_output(output_raw)
+get_output(impact_raw)
 }
 \arguments{
-\item{output_raw}{\code{Data frame} containing all input data and the calculation of health impacts.}
+\item{impact_raw}{\code{Data frame} containing all input data and the calculation of health impacts.}
 }
 \value{
 TBD. E.g. This function returns a \code{data.frame} with one row for each value of the

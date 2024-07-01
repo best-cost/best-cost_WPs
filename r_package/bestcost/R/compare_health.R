@@ -40,6 +40,7 @@ compare_health <-
            info_1 = NULL, info_2 = NULL){
 
 
+
     output <-
       bestcost::compare(
         comparison_method = comparison_method,

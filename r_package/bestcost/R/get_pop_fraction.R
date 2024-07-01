@@ -1,6 +1,6 @@
 # Title and description
 
-#' Get population impact fraction
+#' Get population attributable or impact fraction
 #'
 #' Calculates the population impact fraction of a health outcome due to exposure to an environmental stressor
 #' @param rr_conc_1 \code{Numerical value} showing the risk estimate of the concentration response function for a specific concentration in the scenario 1. The population attributable fraction is normally calculated using the risk estimate that refers to the concentration that reflects the population exposure and the cut-off. This risk estimate is obtained after re-scaling from the epidemiological study with a particular increment (e.g. for PM2.5 10 or 5 ug/m3) to the aimed concentration.
@@ -15,15 +15,13 @@
 #' @note Experimental function
 #' @export
 
-get_pif <-
+get_pop_fraction <-
   function(rr_conc_1, rr_conc_2, prop_pop_exp_1, prop_pop_exp_2){
-    # Just use get_pop_fraction() with all arguments and the result is the PIF
-    pif <-
-      bestcost::get_pop_fraction(rr_conc_1 = rr_conc_1,
-                                 rr_conc_2 = rr_conc_2,
-                                 prop_pop_exp_1 = prop_pop_exp_1,
-                                 prop_pop_exp_2 = prop_pop_exp_2)
-    return(pif)
+    # Source:
+    # https://www.ncbi.nlm.nih.gov/pmc/articles/PMC156894/
+    pop_fraction <- (sum(prop_pop_exp_1 * rr_conc_1) - sum(prop_pop_exp_2 * rr_conc_2)) / (sum(prop_pop_exp_1 * rr_conc_1))
+
+    return(pop_fraction)
   }
 
 

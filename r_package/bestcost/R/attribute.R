@@ -33,7 +33,6 @@
 #' interval of the baseline health data (e.g. incidence of the health outcome in the population).
 #' @param geo_id_raw \code{Vector} showing the id code of the each geographic area considered in the assessment. If a vector is entered here, the data for each geographical area have to be provided as list in the corresponding arguments.
 #' @param geo_id_aggregated \code{Vector} showing the id code of the geographic area for which raw geo ids have to be aggregated. The vector has to have the same length as geo_id_raw. Therefore, geo_id_aggregated should have duplicated values for those geo_id_r
-#' @return
 #' @param info \code{String} or {data frame} showing additional information or id. The suffix "info" will be added to the column name. Default value = NULL.
 #' @return
 #' TBD. E.g. This function returns a \code{data.frame} with one row for each value of the
@@ -80,7 +79,7 @@ attribute <-
 
 
 
-    # Compile input data (except lifetable) and calculate paf putting all into a data frame
+    # Compile input data (except lifetable)
     input <-
       bestcost:::compile_input(
         exp_central = exp_central, exp_lower = exp_lower, exp_upper = exp_upper,
@@ -120,19 +119,20 @@ attribute <-
 
 
     # Calculate the health impacts for each case (uncertainty, category, geo area...)
-    output_raw <-
+    impact_raw <-
       bestcost:::get_impact(input = input,
-                           lifetable_with_pop = lifetable_with_pop,
-                           year_of_analysis = year_of_analysis,
-                           min_age = min_age,
-                           max_age = max_age,
-                           corrected_discount_rate = corrected_discount_rate,
-                           disability_weight = disability_weight,
-                           duration = duration)
+                            lifetable_with_pop = lifetable_with_pop,
+                            year_of_analysis = year_of_analysis,
+                            min_age = min_age,
+                            max_age = max_age,
+                            corrected_discount_rate = corrected_discount_rate,
+                            disability_weight = disability_weight,
+                            duration = duration,
+                            pop_fraction_type = "paf")
 
     # Get the main and detailed output by aggregating and/or filtering cases (rows)
     output <-
-      bestcost:::get_output(output_raw)
+      bestcost:::get_output(impact_raw)
 
 
 
