@@ -76,7 +76,7 @@ get_impact <-
                 year_of_analysis = year_of_analysis,
                 min_age = min_age,
                 max_age = max_age,
-                meta = input_with_risk_and_pop_fraction)
+                input_with_risk_and_pop_fraction = input_with_risk_and_pop_fraction)
 
           } else if(outcome_metric == "yll"){
             impact_raw <-
@@ -86,7 +86,7 @@ get_impact <-
                 min_age = min_age,
                 max_age = max_age,
                 corrected_discount_rate = corrected_discount_rate,
-                meta = input_with_risk_and_pop_fraction)
+                input_with_risk_and_pop_fraction = input_with_risk_and_pop_fraction)
 
           } else if(outcome_metric == "yld"){
             impact_raw <-
@@ -98,7 +98,7 @@ get_impact <-
                 corrected_discount_rate = corrected_discount_rate,
                 disability_weight = disability_weight,
                 duration = duration,
-                meta = input_with_risk_and_pop_fraction)
+                input_with_risk_and_pop_fraction = input_with_risk_and_pop_fraction)
           }
 
 

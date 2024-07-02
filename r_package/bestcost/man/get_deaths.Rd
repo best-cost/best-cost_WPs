@@ -4,14 +4,20 @@
 \alias{get_deaths}
 \title{Get deaths}
 \usage{
-get_deaths(pop_impact, year_of_analysis, meta, min_age = NULL, max_age = NULL)
+get_deaths(
+  pop_impact,
+  year_of_analysis,
+  input_with_risk_and_pop_fraction,
+  min_age = NULL,
+  max_age = NULL
+)
 }
 \arguments{
 \item{pop_impact}{\code{Data frame} with shifted population over time.}
 
 \item{year_of_analysis}{\code{Numeric value} of the year of analysis, which corresponds to the first year of the life table,}
 
-\item{meta}{\code{Data frame} with meta-information such as input data, additional information and intermediate results.}
+\item{input_with_risk_and_pop_fraction}{\code{Data frame} with meta-information such as input data, additional information and intermediate results.}
 
 \item{min_age}{\code{Numeric value} with the minimal age to be considered for adults (by default 30, i.e. 30+),}
 
