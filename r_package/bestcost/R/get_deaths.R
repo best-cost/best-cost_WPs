@@ -72,7 +72,7 @@ get_deaths <-
                     across(where(is.character), ~"total"),
                     .groups = "keep")) %>%
       # Round column impact
-      dplyr::mutate(impact_rounded = round(impact, 0)) %>%
+      # dplyr::mutate(impact_rounded = round(impact, 0)) %>%
 
       # Add approach and metric and round
       # dplyr::mutate(impact_metric = "Premature deaths") %>%
