@@ -127,10 +127,6 @@ get_yld <-
       dplyr::left_join(.,
                        input_with_risk_and_pop_fraction,
                        by = "erf_ci")%>%
-
-      # Round the results
-      dplyr::mutate(impact_rounded = round(impact, 0))%>%
-
       # Order columns
       dplyr::select(discounted, sex, erf_ci, everything())%>%
       # Order rows
