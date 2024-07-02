@@ -7,7 +7,7 @@
 #' @param year_of_analysis \code{Numeric value} of the year of analysis, which corresponds to the first year of the life table,
 #' @param age_min \code{Numeric value} with the minimal age to be considered for adults (by default 30, i.e. 30+),
 #' @param age_max \code{Numeric value} with the maximal age to be considered for infants/children (by default 0, i.e. below 1 years old)
-#' @param meta \code{Data frame} with meta-information such as input data, additional information and intermediate results.
+#' @param input_with_risk_and_pop_fraction \code{Data frame} with meta-information such as input data, additional information and intermediate results.
 #' @param corrected_discount_rate \code{Numeric value}  with the annual discount rate as proportion (i.e. 0.1 instead of 10\%). It can be calculated as (1+discount_rate_beforeCorrection/1+rate_of_increase)-1
 #' @return
 #' This function returns a \code{data.frame} with one row for each value of the
@@ -31,7 +31,7 @@
 get_yll <-
   function(pop_impact, year_of_analysis,
            min_age = min_age, max_age = max_age,
-           meta,
+           input_with_risk_and_pop_fraction,
            corrected_discount_rate = NULL){
 
     lifeyears_by_year <- list()
@@ -127,9 +127,9 @@ get_yll <-
       # Add  metric
       dplyr::mutate(
         impact_metric = "Year of life lost") %>%
-      # Add meta information (with left join)
+      # Add input_with_risk_and_pop_fraction information (with left join)
       dplyr::left_join(.,
-                       meta,
+                       input_with_risk_and_pop_fraction,
                        by = "erf_ci")%>%
 
       # Round the results
