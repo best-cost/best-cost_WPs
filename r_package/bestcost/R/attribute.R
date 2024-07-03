@@ -78,7 +78,6 @@ attribute <-
     #})
 
 
-
     # Compile input data (except lifetable)
     input <-
       bestcost:::compile_input(

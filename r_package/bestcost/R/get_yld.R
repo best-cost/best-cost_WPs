@@ -9,7 +9,7 @@
 #' @param age_max \code{Numeric value}  with the maximal age to be considered for infants/children (by default 0, i.e. below 1 years old)
 #' @param first_age_pop \code{Numeric value} starting age of the youngest age group from population and life table data
 #' @param last_age_pop \code{Numeric value} ending age of the oldest age group from population and life table data
-#' @param meta \code{Data frame} with meta-information such as input data, additional information and intermediate results.
+#' @param input_with_risk_and_pop_fraction \code{Data frame} with meta-information such as input data, additional information and intermediate results.
 #' @param corrected_discount_rate \code{Numeric value}  with the annual discount rate as proportion (i.e. 0.1 instead of 10\%). It can be calculated as (1+discount_rate_beforeCorrection/1+rate_of_increase)-1
 #' @param disbility_weight \code{Numeric value} showing the disability weight associated with the morbidity health outcome
 #' @param duration \code{Numeric value} showing the duration (in years) of the morbidity health outcome
@@ -29,7 +29,7 @@ get_yld <-
            year_of_analysis,
            min_age,
            max_age,
-           meta,
+           input_with_risk_and_pop_fraction,
            corrected_discount_rate,
            disability_weight,
            duration){
@@ -125,12 +125,8 @@ get_yld <-
         impact_metric = "Year lived with disability") %>%
       # Add meta information (with left join)
       dplyr::left_join(.,
-                       meta,
+                       input_with_risk_and_pop_fraction,
                        by = "erf_ci")%>%
-
-      # Round the results
-      dplyr::mutate(impact_rounded = round(impact, 0))%>%
-
       # Order columns
       dplyr::select(discounted, sex, erf_ci, everything())%>%
       # Order rows

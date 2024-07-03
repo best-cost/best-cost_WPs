@@ -7,7 +7,7 @@
 #' @param year_of_analysis \code{Numeric value} of the year of analysis, which corresponds to the first year of the life table,
 #' @param min_age \code{Numeric value} with the minimal age to be considered for adults (by default 30, i.e. 30+),
 #' @param max_age \code{Numeric value} with the maximal age to be considered for infants/children (by default 0, i.e. below 1 year old)
-#' @param meta \code{Data frame} with meta-information such as input data, additional information and intermediate results.
+#' @param input_with_risk_and_pop_fraction \code{Data frame} with meta-information such as input data, additional information and intermediate results.
 #' @return
 #' This function returns a \code{data.frame} with the number of deaths based on the life table
 #' @import dplyr
@@ -20,7 +20,7 @@
 
 get_deaths <-
   function(pop_impact, year_of_analysis,
-           meta,
+           input_with_risk_and_pop_fraction,
            min_age = NULL, max_age = NULL){
 
     # Input data check ####
@@ -72,7 +72,7 @@ get_deaths <-
                     across(where(is.character), ~"total"),
                     .groups = "keep")) %>%
       # Round column impact
-      dplyr::mutate(impact_rounded = round(impact, 0)) %>%
+      # dplyr::mutate(impact_rounded = round(impact, 0)) %>%
 
       # Add approach and metric and round
       # dplyr::mutate(impact_metric = "Premature deaths") %>%
@@ -80,7 +80,7 @@ get_deaths <-
       # Data wrangling ####
       # Add input data and info_ data
       dplyr::left_join(.,
-                       meta,
+                       input_with_risk_and_pop_fraction,
                        by = "erf_ci") %>%
       # Order rows
       dplyr::arrange(sex, erf_ci)

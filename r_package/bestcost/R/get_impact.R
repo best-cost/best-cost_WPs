@@ -44,12 +44,9 @@ get_impact <-
           dplyr::mutate(impact = pop_fraction * bhd) %>%
           {if(unique(input$health_metric) == "yld_from_prevalence")
             dplyr::mutate(., impact = impact * disability_weight) else .} %>%
-          dplyr::mutate(
-            impact_rounded =
-              round(impact, 0)) %>%
           # Order columns
           dplyr::select(exp_ci, bhd_ci, erf_ci,
-                        pop_fraction, impact, impact_rounded,
+                        pop_fraction, impact,
                         everything())
         impact_raw = list(main = impact_raw_main)
 
@@ -76,7 +73,7 @@ get_impact <-
                 year_of_analysis = year_of_analysis,
                 min_age = min_age,
                 max_age = max_age,
-                meta = input_with_risk_and_pop_fraction)
+                input_with_risk_and_pop_fraction = input_with_risk_and_pop_fraction)
 
           } else if(outcome_metric == "yll"){
             impact_raw <-
@@ -86,7 +83,7 @@ get_impact <-
                 min_age = min_age,
                 max_age = max_age,
                 corrected_discount_rate = corrected_discount_rate,
-                meta = input_with_risk_and_pop_fraction)
+                input_with_risk_and_pop_fraction = input_with_risk_and_pop_fraction)
 
           } else if(outcome_metric == "yld"){
             impact_raw <-
@@ -98,7 +95,7 @@ get_impact <-
                 corrected_discount_rate = corrected_discount_rate,
                 disability_weight = disability_weight,
                 duration = duration,
-                meta = input_with_risk_and_pop_fraction)
+                input_with_risk_and_pop_fraction = input_with_risk_and_pop_fraction)
           }
 
 
@@ -112,12 +109,16 @@ get_impact <-
         input %>%
         dplyr::mutate(
           absolute_risk_as_percent = bestcost::get_risk(exp = exp, erf_c = erf_c, erf_full = TRUE) ,
-          impact = absolute_risk_as_percent/100 * pop_exp,
-          impact_rounded = round(impact, 0))
+          impact = absolute_risk_as_percent/100 * pop_exp)
 
       impact_raw = list(main = impact_raw_main)
 
     }
+
+    # Round impacts
+    impact_raw[["main"]] <-
+      impact_raw[["main"]] %>%
+      dplyr::mutate(impact_rounded = round(impact, 0))
 
 
 
