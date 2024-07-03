@@ -54,9 +54,12 @@ get_risk_and_pop_fraction <-
                                              erf_shape = erf_shape))}%>%
 
 
+
       # Calculate population (attributable or impact) fraction (PAF or PIF) ####
       # Group by exp in case that there are different exposure categories
-      dplyr::group_by(across(all_of(intersect(c("geo_id_raw", "exp_ci", "erf_ci"), names(input))))) %>%
+      group_by(geo_id_raw, exp_ci, erf_ci) %>%
+      # Alternative coding if one of the grouping variables is NULL
+      # dplyr::group_by(across(all_of(intersect(c("geo_id_raw", "exp_ci", "erf_ci"), names(input))))) %>%
       # Alternative coding with if statement within group_by
       # Using if statement as below because otherwise (e.g. with if_else or case_when)
       # the FALSE condition is evaluate and results in an error because the names do not match
