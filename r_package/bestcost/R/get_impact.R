@@ -65,38 +65,51 @@ get_impact <-
               input_with_risk_and_pop_fraction = input_with_risk_and_pop_fraction,
               outcome_metric = outcome_metric)
 
-          if(outcome_metric == "deaths"){
-            # Calculate deaths ####
-            impact_raw <-
-              bestcost:::get_deaths(
-                pop_impact = pop_impact,
-                year_of_analysis = year_of_analysis,
-                min_age = min_age,
-                max_age = max_age,
-                input_with_risk_and_pop_fraction = input_with_risk_and_pop_fraction)
 
-          } else if(outcome_metric == "yll"){
-            impact_raw <-
-              bestcost:::get_yll(
-                pop_impact = pop_impact,
-                year_of_analysis = year_of_analysis,
-                min_age = min_age,
-                max_age = max_age,
-                corrected_discount_rate = corrected_discount_rate,
-                input_with_risk_and_pop_fraction = input_with_risk_and_pop_fraction)
+          impact_raw <-
+            bestcost:::get_deaths_yll_yld(
+              outcome_metric = outcome_metric,
+              pop_impact = pop_impact,
+              year_of_analysis = year_of_analysis,
+              min_age = min_age,
+              max_age = max_age,
+              corrected_discount_rate = corrected_discount_rate,
+              disability_weight = disability_weight,
+              duration = duration,
+              input_with_risk_and_pop_fraction = input_with_risk_and_pop_fraction)
 
-          } else if(outcome_metric == "yld"){
-            impact_raw <-
-              bestcost:::get_yld(
-                pop_impact = pop_impact,
-                year_of_analysis = year_of_analysis,
-                min_age = min_age,
-                max_age = max_age,
-                corrected_discount_rate = corrected_discount_rate,
-                disability_weight = disability_weight,
-                duration = duration,
-                input_with_risk_and_pop_fraction = input_with_risk_and_pop_fraction)
-          }
+          # if(outcome_metric == "deaths"){
+          #   # Calculate deaths ####
+          #   impact_raw <-
+          #     bestcost:::get_deaths(
+          #       pop_impact = pop_impact,
+          #       year_of_analysis = year_of_analysis,
+          #       min_age = min_age,
+          #       max_age = max_age,
+          #       input_with_risk_and_pop_fraction = input_with_risk_and_pop_fraction)
+          #
+          # } else if(outcome_metric == "yll"){
+          #   impact_raw <-
+          #     bestcost:::get_yll(
+          #       pop_impact = pop_impact,
+          #       year_of_analysis = year_of_analysis,
+          #       min_age = min_age,
+          #       max_age = max_age,
+          #       corrected_discount_rate = corrected_discount_rate,
+          #       input_with_risk_and_pop_fraction = input_with_risk_and_pop_fraction)
+          #
+          # } else if(outcome_metric == "yld"){
+          #   impact_raw <-
+          #     bestcost:::get_yld(
+          #       pop_impact = pop_impact,
+          #       year_of_analysis = year_of_analysis,
+          #       min_age = min_age,
+          #       max_age = max_age,
+          #       corrected_discount_rate = corrected_discount_rate,
+          #       disability_weight = disability_weight,
+          #       duration = duration,
+          #       input_with_risk_and_pop_fraction = input_with_risk_and_pop_fraction)
+          # }
 
 
         }
