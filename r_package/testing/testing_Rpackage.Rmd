@@ -650,7 +650,7 @@ bestcost_pm_yld_lifetable_geluft  <-
     info = input_data_mortality$pollutant[2],
     min_age = input_data_mortality$min_age[2], # min_age = 20,
     corrected_discount_rate = 0,
-    duration = 100, # Deactivate to test additional cases
+    duration = 100, 
     disability_weight = 1
   )
 
