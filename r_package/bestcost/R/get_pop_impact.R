@@ -63,8 +63,9 @@ get_pop_impact <-
       period <- c( (year_of_analysis + 1) :
                      ((year_of_analysis +
                          unique(purrr::map_int(lifetable_with_pop$lifetable_with_pop_nest,
-                                               ~nrow(.x))) - 2)) )
+                                               ~nrow(.x))) - 1)) )
       length_period <- length(period)
+      population_period <- paste0("population_", period)
 
 
       pop_impact <-
@@ -98,14 +99,14 @@ get_pop_impact <-
 
               x_matrix <-
                 .x %>%
-                dplyr::select(., contains("population_"))%>%
+                dplyr::select(., all_of(population_period))%>%
                 as.matrix(.)
 
               x_matrix[row(x_matrix)<=col(x_matrix)] <- NA
 
               .x <-
                 dplyr::bind_cols(
-                  dplyr::select(.x, -contains("population_")),
+                  dplyr::select(.x, -all_of(population_period)),
                   as_tibble(x_matrix))
 
               return(.x)

@@ -38,12 +38,13 @@ get_deaths_yll_yld <-
            disability_weight = NULL,
            duration = NULL){
 
-    impact <-
+    impact_detailed <-
       pop_impact %>%
       dplyr::mutate(
-        lifeyears_nest = purrr::map(
-          pop_impact_nest, function(.x){
-
+        lifeyears_nest =
+          pop_impact_nest %>%
+          purrr::map(.,
+          function(.x){
             # Filter keeping only the relevant age
             if(!is.null(max_age)){
               .x <-
@@ -75,7 +76,8 @@ get_deaths_yll_yld <-
                                     names_prefix = "population_") %>%
                 # Convert year to numeric
                 dplyr::mutate(year = as.numeric(year))
-            }}),
+            } else
+              .x<-.x}),
 
         # Calculate total, not discounted YLL (single number) ####
         impact_nest = purrr::map(
@@ -86,7 +88,7 @@ get_deaths_yll_yld <-
             if(outcome_metric == "deaths"){
               .x <-
                 .x %>%
-                dplyr::select(all_of(paste0("population_", year_of_analysis+1))) %>%
+                dplyr::select(.,all_of(paste0("population_", year_of_analysis+1))) %>%
                 sum(., na.rm = TRUE)
             }
 
@@ -109,22 +111,26 @@ get_deaths_yll_yld <-
                   impact = sum(impact) * disability_weight, .groups = 'drop')%>%
                 dplyr::mutate(discounted = TRUE)
             }
-          }))
+            return(.x)
+          })
+        )
+
 
     # If a value for corrected_discount_rate was provided by the user,
     # apply discount
     if(!is.null(corrected_discount_rate)){
-      impact <-
-        impact %>%
+      impact_detailed <-
+        impact_detailed %>%
         dplyr::mutate(
-          impact = purrr::map2(
-            impact_nest, pop_impact_nest,
+          impact_nest = purrr::map2(
+            lifeyears_nest, impact_nest,
             function(.x, .y){
+
               discount_factor <- corrected_discount_rate + 1
 
               ## Calculate total, discounted life years (single value) per sex & ci ####
               x_discounted <-
-                .y %>%
+                .x %>%
                 # Convert year to numeric
                 dplyr::mutate(year = as.numeric(year))%>%
                 # Calculate discount rate for each year
@@ -145,28 +151,54 @@ get_deaths_yll_yld <-
 
 
               # Bind rows to have both discounted and not discounted
-              .x <-
-                dplyr::bind_rows(.x, x_discounted)
+              x_with_and_without_discount <-
+                dplyr::bind_rows(.y, x_discounted)
 
-              return(.x)
-
+              return(x_with_and_without_discount)
 
             }
           ))}
 
+    # Last preparation of the detailed results
+    impact_detailed <-
+      impact_detailed %>%
+      # Unnest the obtained impacts to integrated them the main tibble
+      tidyr::unnest(., impact_nest) %>%
+      {if(outcome_metric == "deaths") dplyr::rename(., impact = impact_nest) else .}%>%
+      # Add  metric
+      dplyr::mutate(
+        outcome_metric = outcome_metric)
+
+    # Obtain total rows
+    impact_detailed <-
+      impact_detailed %>%
+      # Sum among sex adding total
+      dplyr::group_by(.,
+                      across(all_of(intersect(c("geo_id_raw", "discounted", "erf_ci"),
+                                              names(.))))) %>%
+      dplyr::summarise(.,
+                       across(.cols=c(impact), sum),
+                       across(where(is.character), ~"total"),
+                    .groups = "keep") %>%
+        dplyr::bind_rows(impact_detailed, .)
+
+
+    # Get the main results starting from a detailed table of results
+    impact_main <-
+      impact_detailed %>%
+      dplyr::select(., -contains("nest"))%>%
+      dplyr::filter(., sex %in% "total") %>%
+      {if(!is.null(corrected_discount_rate))
+        dplyr::filter(., discounted %in% TRUE) else .}
 
 
 
 
+    # Classify results in main and detailed
+    output <- list(main = impact_main,
+                   detailed = impact_detailed)
 
-
-
-
-
-
-
-
-
+    return(output)
 
 
   }
