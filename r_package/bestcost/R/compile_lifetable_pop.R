@@ -57,7 +57,7 @@ compile_lifetable_pop <-
       tidyr::tibble(
         geo_id_raw = geo_id_raw,
         sex = c("male", "female"),
-        data = list(
+        lifetable_with_pop_nest = list(
           tidyr::tibble(
             age = seq(from = first_age_pop,
                       to = last_age_pop,
@@ -77,7 +77,8 @@ compile_lifetable_pop <-
                           by = 1),
             death_probability_natural = prob_natural_death_female,
             death_probability_total = prob_total_death_female,
-            population = population_midyear_female)))
+            population = population_midyear_female))
+      )
 
   }
 
