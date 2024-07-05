@@ -63,7 +63,7 @@ get_pop_impact <-
       period <- c( (year_of_analysis + 1) :
                      ((year_of_analysis +
                          unique(purrr::map_int(lifetable_with_pop$lifetable_with_pop_nest,
-                                               ~nrow(.x))) - 1)) )
+                                               ~nrow(.x))) - 2)) )
       length_period <- length(period)
       population_period <- paste0("population_", period)
 
@@ -74,20 +74,26 @@ get_pop_impact <-
           pop_impact_nest = purrr::map(
             pop_impact_nest,
             function(.x) {
-              for (i in 1:(length_period)){
-                current_year <- period[i]
+
+              # length_period minus 1 because year_of_analysis+1 is already calculated
+              for (i in 0:(length_period-1)){
+                current_year <- period[i+1]
                 col_current <- paste0("population_", current_year)
                 col_next <- paste0("population_", current_year + 1)
 
-                .x[[col_next]] <-
-                  .x[[col_current]] * (1 - .x[["death_probability_total"]])
                 # Alternative code
+                # Simpler but it does not provide the right result
+                # .x[[col_next]] <-
+                #  .x[[col_current]] * (1 - .x[["death_probability_total"]])
+
                 # avoiding the later introduction of NAs in the right top corner:
-                # .x[1:(length_period-i), col_next] <-
-                #   .x[1:(length_period-i), col_current] * (1 - .x$death_probability_total[(i+2):(length_period+1)])
+                .x[1:(length_period-i), col_next] <-
+                   .x[1:(length_period-i), col_current] * (1 - .x$death_probability_total[(i+2):(length_period+1)])
               }
               return(.x)
             } )) %>%
+
+
 
         # Empty the top-right half of the table
         # They are people that were not born when the exposure happened
