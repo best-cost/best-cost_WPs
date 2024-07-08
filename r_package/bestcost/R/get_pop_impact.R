@@ -34,11 +34,17 @@ get_pop_impact <-
 
     second_year <- year_of_analysis + 1
 
+    joining_variables_input_lifetable <-
+      intersect(names(input_with_risk_and_pop_fraction),
+                names(lifetable_with_pop)) %>%
+      intersect(., c("geo_id_raw", "geo_id_aggregated"))
+
+
     pop_impact <-
       dplyr::left_join(
         input_with_risk_and_pop_fraction,
         lifetable_with_pop,
-        by = "geo_id_raw") %>%
+        by = joining_variables_input_lifetable) %>%
       dplyr::mutate(
         pop_impact_nest = purrr::map(
           lifetable_with_pop_nest,
@@ -80,15 +86,15 @@ get_pop_impact <-
                 current_year <- period[i+1]
                 col_current <- paste0("population_", current_year)
                 col_next <- paste0("population_", current_year + 1)
+                # avoiding the later introduction of NAs in the right top corner:
+                .x[1:(length_period-i), col_next] <-
+                   .x[1:(length_period-i), col_current] * (1 - .x$death_probability_total[(i+2):(length_period+1)])
+
 
                 # Alternative code
                 # Simpler but it does not provide the right result
                 # .x[[col_next]] <-
                 #  .x[[col_current]] * (1 - .x[["death_probability_total"]])
-
-                # avoiding the later introduction of NAs in the right top corner:
-                .x[1:(length_period-i), col_next] <-
-                   .x[1:(length_period-i), col_current] * (1 - .x$death_probability_total[(i+2):(length_period+1)])
               }
               return(.x)
             } ))
@@ -97,7 +103,7 @@ get_pop_impact <-
       #
       #
       #
-      #   # Empty the top-right half of the table
+      #   # Empty the top-right half of the table (for the alternative code above)
       #   # They are people that were not born when the exposure happened
       #   # (year of analysis)
       #   dplyr::mutate(.,
@@ -129,6 +135,7 @@ get_pop_impact <-
 
 
 
+# PREVIOUS VERSION OF THE SCRIPT
 
 # get_pop_impact_backup <-
 # function(lifetable_with_pop,

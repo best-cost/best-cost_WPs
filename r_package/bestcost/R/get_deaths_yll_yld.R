@@ -46,16 +46,17 @@ get_deaths_yll_yld <-
           purrr::map(.,
           function(.x){
             # Filter keeping only the relevant age
-            if(!is.null(max_age)){
+            # use {{}} to refer to the argument and avoid warnings
+            if(!is.null({{max_age}})){
               .x <-
                 .x %>%
-                dplyr::filter(., age <= max_age)
+                dplyr::filter(., age <= {{max_age}})
             }
 
             if(!is.null(min_age)){
               .x <-
                 .x %>%
-                dplyr::filter(., age >= min_age)
+                dplyr::filter(., age >= {{min_age}})
             }
 
             # If YLL or YLD
@@ -169,18 +170,23 @@ get_deaths_yll_yld <-
       dplyr::mutate(
         outcome_metric = outcome_metric)
 
-    # Obtain total rows
-    impact_detailed <-
+    # Obtain total rows (sum across sex)
+    impact_detailed_total <-
       impact_detailed %>%
-      # Sum among sex adding total
+      # Sum across sex adding total
       dplyr::group_by(.,
-                      across(all_of(intersect(c("geo_id_raw", "discounted", "erf_ci"),
-                                              names(.))))) %>%
+                      across(-all_of(c("sex", "impact"))))%>%
+                      # across(all_of(intersect(c("geo_id_raw", "geo_id_aggregated",
+                      #                           "discounted", "erf_ci"),
+                      #                         names(.))))) %>%
       dplyr::summarise(.,
                        across(.cols=c(impact), sum),
-                       across(where(is.character), ~"total"),
-                    .groups = "keep") %>%
-        dplyr::bind_rows(impact_detailed, .)
+                       across(sex, ~"total"),
+                    .groups = "keep")
+
+    # Bind the rows of impact_detailed and the totals
+    impact_detailed <-
+      dplyr::bind_rows(impact_detailed, impact_detailed_total)
 
 
     # Get the main results starting from a detailed table of results

@@ -38,16 +38,20 @@ compile_lifetable_pop <-
            prob_natural_death_male, prob_natural_death_female,
            prob_total_death_male, prob_total_death_female,
            population_midyear_male, population_midyear_female,
-           geo_id_raw = NULL){
+           geo_id_raw = NULL,
+           geo_id_aggregated = NULL){
 
 
     # If no geo_id_raw is provided (if is NULL) then assign some value.
     # geo_id_raw is needed to group results in case of multiple geo_ids
+    # _male is used but _female could be used.
+    # No matter because length should be identical.
 
     if(is.null(geo_id_raw)){
       geo_id_raw <-
-        ifelse(is.list(population_midyear_male), 1:length(population_midyear_male), 1)
+        as.character(ifelse(is.list({{population_midyear_male}}), 1:length({{population_midyear_male}}), 1))
     }
+
 
     # Build the data set
     # The life table has to be provided (by sex)
@@ -56,6 +60,7 @@ compile_lifetable_pop <-
     lifetable_with_pop <-
       tidyr::tibble(
         geo_id_raw = geo_id_raw,
+        geo_id_aggregated = geo_id_aggregated,
         sex = c("male", "female"),
         lifetable_with_pop_nest = list(
           tidyr::tibble(
