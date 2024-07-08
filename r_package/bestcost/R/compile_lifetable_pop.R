@@ -38,7 +38,7 @@ compile_lifetable_pop <-
            prob_natural_death_male, prob_natural_death_female,
            prob_total_death_male, prob_total_death_female,
            population_midyear_male, population_midyear_female,
-           geo_id_raw){
+           geo_id_raw = NULL){
 
 
     # If no geo_id_raw is provided (if is NULL) then assign some value.

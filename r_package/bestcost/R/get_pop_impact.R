@@ -91,33 +91,35 @@ get_pop_impact <-
                    .x[1:(length_period-i), col_current] * (1 - .x$death_probability_total[(i+2):(length_period+1)])
               }
               return(.x)
-            } )) %>%
-
-
-
-        # Empty the top-right half of the table
-        # They are people that were not born when the exposure happened
-        # (year of analysis)
-        dplyr::mutate(.,
-          pop_impact_nest = purrr::map(
-            pop_impact_nest,
-            function(.x){
-
-              x_matrix <-
-                .x %>%
-                dplyr::select(., all_of(population_period))%>%
-                as.matrix(.)
-
-              x_matrix[row(x_matrix)<=col(x_matrix)] <- NA
-
-              .x <-
-                dplyr::bind_cols(
-                  dplyr::select(.x, -all_of(population_period)),
-                  as_tibble(x_matrix))
-
-              return(.x)
-            }
-          ))
+            } ))
+      #
+      # %>%
+      #
+      #
+      #
+      #   # Empty the top-right half of the table
+      #   # They are people that were not born when the exposure happened
+      #   # (year of analysis)
+      #   dplyr::mutate(.,
+      #     pop_impact_nest = purrr::map(
+      #       pop_impact_nest,
+      #       function(.x){
+      #
+      #         x_matrix <-
+      #           .x %>%
+      #           dplyr::select(., all_of(population_period))%>%
+      #           as.matrix(.)
+      #
+      #         x_matrix[row(x_matrix)<=col(x_matrix)] <- NA
+      #
+      #         .x <-
+      #           dplyr::bind_cols(
+      #             dplyr::select(.x, -all_of(population_period)),
+      #             as_tibble(x_matrix))
+      #
+      #         return(.x)
+      #       }
+      #     ))
 
           }
 
