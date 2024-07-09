@@ -20,6 +20,7 @@
 #' }
 #' @import dplyr
 #' @import purrr
+#' @import rlang
 #' @examples
 #' TBD
 #' @author Alberto Castro
@@ -39,20 +40,80 @@ get_pop_impact <-
         filter(sex == "male") %>%
         select(lifetable_with_pop_nest) %>%
         unnest(cols = c(lifetable_with_pop_nest)) %>%
-        select(population_mid_year_male = population)
+        select(population_mid_year_male = population,
+               deaths_male = deaths)
 
       pop_female <- lifetable_with_pop %>%
         filter(sex == "female") %>%
         select(lifetable_with_pop_nest) %>%
         unnest(cols = c(lifetable_with_pop_nest)) %>%
-        select(population_mid_year_female = population,
-               age)
-
-      pop_total <- cbind(pop_male, pop_female) %>%
         select(age,
-               population_mid_year_male = midyear_population_male,
-               population_mid_year_female = midyear_population_female)
-      # Add code from "Replication_AirQ+.Rmd" here ####
+               population_mid_year_female = population,
+               deaths_female = deaths)
+
+      pop_modelled_total <- cbind(pop_male, pop_female) %>%
+        select(age,
+               population_mid_year_male,
+               deaths_male,
+               population_mid_year_female,
+               deaths_female) %>%
+        mutate(!!paste0("pop_",year_of_analysis,"_mid_year_total") := population_mid_year_male + population_mid_year_female,
+               deaths_total = deaths_male + deaths_female) %>%
+        mutate(!!paste0("pop_",year_of_analysis,"_entry_total") := !!sym(paste0("pop_",year_of_analysis,"_mid_year_total")) + (deaths_total / 2)) %>%
+        # Calculate hazard rates (absolute and percent)
+        mutate(hazard_rate_total = deaths_total / !!sym(paste0("pop_",year_of_analysis,"_mid_year_total"))) %>%
+        mutate(hazard_rate_percent_total = hazard_rate_total * 100) %>%
+        # Calculate survival probabilities (unrounded)
+        mutate(prob_survival_total = 1 - (deaths_total / !!sym(paste0("pop_",year_of_analysis,"_entry_total")))) %>%
+        mutate(prob_survival_until_mid_year_total = 1 - (deaths_total / !!sym(paste0("pop_",year_of_analysis,"_entry_total")) / 2)) %>%
+        select(age,
+               deaths_total,
+               hazard_rate_total,
+               hazard_rate_percent_total,
+               prob_survival_total,
+               prob_survival_until_mid_year_total,
+               !!paste0("pop_",year_of_analysis,"_entry_total"),
+               !!paste0("pop_",year_of_analysis,"_mid_year_total"),
+               -c(population_mid_year_male, population_mid_year_female, deaths_male, deaths_female))
+
+      mod_factor <- exp(0.0111541374732907 * (5 - 8.85)) # Based on AirQ+ lifetable manual formula 7 on p 17)
+      # Formula 7: RR(x_1 - x_0) = exp( beta * (x_1 - x_0) )
+
+      pop_cutoff_total <- cbind(pop_male, pop_female) %>%
+        select(age,
+               population_mid_year_male,
+               deaths_male,
+               population_mid_year_female,
+               deaths_female) %>%
+        mutate(!!paste0("pop_",year_of_analysis,"_mid_year_total") := population_mid_year_male + population_mid_year_female,
+               deaths_total = deaths_male + deaths_female) %>%
+        mutate(!!paste0("pop_",year_of_analysis,"_entry_total") := !!sym(paste0("pop_",year_of_analysis,"_mid_year_total")) + (deaths_total / 2)) %>%
+        # Calculate hazard rates (absolute and percent)
+        mutate(hazard_rate_total = deaths_total * mod_factor / !!sym(paste0("pop_",year_of_analysis,"_mid_year_total")) ) %>%
+        mutate(hazard_rate_percent_total = hazard_rate_total * 100) %>%
+        # Calculate modified survival probabilities ####
+        ## Based on AirQ+ lifetable manual formula 4. on p 14: s_i = (2 - h_i) / (2 + h_i)
+        ## In the population (without pollution effects) projections, a modified survival probability is calculated as a function of (modified) hazards
+        mutate(prob_survival_total = (2 - hazard_rate_total) / (2 + hazard_rate_total)) %>%
+        mutate(prob_survival_until_mid_year_total = 1 - ((1 - prob_survival_total) / 2)) %>%
+        # Now re-calculate the "pop_2019_mid_year_total" using the modified survival rates ####
+        mutate(!!paste0("pop_",year_of_analysis,"_mid_year_total") := !!sym(paste0("pop_",year_of_analysis,"_entry_total")) * prob_survival_until_mid_year_total) %>%
+        # Relocate and rename
+        select(age,
+               deaths_total,
+               hazard_rate_total,
+               hazard_rate_percent_total,
+               prob_survival_total,
+               prob_survival_until_mid_year_total,
+               !!paste0("pop_",year_of_analysis,"_entry_total"),
+               !!paste0("pop_",year_of_analysis,"_mid_year_total"),
+               -c(population_mid_year_male, population_mid_year_female, deaths_male, deaths_female))
+
+      # NOTE: ROWS 1:20 GET ASSIGNED THE CORRECT SURVIVAL PROBABILITY TOO LATE: THE ENTRY POPULATION FOR 2019 IS ALREADY CALCULATED ####
+      # TRY ADJUSTING IN REPLICATE_AIRQ+ SCRIPT AND THEN ADJUST HERE ALSO
+      pop_cutoff_total[1:20, "prob_survival_total"] <- pop_modelled_total[1:20, "prob_survival_total"]
+      pop_cutoff_total[1:20, "prob_survival_until_mid_year_total"] <- pop_modelled_total[1:20, "prob_survival_until_mid_year_total"]
+
 
     }
 
