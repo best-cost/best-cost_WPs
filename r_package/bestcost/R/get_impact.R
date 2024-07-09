@@ -50,8 +50,10 @@ get_impact <-
                         everything())
         impact_raw = list(main = impact_raw_main)
 
-        } else if (unique(input$health_metric) %in%
-                 c("deaths_from_lifetable", "yll_from_lifetable", "yld_from_lifetable")){
+        } else if (unique(input$health_metric) %in% c("deaths_from_lifetable",
+                                                      "yll_from_lifetable",
+                                                      "yld_from_lifetable",
+                                                      "yll_from_lifetable_airqplus")) {
 
           outcome_metric <-
             gsub("_from_lifetable", "", unique(input$health_metric))

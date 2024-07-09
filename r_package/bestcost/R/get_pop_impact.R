@@ -32,6 +32,13 @@ get_pop_impact <-
            input_with_risk_and_pop_fraction,
            outcome_metric){
 
+
+    if (outcome_metric %in% c("yll_airqplus")) {
+
+    }
+
+    if ((outcome_metric %in% c("yll_airqplus") == FALSE)) {
+
     second_year <- year_of_analysis + 1
 
     pop_impact <-
@@ -66,7 +73,6 @@ get_pop_impact <-
               lead(
                 dplyr::lag(!!as.symbol(paste0("population_",year_of_analysis))) *
                   dplyr::lag(death_probability_natural) * .y))))
-
 
     if(outcome_metric %in% c("yll", "yld")){
       # Now calculate population over time for the rest of year starting with YOA without considering air pollution
@@ -133,7 +139,7 @@ get_pop_impact <-
 
           }
 
-    return(pop_impact)
+    return(pop_impact) }
 
   }
 

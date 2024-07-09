@@ -553,6 +553,43 @@ check_bestcost(result_list_bestcost = bestcost_pm_yll_lifetable_geluft,
 
 ```
 
+```{r yll from lifetable airqplus}
+# Calculate years of life lost using bestcost function
+# and input data from an AirQ+ case
+
+bestcost_pm_yll_lifetable_airqplus <-
+  bestcost::attribute_yll_from_lifetable_airqplus(
+    exp_central = airqplus_pm_deaths_yll[["input"]]$mean_concentration, 
+    cutoff = airqplus_pm_deaths_yll[["input"]]$cut_off_value,
+    rr_central = airqplus_pm_deaths_yll[["input"]]$relative_risk,
+    rr_lower = airqplus_pm_deaths_yll[["input"]]$relative_risk_lower,
+    rr_upper = airqplus_pm_deaths_yll[["input"]]$relative_risk_upper,
+    erf_increment = 10, 
+    erf_shape = gsub("-", "_", airqplus_pm_deaths_yll[["input"]]$calculation_method),
+    first_age_pop = first(airqplus_pm_deaths_yll[["pop"]]$age_from...),
+    last_age_pop = last(airqplus_pm_deaths_yll[["pop"]]$age_from...),
+    prob_natural_death_male = prob_dying[["natural"]][["male"]]$prob_dying,
+    prob_natural_death_female = prob_dying[["natural"]][["female"]]$prob_dying,
+    prob_total_death_male = prob_dying[["total"]][["male"]]$prob_dying,
+    prob_total_death_female = prob_dying[["total"]][["female"]]$prob_dying,
+    population_midyear_male = airqplus_pm_deaths_yll[["pop"]]$midyear_population_male,
+    population_midyear_female = airqplus_pm_deaths_yll[["pop"]]$midyear_population_female, 
+    year_of_analysis =  airqplus_pm_deaths_yll[["input"]]$start_year, 
+    min_age = airqplus_pm_deaths_yll[["input"]]$apply_rr_from_age)
+
+# Check results
+# They are extremely different. The methodology of airq+ is very different to other studies
+# AirQ+ considers that the increase/decrease of exposure happens 100 years,
+# while other studies (e.g. GeLuft) look at the impact over 100 years of a one-year exposure.
+
+# check_bestcost(result_list_bestcost = bestcost_pm_yll_lifetable_airqplus,
+#                result_vector_alternative = 
+#                  c(airqplus_pm_deaths_yll[["output"]]$value_central_allgenders_yll_over_100_years_age_20_99,
+#                    airqplus_pm_deaths_yll[["output"]]$value_lower_allgenders_yll_over_100_years_age_20_99,
+#                    airqplus_pm_deaths_yll[["output"]]$value_upper_allgenders_yll_over_100_years_age_20_99))
+```
+
+
 ```{r yll lifetable with single relative risk}
 # Only one relative risk estimate (central estimate)
 
