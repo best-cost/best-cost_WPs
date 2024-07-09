@@ -1,0 +1,766 @@
+---
+title: "Replication AirQ+"
+author: "Axel Luyten"
+output: html_document
+---
+
+# Goal
+Replicate the population evolution, pre-mature deaths, YLL of AirQ+ calculations
+
+```{r Setup, eval=FALSE, include=FALSE}
+# Load packages
+library(dplyr)
+library(openxlsx)
+devtools::load_all()
+
+# Load data
+knitr::opts_knit$set(root.dir = getwd())
+load("../testing/input/data/input_data_for_testing_Rpackage.RData")
+rm(list = setdiff(ls(), "airqplus_pm_deaths_yll"))
+
+# Cutoff data
+airqplus_entry_population_cutoff <- read.xlsx("../testing/Replication_AirQ+/airqplus_deaths_yll_lifetable_adults.xlsx", sheet = "entry_population_cutoff", startRow = 3)
+airqplus_yll_cutoff <- read.xlsx("../testing/Replication_AirQ+/airqplus_deaths_yll_lifetable_adults.xlsx", sheet = "yll_cutoff", startRow = 3)
+airqplus_hazard_rates_cutoff <- read.xlsx("../testing/Replication_AirQ+/airqplus_deaths_yll_lifetable_adults.xlsx", sheet = "hazard_rates_cutoff", startRow = 3)
+
+# Modelled data
+airqplus_entry_population_modelled <- read.xlsx("../testing/Replication_AirQ+/airqplus_deaths_yll_lifetable_adults.xlsx", sheet = "entry_population_modelled", startRow = 3)
+airqplus_yll_modelled <- read.xlsx("../testing/Replication_AirQ+/airqplus_deaths_yll_lifetable_adults.xlsx", sheet = "yll_modelled", startRow = 3)
+airqplus_hazard_rates_modelled <- read.xlsx("../testing/Replication_AirQ+/airqplus_deaths_yll_lifetable_adults.xlsx", sheet = "hazard_rates_modelled", startRow = 3)
+
+# Difference data (cutoff data - modelled)
+airqplus_yll_difference <- read.xlsx("../testing/Replication_AirQ+/airqplus_deaths_yll_lifetable_adults.xlsx", sheet = "yll_difference", startRow = 1)
+airqplus_premature_deaths_difference <- read.xlsx("../testing/Replication_AirQ+/airqplus_deaths_yll_lifetable_adults.xlsx", sheet = "deaths_difference", startRow = 1)
+
+
+# Create rounding function that rounds 2.5 to 3 (and not to 2, as round() would)
+round2 <- function(x, digits = 0) {
+  posneg <- sign(x)
+  z <- abs(x) * 10^digits
+  z <- z + 0.5 + sqrt(.Machine$double.eps)
+  z <- trunc(z)
+  z <- z / 10^digits
+  z * posneg
+}
+```
+
+Prepare the two data frames:
+- "pop_modelled_total" containing the (total) population evolution matrix under the modelled scenario (PM concentration = 8.85)
+- "pop_cutoff_total" containing the (total) population evolution matrix under the cutoff scenario (PM concentration = 5)
+
+```{r Prepare data}
+# Create "pop_modelled_total"
+pop_modelled_total <- airqplus_pm_deaths_yll[["pop"]] %>%
+  select(
+    age = age_from...,
+    population_mid_year_male = midyear_population_male,
+    population_mid_year_female = midyear_population_female,
+    deaths_male = number_of_deaths_male,
+    deaths_female = number_of_deaths_female
+  ) %>%
+  # Calculate totals
+  mutate(pop_2019_mid_year_total = population_mid_year_male + population_mid_year_female) %>%
+  mutate(deaths_total = deaths_male + deaths_female) %>%
+  # Calculate entry populations
+  mutate(pop_2019_entry_total = pop_2019_mid_year_total + (deaths_total / 2)) %>%
+  # Calculate hazard rates (absolute and percent)
+  mutate(hazard_rate_total = deaths_total / pop_2019_mid_year_total) %>%
+  mutate(hazard_rate_percent_total = hazard_rate_total * 100) %>%
+  # Calculate survival probabilities (unrounded)
+  mutate(prob_survival_total = 1 - (deaths_total / pop_2019_entry_total)) %>%
+  mutate(prob_survival_until_mid_year_total = 1 - (deaths_total / pop_2019_entry_total / 2)) %>%
+  # Calculate survival probabilities (rounded to X decimals) ROUNDING APPROACH 1
+  # mutate(prob_survival_total = 1 - round((deaths_total/pop_2019_entry_total), digits = nr_decimals)) %>%
+  # mutate(prob_survival_until_mid_year_total = 1 - round((deaths_total/pop_2019_entry_total/2), digits = nr_decimals)) %>%
+  # Relocate and rename
+  select(
+    age,
+    deaths_total,
+    hazard_rate_total,
+    hazard_rate_percent_total,
+    prob_survival_total,
+    prob_survival_until_mid_year_total,
+    pop_2019_entry_total,
+    pop_2019_mid_year_total,
+    # Remove
+    -c(population_mid_year_male, population_mid_year_female, deaths_male, deaths_female)
+  )
+
+
+# Create "pop_cutoff_total"
+
+## Determine modification factor for hazard rate
+mod_factor <- exp(0.0111541374732907 * (5 - 8.85)) # Based on AirQ+ lifetable manual formula 7 on p 17)
+# Formula 7: RR(x_1 - x_0) = exp( beta * (x_1 - x_0) )
+
+pop_cutoff_total <- airqplus_pm_deaths_yll[["pop"]] %>%
+  select(
+    age = age_from...,
+    population_mid_year_male = midyear_population_male,
+    population_mid_year_female = midyear_population_female,
+    deaths_male = number_of_deaths_male,
+    deaths_female = number_of_deaths_female
+  ) %>%
+  # Calculate totals
+  mutate(pop_2019_mid_year_total = population_mid_year_male + population_mid_year_female) %>%
+  mutate(deaths_total = deaths_male + deaths_female) %>%
+  # Calculate entry populations
+  mutate(pop_2019_entry_total = pop_2019_mid_year_total + (deaths_total / 2)) %>%
+  # Calculate hazard rates (absolute and percent)
+  mutate(hazard_rate_total = deaths_total / pop_2019_mid_year_total * mod_factor) %>% # Multiply modelled hazard rate with mod_factor ####
+  mutate(hazard_rate_percent_total = hazard_rate_total * 100) %>%
+  # Calculate modified survival probabilities ####
+  ## Based on AirQ+ lifetable manual formula 4. on p 14: s_i = (2 - h_i) / (2 + h_i)
+  ## In the population (without pollution effects) projections, a modified survival probability is calculated as a function of (modified) hazards
+  mutate(prob_survival_total = (2 - hazard_rate_total) / (2 + hazard_rate_total)) %>%
+  mutate(prob_survival_until_mid_year_total = 1 - ((1 - prob_survival_total) / 2)) %>%
+  # Now re-calculate the "pop_2019_mid_year_total" using the modified survival rates ####
+  mutate(pop_2019_mid_year_total = pop_2019_entry_total * prob_survival_until_mid_year_total) %>%
+  # Relocate and rename
+  select(
+    age,
+    deaths_total,
+    hazard_rate_total,
+    hazard_rate_percent_total,
+    prob_survival_total,
+    prob_survival_until_mid_year_total,
+    pop_2019_entry_total,
+    pop_2019_mid_year_total,
+    # Remove
+    -c(population_mid_year_male, population_mid_year_female, deaths_male, deaths_female)
+  )
+
+# Assign modelled survival probability to ages 0-19 of cutoff population matrix ####
+## Because air pollution only affects population with age 20+
+pop_cutoff_total[1:20, "prob_survival_total"] <- pop_modelled_total[1:20, "prob_survival_total"]
+pop_cutoff_total[1:20, "prob_survival_until_mid_year_total"] <- pop_modelled_total[1:20, "prob_survival_until_mid_year_total"]
+
+# Create function to Remove upper triangle of matrix
+remove_upper_tri <- function(df) {
+  for (i in 1:nrow(df)) {
+    for (j in 1:ncol(df)) {
+      if (j > i) {
+        df[i, j] <- NA
+      }
+    }
+  }
+  return(df)
+}
+age <- pop_modelled_total$age
+
+airqplus_yll_cutoff <- remove_upper_tri(airqplus_yll_cutoff %>% select(`2019`:`2118`)) %>% cbind(age, .)
+airqplus_yll_modelled <- remove_upper_tri(airqplus_yll_modelled %>% select(`2019`:`2118`)) %>% cbind(age, .)
+
+airqplus_entry_population_cutoff <- remove_upper_tri(airqplus_entry_population_cutoff %>% select(`2019`:`2118`)) %>% cbind(age, .)
+airqplus_entry_population_modelled <- remove_upper_tri(airqplus_entry_population_modelled %>% select(`2019`:`2118`)) %>% cbind(age, .)
+
+airqplus_yll_difference <- remove_upper_tri(airqplus_yll_difference %>% select(`2019`:`2118`)) %>% cbind(age, .)
+airqplus_premature_deaths_difference <- remove_upper_tri(airqplus_premature_deaths_difference %>% select(`2019`:`2118`)) %>% cbind(age, .)
+```
+
+
+# Determine population over time ###################################################################
+
+```{r Modelled pop over time}
+years <- c(2019:(2019 + (nrow(pop_modelled_total) - 1)))
+length_period <- length(years)
+
+for (i in 1:(length_period - 1)) { # starts with 1; ends with 99
+
+  # Determine year i+1 entry population using year i entry population
+  pop_modelled_total[(i + 1):length_period, paste0("pop_", years[i] + 1, "_entry_total")] <-
+    pop_modelled_total[i:(length_period - 1), paste0("pop_", years[i], "_entry_total")] * pop_modelled_total[i:(length_period - 1), "prob_survival_total"]
+
+  # Determine year i+1 mid-year population using year i+1 entry population
+  pop_modelled_total[(i + 1):length_period, paste0("pop_", years[i] + 1, "_mid_year_total")] <-
+    pop_modelled_total[(i + 1):length_period, paste0("pop_", years[i] + 1, "_entry_total")] * pop_modelled_total[(i + 1):length_period, "prob_survival_until_mid_year_total"]
+}
+```
+
+
+```{r Cutoff pop over time}
+years <- c(2019:(2019 + (nrow(pop_cutoff_total) - 1)))
+length_period <- length(years)
+
+for (i in 1:(length_period - 1)) { # starts with 1; ends with 99
+
+  # Determine year i+1 entry population using year i entry population
+  pop_cutoff_total[(i + 1):length_period, paste0("pop_", years[i] + 1, "_entry_total")] <-
+    pop_cutoff_total[i:(length_period - 1), paste0("pop_", years[i], "_entry_total")] * pop_cutoff_total[i:(length_period - 1), "prob_survival_total"]
+
+  # Determine year i+1 mid-year population using year i+1 entry population
+  pop_cutoff_total[(i + 1):length_period, paste0("pop_", years[i] + 1, "_mid_year_total")] <-
+    pop_cutoff_total[(i + 1):length_period, paste0("pop_", years[i] + 1, "_entry_total")] * pop_cutoff_total[(i + 1):length_period, "prob_survival_until_mid_year_total"]
+}
+```
+
+# Compare populations over time to AirQ+ populations ###############################################
+
+```{r Modelled entry pop comparison}
+# 2019 entry
+# table(pop_modelled_total$pop_2019_entry_total == airqplus_entry_population_modelled$`2019`) # Unrounded values
+# table(round(pop_modelled_total$pop_2019_entry_total) == airqplus_entry_population_modelled$`2019`) # Rounded values
+#
+# # 2019 mid-year
+# table(pop_modelled_total$pop_2019_mid_year_total == airqplus_yll_modelled$`2019`)
+
+# 2020 entry
+sel <- (round(pop_modelled_total$pop_2020_entry_total) == airqplus_entry_population_modelled$`2020`) # Rounded values
+temp <- data.frame(
+  age = pop_modelled_total$age,
+  bestcost = pop_modelled_total$pop_2020_entry_total,
+  bestcost_rounded = round(pop_modelled_total$pop_2020_entry_total),
+  airqplus = airqplus_entry_population_modelled$`2020`
+)
+temp[!sel, ]
+nrow(temp[!sel, ])
+# Test rounding survival rates
+# Tested 2 rounding approaches: (1 - round(deaths/pop)) and round(1 - deaths/pop), which gave identical results
+# No rounding: 3 mismatches (Populations at ages 13, 31, 72 differ by 1)
+# Round 3 decimals: 96 mismatches
+# Round 4 decimals: 83 mismatches
+# Round 5 decimals: 26 mismatches
+# Round 6 decimals: 18 mismatches
+# Round 7 decimals: 18 mismatches
+# Round 8 decimals: 22 mismatches
+# Round 9 decimals: 29 mismatches
+# Round 10 decimals: 19 mismatches
+# Round 11 decimals: 28 mismatches
+# Round 12 decimals: 23 mismatches
+# Round 13 decimals: 25 mismatches
+
+# 2021 entry
+temp <- na.omit(data.frame(
+  age = pop_modelled_total$age,
+  bestcost = pop_modelled_total$pop_2021_entry_total,
+  bestcost_rounded = round(pop_modelled_total$pop_2021_entry_total),
+  airqplus = airqplus_entry_population_modelled$`2021`
+))
+sel <- temp$bestcost_rounded == temp$airqplus # Rounded values
+
+nrow(temp[!sel, ]) # ; temp[!sel,]
+
+# 2022 entry
+temp <- na.omit(data.frame(
+  age = pop_modelled_total$age,
+  bestcost = pop_modelled_total$pop_2022_entry_total,
+  bestcost_rounded = round(pop_modelled_total$pop_2022_entry_total),
+  airqplus = airqplus_entry_population_modelled$`2022`
+))
+sel <- temp$bestcost_rounded == temp$airqplus # Rounded values
+nrow(temp[!sel, ]) # ; temp[!sel,]
+
+# 2030 entry
+temp <- na.omit(data.frame(
+  age = pop_modelled_total$age,
+  bestcost = pop_modelled_total$pop_2030_entry_total,
+  bestcost_rounded = round(pop_modelled_total$pop_2030_entry_total),
+  airqplus = airqplus_entry_population_modelled$`2030`
+))
+sel <- temp$bestcost_rounded == temp$airqplus # Rounded values
+nrow(temp[!sel, ]) # ; temp[!sel,]
+
+# 2050 entry
+temp <- na.omit(data.frame(
+  age = pop_modelled_total$age,
+  bestcost = pop_modelled_total$pop_2050_entry_total,
+  bestcost_rounded = round(pop_modelled_total$pop_2050_entry_total),
+  airqplus = airqplus_entry_population_modelled$`2050`
+))
+sel <- temp$bestcost_rounded == temp$airqplus # Rounded values
+nrow(temp[!sel, ]) # ; temp[!sel,]
+
+# 2118 entry
+temp <- na.omit(data.frame(
+  age = pop_modelled_total$age,
+  bestcost = pop_modelled_total$pop_2118_entry_total,
+  bestcost_rounded = round(pop_modelled_total$pop_2118_entry_total),
+  airqplus = airqplus_entry_population_modelled$`2118`
+))
+sel <- temp$bestcost_rounded == temp$airqplus # Rounded values
+nrow(temp[!sel, ]) # ; temp[!sel,]
+```
+
+
+```{r Cutoff entry pop comparison}
+# 2019 entry
+temp <- na.omit(data.frame(
+  age = pop_cutoff_total$age,
+  bestcost = pop_cutoff_total$pop_2019_entry_total,
+  bestcost_rounded = round(pop_cutoff_total$pop_2019_entry_total),
+  airqplus = airqplus_entry_population_cutoff$`2019`
+))
+sel <- temp$bestcost_rounded == temp$airqplus # Rounded values
+temp[!sel, ]
+nrow(temp[!sel, ]) # 0
+
+# 2020 entry
+temp <- na.omit(data.frame(
+  20:99,
+  pop_cutoff_total[21:100, "pop_2020_entry_total"],
+  round(pop_cutoff_total[21:100, "pop_2020_entry_total"]),
+  airqplus_entry_population_cutoff[21:100, "2020"]
+))
+names(temp) <- c("age", "bestcost", "bestcost_rounded", "airqplus")
+sel <- temp$bestcost_rounded == temp$airqplus
+nrow(temp[!sel, ]) # ; temp[!sel,] # 0
+
+# 2021 entry
+temp <- na.omit(data.frame(
+  20:99,
+  pop_cutoff_total[21:100, "pop_2021_entry_total"],
+  round(pop_cutoff_total[21:100, "pop_2021_entry_total"]),
+  airqplus_entry_population_cutoff[21:100, "2021"]
+))
+names(temp) <- c("age", "bestcost", "bestcost_rounded", "airqplus")
+sel <- temp$bestcost_rounded == temp$airqplus
+nrow(temp[!sel, ]) # ; temp[!sel,] # 0
+
+# 2022 entry
+temp <- na.omit(data.frame(
+  20:99,
+  pop_cutoff_total[21:100, "pop_2022_entry_total"],
+  round(pop_cutoff_total[21:100, "pop_2022_entry_total"]),
+  airqplus_entry_population_cutoff[21:100, "2022"]
+))
+names(temp) <- c("age", "bestcost", "bestcost_rounded", "airqplus")
+sel <- temp$bestcost_rounded == temp$airqplus
+nrow(temp[!sel, ]) # ; temp[!sel,] # 0
+
+# 2023 entry
+temp <- na.omit(data.frame(
+  20:99,
+  pop_cutoff_total[21:100, "pop_2023_entry_total"],
+  round(pop_cutoff_total[21:100, "pop_2023_entry_total"]),
+  airqplus_entry_population_cutoff[21:100, "2023"]
+))
+names(temp) <- c("age", "bestcost", "bestcost_rounded", "airqplus")
+sel <- temp$bestcost_rounded == temp$airqplus
+nrow(temp[!sel, ]) # ; temp[!sel,] # 0
+
+# 2024 entry
+temp <- na.omit(data.frame(
+  20:99,
+  pop_cutoff_total[21:100, "pop_2024_entry_total"],
+  round(pop_cutoff_total[21:100, "pop_2024_entry_total"]),
+  airqplus_entry_population_cutoff[21:100, "2024"]
+))
+names(temp) <- c("age", "bestcost", "bestcost_rounded", "airqplus")
+sel <- temp$bestcost_rounded == temp$airqplus
+nrow(temp[!sel, ]) # ; temp[!sel,] # 0
+
+# 2025 entry
+temp <- na.omit(data.frame(
+  20:99,
+  pop_cutoff_total[21:100, "pop_2025_entry_total"],
+  round(pop_cutoff_total[21:100, "pop_2025_entry_total"]),
+  airqplus_entry_population_cutoff[21:100, "2025"]
+))
+names(temp) <- c("age", "bestcost", "bestcost_rounded", "airqplus")
+sel <- temp$bestcost_rounded == temp$airqplus
+nrow(temp[!sel, ]) # ; temp[!sel,] # 0
+
+# 2026 entry
+temp <- na.omit(data.frame(
+  20:99,
+  pop_cutoff_total[21:100, "pop_2026_entry_total"],
+  round(pop_cutoff_total[21:100, "pop_2026_entry_total"]),
+  airqplus_entry_population_cutoff[21:100, "2026"]
+))
+names(temp) <- c("age", "bestcost", "bestcost_rounded", "airqplus")
+sel <- temp$bestcost_rounded == temp$airqplus
+nrow(temp[!sel, ]) # ; temp[!sel,] # 0
+
+# 2030 entry
+temp <- na.omit(data.frame(
+  20:99,
+  pop_cutoff_total[21:100, "pop_2020_entry_total"],
+  round(pop_cutoff_total[21:100, "pop_2030_entry_total"]),
+  airqplus_entry_population_cutoff[21:100, "2030"]
+))
+names(temp) <- c("age", "bestcost", "bestcost_rounded", "airqplus")
+sel <- temp$bestcost_rounded == temp$airqplus
+nrow(temp[!sel, ]) # ; temp[!sel,] # 0
+
+# 2035 entry
+temp <- na.omit(data.frame(
+  20:99,
+  pop_cutoff_total[21:100, "pop_2020_entry_total"],
+  round(pop_cutoff_total[21:100, "pop_2035_entry_total"]),
+  airqplus_entry_population_cutoff[21:100, "2035"]
+))
+names(temp) <- c("age", "bestcost", "bestcost_rounded", "airqplus")
+sel <- temp$bestcost_rounded == temp$airqplus
+nrow(temp[!sel, ]) # ; temp[!sel,] # 0
+
+# 2050 entry
+temp <- na.omit(data.frame(
+  20:99,
+  pop_cutoff_total[21:100, "pop_2020_entry_total"],
+  round(pop_cutoff_total[21:100, "pop_2050_entry_total"]),
+  airqplus_entry_population_cutoff[21:100, "2050"]
+))
+names(temp) <- c("age", "bestcost", "bestcost_rounded", "airqplus")
+sel <- temp$bestcost_rounded == temp$airqplus
+nrow(temp[!sel, ]) # ; temp[!sel,] # 0
+
+# 2060 entry
+temp <- na.omit(data.frame(
+  20:99,
+  pop_cutoff_total[21:100, "pop_2060_entry_total"],
+  round(pop_cutoff_total[21:100, "pop_2060_entry_total"]),
+  airqplus_entry_population_cutoff[21:100, "2060"]
+))
+names(temp) <- c("age", "bestcost", "bestcost_rounded", "airqplus")
+sel <- temp$bestcost_rounded == temp$airqplus
+nrow(temp[!sel, ]) # ; temp[!sel,] # 0
+```
+
+
+
+```{r Modelled mid-year pop comparison}
+# 2019 mid_year
+temp <- na.omit(data.frame(
+  age = pop_modelled_total$age,
+  bestcost = pop_modelled_total$pop_2019_mid_year_total,
+  bestcost_rounded = round(pop_modelled_total$pop_2019_mid_year_total),
+  airqplus = airqplus_yll_modelled$`2019`
+))
+sel <- temp$bestcost_rounded == temp$airqplus # Rounded values
+temp[!sel, ]
+nrow(temp[!sel, ]) # 0
+
+# 2020 mid_year
+temp <- na.omit(data.frame(
+  20:99,
+  pop_modelled_total[21:100, "pop_2020_mid_year_total"],
+  round(pop_modelled_total[21:100, "pop_2020_mid_year_total"]),
+  airqplus_yll_modelled[21:100, "2020"]
+))
+names(temp) <- c("age", "bestcost", "bestcost_rounded", "airqplus")
+sel <- temp$bestcost_rounded == temp$airqplus
+nrow(temp[!sel, ]) # ; temp[!sel,] # 0
+
+# 2021 mid_year
+temp <- na.omit(data.frame(
+  20:99,
+  pop_modelled_total[21:100, "pop_2021_mid_year_total"],
+  round(pop_modelled_total[21:100, "pop_2021_mid_year_total"]),
+  airqplus_yll_modelled[21:100, "2021"]
+))
+names(temp) <- c("age", "bestcost", "bestcost_rounded", "airqplus")
+sel <- temp$bestcost_rounded == temp$airqplus
+nrow(temp[!sel, ]) # ; temp[!sel,] # 0
+
+# 2022 mid_year
+temp <- na.omit(data.frame(
+  20:99,
+  pop_modelled_total[21:100, "pop_2022_mid_year_total"],
+  round(pop_modelled_total[21:100, "pop_2022_mid_year_total"]),
+  airqplus_yll_modelled[21:100, "2022"]
+))
+names(temp) <- c("age", "bestcost", "bestcost_rounded", "airqplus")
+sel <- temp$bestcost_rounded == temp$airqplus
+nrow(temp[!sel, ]) # ; temp[!sel,] # 0
+
+# 2023 mid_year
+temp <- na.omit(data.frame(
+  20:99,
+  pop_modelled_total[21:100, "pop_2023_mid_year_total"],
+  round(pop_modelled_total[21:100, "pop_2023_mid_year_total"]),
+  airqplus_yll_modelled[21:100, "2023"]
+))
+names(temp) <- c("age", "bestcost", "bestcost_rounded", "airqplus")
+sel <- temp$bestcost_rounded == temp$airqplus
+nrow(temp[!sel, ]) # ; temp[!sel,] # 0
+
+# 2024 mid_year
+temp <- na.omit(data.frame(
+  20:99,
+  pop_modelled_total[21:100, "pop_2024_mid_year_total"],
+  round(pop_modelled_total[21:100, "pop_2024_mid_year_total"]),
+  airqplus_yll_modelled[21:100, "2024"]
+))
+names(temp) <- c("age", "bestcost", "bestcost_rounded", "airqplus")
+sel <- temp$bestcost_rounded == temp$airqplus
+nrow(temp[!sel, ]) # ; temp[!sel,] # 0
+
+# 2025 mid_year
+temp <- na.omit(data.frame(
+  20:99,
+  pop_modelled_total[21:100, "pop_2025_mid_year_total"],
+  round(pop_modelled_total[21:100, "pop_2025_mid_year_total"]),
+  airqplus_yll_modelled[21:100, "2025"]
+))
+names(temp) <- c("age", "bestcost", "bestcost_rounded", "airqplus")
+sel <- temp$bestcost_rounded == temp$airqplus
+nrow(temp[!sel, ]) # ; temp[!sel,] # 0
+
+# 2026 mid_year
+temp <- na.omit(data.frame(
+  20:99,
+  pop_modelled_total[21:100, "pop_2026_mid_year_total"],
+  round(pop_modelled_total[21:100, "pop_2026_mid_year_total"]),
+  airqplus_yll_modelled[21:100, "2026"]
+))
+names(temp) <- c("age", "bestcost", "bestcost_rounded", "airqplus")
+sel <- temp$bestcost_rounded == temp$airqplus
+nrow(temp[!sel, ]) # ; temp[!sel,] # 0
+
+# 2030 mid_year
+temp <- na.omit(data.frame(
+  20:99,
+  pop_modelled_total[21:100, "pop_2020_mid_year_total"],
+  round(pop_modelled_total[21:100, "pop_2030_mid_year_total"]),
+  airqplus_yll_modelled[21:100, "2030"]
+))
+names(temp) <- c("age", "bestcost", "bestcost_rounded", "airqplus")
+sel <- temp$bestcost_rounded == temp$airqplus
+nrow(temp[!sel, ]) # ; temp[!sel,] # 0
+
+# 2035 mid_year
+temp <- na.omit(data.frame(
+  20:99,
+  pop_modelled_total[21:100, "pop_2020_mid_year_total"],
+  round(pop_modelled_total[21:100, "pop_2035_mid_year_total"]),
+  airqplus_yll_modelled[21:100, "2035"]
+))
+names(temp) <- c("age", "bestcost", "bestcost_rounded", "airqplus")
+sel <- temp$bestcost_rounded == temp$airqplus
+nrow(temp[!sel, ]) # ; temp[!sel,] # 0
+
+# 2050 mid_year
+temp <- na.omit(data.frame(
+  20:99,
+  pop_modelled_total[21:100, "pop_2020_mid_year_total"],
+  round(pop_modelled_total[21:100, "pop_2050_mid_year_total"]),
+  airqplus_yll_modelled[21:100, "2050"]
+))
+names(temp) <- c("age", "bestcost", "bestcost_rounded", "airqplus")
+sel <- temp$bestcost_rounded == temp$airqplus
+nrow(temp[!sel, ]) # ; temp[!sel,] # 0
+
+# 2060 mid_year
+temp <- na.omit(data.frame(
+  20:99,
+  pop_modelled_total[21:100, "pop_2060_mid_year_total"],
+  round(pop_modelled_total[21:100, "pop_2060_mid_year_total"]),
+  airqplus_yll_modelled[21:100, "2060"]
+))
+names(temp) <- c("age", "bestcost", "bestcost_rounded", "airqplus")
+sel <- temp$bestcost_rounded == temp$airqplus
+nrow(temp[!sel, ]) # ; temp[!sel,] # 0
+```
+
+
+
+```{r Cutoff mid-year pop comparison}
+# 2019 mid_year
+temp <- na.omit(data.frame(
+  age = pop_cutoff_total$age,
+  bestcost = pop_cutoff_total$pop_2019_mid_year_total,
+  bestcost_rounded = round(pop_cutoff_total$pop_2019_mid_year_total),
+  airqplus = airqplus_yll_cutoff$`2019`
+))
+sel <- temp$bestcost_rounded == temp$airqplus # Rounded values
+nrow(temp[!sel, ]) # ; temp[!sel,] # 1
+# CHECK OUT ####
+
+# 2020 mid_year
+temp <- na.omit(data.frame(
+  20:99,
+  pop_cutoff_total[21:100, "pop_2020_mid_year_total"],
+  round(pop_cutoff_total[21:100, "pop_2020_mid_year_total"]),
+  airqplus_yll_cutoff[21:100, "2020"]
+))
+names(temp) <- c("age", "bestcost", "bestcost_rounded", "airqplus")
+sel <- temp$bestcost_rounded == temp$airqplus
+nrow(temp[!sel, ]) # ; temp[!sel,] # 0
+
+# 2021 mid_year
+temp <- na.omit(data.frame(
+  20:99,
+  pop_cutoff_total[21:100, "pop_2021_mid_year_total"],
+  round(pop_cutoff_total[21:100, "pop_2021_mid_year_total"]),
+  airqplus_yll_cutoff[21:100, "2021"]
+))
+names(temp) <- c("age", "bestcost", "bestcost_rounded", "airqplus")
+sel <- temp$bestcost_rounded == temp$airqplus
+nrow(temp[!sel, ]) # ; temp[!sel,] # 0
+
+# 2022 mid_year
+temp <- na.omit(data.frame(
+  20:99,
+  pop_cutoff_total[21:100, "pop_2022_mid_year_total"],
+  round(pop_cutoff_total[21:100, "pop_2022_mid_year_total"]),
+  airqplus_yll_cutoff[21:100, "2022"]
+))
+names(temp) <- c("age", "bestcost", "bestcost_rounded", "airqplus")
+sel <- temp$bestcost_rounded == temp$airqplus
+nrow(temp[!sel, ]) # ; temp[!sel,] # 0
+
+# 2023 mid_year
+temp <- na.omit(data.frame(
+  20:99,
+  pop_cutoff_total[21:100, "pop_2023_mid_year_total"],
+  round(pop_cutoff_total[21:100, "pop_2023_mid_year_total"]),
+  airqplus_yll_cutoff[21:100, "2023"]
+))
+names(temp) <- c("age", "bestcost", "bestcost_rounded", "airqplus")
+sel <- temp$bestcost_rounded == temp$airqplus
+nrow(temp[!sel, ]) # ; temp[!sel,] # 0
+
+# 2024 mid_year
+temp <- na.omit(data.frame(
+  20:99,
+  pop_cutoff_total[21:100, "pop_2024_mid_year_total"],
+  round(pop_cutoff_total[21:100, "pop_2024_mid_year_total"]),
+  airqplus_yll_cutoff[21:100, "2024"]
+))
+names(temp) <- c("age", "bestcost", "bestcost_rounded", "airqplus")
+sel <- temp$bestcost_rounded == temp$airqplus
+nrow(temp[!sel, ]) # ; temp[!sel,] # 0
+
+# 2025 mid_year
+temp <- na.omit(data.frame(
+  20:99,
+  pop_cutoff_total[21:100, "pop_2025_mid_year_total"],
+  round(pop_cutoff_total[21:100, "pop_2025_mid_year_total"]),
+  airqplus_yll_cutoff[21:100, "2025"]
+))
+names(temp) <- c("age", "bestcost", "bestcost_rounded", "airqplus")
+sel <- temp$bestcost_rounded == temp$airqplus
+nrow(temp[!sel, ]) # ; temp[!sel,] # 0
+
+# 2026 mid_year
+temp <- na.omit(data.frame(
+  20:99,
+  pop_cutoff_total[21:100, "pop_2026_mid_year_total"],
+  round(pop_cutoff_total[21:100, "pop_2026_mid_year_total"]),
+  airqplus_yll_cutoff[21:100, "2026"]
+))
+names(temp) <- c("age", "bestcost", "bestcost_rounded", "airqplus")
+sel <- temp$bestcost_rounded == temp$airqplus
+nrow(temp[!sel, ]) # ; temp[!sel,] # 0
+
+# 2030 mid_year
+temp <- na.omit(data.frame(
+  20:99,
+  pop_cutoff_total[21:100, "pop_2020_mid_year_total"],
+  round(pop_cutoff_total[21:100, "pop_2030_mid_year_total"]),
+  airqplus_yll_cutoff[21:100, "2030"]
+))
+names(temp) <- c("age", "bestcost", "bestcost_rounded", "airqplus")
+sel <- temp$bestcost_rounded == temp$airqplus
+nrow(temp[!sel, ]) # ; temp[!sel,] # 0
+
+# 2035 mid_year
+temp <- na.omit(data.frame(
+  20:99,
+  pop_cutoff_total[21:100, "pop_2020_mid_year_total"],
+  round(pop_cutoff_total[21:100, "pop_2035_mid_year_total"]),
+  airqplus_yll_cutoff[21:100, "2035"]
+))
+names(temp) <- c("age", "bestcost", "bestcost_rounded", "airqplus")
+sel <- temp$bestcost_rounded == temp$airqplus
+nrow(temp[!sel, ]) # ; temp[!sel,] # 0
+
+# 2050 mid_year
+temp <- na.omit(data.frame(
+  20:99,
+  pop_cutoff_total[21:100, "pop_2020_mid_year_total"],
+  round(pop_cutoff_total[21:100, "pop_2050_mid_year_total"]),
+  airqplus_yll_cutoff[21:100, "2050"]
+))
+names(temp) <- c("age", "bestcost", "bestcost_rounded", "airqplus")
+sel <- temp$bestcost_rounded == temp$airqplus
+nrow(temp[!sel, ]) # ; temp[!sel,] # 0
+
+# 2060 mid_year
+temp <- na.omit(data.frame(
+  20:99,
+  pop_cutoff_total[21:100, "pop_2060_mid_year_total"],
+  round(pop_cutoff_total[21:100, "pop_2060_mid_year_total"]),
+  airqplus_yll_cutoff[21:100, "2060"]
+))
+names(temp) <- c("age", "bestcost", "bestcost_rounded", "airqplus")
+sel <- temp$bestcost_rounded == temp$airqplus
+nrow(temp[!sel, ]) # ; temp[!sel,] # 0
+```
+
+
+
+```{r Compare YLLs to AirQ+ results}
+# 2019
+comparison_yll <- pop_cutoff_total %>% select(age)
+comparison_yll$bestcost_yll_2019 <- round(pop_cutoff_total$pop_2019_mid_year_total) - round(pop_modelled_total$pop_2019_mid_year_total)
+comparison_yll[1:20, "bestcost_yll_2019"] <- 0 # Set YLL of ages 0 to 19 to zero
+comparison_yll$airqplus_yll_2019 <- airqplus_yll_difference$`2019`
+
+table(comparison_yll$bestcost_yll_2019 == comparison_yll$airqplus_yll_2019)
+
+# 2020
+comparison_yll <- pop_cutoff_total %>% select(age)
+comparison_yll$bestcost_yll_2020 <- round(pop_cutoff_total$pop_2020_mid_year_total) - round(pop_modelled_total$pop_2020_mid_year_total)
+comparison_yll[2:20, "bestcost_yll_2020"] <- 0 # Set YLL of ages 0 to 19 to zero
+comparison_yll$airqplus_yll_2020 <- airqplus_yll_difference$`2020`
+
+table(comparison_yll$bestcost_yll_2020 == comparison_yll$airqplus_yll_2020)
+
+# 2021
+comparison_yll <- pop_cutoff_total %>% select(age)
+comparison_yll$bestcost_yll_2021 <- round(pop_cutoff_total$pop_2021_mid_year_total) - round(pop_modelled_total$pop_2021_mid_year_total)
+comparison_yll$airqplus_yll_2021 <- airqplus_yll_difference$`2021`
+
+table(comparison_yll$bestcost_yll_2021 == comparison_yll$airqplus_yll_2021)
+
+# 2067
+comparison_yll <- pop_cutoff_total %>% select(age)
+comparison_yll$bestcost_yll_2067 <- round(pop_cutoff_total$pop_2067_mid_year_total) - round(pop_modelled_total$pop_2067_mid_year_total)
+comparison_yll$airqplus_yll_2067 <- airqplus_yll_difference$`2067`
+
+table(comparison_yll$bestcost_yll_2067 == comparison_yll$airqplus_yll_2067)
+```
+
+
+```{r Compare premature deaths to AirQ+ results}
+comparison_premature_deaths <- pop_cutoff_total %>% select(age)
+comparison_premature_deaths$bestcost_premature_deaths_2019 <- round((pop_cutoff_total$pop_2019_mid_year_total - pop_modelled_total$pop_2019_mid_year_total) * 2)
+comparison_premature_deaths[1:20, "bestcost_premature_deaths_2019"] <- 0 # Set premature deaths of ages 0 to 19 to zero
+comparison_premature_deaths$airqplus_premature_deaths_2019 <- airqplus_premature_deaths_difference$`2019`
+
+table(comparison_premature_deaths$bestcost_premature_deaths_2019 == comparison_premature_deaths$airqplus_premature_deaths_2019)
+```
+
+# Compare probability of dying #####################################################################
+
+Compare probability of dying as calculated above vs. calculation using "get_prob_dying_by_single_age"
+```{r Determine probability of dying}
+prob_dying <- list()
+
+for (d in c("natural")) {
+  prob_dying[[d]] <-
+    bestcost::get_prob_dying_by_single_age(
+      first_age_pop = first(pop_modelled_total$age),
+      last_age_pop = last(pop_modelled_total$age),
+      interval_age_pop = 1,
+      population_midyear = pop_modelled_total$pop_2019_mid_year_total,
+      deaths = pop_modelled_total$deaths_total
+    )
+}
+
+prob_surviving_vec <- prob_dying[["natural"]][["prob_surviving"]]
+pop_modelled_total$prob_surviving <- prob_surviving_vec
+
+pop_modelled_total <- pop_modelled_total %>%
+  relocate(prob_surviving, .before = prob_survival_total)
+
+table(pop_modelled_total$prob_surviving == pop_modelled_total$prob_survival_total) # the three instances where it's "FALSE" are also virtually identical
+# sel <- (pop_total$prob_surviving == pop_total$prob_survival_total)
+# pop_total[!sel,]
+print(pop_modelled_total$prob_surviving[1:10])
+print(pop_modelled_total$prob_survival_total[1:10])
+```
+Identical
+
+
