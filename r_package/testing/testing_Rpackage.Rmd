@@ -441,6 +441,96 @@ bestcost_pm_deaths_lifetable_geluft <-
 
 check_bestcost(result_list_bestcost = bestcost_pm_deaths_lifetable_geluft ,
                result_vector_alternative = c(2610, 1378, 3815))
+
+
+test1 <- 
+    bestcost::attribute_deaths_from_lifetable(
+    exp_central = 8.85,
+    cutoff = input_data_mortality$cutoff[2],   # PM2.5=5,i.e. WHO AQG 2021 
+    rr_central = input_data_mortality[2,"rr_central"], 
+    rr_lower = input_data_mortality[2,"rr_lower"], 
+    rr_upper = input_data_mortality[2,"rr_upper"],
+    erf_increment = 10, 
+    erf_shape = "log_linear",
+    first_age_pop = 0,
+    last_age_pop = 99,
+    prob_natural_death_male = lifetable_withPopulation[["male"]]$death_probability_natural,
+    prob_natural_death_female = lifetable_withPopulation[["female"]]$death_probability_natural,
+    prob_total_death_male = lifetable_withPopulation[["male"]]$death_probability_total,
+    prob_total_death_female = lifetable_withPopulation[["female"]]$death_probability_total,
+    population_midyear_male = lifetable_withPopulation[["male"]]$population, 
+    population_midyear_female = lifetable_withPopulation[["female"]]$population, 
+    year_of_analysis = 2019, 
+    info = input_data_mortality$pollutant[2], 
+    min_age = input_data_mortality$min_age[2])
+
+test2 <- 
+    bestcost::attribute_deaths_from_lifetable(
+    exp_central = 6,
+    cutoff = input_data_mortality$cutoff[2],   # PM2.5=5,i.e. WHO AQG 2021 
+    rr_central = input_data_mortality[2,"rr_central"], 
+    rr_lower = input_data_mortality[2,"rr_lower"], 
+    rr_upper = input_data_mortality[2,"rr_upper"],
+    erf_increment = 10, 
+    erf_shape = "log_linear",
+    first_age_pop = 0,
+    last_age_pop = 99,
+    prob_natural_death_male = lifetable_withPopulation[["male"]]$death_probability_natural,
+    prob_natural_death_female = lifetable_withPopulation[["female"]]$death_probability_natural,
+    prob_total_death_male = lifetable_withPopulation[["male"]]$death_probability_total,
+    prob_total_death_female = lifetable_withPopulation[["female"]]$death_probability_total,
+    population_midyear_male = lifetable_withPopulation[["male"]]$population, 
+    population_midyear_female = lifetable_withPopulation[["female"]]$population, 
+    year_of_analysis = 2019, 
+    info = input_data_mortality$pollutant[2], 
+    min_age = input_data_mortality$min_age[2])
+
+test3 <- 
+    bestcost::attribute_deaths_from_lifetable(
+    exp_central = 8,
+    cutoff = input_data_mortality$cutoff[2],   # PM2.5=5,i.e. WHO AQG 2021 
+    rr_central = input_data_mortality[2,"rr_central"], 
+    rr_lower = input_data_mortality[2,"rr_lower"], 
+    rr_upper = input_data_mortality[2,"rr_upper"],
+    erf_increment = 10, 
+    erf_shape = "log_linear",
+    first_age_pop = 0,
+    last_age_pop = 99,
+    prob_natural_death_male = lifetable_withPopulation[["male"]]$death_probability_natural,
+    prob_natural_death_female = lifetable_withPopulation[["female"]]$death_probability_natural,
+    prob_total_death_male = lifetable_withPopulation[["male"]]$death_probability_total,
+    prob_total_death_female = lifetable_withPopulation[["female"]]$death_probability_total,
+    population_midyear_male = lifetable_withPopulation[["male"]]$population, 
+    population_midyear_female = lifetable_withPopulation[["female"]]$population, 
+    year_of_analysis = 2019, 
+    info = input_data_mortality$pollutant[2], 
+    min_age = input_data_mortality$min_age[2])
+
+test4 <- 
+    bestcost::attribute_deaths_from_lifetable(
+    exp_central = 6.5,
+    cutoff = input_data_mortality$cutoff[2],   # PM2.5=5,i.e. WHO AQG 2021 
+    rr_central = input_data_mortality[2,"rr_central"], 
+    rr_lower = input_data_mortality[2,"rr_lower"], 
+    rr_upper = input_data_mortality[2,"rr_upper"],
+    erf_increment = 10, 
+    erf_shape = "log_linear",
+    first_age_pop = 0,
+    last_age_pop = 99,
+    prob_natural_death_male = lifetable_withPopulation[["male"]]$death_probability_natural,
+    prob_natural_death_female = lifetable_withPopulation[["female"]]$death_probability_natural,
+    prob_total_death_male = lifetable_withPopulation[["male"]]$death_probability_total,
+    prob_total_death_female = lifetable_withPopulation[["female"]]$death_probability_total,
+    population_midyear_male = lifetable_withPopulation[["male"]]$population, 
+    population_midyear_female = lifetable_withPopulation[["female"]]$population, 
+    year_of_analysis = 2019, 
+    info = input_data_mortality$pollutant[2], 
+    min_age = input_data_mortality$min_age[2])
+
+test_a <- test1[["main"]]$impact-test2[["main"]]$impact
+test_b <- test3[["main"]]$impact-test4[["main"]]$impact
+test <- test_a+test_b
+
 ```
 
 
@@ -993,7 +1083,7 @@ comparison_deaths_lifetable_delta <-
 check_bestcost(result_list_bestcost = comparison_deaths_lifetable_delta ,
                result_vector_alternative = c(1922,1017,2801)) # Result on 16 May 2024
 
-# Additionally check that it producesthe first scenario produce the same results as above
+# Additionally check that it produces the first scenario produce the same results as above
 check_bestcost(result_list_bestcost = comparison_deaths_lifetable_delta[["detailed"]][["scenario_1"]] ,
                result_vector_alternative = bestcost_pm_deaths_lifetable_geluft[["main"]]$impact_rounded) 
 
@@ -1036,7 +1126,10 @@ comparison_deaths_lifetable_delta_geo <-
 # No study to compare bestcost results
 # Check only if results stay the same overtime despite developments
 check_bestcost(result_list_bestcost = comparison_deaths_lifetable_delta_geo ,
-               result_vector_alternative = c(2932, 1551, 4274)) # Result on 20 June 2024
+               result_vector_alternative = c(2935, 1553, 4279)) # Result on 09 July 2024
+
+# Additionally check that it produces the first scenario produce the same results as above
+comparison_deaths_lifetable_delta_geo[["detailed"]][["scenario_1"]][["detailed"]][["raw"]] %>%  dplyr::filter(., geo_id_raw %in% "a") %>% select(., impact)  %>% pull(.) == bestcost_pm_deaths_lifetable_geluft[["main"]]$impact 
 
 
 # PIF
@@ -1125,7 +1218,7 @@ comparison_deaths_lifetable_pif_geo <-
 # No study to compare bestcost results
 # Check only if results stay the same overtime despite developments
 check_bestcost(result_list_bestcost = comparison_deaths_lifetable_pif_geo ,
-               result_vector_alternative = c(2970,1562,4358)) # Result on 26 June 2024
+               result_vector_alternative = c(2974, 1563, 4362)) # Result on 09 July 2024
 
 
 ```
@@ -1220,7 +1313,7 @@ comparison_yll_lifetable_delta_geo <-
 # No study to compare bestcost results
 # Check only if results stay the same overtime despite developments
 check_bestcost(result_list_bestcost = comparison_yll_lifetable_delta_geo ,
-               result_vector_alternative = c(31185, 16497, 45465)) # Result on 26 June 2024
+               result_vector_alternative = c(31190, 16500, 45472)) # Result on 08 July 2024
 
 # PIF
 comparison_yll_lifetable_pif <-
@@ -1308,7 +1401,7 @@ comparison_yll_lifetable_pif_geo <-
 # No study to compare bestcost results
 # Check only if results stay the same overtime despite developments
 check_bestcost(result_list_bestcost = comparison_yll_lifetable_pif_geo ,
-               result_vector_alternative = c(31595, 16610, 46351)) # Result on 26 June 2024
+               result_vector_alternative = c(31601, 16613, 46359)) # Result on 08 July 2024
 
 ```
 
@@ -1407,7 +1500,7 @@ comparison_yld_lifetable_delta_geo <-
 # No study to compare bestcost results
 # Check only if results stay the same overtime despite developments
 check_bestcost(result_list_bestcost = comparison_yld_lifetable_delta_geo ,
-               result_vector_alternative = c(31185, 16497, 45465)) # Result on 26 June 2024
+               result_vector_alternative = c(31190, 16500, 45472)) # Result on 08 July 2024
 
 
 # PIF
@@ -1499,7 +1592,7 @@ comparison_yld_lifetable_pif_geo <-
 # No study to compare bestcost results
 # Check only if results stay the same overtime despite developments
 check_bestcost(result_list_bestcost = comparison_yld_lifetable_pif_geo ,
-               result_vector_alternative = c(31595, 16610, 46351)) # Result on 26 June 2024
+               result_vector_alternative = c(31601, 16613, 46359)) # Result on 26 June 2024
 
 ```
 

@@ -52,6 +52,8 @@ compile_lifetable_pop <-
         as.character(ifelse(is.list({{population_midyear_male}}), 1:length({{population_midyear_male}}), 1))
     }
 
+    length_sex <- length(c("male, female"))
+
 
     # Build the data set
     # The life table has to be provided (by sex)
@@ -59,8 +61,8 @@ compile_lifetable_pop <-
 
     lifetable_with_pop <-
       tidyr::tibble(
-        geo_id_raw = geo_id_raw,
-        geo_id_aggregated = geo_id_aggregated,
+        geo_id_raw = rep(geo_id_raw, each = length_sex),
+        geo_id_aggregated = rep(geo_id_aggregated, each = length_sex),
         sex = c("male", "female"),
         lifetable_with_pop_nest = list(
           tidyr::tibble(

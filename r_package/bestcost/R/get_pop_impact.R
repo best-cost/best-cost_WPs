@@ -34,18 +34,22 @@ get_pop_impact <-
 
     second_year <- year_of_analysis + 1
 
-    joining_variables_input_lifetable <-
-      intersect(names(input_with_risk_and_pop_fraction),
-                names(lifetable_with_pop)) %>%
-      intersect(., c("geo_id_raw", "geo_id_aggregated"))
-
-
     pop_impact <-
-      dplyr::left_join(
+      dplyr::cross_join(
         input_with_risk_and_pop_fraction,
-        lifetable_with_pop,
-        by = joining_variables_input_lifetable) %>%
-      dplyr::mutate(
+        lifetable_with_pop) %>%
+      # Cross join duplicates the columns with the same name
+      # adding a suffix .y and .x
+      # Select only one column (avoiding duplicated columns)
+      # and rename the columns
+      dplyr::select(., -geo_id_raw.y) %>%
+      dplyr::rename(., geo_id_raw = geo_id_raw.x) %>%
+      # geo_id_aggregated is a volutary argument
+      # Therefore, if()
+      {if(any(grepl("geo_id_aggregated", names(.))))
+        dplyr::select(., -geo_id_aggregated.y) %>%
+          dplyr::rename(., geo_id_aggregated = geo_id_aggregated.x) else .} %>%
+     dplyr::mutate(
         pop_impact_nest = purrr::map(
           lifetable_with_pop_nest,
           ~ dplyr::rename(

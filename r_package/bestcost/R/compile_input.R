@@ -117,7 +117,7 @@ compile_input <-
         min_age = rep(min_age, each = length_exp_dist),
         max_age = rep(max_age, each = length_exp_dist),
 
-        # Second those variables that will have lenght = 1 (no problematic)
+        # Second those variables that will have length = 1 (no problematic)
         disability_weight = disability_weight,
         duration = duration,
         corrected_discount_rate = corrected_discount_rate,

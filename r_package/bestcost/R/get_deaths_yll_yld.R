@@ -176,15 +176,15 @@ get_deaths_yll_yld <-
       impact_detailed %>%
       # Sum across sex adding total
       dplyr::group_by(.,
-                      across(-c("sex", "impact", contains("nest"))))%>%
+                      across(-c(sex, impact, contains("nest"))))%>%
                       # across(all_of(intersect(c("geo_id_raw", "geo_id_aggregated",
                       #                           "discounted", "erf_ci"),
                       #                         names(.))))) %>%
       dplyr::summarise(.,
-                       across(.cols=c(impact), sum),
+                       across(.cols = c(impact), sum),
                        across(sex, ~"total"),
                        across(contains("nest"), ~list("total")),
-                    .groups = "keep")
+                    .groups = "drop")
 
     # Bind the rows of impact_detailed and the totals
     impact_detailed <-
