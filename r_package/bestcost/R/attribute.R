@@ -69,7 +69,8 @@ attribute <-
            disability_weight = NULL,
            duration = NULL,
            corrected_discount_rate = NULL,
-           geo_id_raw = NULL, geo_id_aggregated = NULL,
+           geo_id_raw = NULL,
+           geo_id_aggregated = NULL,
            info = NULL){
 
     # Check input data
@@ -112,7 +113,9 @@ attribute <-
           prob_total_death_male = prob_total_death_male,
           prob_total_death_female = prob_total_death_female,
           population_midyear_male = population_midyear_male,
-          population_midyear_female =  population_midyear_female)
+          population_midyear_female =  population_midyear_female,
+          geo_id_raw = geo_id_raw,
+          geo_id_aggregated = geo_id_aggregated)
 
     }
 

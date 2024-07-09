@@ -299,7 +299,9 @@ compare <-
             prob_total_death_male = prob_total_death_male_1,
             prob_total_death_female = prob_total_death_female_1,
             population_midyear_male = population_midyear_male_1,
-            population_midyear_female =  population_midyear_female_1)
+            population_midyear_female =  population_midyear_female_1,
+            geo_id_raw = geo_id_raw,
+            geo_id_aggregated = geo_id_aggregated)
       }
 
 

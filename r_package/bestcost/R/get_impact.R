@@ -37,7 +37,7 @@ get_impact <-
 
       if(unique(input$health_metric) %in% c("same_input_output",
                                             "yld_from_prevalence")){
-        # Get pop_fraction and added to the input data frame
+        # Get pop_fraction and add it to the input data frame
         impact_raw_main <-
           input_with_risk_and_pop_fraction %>%
           # Build the result table adding the impact to the input table

@@ -12,7 +12,8 @@ compile_lifetable_pop(
   prob_total_death_male,
   prob_total_death_female,
   population_midyear_male,
-  population_midyear_female
+  population_midyear_female,
+  geo_id_raw
 )
 }
 \arguments{
