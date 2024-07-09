@@ -7,7 +7,7 @@ output: html_document
 # Goal
 Replicate the population evolution, pre-mature deaths, YLL of AirQ+ calculations
 
-```{r Setup, eval=FALSE, include=FALSE}
+```{r Setup, include=FALSE}
 # Load packages
 library(dplyr)
 library(openxlsx)

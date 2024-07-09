@@ -573,7 +573,9 @@ bestcost_pm_yll_lifetable_airqplus <-
     prob_total_death_male = prob_dying[["total"]][["male"]]$prob_dying,
     prob_total_death_female = prob_dying[["total"]][["female"]]$prob_dying,
     population_midyear_male = airqplus_pm_deaths_yll[["pop"]]$midyear_population_male,
-    population_midyear_female = airqplus_pm_deaths_yll[["pop"]]$midyear_population_female, 
+    population_midyear_female = airqplus_pm_deaths_yll[["pop"]]$midyear_population_female,
+    deaths_male = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_male,
+    deaths_female = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_female,
     year_of_analysis =  airqplus_pm_deaths_yll[["input"]]$start_year, 
     min_age = airqplus_pm_deaths_yll[["input"]]$apply_rr_from_age)
 

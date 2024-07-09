@@ -38,6 +38,7 @@ compile_lifetable_pop <-
            prob_natural_death_male, prob_natural_death_female,
            prob_total_death_male, prob_total_death_female,
            population_midyear_male, population_midyear_female,
+           deaths_male = NULL, deaths_female = NULL,
            geo_id_raw = NULL,
            geo_id_aggregated = NULL){
 
@@ -74,7 +75,8 @@ compile_lifetable_pop <-
                           by = 1),
             death_probability_natural = prob_natural_death_male,
             death_probability_total = prob_total_death_male,
-            population = population_midyear_male),
+            population = population_midyear_male,
+            deaths = deaths_male),
           tidyr::tibble(
             age = seq(from = first_age_pop,
                       to = last_age_pop,
@@ -84,7 +86,8 @@ compile_lifetable_pop <-
                           by = 1),
             death_probability_natural = prob_natural_death_female,
             death_probability_total = prob_total_death_female,
-            population = population_midyear_female))
+            population = population_midyear_female,
+            deaths = deaths_female))
       )
 
   }

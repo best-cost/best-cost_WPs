@@ -35,6 +35,25 @@ get_pop_impact <-
 
     if (outcome_metric %in% c("yll_airqplus")) {
 
+      pop_male <- lifetable_with_pop %>%
+        filter(sex == "male") %>%
+        select(lifetable_with_pop_nest) %>%
+        unnest(cols = c(lifetable_with_pop_nest)) %>%
+        select(population_mid_year_male = population)
+
+      pop_female <- lifetable_with_pop %>%
+        filter(sex == "female") %>%
+        select(lifetable_with_pop_nest) %>%
+        unnest(cols = c(lifetable_with_pop_nest)) %>%
+        select(population_mid_year_female = population,
+               age)
+
+      pop_total <- cbind(pop_male, pop_female) %>%
+        select(age,
+               population_mid_year_male = midyear_population_male,
+               population_mid_year_female = midyear_population_female)
+      # Add code from "Replication_AirQ+.Rmd" here ####
+
     }
 
     if ((outcome_metric %in% c("yll_airqplus") == FALSE)) {

@@ -64,6 +64,7 @@ attribute <-
            prob_natural_death_male = NULL, prob_natural_death_female = NULL,
            prob_total_death_male, prob_total_death_female = NULL,
            population_midyear_male = NULL, population_midyear_female = NULL,
+           deaths_male = NULL, deaths_female = NULL,
            year_of_analysis = NULL,
            min_age = NULL, max_age = NULL,
            disability_weight = NULL,
@@ -114,6 +115,7 @@ attribute <-
           prob_total_death_female = prob_total_death_female,
           population_midyear_male = population_midyear_male,
           population_midyear_female =  population_midyear_female,
+          deaths_male = deaths_male, deaths_female = deaths_female,
           geo_id_raw = geo_id_raw,
           geo_id_aggregated = geo_id_aggregated)
 
