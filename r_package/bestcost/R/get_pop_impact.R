@@ -95,7 +95,13 @@ get_pop_impact <-
         ## Based on AirQ+ lifetable manual formula 4. on p 14: s_i = (2 - h_i) / (2 + h_i)
         ## In the population (without pollution effects) projections, a modified survival probability is calculated as a function of (modified) hazards
         mutate(prob_survival_total = (2 - hazard_rate_total) / (2 + hazard_rate_total)) %>%
-        mutate(prob_survival_until_mid_year_total = 1 - ((1 - prob_survival_total) / 2)) %>%
+        mutate(prob_survival_until_mid_year_total = 1 - ((1 - prob_survival_total) / 2))
+
+      # NOTE: DO ASSIGNMENT BELOW WITH VARIABLE min_age ####
+      pop_cutoff_total[1:20, "prob_survival_total"] <- pop_modelled_total[1:20, "prob_survival_total"]
+      pop_cutoff_total[1:20, "prob_survival_until_mid_year_total"] <- pop_modelled_total[1:20, "prob_survival_until_mid_year_total"]
+
+      pop_cutoff_total <- pop_cutoff_total %>%
         # Now re-calculate the "pop_2019_mid_year_total" using the modified survival rates ####
         mutate(!!paste0("pop_",year_of_analysis,"_mid_year_total") := !!sym(paste0("pop_",year_of_analysis,"_entry_total")) * prob_survival_until_mid_year_total) %>%
         # Relocate and rename
@@ -109,13 +115,51 @@ get_pop_impact <-
                !!paste0("pop_",year_of_analysis,"_mid_year_total"),
                -c(population_mid_year_male, population_mid_year_female, deaths_male, deaths_female))
 
-      # NOTE: ROWS 1:20 GET ASSIGNED THE CORRECT SURVIVAL PROBABILITY TOO LATE: THE ENTRY POPULATION FOR 2019 IS ALREADY CALCULATED ####
-      # TRY ADJUSTING IN REPLICATE_AIRQ+ SCRIPT AND THEN ADJUST HERE ALSO
-      pop_cutoff_total[1:20, "prob_survival_total"] <- pop_modelled_total[1:20, "prob_survival_total"]
-      pop_cutoff_total[1:20, "prob_survival_until_mid_year_total"] <- pop_modelled_total[1:20, "prob_survival_until_mid_year_total"]
+      years <- c(year_of_analysis:(year_of_analysis + (nrow(pop_modelled_total) - 1)))
+      length_period <- length(years)
 
+      for (i in 1:(length_period - 1)) { # starts with 1; ends with 99
+
+        # Determine year i+1 entry population using year i entry population
+        pop_modelled_total[(i + 1):length_period, paste0("pop_", years[i] + 1, "_entry_total")] <-
+          pop_modelled_total[i:(length_period - 1), paste0("pop_", years[i], "_entry_total")] * pop_modelled_total[i:(length_period - 1), "prob_survival_total"]
+
+        # Determine year i+1 mid-year population using year i+1 entry population
+        pop_modelled_total[(i + 1):length_period, paste0("pop_", years[i] + 1, "_mid_year_total")] <-
+          pop_modelled_total[(i + 1):length_period, paste0("pop_", years[i] + 1, "_entry_total")] * pop_modelled_total[(i + 1):length_period, "prob_survival_until_mid_year_total"]
+      }
+
+      years <- c(year_of_analysis:(year_of_analysis + (nrow(pop_cutoff_total) - 1)))
+      length_period <- length(years)
+
+      for (i in 1:(length_period - 1)) { # starts with 1; ends with 99
+
+        # Determine year i+1 entry population using year i entry population
+        pop_cutoff_total[(i + 1):length_period, paste0("pop_", years[i] + 1, "_entry_total")] <-
+          pop_cutoff_total[i:(length_period - 1), paste0("pop_", years[i], "_entry_total")] * pop_cutoff_total[i:(length_period - 1), "prob_survival_total"]
+
+        # Determine year i+1 mid-year population using year i+1 entry population
+        pop_cutoff_total[(i + 1):length_period, paste0("pop_", years[i] + 1, "_mid_year_total")] <-
+          pop_cutoff_total[(i + 1):length_period, paste0("pop_", years[i] + 1, "_entry_total")] * pop_cutoff_total[(i + 1):length_period, "prob_survival_until_mid_year_total"]
+      }
+
+      yll <- pop_cutoff_total %>% select(age)
+      yll$yll <- round(pop_cutoff_total[[paste0("pop_",year_of_analysis,"_mid_year_total")]]) - round(pop_modelled_total[[paste0("pop_",year_of_analysis,"_mid_year_total")]])
+      premature_deaths <- pop_cutoff_total %>% select(age)
+      premature_deaths$premature_deaths <- round((pop_cutoff_total[[paste0("pop_",year_of_analysis,"_mid_year_total")]] - pop_modelled_total[[paste0("pop_",year_of_analysis,"_mid_year_total")]]) * 2)
+
+      # Save the two life tables, the yll and the premature_deaths data frame in "input_with_risk_and_pop_fraction"
+      pop_impact <- input_with_risk_and_pop_fraction %>%
+        dplyr::mutate(pop_modelled_total_nest = list(pop_modelled_total),
+                      pop_cutoff_total_nest = list(pop_cutoff_total),
+                      yll_nest = list(yll),
+                      premature_deaths_nest = list(premature_deaths))
+
+      return(pop_impact)
 
     }
+
+
 
     if ((outcome_metric %in% c("yll_airqplus") == FALSE)) {
 

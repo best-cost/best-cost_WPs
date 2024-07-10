@@ -38,6 +38,8 @@ get_deaths_yll_yld <-
            disability_weight = NULL,
            duration = NULL){
 
+    if(outcome_metric == "yll_airqplus"){return(pop_impact)} # airqplus lifetable approch
+
     impact_detailed <-
       pop_impact %>%
       dplyr::mutate(
@@ -61,7 +63,7 @@ get_deaths_yll_yld <-
 
             # If YLL or YLD
             # Further data preparation is needed than for deaths
-            if(outcome_metric %in% c("yll", "yld")){
+            if(outcome_metric %in% c("yll", "yld", "yll_airqplus")){
               # Select relevant
               .x <-
                 .x %>%

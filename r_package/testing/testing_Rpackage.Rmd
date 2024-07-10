@@ -490,7 +490,7 @@ check_bestcost(result_list_bestcost = bestcost_pm_deaths_lifetable_geluft ,
 # Calculate years of life lost using bestcost function
 # and input data from an AirQ+ case
 
-bestcost_pm_yll_lifetable_airqplus <-
+bestcost_pm_yll_lifetable_airqplus_org <-
   bestcost::attribute_yll_from_lifetable(
     exp_central = airqplus_pm_deaths_yll[["input"]]$mean_concentration, 
     cutoff = airqplus_pm_deaths_yll[["input"]]$cut_off_value,
@@ -553,7 +553,7 @@ check_bestcost(result_list_bestcost = bestcost_pm_yll_lifetable_geluft,
 
 ```
 
-```{r yll from lifetable airqplus}
+```{r yll from lifetable airqplus approach}
 # Calculate years of life lost using bestcost function
 # and input data from an AirQ+ case
 
@@ -578,6 +578,20 @@ bestcost_pm_yll_lifetable_airqplus <-
     deaths_female = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_female,
     year_of_analysis =  airqplus_pm_deaths_yll[["input"]]$start_year, 
     min_age = airqplus_pm_deaths_yll[["input"]]$apply_rr_from_age)
+
+airqplus_yll_difference <- read.xlsx("../testing/Replication_AirQ+/airqplus_deaths_yll_lifetable_adults.xlsx", sheet = "yll_difference", startRow = 1) %>% 
+  select(Age, `2019`)
+airqplus_premature_deaths_difference <- read.xlsx("../testing/Replication_AirQ+/airqplus_deaths_yll_lifetable_adults.xlsx", sheet = "deaths_difference", startRow = 1) %>% 
+  select(Age, `2019`)
+
+bestcost_yll <- bestcost_pm_yll_lifetable_airqplus[1, "yll_nest"] %>% 
+  unnest(cols = c(yll_nest))
+bestcost_premature_deaths <- bestcost_pm_yll_lifetable_airqplus[1, "premature_deaths_nest"] %>% 
+  unnest(cols = c(premature_deaths_nest))
+
+# Compare YLL
+table(airqplus_yll_difference$`2019` == bestcost_yll$yll)
+table(airqplus_premature_deaths_difference$`2019` ==  bestcost_premature_deaths$premature_deaths)
 
 # Check results
 # They are extremely different. The methodology of airq+ is very different to other studies
