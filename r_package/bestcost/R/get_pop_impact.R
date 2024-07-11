@@ -128,8 +128,6 @@ get_pop_impact <-
         pop_modelled_total[(i + 1):length_period, paste0("population_", years[i] + 1)] <-
           pop_modelled_total[(i + 1):length_period, paste0("population_", years[i] + 1, "_entry_total")] * pop_modelled_total[(i + 1):length_period, "prob_survival_until_mid_year_total"]
 
-        # Shift column up
-
       }
 
       years <- c(year_of_analysis:(year_of_analysis + (nrow(pop_cutoff_total) - 1)))
@@ -151,12 +149,37 @@ get_pop_impact <-
       premature_deaths <- pop_cutoff_total %>% select(age)
       premature_deaths$premature_deaths <- round((pop_cutoff_total[[paste0("population_",year_of_analysis)]] - pop_modelled_total[[paste0("population_",year_of_analysis)]]) * 2)
 
-      # Save the two life tables, the yll and the premature_deaths data frame in "input_with_risk_and_pop_fraction"
+      pop_cutoff_mid_year <- pop_cutoff_total %>%
+        select(-age,
+               -deaths_total,
+               -hazard_rate_total,
+               -hazard_rate_percent_total,
+               -prob_survival_total,
+               -prob_survival_until_mid_year_total,
+               -contains("entry"))
+
+      pop_modelled_mid_year <- pop_modelled_total %>%
+        select(-age,
+               -deaths_total,
+               -hazard_rate_total,
+               -hazard_rate_percent_total,
+               -prob_survival_total,
+               -prob_survival_until_mid_year_total,
+               -contains("entry"))
+
+      pop_impact_nest <- pop_cutoff_mid_year - pop_modelled_mid_year
+      pop_impact_nest$age <- pop_cutoff_total$age
+      pop_impact_nest <- pop_impact_nest %>%
+        relocate(age, .before = population_2019) %>%
+        mutate(age_end = age + 1, .after = age)
+
+      # Save the two life tables, the yll, the premature_deaths and the pop_impact_nest data frame in "input_with_risk_and_pop_fraction"
       pop_impact <- input_with_risk_and_pop_fraction %>%
         dplyr::mutate(pop_modelled_total_nest = list(pop_modelled_total),
                       pop_cutoff_total_nest = list(pop_cutoff_total),
                       yll_nest = list(yll),
-                      premature_deaths_nest = list(premature_deaths))
+                      premature_deaths_nest = list(premature_deaths),
+                      pop_impact_nest = list(pop_impact_nest))
 
       return(pop_impact)
 

@@ -80,7 +80,7 @@ get_impact <-
               duration = duration,
               input_with_risk_and_pop_fraction = input_with_risk_and_pop_fraction)
 
-          if (input$health_metric[1] == "yll_from_lifetable_airqplus"){return(impact_raw)}
+          # if (input$health_metric[1] == "yll_from_lifetable_airqplus"){return(impact_raw)} # airqplus lifetable approach
 
         }
 
