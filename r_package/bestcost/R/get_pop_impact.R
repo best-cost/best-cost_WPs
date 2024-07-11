@@ -57,23 +57,23 @@ get_pop_impact <-
                deaths_male,
                population_mid_year_female,
                deaths_female) %>%
-        mutate(!!paste0("pop_",year_of_analysis,"_mid_year_total") := population_mid_year_male + population_mid_year_female,
+        mutate(!!paste0("population_",year_of_analysis) := population_mid_year_male + population_mid_year_female,
                deaths_total = deaths_male + deaths_female) %>%
-        mutate(!!paste0("pop_",year_of_analysis,"_entry_total") := !!sym(paste0("pop_",year_of_analysis,"_mid_year_total")) + (deaths_total / 2)) %>%
+        mutate(!!paste0("population_",year_of_analysis,"_entry_total") := !!sym(paste0("population_",year_of_analysis)) + (deaths_total / 2)) %>%
         # Calculate hazard rates (absolute and percent)
-        mutate(hazard_rate_total = deaths_total / !!sym(paste0("pop_",year_of_analysis,"_mid_year_total"))) %>%
+        mutate(hazard_rate_total = deaths_total / !!sym(paste0("population_",year_of_analysis))) %>%
         mutate(hazard_rate_percent_total = hazard_rate_total * 100) %>%
         # Calculate survival probabilities (unrounded)
-        mutate(prob_survival_total = 1 - (deaths_total / !!sym(paste0("pop_",year_of_analysis,"_entry_total")))) %>%
-        mutate(prob_survival_until_mid_year_total = 1 - (deaths_total / !!sym(paste0("pop_",year_of_analysis,"_entry_total")) / 2)) %>%
+        mutate(prob_survival_total = 1 - (deaths_total / !!sym(paste0("population_",year_of_analysis,"_entry_total")))) %>%
+        mutate(prob_survival_until_mid_year_total = 1 - (deaths_total / !!sym(paste0("population_",year_of_analysis,"_entry_total")) / 2)) %>%
         select(age,
                deaths_total,
                hazard_rate_total,
                hazard_rate_percent_total,
                prob_survival_total,
                prob_survival_until_mid_year_total,
-               !!paste0("pop_",year_of_analysis,"_entry_total"),
-               !!paste0("pop_",year_of_analysis,"_mid_year_total"),
+               !!paste0("population_",year_of_analysis,"_entry_total"),
+               !!paste0("population_",year_of_analysis),
                -c(population_mid_year_male, population_mid_year_female, deaths_male, deaths_female))
 
       mod_factor <- exp(0.0111541374732907 * (5 - 8.85)) # Based on AirQ+ lifetable manual formula 7 on p 17)
@@ -85,11 +85,11 @@ get_pop_impact <-
                deaths_male,
                population_mid_year_female,
                deaths_female) %>%
-        mutate(!!paste0("pop_",year_of_analysis,"_mid_year_total") := population_mid_year_male + population_mid_year_female,
+        mutate(!!paste0("population_",year_of_analysis) := population_mid_year_male + population_mid_year_female,
                deaths_total = deaths_male + deaths_female) %>%
-        mutate(!!paste0("pop_",year_of_analysis,"_entry_total") := !!sym(paste0("pop_",year_of_analysis,"_mid_year_total")) + (deaths_total / 2)) %>%
+        mutate(!!paste0("population_",year_of_analysis,"_entry_total") := !!sym(paste0("population_",year_of_analysis)) + (deaths_total / 2)) %>%
         # Calculate hazard rates (absolute and percent)
-        mutate(hazard_rate_total = deaths_total * mod_factor / !!sym(paste0("pop_",year_of_analysis,"_mid_year_total")) ) %>%
+        mutate(hazard_rate_total = deaths_total * mod_factor / !!sym(paste0("population_",year_of_analysis)) ) %>%
         mutate(hazard_rate_percent_total = hazard_rate_total * 100) %>%
         # Calculate modified survival probabilities ####
         ## Based on AirQ+ lifetable manual formula 4. on p 14: s_i = (2 - h_i) / (2 + h_i)
@@ -103,7 +103,7 @@ get_pop_impact <-
 
       pop_cutoff_total <- pop_cutoff_total %>%
         # Now re-calculate the "pop_2019_mid_year_total" using the modified survival rates ####
-        mutate(!!paste0("pop_",year_of_analysis,"_mid_year_total") := !!sym(paste0("pop_",year_of_analysis,"_entry_total")) * prob_survival_until_mid_year_total) %>%
+        mutate(!!paste0("population_",year_of_analysis) := !!sym(paste0("population_",year_of_analysis,"_entry_total")) * prob_survival_until_mid_year_total) %>%
         # Relocate and rename
         select(age,
                deaths_total,
@@ -111,8 +111,8 @@ get_pop_impact <-
                hazard_rate_percent_total,
                prob_survival_total,
                prob_survival_until_mid_year_total,
-               !!paste0("pop_",year_of_analysis,"_entry_total"),
-               !!paste0("pop_",year_of_analysis,"_mid_year_total"),
+               !!paste0("population_",year_of_analysis,"_entry_total"),
+               !!paste0("population_",year_of_analysis),
                -c(population_mid_year_male, population_mid_year_female, deaths_male, deaths_female))
 
       years <- c(year_of_analysis:(year_of_analysis + (nrow(pop_modelled_total) - 1)))
@@ -121,12 +121,15 @@ get_pop_impact <-
       for (i in 1:(length_period - 1)) { # starts with 1; ends with 99
 
         # Determine year i+1 entry population using year i entry population
-        pop_modelled_total[(i + 1):length_period, paste0("pop_", years[i] + 1, "_entry_total")] <-
-          pop_modelled_total[i:(length_period - 1), paste0("pop_", years[i], "_entry_total")] * pop_modelled_total[i:(length_period - 1), "prob_survival_total"]
+        pop_modelled_total[(i + 1):length_period, paste0("population_", years[i] + 1, "_entry_total")] <-
+          pop_modelled_total[i:(length_period - 1), paste0("population_", years[i], "_entry_total")] * pop_modelled_total[i:(length_period - 1), "prob_survival_total"]
 
         # Determine year i+1 mid-year population using year i+1 entry population
-        pop_modelled_total[(i + 1):length_period, paste0("pop_", years[i] + 1, "_mid_year_total")] <-
-          pop_modelled_total[(i + 1):length_period, paste0("pop_", years[i] + 1, "_entry_total")] * pop_modelled_total[(i + 1):length_period, "prob_survival_until_mid_year_total"]
+        pop_modelled_total[(i + 1):length_period, paste0("population_", years[i] + 1)] <-
+          pop_modelled_total[(i + 1):length_period, paste0("population_", years[i] + 1, "_entry_total")] * pop_modelled_total[(i + 1):length_period, "prob_survival_until_mid_year_total"]
+
+        # Shift column up
+
       }
 
       years <- c(year_of_analysis:(year_of_analysis + (nrow(pop_cutoff_total) - 1)))
@@ -135,18 +138,18 @@ get_pop_impact <-
       for (i in 1:(length_period - 1)) { # starts with 1; ends with 99
 
         # Determine year i+1 entry population using year i entry population
-        pop_cutoff_total[(i + 1):length_period, paste0("pop_", years[i] + 1, "_entry_total")] <-
-          pop_cutoff_total[i:(length_period - 1), paste0("pop_", years[i], "_entry_total")] * pop_cutoff_total[i:(length_period - 1), "prob_survival_total"]
+        pop_cutoff_total[(i + 1):length_period, paste0("population_", years[i] + 1, "_entry_total")] <-
+          pop_cutoff_total[i:(length_period - 1), paste0("population_", years[i], "_entry_total")] * pop_cutoff_total[i:(length_period - 1), "prob_survival_total"]
 
         # Determine year i+1 mid-year population using year i+1 entry population
-        pop_cutoff_total[(i + 1):length_period, paste0("pop_", years[i] + 1, "_mid_year_total")] <-
-          pop_cutoff_total[(i + 1):length_period, paste0("pop_", years[i] + 1, "_entry_total")] * pop_cutoff_total[(i + 1):length_period, "prob_survival_until_mid_year_total"]
+        pop_cutoff_total[(i + 1):length_period, paste0("population_", years[i] + 1)] <-
+          pop_cutoff_total[(i + 1):length_period, paste0("population_", years[i] + 1, "_entry_total")] * pop_cutoff_total[(i + 1):length_period, "prob_survival_until_mid_year_total"]
       }
 
       yll <- pop_cutoff_total %>% select(age)
-      yll$yll <- round(pop_cutoff_total[[paste0("pop_",year_of_analysis,"_mid_year_total")]]) - round(pop_modelled_total[[paste0("pop_",year_of_analysis,"_mid_year_total")]])
+      yll$yll <- round(pop_cutoff_total[[paste0("population_",year_of_analysis)]]) - round(pop_modelled_total[[paste0("population_",year_of_analysis)]])
       premature_deaths <- pop_cutoff_total %>% select(age)
-      premature_deaths$premature_deaths <- round((pop_cutoff_total[[paste0("pop_",year_of_analysis,"_mid_year_total")]] - pop_modelled_total[[paste0("pop_",year_of_analysis,"_mid_year_total")]]) * 2)
+      premature_deaths$premature_deaths <- round((pop_cutoff_total[[paste0("population_",year_of_analysis)]] - pop_modelled_total[[paste0("population_",year_of_analysis)]]) * 2)
 
       # Save the two life tables, the yll and the premature_deaths data frame in "input_with_risk_and_pop_fraction"
       pop_impact <- input_with_risk_and_pop_fraction %>%
@@ -196,7 +199,9 @@ get_pop_impact <-
             "population_{second_year}" :=
               lead(
                 dplyr::lag(!!as.symbol(paste0("population_",year_of_analysis))) *
-                  dplyr::lag(death_probability_natural) * .y))))
+                  dplyr::lag(death_probability_natural) * .y
+                )
+          )))
 
     if(outcome_metric %in% c("yll", "yld")){
       # Now calculate population over time for the rest of year starting with YOA without considering air pollution
@@ -214,7 +219,6 @@ get_pop_impact <-
           pop_impact_nest = purrr::map(
             pop_impact_nest,
             function(.x) {
-
               # length_period minus 1 because year_of_analysis+1 is already calculated
               for (i in 0:(length_period-1)){
                 current_year <- period[i+1]
@@ -232,6 +236,26 @@ get_pop_impact <-
               }
               return(.x)
             } ))
+
+      years <- 2020:2118
+      test <-
+        pop_impact %>%
+        dplyr::mutate(
+          pop_impact_nest = purrr::map(
+            pop_impact_nest,
+            function(.x) {
+              # length_period minus 1 because year_of_analysis+1 is already calculated
+              for (i in 1:99){
+                current_year <- years[i]
+                col_current <- paste0("population_", current_year)
+                print(col_current)
+                # avoiding the later introduction of NAs in the right top corner:
+                .x[, col_current] <- lag(.x[,col_current], n = i)
+              }
+              return(.x)
+            } ))
+
+
       #
       # %>%
       #
