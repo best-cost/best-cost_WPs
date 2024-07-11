@@ -71,6 +71,9 @@ get_deaths_yll_yld <-
                 # Remove the year of analysis (we are only interested in the following ones)
                 dplyr::select(., -contains(as.character(year_of_analysis))) %>%
                 # Sum over ages (i.e. vertically) that fulfill inputted "max_age" and "min_age" criteria
+                as.matrix() %>%
+                { `[<-`(., upper.tri(., diag = TRUE), NA) } %>%
+                as_tibble() %>%
                 dplyr::summarize_all(sum, na.rm = TRUE) %>%
                 # Reshape to long format (output is data frame with 2 columns "year" & "impact")
                 tidyr::pivot_longer(cols = starts_with("population_"),

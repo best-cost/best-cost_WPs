@@ -238,7 +238,7 @@ get_pop_impact <-
             } ))
 
       years <- 2020:2118
-      test <-
+      pop_impact <-
         pop_impact %>%
         dplyr::mutate(
           pop_impact_nest = purrr::map(
@@ -248,7 +248,6 @@ get_pop_impact <-
               for (i in 1:99){
                 current_year <- years[i]
                 col_current <- paste0("population_", current_year)
-                print(col_current)
                 # avoiding the later introduction of NAs in the right top corner:
                 .x[, col_current] <- lag(.x[,col_current], n = i)
               }
