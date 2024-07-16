@@ -45,19 +45,20 @@ compile_input <-
            duration = NULL){
 
     # Check input data
-    stopifnot(exprs = {
+    # stopifnot(exprs = {
       #length(exp) == length(prop_pop_exp)
       #is.null(min_age) == FALSE
       #is.null(max_age) == FALSE
-    })
+    # })
 
     # If no geo_id_raw is provided (if is NULL) then assign some value.
     # geo_id_raw is needed to group results in case of multiple geo_ids
 
     if(is.null(geo_id_raw)){
       geo_id_raw <-
-        ifelse(is.list({{exp_central}}), 1:length({{exp_central}}), 1)
+        as.character(ifelse(is.list({{exp_central}}), 1:length({{exp_central}}), 1))
     }
+
 
 
 
@@ -116,7 +117,7 @@ compile_input <-
         min_age = rep(min_age, each = length_exp_dist),
         max_age = rep(max_age, each = length_exp_dist),
 
-        # Second those variables that will have lenght = 1 (no problematic)
+        # Second those variables that will have length = 1 (no problematic)
         disability_weight = disability_weight,
         duration = duration,
         corrected_discount_rate = corrected_discount_rate,

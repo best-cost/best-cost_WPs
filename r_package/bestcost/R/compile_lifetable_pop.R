@@ -37,35 +37,55 @@ compile_lifetable_pop <-
   function(first_age_pop, last_age_pop,
            prob_natural_death_male, prob_natural_death_female,
            prob_total_death_male, prob_total_death_female,
-           population_midyear_male, population_midyear_female){
+           population_midyear_male, population_midyear_female,
+           geo_id_raw = NULL,
+           geo_id_aggregated = NULL){
 
-    # The life table has to be provided as a data.frame (by sex)
-    # The first column has to be the age. Second, probability of death. Third, population.
+
+    # If no geo_id_raw is provided (if is NULL) then assign some value.
+    # geo_id_raw is needed to group results in case of multiple geo_ids
+    # _male is used but _female could be used.
+    # No matter because length should be identical.
+
+    if(is.null(geo_id_raw)){
+      geo_id_raw <-
+        as.character(ifelse(is.list({{population_midyear_male}}), 1:length({{population_midyear_male}}), 1))
+    }
+
+    length_sex <- length(c("male, female"))
+
+
+    # Build the data set
+    # The life table has to be provided (by sex)
     # Rename column names to standard names
 
-    lifetable_with_pop <- list(
-      male =
-        tidyr::tibble(
-          age = seq(from = first_age_pop,
-                    to = last_age_pop,
-                    by = 1),
-          age_end = seq(from = first_age_pop + 1,
-                        to = last_age_pop + 1,
-                        by = 1),
-          death_probability_natural = prob_natural_death_male,
-          death_probability_total = prob_total_death_male,
-          population = population_midyear_male),
-
-      female =
-        tidyr::tibble(
-          age = seq(from = first_age_pop,
-                    to = last_age_pop,
-                    by = 1),
-          age_end = seq(from = first_age_pop + 1,
-                        to = last_age_pop + 1,
-                        by = 1),
-          death_probability_natural = prob_natural_death_female,
-          death_probability_total = prob_total_death_female,
-          population = population_midyear_female))
+    lifetable_with_pop <-
+      tidyr::tibble(
+        geo_id_raw = rep(geo_id_raw, each = length_sex),
+        geo_id_aggregated = rep(geo_id_aggregated, each = length_sex),
+        sex = c("male", "female"),
+        lifetable_with_pop_nest = list(
+          tidyr::tibble(
+            age = seq(from = first_age_pop,
+                      to = last_age_pop,
+                      by = 1),
+            age_end = seq(from = first_age_pop + 1,
+                          to = last_age_pop + 1,
+                          by = 1),
+            death_probability_natural = prob_natural_death_male,
+            death_probability_total = prob_total_death_male,
+            population = population_midyear_male),
+          tidyr::tibble(
+            age = seq(from = first_age_pop,
+                      to = last_age_pop,
+                      by = 1),
+            age_end = seq(from = first_age_pop + 1,
+                          to = last_age_pop + 1,
+                          by = 1),
+            death_probability_natural = prob_natural_death_female,
+            death_probability_total = prob_total_death_female,
+            population = population_midyear_female))
+      )
 
   }
+

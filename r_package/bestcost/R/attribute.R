@@ -1,7 +1,7 @@
 #' Attributable health cases based on relative risk
 
 #' @description Calculates the health impacts, mortality or morbidity, of an environmental stressor using a single value for baseline heath data, i.e. without life table. It provides as a result the mean as well as the lower and the higher bound of the impact based on the confidence interval of the concentration-response function.
-#' @param outcome_metric \code{String} showing the change in outcome metric to assess attributable health impacts. To choose between "same_input_output" (default), "yld_from_prevalence", "deaths_from_lifetable", "yll_from_lifetable" and "yld_from_lifetable".
+#' @param health_metric \code{String} showing the change in outcome metric to assess attributable health impacts. To choose between "same_input_output" (default), "yld_from_prevalence", "deaths_from_lifetable", "yll_from_lifetable", "yld_from_lifetable" and "daly_from_lifetable".
 #' @param risk_method \code{String} showing the risk risk method. To choose between: "relative_risk" (default) or "absolute_risk".
 #' @param exp_central,exp_lower,exp_upper \code{Numeric values} of the exposure
 #' to the environmental stressor referring to the central estimate and (optionally)
@@ -69,7 +69,8 @@ attribute <-
            disability_weight = NULL,
            duration = NULL,
            corrected_discount_rate = NULL,
-           geo_id_raw = NULL, geo_id_aggregated = NULL,
+           geo_id_raw = NULL,
+           geo_id_aggregated = NULL,
            info = NULL){
 
     # Check input data
@@ -112,7 +113,9 @@ attribute <-
           prob_total_death_male = prob_total_death_male,
           prob_total_death_female = prob_total_death_female,
           population_midyear_male = population_midyear_male,
-          population_midyear_female =  population_midyear_female)
+          population_midyear_female =  population_midyear_female,
+          geo_id_raw = geo_id_raw,
+          geo_id_aggregated = geo_id_aggregated)
 
     }
 
