@@ -1418,7 +1418,7 @@ check_bestcost(result_list_bestcost = comparison_yld_lifetable_delta[["detailed"
 
 # Iteration
 comparison_yld_lifetable_delta_geo <-
-  bestcost::compare_yll_from_lifetable(
+  bestcost::compare_yld_from_lifetable(
     comparison_method = "delta",
     exp_central_1 = list(8.85, 8.0),# Fake data just for testing purposes
     exp_central_2 = list(6, 6.5),# Fake data just for testing purposes
@@ -1450,7 +1450,8 @@ comparison_yld_lifetable_delta_geo <-
     info_2 = input_data_mortality$pollutant[2], 
     min_age = 20,
     geo_id_raw = c("a", "b"),
-    geo_id_aggregated = rep("ch", 2))
+    geo_id_aggregated = rep("ch", 2),
+    disability_weight = 1)
 
 # No study to compare bestcost results
 # Check only if results stay the same overtime despite developments
@@ -1542,7 +1543,8 @@ comparison_yld_lifetable_pif_geo <-
     info_2 = input_data_mortality$pollutant[2], 
     min_age = 20,
     geo_id_raw = c("a", "b"),
-    geo_id_aggregated = rep("ch", 2))
+    geo_id_aggregated = rep("ch", 2),
+    disability_weight = 1)
 
 # No study to compare bestcost results
 # Check only if results stay the same overtime despite developments
@@ -1596,7 +1598,7 @@ comparison_daly_lifetable_delta  <-
 # No study to compare bestcost results
 # Check only if results stay the same overtime despite developments
 check_bestcost(result_list_bestcost = comparison_daly_lifetable_delta ,
-               result_vector_alternative = c(20421,10806,29763)) # Result on 16 May 2024
+               result_vector_alternative = c(20421*2,10806*2,29763*2)) # Result on 16 May 2024
 
 # Additionally check that it producesthe first scenario produce the same results as above
 check_bestcost(result_list_bestcost = comparison_daly_lifetable_delta[["detailed"]][["scenario_1"]] ,
@@ -1606,7 +1608,7 @@ check_bestcost(result_list_bestcost = comparison_daly_lifetable_delta[["detailed
 
 # Iteration
 comparison_daly_lifetable_delta_geo <-
-  bestcost::compare_yll_from_lifetable(
+  bestcost::compare_daly_from_lifetable(
     comparison_method = "delta",
     exp_central_1 = list(8.85, 8.0),# Fake data just for testing purposes
     exp_central_2 = list(6, 6.5),# Fake data just for testing purposes
@@ -1638,12 +1640,13 @@ comparison_daly_lifetable_delta_geo <-
     info_2 = input_data_mortality$pollutant[2], 
     min_age = 20,
     geo_id_raw = c("a", "b"),
-    geo_id_aggregated = rep("ch", 2))
+    geo_id_aggregated = rep("ch", 2),
+    disability_weight = 1)
 
 # No study to compare bestcost results
 # Check only if results stay the same overtime despite developments
 check_bestcost(result_list_bestcost = comparison_daly_lifetable_delta_geo ,
-               result_vector_alternative = c(31190, 16500, 45472)) # Result on 08 July 2024
+               result_vector_alternative = c(31190*2, 16500*2, 45472*2)) # Result on 08 July 2024
 
 
 # PIF
@@ -1687,7 +1690,7 @@ comparison_daly_lifetable_pif <-
 # No study to compare bestcost results
 # Check only if results stay the same overtime despite developments
 check_bestcost(result_list_bestcost = comparison_daly_lifetable_pif ,
-               result_vector_alternative = c(20650, 10870, 30257)) # Result on 16 May 2024
+               result_vector_alternative = c(20650*2, 10870*2, 30257*2)) # Result on 16 May 2024
 
 # Additionally check that the first scenario produce the same results as above
 check_bestcost(result_list_bestcost = comparison_daly_lifetable_pif[["detailed"]][["scenario_1"]],
@@ -1730,12 +1733,13 @@ comparison_daly_lifetable_pif_geo <-
     info_2 = input_data_mortality$pollutant[2], 
     min_age = 20,
     geo_id_raw = c("a", "b"),
-    geo_id_aggregated = rep("ch", 2))
+    geo_id_aggregated = rep("ch", 2),
+    disability_weight = 1)
 
 # No study to compare bestcost results
 # Check only if results stay the same overtime despite developments
 check_bestcost(result_list_bestcost = comparison_daly_lifetable_pif_geo ,
-               result_vector_alternative = c(31601, 16613, 46359)) # Result on 26 June 2024
+               result_vector_alternative = c(31601*2, 16613*2, 46359*2)) # Result on 26 June 2024
 
 ```
 
