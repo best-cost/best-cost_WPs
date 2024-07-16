@@ -1451,6 +1451,7 @@ comparison_yld_lifetable_delta_geo <-
     min_age = 20,
     geo_id_raw = c("a", "b"),
     geo_id_aggregated = rep("ch", 2),
+    duration = 100,
     disability_weight = 1)
 
 # No study to compare bestcost results
@@ -1544,6 +1545,7 @@ comparison_yld_lifetable_pif_geo <-
     min_age = 20,
     geo_id_raw = c("a", "b"),
     geo_id_aggregated = rep("ch", 2),
+    duration = 100,
     disability_weight = 1)
 
 # No study to compare bestcost results
@@ -1641,6 +1643,7 @@ comparison_daly_lifetable_delta_geo <-
     min_age = 20,
     geo_id_raw = c("a", "b"),
     geo_id_aggregated = rep("ch", 2),
+    duration = 100,
     disability_weight = 1)
 
 # No study to compare bestcost results
@@ -1734,6 +1737,7 @@ comparison_daly_lifetable_pif_geo <-
     min_age = 20,
     geo_id_raw = c("a", "b"),
     geo_id_aggregated = rep("ch", 2),
+    duration = 100,
     disability_weight = 1)
 
 # No study to compare bestcost results
