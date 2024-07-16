@@ -38,8 +38,6 @@ get_deaths_yll_yld <-
            disability_weight = NULL,
            duration = NULL){
 
-    # if(outcome_metric == "yll_airqplus"){return(pop_impact)} # airqplus lifetable approach
-
     impact_detailed <-
       pop_impact %>%
       dplyr::mutate(

@@ -608,24 +608,15 @@ print("YLL female 2019 identical:") ; round(yll_female) == round(675.25)
 # Compare total YLL (YLL males + YLL females)
 airqplus_yll_difference <- read.xlsx("../testing/Replication_AirQ+/airqplus_deaths_yll_lifetable_adults.xlsx", sheet = "yll_difference", startRow = 1, rows = c(1:101)) %>% 
   select(Age, `2019`, `2020`)
-yll_total <- bestcost_pm_yll_lifetable_airqplus[["detailed"]][["interim"]][["pop_impact_nest"]][[1]] %>% select(contains("population")) +
-  bestcost_pm_yll_lifetable_airqplus[["detailed"]][["interim"]][["pop_impact_nest"]][[2]] %>% select(contains("population"))
-yll_total <- yll_total %>% mutate(age = 0:99, .before = population_2019)
-yll_total_2019_2020 <- yll_total %>% select(age, population_2019, population_2020) %>% 
-  mutate(population_2019_rounded = round(population_2019), .after = age) %>% 
-  mutate(population_2020_rounded = round(population_2020), .after = population_2019_rounded)
+yll_total <- bestcost_pm_yll_lifetable_airqplus[["detailed"]][["interim"]][["pop_impact_nest"]][[3]] %>% select(-age_end)
 
 print("2019 total YLLs identical:")
-table(airqplus_yll_difference$`2019` == yll_total_2019_2020$population_2019_rounded)
+table(airqplus_yll_difference$`2019` == yll_total_2019_2020$population_2019)
 print("2020 total YLLs identical:")
-table(airqplus_yll_difference$`2020` == yll_total_2019_2020$population_2020_rounded)
+table(airqplus_yll_difference$`2020` == yll_total_2019_2020$population_2020)
 print("2020 absolute difference in YLLs:")
-difference <- abs(airqplus_yll_difference$`2020` - yll_total_2019_2020$population_2020_rounded)
-print(difference) # difference is always 1
-# Reason for slight difference is that we compare two slightly different totals:
-# - For airqplus the total YLLs are calculated from a total population lifetable
-# - For bestcost, the total YLLs are calculated by summing the sex-specific YLLs, which were determined from sex-specific lifetables
-# In theory they should be exactly the same, but in practice there are rounding errors (AirQ+ only provides rounded results)
+difference <- abs(airqplus_yll_difference$`2020` - yll_total_2019_2020$population_2020)
+print(difference)
 ```
 
 

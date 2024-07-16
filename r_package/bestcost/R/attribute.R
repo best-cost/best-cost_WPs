@@ -134,8 +134,6 @@ attribute <-
                             duration = duration,
                             pop_fraction_type = "paf")
 
-    # if (impact_raw$health_metric[1] == "yll_from_lifetable_airqplus"){return(impact_raw)} # airqplus lifetable approch
-
     # Get the main and detailed output by aggregating and/or filtering cases (rows)
     output <-
       bestcost:::get_output(impact_raw)
