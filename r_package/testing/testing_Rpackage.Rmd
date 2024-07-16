@@ -664,6 +664,48 @@ check_bestcost(result_list_bestcost = bestcost_pm_yld_lifetable_geluft,
                result_vector_alternative = c(27742, 14641, 40542))
 
 ```
+#### Disability-adjusted lived years (DALY)
+
+```{r morbidity daly lifetable}
+
+# Calculate years lived with disability using bestcost function
+# with input data from the Swiss project GeLuft
+
+bestcost_pm_daly_lifetable_geluft  <- 
+  attribute_daly_from_lifetable(
+    exp_central = input_data_mortality$exp[2],
+    prop_pop_exp = 1,
+    cutoff = input_data_mortality$cutoff[2],
+    rr_central = input_data_mortality[2,"rr_central"], 
+    rr_lower = input_data_mortality[2,"rr_lower"], 
+    rr_upper =input_data_mortality[2,"rr_upper"], 
+    erf_increment = 10, 
+    erf_shape = "log_linear",
+    first_age_pop = 0,
+    last_age_pop = 99,
+    prob_natural_death_male = lifetable_withPopulation[["male"]]$death_probability_natural,
+    prob_natural_death_female = lifetable_withPopulation[["female"]]$death_probability_natural,
+    prob_total_death_male = lifetable_withPopulation[["male"]]$death_probability_total,
+    prob_total_death_female = lifetable_withPopulation[["female"]]$death_probability_total,
+    population_midyear_male = lifetable_withPopulation[["male"]]$population, 
+    population_midyear_female = lifetable_withPopulation[["female"]]$population,
+    year_of_analysis = 2019, 
+    info = input_data_mortality$pollutant[2],
+    min_age = input_data_mortality$min_age[2], # min_age = 20,
+    corrected_discount_rate = 0,
+    duration = 100, 
+    disability_weight = 1
+  )
+
+# The Swiss project GeLuft did not calculated the YLD, only YLL. 
+# But disability weight = 1 in the function above, then YLD = YLL 
+# and the result should be identical.
+# Since DALY = YLL + YLD and in this case YLL=YLD --> DALY = 2*YLL
+check_bestcost(result_list_bestcost = bestcost_pm_daly_lifetable_geluft,
+               result_vector_alternative = c(27742*2, 14641*2, 40542*2))
+
+```
+
 
 ## Comparison
 

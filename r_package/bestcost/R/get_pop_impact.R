@@ -68,7 +68,7 @@ get_pop_impact <-
                   dplyr::lag(death_probability_natural) * .y))))
 
 
-    if(outcome_metric %in% c("yll", "yld")){
+    if(outcome_metric %in% c("yll", "yld", "daly")){
       # Now calculate population over time for the rest of year starting with YOA without considering air pollution
       period <- c( (year_of_analysis + 1) :
                      ((year_of_analysis +
