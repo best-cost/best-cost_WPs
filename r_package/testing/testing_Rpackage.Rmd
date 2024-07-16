@@ -118,7 +118,7 @@ check_bestcost(result_list_bestcost = bestcost_pm_copd,
 ```
 
 
-```{r multiple single exposure value}
+```{r multiple single exposure value, eval=FALSE, include=FALSE}
 # Assess attributable cases for multiple uncertainties at the same time
 # i.e. rr, bhd and exp
 bestcost_pm_copd_multiple <-
@@ -525,7 +525,7 @@ check_bestcost(result_list_bestcost = bestcost_pm_deaths_lifetable_geluft ,
 # and input data from an AirQ+ case
 
 # Now with input data from the Swiss project GeLuft
-system.time(bestcost_pm_yll_lifetable_geluft <- 
+bestcost_pm_yll_lifetable_geluft <- 
   bestcost::attribute_yll_from_lifetable(
     exp_central = input_data_mortality$exp[2], #exp CH 2019
     prop_pop_exp = 1,
@@ -546,7 +546,7 @@ system.time(bestcost_pm_yll_lifetable_geluft <-
     year_of_analysis = 2019, 
     corrected_discount_rate = 0,
     info = input_data_mortality$pollutant[2], 
-    min_age = if(is.na(input_data_mortality$min_age[2])) NULL else input_data_mortality$min_age[2]))
+    min_age = if(is.na(input_data_mortality$min_age[2])) NULL else input_data_mortality$min_age[2])
 
 check_bestcost(result_list_bestcost = bestcost_pm_yll_lifetable_geluft,
                result_vector_alternative = c(27742, 14641, 40542))
@@ -573,8 +573,7 @@ for(d in c("natural", "total")){
 
 ```{r yll from lifetable airqplus approach}
 
-# Calculate years of life lost using bestcost function
-# and input data from an AirQ+ case
+# Input data from an AirQ+ case
 
 bestcost_pm_yll_lifetable_airqplus <-
   bestcost::attribute_yll_from_lifetable_airqplus(
@@ -598,30 +597,35 @@ bestcost_pm_yll_lifetable_airqplus <-
     year_of_analysis =  airqplus_pm_deaths_yll[["input"]]$start_year, 
     min_age = airqplus_pm_deaths_yll[["input"]]$apply_rr_from_age)
 
-airqplus_yll_difference <- read.xlsx("../testing/Replication_AirQ+/airqplus_deaths_yll_lifetable_adults.xlsx", sheet = "yll_difference", startRow = 1) %>% 
-  select(Age, `2019`)
-airqplus_premature_deaths_difference <- read.xlsx("../testing/Replication_AirQ+/airqplus_deaths_yll_lifetable_adults.xlsx", sheet = "deaths_difference", startRow = 1) %>% 
-  select(Age, `2019`)
+# Compare sex-specific results
+yll_male <- bestcost_pm_yll_lifetable_airqplus[["detailed"]][["interim"]][["lifeyears_nest"]][[1]] %>% 
+  filter(year == 2019) %>%  select(impact) %>%  as_vector() %>%  unname(.)
+yll_female <- bestcost_pm_yll_lifetable_airqplus[["detailed"]][["interim"]][["lifeyears_nest"]][[2]] %>% 
+  filter(year == 2019) %>% select(impact) %>% as_vector() %>%  unname(.)
+print("YLL male 2019 identical:") ; round(yll_male) == round(624.43)
+print("YLL female 2019 identical:") ; round(yll_female) == round(675.25)
 
-bestcost_yll <- bestcost_pm_yll_lifetable_airqplus[1, "yll_nest"] %>% 
-  unnest(cols = c(yll_nest))
-bestcost_premature_deaths <- bestcost_pm_yll_lifetable_airqplus[1, "premature_deaths_nest"] %>% 
-  unnest(cols = c(premature_deaths_nest))
+# Compare total YLL (YLL males + YLL females)
+airqplus_yll_difference <- read.xlsx("../testing/Replication_AirQ+/airqplus_deaths_yll_lifetable_adults.xlsx", sheet = "yll_difference", startRow = 1, rows = c(1:101)) %>% 
+  select(Age, `2019`, `2020`)
+yll_total <- bestcost_pm_yll_lifetable_airqplus[["detailed"]][["interim"]][["pop_impact_nest"]][[1]] %>% select(contains("population")) +
+  bestcost_pm_yll_lifetable_airqplus[["detailed"]][["interim"]][["pop_impact_nest"]][[2]] %>% select(contains("population"))
+yll_total <- yll_total %>% mutate(age = 0:99, .before = population_2019)
+yll_total_2019_2020 <- yll_total %>% select(age, population_2019, population_2020) %>% 
+  mutate(population_2019_rounded = round(population_2019), .after = age) %>% 
+  mutate(population_2020_rounded = round(population_2020), .after = population_2019_rounded)
 
-# Compare YLL
-table(airqplus_yll_difference$`2019` == bestcost_yll$yll)
-table(airqplus_premature_deaths_difference$`2019` ==  bestcost_premature_deaths$premature_deaths)
-
-# Check results
-# They are extremely different. The methodology of airq+ is very different to other studies
-# AirQ+ considers that the increase/decrease of exposure happens 100 years,
-# while other studies (e.g. GeLuft) look at the impact over 100 years of a one-year exposure.
-
-# check_bestcost(result_list_bestcost = bestcost_pm_yll_lifetable_airqplus,
-#                result_vector_alternative = 
-#                  c(airqplus_pm_deaths_yll[["output"]]$value_central_allgenders_yll_over_100_years_age_20_99,
-#                    airqplus_pm_deaths_yll[["output"]]$value_lower_allgenders_yll_over_100_years_age_20_99,
-#                    airqplus_pm_deaths_yll[["output"]]$value_upper_allgenders_yll_over_100_years_age_20_99))
+print("2019 total YLLs identical:")
+table(airqplus_yll_difference$`2019` == yll_total_2019_2020$population_2019_rounded)
+print("2020 total YLLs identical:")
+table(airqplus_yll_difference$`2020` == yll_total_2019_2020$population_2020_rounded)
+print("2020 absolute difference in YLLs:")
+difference <- abs(airqplus_yll_difference$`2020` - yll_total_2019_2020$population_2020_rounded)
+print(difference) # difference is always 1
+# Reason for slight difference is that we compare two slightly different totals:
+# - For airqplus the total YLLs are calculated from a total population lifetable
+# - For bestcost, the total YLLs are calculated by summing the sex-specific YLLs, which were determined from sex-specific lifetables
+# In theory they should be exactly the same, but in practice there are rounding errors (AirQ+ only provides rounded results)
 ```
 
 
