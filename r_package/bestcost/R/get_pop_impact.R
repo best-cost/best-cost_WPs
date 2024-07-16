@@ -92,13 +92,13 @@ get_pop_impact <-
                 col_next <- paste0("population_", current_year + 1)
                 # avoiding the later introduction of NAs in the right top corner:
                 .x[1:(length_period-i), col_next] <-
-                   .x[1:(length_period-i), col_current] * (1 - .x$death_probability_total[(i+2):(length_period+1)])
+                   .x[1:(length_period-i), col_current] * (1 - .x$prob_total_death[(i+2):(length_period+1)])
 
 
                 # Alternative code
                 # Simpler but it does not provide the right result
                 # .x[[col_next]] <-
-                #  .x[[col_current]] * (1 - .x[["death_probability_total"]])
+                #  .x[[col_current]] * (1 - .x[["prob_total_death"]])
               }
               return(.x)
             } ))
