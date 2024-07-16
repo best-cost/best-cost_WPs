@@ -60,15 +60,13 @@ get_daly <-
           input_with_risk_and_pop_fraction = input_with_risk_and_pop_fraction)
     }
 
+    # Identify the common and identical columns (joining columns)
+    # Remove impact (it can never be a joining column)
     joining_columns_yll_yld <-
-      # First identify the common columns names
-      intersect(names(impact_yll_yld_raw[["yll"]][["main"]]),
-                names(impact_yll_yld_raw[["yld"]][["main"]])) %>%
-      # Second keep only those common columns with identical values
-      purrr::keep(., ~identical(impact_yll_yld_raw[["yll"]][["main"]][[.x]],
-                                impact_yll_yld_raw[["yll"]][["main"]][[.x]])) %>%
-      # Remove impact (it can never be a joining column)
-      setdiff(., "impact")
+      bestcost:::find_joining_columns(
+        df1 = impact_yll_yld_raw[["yll"]][["main"]],
+        df2 = impact_yll_yld_raw[["yld"]][["main"]],
+        except = "impact")
 
     # New table containing yll and yld results
     impact_daly_main_raw <-

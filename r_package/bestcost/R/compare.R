@@ -170,16 +170,10 @@ compare <-
 
       # Identify the columns that are to be used to join impact_raw_1 and _2
       joining_columns_output <-
-        # First identify the columns that are common for scenario 1 and 2
-        intersect(names(impact_raw_1[["detailed"]][["raw"]]),
-                  names(impact_raw_2[["detailed"]][["raw"]]))%>%
-        # Second, the identical columns of the common ones
-        # They are the columns to be used when joining data frames
-        purrr::keep(~ identical(impact_raw_1[["detailed"]][["raw"]][[.x]],
-                                impact_raw_2[["detailed"]][["raw"]][[.x]]))%>%
-        # Finally exclude scenario specific columns
-        dplyr::setdiff(., scenario_specific_arguments)
-
+        bestcost:::find_joining_columns(
+          df1 = impact_raw_1[["detailed"]][["raw"]],
+          df2 = impact_raw_2[["detailed"]][["raw"]],
+          except = scenario_specific_arguments)
 
         # Merge the result tables by common columns
         impact_raw_main <-
@@ -263,18 +257,15 @@ compare <-
           geo_id_raw = geo_id_raw,
           geo_id_aggregated = geo_id_aggregated)
 
+      scenario_specific_arguments_excluding_bhd <-
+        setdiff(scenario_specific_arguments, c("bhd_1", "bhd_2"))
+
       # Get identical columns to join data frames (as above)
       joining_columns_input <-
-        # First identify common columns (in theory all of them but just in case)
-        intersect(names(input_1),
-                  names(input_2))%>%
-        # Then keep only those that have identical columns in input
-        purrr::keep(~ identical(input_1[[.x]],
-                                input_2[[.x]]))%>%
-        # Finally exclude those htat are scenario specific
-        # except bhd because bhd_1=bhd_2 by definition in the pif method
-        dplyr::setdiff(., setdiff(scenario_specific_arguments, c("bhd_1", "bhd_2")))
-
+        bestcost:::find_joining_columns(
+          df1 = input_1,
+          df2 = input_2,
+          except =  scenario_specific_arguments_excluding_bhd)
 
       # Merge the input tables by common columns
       input <-
