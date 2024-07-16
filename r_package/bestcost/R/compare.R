@@ -170,7 +170,7 @@ compare <-
 
       # Identify the columns that are to be used to join impact_raw_1 and _2
       joining_columns_output <-
-        # Firt identify the columns that are common for scenario 1 and 2
+        # First identify the columns that are common for scenario 1 and 2
         intersect(names(impact_raw_1[["detailed"]][["raw"]]),
                   names(impact_raw_2[["detailed"]][["raw"]]))%>%
         # Second, the identical columns of the common ones
