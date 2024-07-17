@@ -32,6 +32,8 @@ attribute(
   prob_total_death_female = NULL,
   population_midyear_male = NULL,
   population_midyear_female = NULL,
+  deaths_male = NULL,
+  deaths_female = NULL,
   year_of_analysis = NULL,
   min_age = NULL,
   max_age = NULL,
