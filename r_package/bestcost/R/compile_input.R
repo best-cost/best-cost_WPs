@@ -274,11 +274,13 @@ compile_input <-
             population = lifetable_with_pop_male$population + lifetable_with_pop_female$population,
             deaths = lifetable_with_pop_male$deaths + lifetable_with_pop_female$deaths)
 
-        lifetable_with_pop_male_female <-
-          dplyr::bind_rows(lifetable_with_pop_male_female, lifetable_with_pop_total)
+        lifetable_with_pop_male_female_total <-
+          dplyr::bind_rows(lifetable_with_pop_male,
+                           lifetable_with_pop_female,
+                           lifetable_with_pop_total)
 
         lifetable_with_pop <-
-          lifetable_with_pop_male_female %>%
+          lifetable_with_pop_male_female_total %>%
           # Nest the lifetable elements
           tidyr::nest(
             lifetable_with_pop_nest =

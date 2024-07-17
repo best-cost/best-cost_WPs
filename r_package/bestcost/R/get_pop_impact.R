@@ -52,19 +52,21 @@ get_pop_impact <-
       ## POPULATION SETUP AND PROJECTION ###########################################################
 
       pop <- input_with_risk_and_pop_fraction %>%
-        dplyr::mutate(lifetable_with_pop_nest = lifetable_with_pop_nest %>%
-                 purrr::map(
-                   .,
-                   function(.x){
-                     .x <- .x %>%
-                       select(age, age_end, deaths, population) %>%
-                       rename(!!paste0("population_",year_of_analysis) := population) %>%
-                       mutate(!!paste0("population_",year_of_analysis,"_entry") := !!sym(paste0("population_",year_of_analysis)) + (deaths / 2), .before = !!paste0("population_",year_of_analysis)) %>%
-                       mutate(prob_survival = 1 - (deaths / !!sym(paste0("population_",year_of_analysis,"_entry"))), .after = deaths) %>% # probability of survival from start of year i to start of year i+1 (entry to entry)
-                       mutate(prob_survival_until_mid_year = 1 - ((1 - prob_survival) / 2), .after = deaths)
-                            }
-                   )
-               )
+        dplyr::mutate(
+          lifetable_with_pop_nest =
+            lifetable_with_pop_nest %>%
+            purrr::map(
+              .,
+              function(.x){
+                .x <- .x %>%
+                  select(age, age_end, deaths, population) %>%
+                  rename(!!paste0("population_",year_of_analysis) := population) %>%
+                  mutate(!!paste0("population_",year_of_analysis,"_entry") := !!sym(paste0("population_",year_of_analysis)) + (deaths / 2), .before = !!paste0("population_",year_of_analysis)) %>%
+                  mutate(prob_survival = 1 - (deaths / !!sym(paste0("population_",year_of_analysis,"_entry"))), .after = deaths) %>% # probability of survival from start of year i to start of year i+1 (entry to entry)
+                  mutate(prob_survival_until_mid_year = 1 - ((1 - prob_survival) / 2), .after = deaths)
+                       }
+              )
+          )
 
       # Define loop variables (to be used in both modelled and cutoff population projection)
       years <- c(year_of_analysis:(year_of_analysis + (nrow(pop[["lifetable_with_pop_nest"]][[1]]) - 1)))
@@ -173,17 +175,15 @@ get_pop_impact <-
                      mutate(age_end = 1:100, .after = age)}))
 
       # COMPILE OUTPUT #############################################################################
-      #pop$erf_ci <- "central"
+
       joining_columns_pop_impact <-
         bestcost:::find_joining_columns(input_with_risk_and_pop_fraction,
                                         pop,
-                                        except = NULL)
+                                        except = "lifetable_with_pop_nest")
 
       pop_impact <-
         input_with_risk_and_pop_fraction %>%
-        dplyr::filter(erf_ci == "central") %>%
         dplyr::right_join(., pop, by = joining_columns_pop_impact)
-        #dplyr::right_join(., pop, by = c("erf_ci", "geo_id_raw"))
 
       on.exit(options(user_options))
       return(pop_impact)
