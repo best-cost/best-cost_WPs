@@ -65,7 +65,8 @@ get_impact <-
               lifetable_with_pop = lifetable_with_pop,
               year_of_analysis = year_of_analysis,
               input_with_risk_and_pop_fraction = input_with_risk_and_pop_fraction,
-              outcome_metric = outcome_metric)
+              outcome_metric = outcome_metric,
+              min_age = min_age)
 
 
           impact_raw <-

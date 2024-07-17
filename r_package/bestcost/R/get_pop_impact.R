@@ -31,7 +31,8 @@ get_pop_impact <-
   function(lifetable_with_pop,
            year_of_analysis,
            input_with_risk_and_pop_fraction,
-           outcome_metric){
+           outcome_metric,
+           min_age){
 
     # AirQ+ ########################################################################################
     if (outcome_metric %in% c("yll_airqplus")) {
@@ -122,8 +123,8 @@ get_pop_impact <-
                    function(.x){
                      .x %>%
                        # For all ages below min_age assign the unmodified survival probabilities
-                       mutate(prob_survival = if_else(row_number() <= 20, 1 - (deaths / !!sym(paste0("population_",year_of_analysis,"_entry"))), prob_survival)) %>%
-                       mutate(prob_survival_until_mid_year = if_else(row_number() <= 20, 1 - ((1 - prob_survival) / 2), prob_survival_until_mid_year)) %>%
+                       mutate(prob_survival = if_else(row_number() <= min_age, 1 - (deaths / !!sym(paste0("population_",year_of_analysis,"_entry"))), prob_survival)) %>%
+                       mutate(prob_survival_until_mid_year = if_else(row_number() <= min_age, 1 - ((1 - prob_survival) / 2), prob_survival_until_mid_year)) %>%
                        # Re-calculate the "pop_2019_mid_year_total" using the modified survival rates
                        mutate(!!paste0("population_",year_of_analysis) := !!sym(paste0("population_",year_of_analysis,"_entry")) * prob_survival_until_mid_year)
                    }
@@ -210,8 +211,8 @@ get_pop_impact <-
     #     mutate(prob_survival_until_mid_year = 1 - ((1 - prob_survival) / 2), .after = deaths) %>%
     #     select(-hazard_rate)
     #
-    #   pop_cutoff_male[1:20, "prob_survival"] <- pop_modelled_male[1:20, "prob_survival"]
-    #   pop_cutoff_male[1:20, "prob_survival_until_mid_year"] <- pop_modelled_male[1:20, "prob_survival_until_mid_year"]
+    #   pop_cutoff_male[1:min_age, "prob_survival"] <- pop_modelled_male[1:min_age, "prob_survival"]
+    #   pop_cutoff_male[1:min_age, "prob_survival_until_mid_year"] <- pop_modelled_male[1:min_age, "prob_survival_until_mid_year"]
     #
     #   pop_cutoff_male <- pop_cutoff_male %>%
     #     # Re-calculate the "pop_2019_mid_year_total" using the modified survival rates
@@ -272,8 +273,8 @@ get_pop_impact <-
     #     mutate(prob_survival_until_mid_year = 1 - ((1 - prob_survival) / 2), .after = deaths) %>%
     #     select(-hazard_rate)
     #
-    #   pop_cutoff_female[1:20, "prob_survival"] <- pop_modelled_female[1:20, "prob_survival"]
-    #   pop_cutoff_female[1:20, "prob_survival_until_mid_year"] <- pop_modelled_female[1:20, "prob_survival_until_mid_year"]
+    #   pop_cutoff_female[1:min_age, "prob_survival"] <- pop_modelled_female[1:min_age, "prob_survival"]
+    #   pop_cutoff_female[1:min_age, "prob_survival_until_mid_year"] <- pop_modelled_female[1:min_age, "prob_survival_until_mid_year"]
     #
     #   pop_cutoff_female <- pop_cutoff_female %>%
     #     # Re-calculate the "pop_2019_mid_year_total" using the modified survival rates
@@ -362,9 +363,8 @@ get_pop_impact <-
     #     mutate(prob_survival_total = (2 - hazard_rate_total) / (2 + hazard_rate_total)) %>%
     #     mutate(prob_survival_until_mid_year_total = 1 - ((1 - prob_survival_total) / 2))
     #
-    #   # NOTE: DO ASSIGNMENT BELOW WITH VARIABLE min_age ####
-    #   pop_cutoff_total[1:20, "prob_survival_total"] <- pop_modelled_total[1:20, "prob_survival_total"]
-    #   pop_cutoff_total[1:20, "prob_survival_until_mid_year_total"] <- pop_modelled_total[1:20, "prob_survival_until_mid_year_total"]
+    #   pop_cutoff_total[1:min_age, "prob_survival_total"] <- pop_modelled_total[1:min_age, "prob_survival_total"]
+    #   pop_cutoff_total[1:min_age, "prob_survival_until_mid_year_total"] <- pop_modelled_total[1:min_age, "prob_survival_until_mid_year_total"]
     #
     #   pop_cutoff_total <- pop_cutoff_total %>%
     #     # Now re-calculate the "pop_2019_mid_year_total" using the modified survival rates

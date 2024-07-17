@@ -611,11 +611,11 @@ airqplus_yll_difference <- read.xlsx("../testing/Replication_AirQ+/airqplus_deat
 yll_total <- bestcost_pm_yll_lifetable_airqplus[["detailed"]][["interim"]][["pop_impact_nest"]][[3]] %>% select(-age_end)
 
 print("2019 total YLLs identical:")
-table(airqplus_yll_difference$`2019` == yll_total_2019_2020$population_2019)
+table(airqplus_yll_difference$`2019` == yll_total$population_2019)
 print("2020 total YLLs identical:")
-table(airqplus_yll_difference$`2020` == yll_total_2019_2020$population_2020)
+table(airqplus_yll_difference$`2020` == yll_total$population_2020)
 print("2020 absolute difference in YLLs:")
-difference <- abs(airqplus_yll_difference$`2020` - yll_total_2019_2020$population_2020)
+difference <- abs(airqplus_yll_difference$`2020` - yll_total$population_2020)
 print(difference)
 ```
 
