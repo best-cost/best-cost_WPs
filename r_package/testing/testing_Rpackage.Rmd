@@ -569,6 +569,12 @@ for(d in c("natural", "total")){
       deaths = unlist(airqplus_pm_deaths_yll[["pop"]][, paste0("number_of_deaths_", s)]))
   }
 }
+
+# Compare natural survival probability (note: first run chunk below): 
+# - computed by function bestcost::get_prob_dying_by_single_age()
+# - computed during call to attribute_yll_from_lifetable (airqplus approach)
+# table(prob_dying[["natural"]][["male"]]$prob_surviving == bestcost_pm_yll_lifetable_airqplus[["detailed"]][["interim"]][["lifetable_with_pop_nest"]][[1]]$prob_survival)
+# Exactly the same
 ```
 
 ```{r yll from lifetable airqplus approach}
