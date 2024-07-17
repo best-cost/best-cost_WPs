@@ -20,7 +20,7 @@
 find_joining_columns <-
   function(df1,
            df2,
-           except){
+           except = NULL){
 
     joining_columns <-
       # First identify the columns that are common for df1 and df2

@@ -3,9 +3,8 @@
 #' Get population impact over time
 #'
 #' Get population impact over time
-#' @param lifetable_with_pop \code{Data frame} with three columns: the first one should refer to age, the second one to the probability of dying and the third one to the population (sex specific),
 #' @param year_of_analysis \code{Numeric value} of the year of analysis, which corresponds to the first year of the life table
-#' @param pop_fraction \code{Data frame} showing the PAF (population attributable fraction) or PIF (population impact fraction) in three rows (central, lower bound and upper bound)
+#' @param input_with_risk_and_pop_fraction \code{Tibble} showing the input data and the PAF (population attributable fraction) or PIF (population impact fraction)
 #' @param outcome_metric \code{String} to define the outcome metric. Choose between "death", "yll" and "yld"
 #'
 #' @return
@@ -19,7 +18,6 @@
 #'  \item And many more.
 #' }
 #' @import dplyr
-#' @import rlang
 #' @import purrr
 #' @examples
 #' TBD
@@ -28,8 +26,7 @@
 #' @keywords internal
 
 get_pop_impact <-
-  function(lifetable_with_pop,
-           year_of_analysis,
+  function(year_of_analysis,
            input_with_risk_and_pop_fraction,
            outcome_metric,
            min_age){
@@ -40,36 +37,22 @@ get_pop_impact <-
       # FACTORS NEEDED FOR CALCULATIONS
       user_options <- options()
       options(digits = 15)
-      input_with_risk_and_pop_fraction <- input_with_risk_and_pop_fraction %>%
+      input_with_risk_and_pop_fraction <-
+        input_with_risk_and_pop_fraction %>%
         # Determine beta value: beta = ln(RR) / increment (R's log() takes the natural logarithm)
-        mutate(beta =
+        dplyr::mutate(beta =
                  # as.numeric(format(
                    log(rr)/erf_increment,
                    # digits = 14)),
                .after = rr) %>%
         # Determine modification factor for determining survival probability in counterfactual scenario
         # Based on AirQ+ lifetable manual formula 7 on p 17): RR(x_1 - x_0) = exp( beta * (x_1 - x_0) )
-        mutate(modification_factor = exp(beta * (cutoff - exp)), .after = beta)
+        dplyr::mutate(modification_factor = exp(beta * (cutoff - exp)), .after = beta)
 
       ## POPULATION SETUP AND PROJECTION ###########################################################
-      pop_total <- tibble(
-        age = lifetable_with_pop$lifetable_with_pop_nest[[1]]$age,
-        age_end = lifetable_with_pop$lifetable_with_pop_nest[[1]]$age_end,
-        population =
-          lifetable_with_pop$lifetable_with_pop_nest[[1]]$population +
-          lifetable_with_pop$lifetable_with_pop_nest[[2]]$population,
-        deaths = lifetable_with_pop$lifetable_with_pop_nest[[1]]$deaths +
-          lifetable_with_pop$lifetable_with_pop_nest[[2]]$deaths)
 
-      pop_total <- tibble(geo_id_raw = lifetable_with_pop$geo_id_raw[1],
-                     sex = "total",
-                     lifetable_with_pop_nest = list(pop_total))
-
-      pop_ref <- bind_rows(lifetable_with_pop,
-                        pop_total)
-
-      pop <- pop_ref %>%
-        mutate(lifetable_with_pop_nest = lifetable_with_pop_nest %>%
+      pop <- input_with_risk_and_pop_fraction %>%
+        dplyr::mutate(lifetable_with_pop_nest = lifetable_with_pop_nest %>%
                  purrr::map(
                    .,
                    function(.x){
@@ -190,10 +173,17 @@ get_pop_impact <-
                      mutate(age_end = 1:100, .after = age)}))
 
       # COMPILE OUTPUT #############################################################################
-      pop$erf_ci <- "central"
-      pop_impact <- input_with_risk_and_pop_fraction %>%
-        filter(erf_ci == "central") %>%
-        right_join(pop, by = c("erf_ci", "geo_id_raw"))
+      #pop$erf_ci <- "central"
+      joining_columns_pop_impact <-
+        bestcost:::find_joining_columns(input_with_risk_and_pop_fraction,
+                                        pop,
+                                        except = NULL)
+
+      pop_impact <-
+        input_with_risk_and_pop_fraction %>%
+        dplyr::filter(erf_ci == "central") %>%
+        dplyr::right_join(., pop, by = joining_columns_pop_impact)
+        #dplyr::right_join(., pop, by = c("erf_ci", "geo_id_raw"))
 
       on.exit(options(user_options))
       return(pop_impact)
@@ -208,21 +198,8 @@ get_pop_impact <-
 
     ## DETERMINE POPULATION IMPACT #################################################################
     pop_impact <-
-      dplyr::cross_join(
-        input_with_risk_and_pop_fraction,
-        lifetable_with_pop) %>%
-      # Cross join duplicates the columns with the same name
-      # adding a suffix .y and .x
-      # Select only one column (avoiding duplicated columns)
-      # and rename the columns
-      dplyr::select(., -geo_id_raw.y) %>%
-      dplyr::rename(., geo_id_raw = geo_id_raw.x) %>%
-      # geo_id_aggregated is a volutary argument
-      # Therefore, if()
-      {if(any(grepl("geo_id_aggregated", names(.))))
-        dplyr::select(., -geo_id_aggregated.y) %>%
-          dplyr::rename(., geo_id_aggregated = geo_id_aggregated.x) else .} %>%
-     dplyr::mutate(
+      input_with_risk_and_pop_fraction %>%
+      dplyr::mutate(
         pop_impact_nest = purrr::map(
           lifetable_with_pop_nest,
           ~ dplyr::rename(
@@ -238,7 +215,7 @@ get_pop_impact <-
             "population_{second_year}" :=
               lead(
                 dplyr::lag(!!as.symbol(paste0("population_",year_of_analysis))) *
-                  dplyr::lag(death_probability_natural) * .y
+                  dplyr::lag(prob_natural_death) * .y
                 )
           )))
 
@@ -247,7 +224,7 @@ get_pop_impact <-
       # Now calculate population over time for the rest of year starting with YOA without considering air pollution
       period <- c( (year_of_analysis + 1) :
                      ((year_of_analysis +
-                         unique(purrr::map_int(lifetable_with_pop$lifetable_with_pop_nest,
+                         unique(purrr::map_int(input_with_risk_and_pop_fraction$lifetable_with_pop_nest,
                                                ~nrow(.x))) - 2)) )
       length_period <- length(period)
       population_period <- paste0("population_", period)

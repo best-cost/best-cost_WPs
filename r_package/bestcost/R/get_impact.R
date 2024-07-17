@@ -20,7 +20,6 @@
 #' @keywords internal
 get_impact <-
   function(input,
-           lifetable_with_pop = NULL,
            year_of_analysis = NULL,
            min_age = NULL,
            max_age = NULL,
@@ -35,8 +34,8 @@ get_impact <-
         bestcost:::get_risk_and_pop_fraction(input = input,
                                              pop_fraction_type = pop_fraction_type)
 
-      if(unique(input$health_metric) %in% c("same_input_output",
-                                            "yld_from_prevalence")){
+      if(unique(input$health_metric) %in%
+         c("same_input_output", "yld_from_prevalence")){
         # Get pop_fraction and add it to the input data frame
         impact_raw_main <-
           input_with_risk_and_pop_fraction %>%
@@ -61,7 +60,6 @@ get_impact <-
           # Get population impact ####
           pop_impact <-
             bestcost:::get_pop_impact(
-              lifetable_with_pop = lifetable_with_pop,
               year_of_analysis = year_of_analysis,
               input_with_risk_and_pop_fraction = input_with_risk_and_pop_fraction,
               outcome_metric = outcome_metric,
@@ -84,7 +82,6 @@ get_impact <-
 
       pop_impact <-
         bestcost:::get_pop_impact(
-          lifetable_with_pop = lifetable_with_pop,
           year_of_analysis = year_of_analysis,
           input_with_risk_and_pop_fraction = input_with_risk_and_pop_fraction,
           outcome_metric = "daly")

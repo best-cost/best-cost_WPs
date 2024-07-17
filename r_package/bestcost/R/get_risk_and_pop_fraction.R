@@ -28,9 +28,12 @@ get_risk_and_pop_fraction <-
     # Calculate health impact attributable to exposure ####
     input_with_risk_and_pop_fraction <-
       input %>%
+      # Add input
+      dplyr::mutate(pop_fraction_type = pop_fraction_type) %>%
+      # For the calculations below rowwise approach is needed
       dplyr::rowwise(.) %>%
       # Obtain the relative risk for the relevant concentration
-      {if(pop_fraction_type == "paf")
+      {if({{pop_fraction_type}} == "paf")
         dplyr::mutate(.,
                       rr_conc =
                         bestcost::get_risk(rr = rr,
@@ -65,7 +68,7 @@ get_risk_and_pop_fraction <-
       # the FALSE condition is evaluate and results in an error because the names do not match
       # dplyr::group_by(if("geo_id_raw" %in% names(input)){geo_id_raw}, exp_ci, erf_ci)%>%
 
-      {if(pop_fraction_type == "paf")
+      {if({{pop_fraction_type}} == "paf")
         dplyr::mutate(.,
                       pop_fraction =
                         bestcost::get_pop_fraction(rr_conc_1 = rr_conc,

@@ -384,8 +384,6 @@ for(d in c("natural", "total")){
 
 # Calculate premature deaths using bestcost function
 # and input data from an AirQ+ case
-# Calculate premature deaths using bestcost function
-# and input data from an AirQ+ case
 
 bestcost_pm_deaths_lifetable_airqplus <-
   bestcost::attribute_deaths_from_lifetable(
