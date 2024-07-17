@@ -34,10 +34,10 @@ get_pop_impact <-
            outcome_metric,
            min_age){
 
-    # AirQ+ ########################################################################################
+    # AirQ+ APPROACH ###############################################################################
     if (outcome_metric %in% c("yll_airqplus")) {
 
-      # FACTOR TO DETERMINE PROBABILITY OF DYING IN COUNTERFACTUAL SCENARIO
+      # FACTORS NEEDED FOR CALCULATIONS
       user_options <- options()
       options(digits = 15)
       input_with_risk_and_pop_fraction <- input_with_risk_and_pop_fraction %>%
@@ -51,8 +51,7 @@ get_pop_impact <-
         # Based on AirQ+ lifetable manual formula 7 on p 17): RR(x_1 - x_0) = exp( beta * (x_1 - x_0) )
         mutate(modification_factor = exp(beta * (cutoff - exp)), .after = beta)
 
-      # NEW APPROACH ###############################################################################
-      # POPULATION SETUP AND PROJECTION ############################################################
+      ## POPULATION SETUP AND PROJECTION ###########################################################
       pop_total <- tibble(
         age = lifetable_with_pop$lifetable_with_pop_nest[[1]]$age,
         age_end = lifetable_with_pop$lifetable_with_pop_nest[[1]]$age_end,
@@ -165,12 +164,11 @@ get_pop_impact <-
             )
           )
 
-      # DETERMINE POPULATION IMPACT ##############################################################
+      # DETERMINE POPULATION IMPACT ###############################################################
       pop <- pop %>%
         mutate(yll_nest = purrr::map2(
           pop_cutoff_nest, pop_modelled_nest,
           function(.x, .y){
-            # round(.x) - round(.y)
             .x - .y
             }
           )
@@ -191,7 +189,7 @@ get_pop_impact <-
                      mutate(age = 0:99, .before = !!paste0("population_",year_of_analysis)) %>%
                      mutate(age_end = 1:100, .after = age)}))
 
-      # COMPILE OUTPUT #############################################################################
+      # COMPILE OUTPUT ############################################################################
       pop$erf_ci <- "central"
       pop_impact <- input_with_risk_and_pop_fraction %>%
         filter(erf_ci == "central") %>%
@@ -203,11 +201,12 @@ get_pop_impact <-
 
 
 
-    # GeLuft #######################################################################################
+    # GeLuft APPROACH ##############################################################################
     if ((outcome_metric %in% c("yll_airqplus") == FALSE)) {
 
     second_year <- year_of_analysis + 1
 
+    ## DETERMINE POPULATION IMPACT #################################################################
     pop_impact <-
       dplyr::cross_join(
         input_with_risk_and_pop_fraction,
@@ -243,6 +242,7 @@ get_pop_impact <-
                 )
           )))
 
+    # POPULATION PROJECTION #######################################################################
     if(outcome_metric %in% c("yll", "yld")){
       # Now calculate population over time for the rest of year starting with YOA without considering air pollution
       period <- c( (year_of_analysis + 1) :
@@ -277,6 +277,7 @@ get_pop_impact <-
               return(.x)
             } ))
 
+    # COMPILE OUTPUT ##############################################################################
       years <- 2020:2118
       pop_impact <-
         pop_impact %>%
