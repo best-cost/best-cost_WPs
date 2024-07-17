@@ -3,9 +3,8 @@
 #' Get population impact over time
 #'
 #' Get population impact over time
-#' @param lifetable_with_pop \code{Data frame} with three columns: the first one should refer to age, the second one to the probability of dying and the third one to the population (sex specific),
 #' @param year_of_analysis \code{Numeric value} of the year of analysis, which corresponds to the first year of the life table
-#' @param pop_fraction \code{Data frame} showing the PAF (population attributable fraction) or PIF (population impact fraction) in three rows (central, lower bound and upper bound)
+#' @param input_with_risk_and_pop_fraction \code{Tibble} showing the input data and the PAF (population attributable fraction) or PIF (population impact fraction)
 #' @param outcome_metric \code{String} to define the outcome metric. Choose between "death", "yll" and "yld"
 #'
 #' @return
@@ -27,29 +26,15 @@
 #' @keywords internal
 
 get_pop_impact <-
-  function(lifetable_with_pop,
-           year_of_analysis,
+  function(year_of_analysis,
            input_with_risk_and_pop_fraction,
            outcome_metric){
 
     second_year <- year_of_analysis + 1
 
     pop_impact <-
-      dplyr::cross_join(
-        input_with_risk_and_pop_fraction,
-        lifetable_with_pop) %>%
-      # Cross join duplicates the columns with the same name
-      # adding a suffix .y and .x
-      # Select only one column (avoiding duplicated columns)
-      # and rename the columns
-      dplyr::select(., -geo_id_raw.y) %>%
-      dplyr::rename(., geo_id_raw = geo_id_raw.x) %>%
-      # geo_id_aggregated is a volutary argument
-      # Therefore, if()
-      {if(any(grepl("geo_id_aggregated", names(.))))
-        dplyr::select(., -geo_id_aggregated.y) %>%
-          dplyr::rename(., geo_id_aggregated = geo_id_aggregated.x) else .} %>%
-     dplyr::mutate(
+      input_with_risk_and_pop_fraction %>%
+      dplyr::mutate(
         pop_impact_nest = purrr::map(
           lifetable_with_pop_nest,
           ~ dplyr::rename(
@@ -72,7 +57,7 @@ get_pop_impact <-
       # Now calculate population over time for the rest of year starting with YOA without considering air pollution
       period <- c( (year_of_analysis + 1) :
                      ((year_of_analysis +
-                         unique(purrr::map_int(lifetable_with_pop$lifetable_with_pop_nest,
+                         unique(purrr::map_int(input_with_risk_and_pop_fraction$lifetable_with_pop_nest,
                                                ~nrow(.x))) - 2)) )
       length_period <- length(period)
       population_period <- paste0("population_", period)

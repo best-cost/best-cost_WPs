@@ -6,7 +6,6 @@
 \usage{
 get_impact(
   input,
-  lifetable_with_pop = NULL,
   year_of_analysis = NULL,
   min_age = NULL,
   max_age = NULL,
