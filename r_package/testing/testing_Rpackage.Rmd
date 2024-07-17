@@ -602,21 +602,28 @@ yll_male <- bestcost_pm_yll_lifetable_airqplus[["detailed"]][["interim"]][["life
   filter(year == 2019) %>%  select(impact) %>%  as_vector() %>%  unname(.)
 yll_female <- bestcost_pm_yll_lifetable_airqplus[["detailed"]][["interim"]][["lifeyears_nest"]][[2]] %>% 
   filter(year == 2019) %>% select(impact) %>% as_vector() %>%  unname(.)
-print("YLL male 2019 identical:") ; round(yll_male) == round(624.43)
-print("YLL female 2019 identical:") ; round(yll_female) == round(675.25)
+print("YLL male 2019 identical:") ; round(yll_male) == round(624.43) # Value from AirQ+ output Excel
+print("YLL female 2019 identical:") ; round(yll_female) == round(675.25) # Value from AirQ+ output Excel
 
 # Compare total YLL (YLL males + YLL females)
-airqplus_yll_difference <- read.xlsx("../testing/Replication_AirQ+/airqplus_deaths_yll_lifetable_adults.xlsx", sheet = "yll_difference", startRow = 1, rows = c(1:101)) %>% 
-  select(Age, `2019`, `2020`)
-yll_total <- bestcost_pm_yll_lifetable_airqplus[["detailed"]][["interim"]][["pop_impact_nest"]][[3]] %>% select(-age_end)
+airqplus_yll_difference <- read.xlsx("../testing/Replication_AirQ+/airqplus_deaths_yll_lifetable_adults.xlsx", sheet = "yll_difference", startRow = 1, rows = c(1:101))
+yll_total_rounded <- round(bestcost_pm_yll_lifetable_airqplus[["detailed"]][["interim"]][["pop_impact_nest"]][[3]] %>% select(-age_end))
 
+print("2019 sum total YLLs (unrouded) identical:") # Value from AirQ+ output Excel
+1300.43 == round(sum(bestcost_pm_yll_lifetable_airqplus[["detailed"]][["interim"]][["pop_impact_nest"]][[3]]$population_2019), digits = 2)
 print("2019 total YLLs identical:")
-table(airqplus_yll_difference$`2019` == yll_total$population_2019)
+table(airqplus_yll_difference$`2019` == yll_total_rounded$population_2019)
 print("2020 total YLLs identical:")
-table(airqplus_yll_difference$`2020` == yll_total$population_2020)
+table(airqplus_yll_difference$`2020` == yll_total_rounded$population_2020)
 print("2020 absolute difference in YLLs:")
-difference <- abs(airqplus_yll_difference$`2020` - yll_total$population_2020)
-print(difference)
+print(abs(airqplus_yll_difference$`2020` - yll_total_rounded$population_2020))
+
+print("2021 absolute difference in YLLs:")
+print(abs(airqplus_yll_difference$`2021` - yll_total_rounded$population_2021))
+
+print("2050 absolute difference in YLLs")
+print(abs(airqplus_yll_difference$`2050` - yll_total_rounded$population_2050))
+# Max difference constant at 1 --> rounding error
 ```
 
 

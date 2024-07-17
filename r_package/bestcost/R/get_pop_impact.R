@@ -41,15 +41,15 @@ get_pop_impact <-
       user_options <- options()
       options(digits = 15)
       input_with_risk_and_pop_fraction <- input_with_risk_and_pop_fraction %>%
+        # Determine beta value: beta = ln(RR) / increment (R's log() takes the natural logarithm)
         mutate(beta =
                  # as.numeric(format(
                    log(rr)/erf_increment,
                    # digits = 14)),
                .after = rr) %>%
+        # Determine modification factor for determining survival probability in counterfactual scenario
+        # Based on AirQ+ lifetable manual formula 7 on p 17): RR(x_1 - x_0) = exp( beta * (x_1 - x_0) )
         mutate(modification_factor = exp(beta * (cutoff - exp)), .after = beta)
-
-      # MODIFICATION_FACTOR <- exp(0.0111541374732907 * (5 - 8.85)) # Based on AirQ+ lifetable manual formula 7 on p 17)
-      # Formula 7: RR(x_1 - x_0) = exp( beta * (x_1 - x_0) )
 
       # NEW APPROACH ###############################################################################
       # POPULATION SETUP AND PROJECTION ############################################################
@@ -170,7 +170,8 @@ get_pop_impact <-
         mutate(yll_nest = purrr::map2(
           pop_cutoff_nest, pop_modelled_nest,
           function(.x, .y){
-            round(.x) - round(.y)
+            # round(.x) - round(.y)
+            .x - .y
             }
           )
         ) %>%
@@ -216,7 +217,7 @@ get_pop_impact <-
     #
     #   pop_cutoff_male <- pop_male %>%
     #     mutate(!!paste0("population_",year_of_analysis,"_entry") := !!sym(paste0("population_",year_of_analysis)) + (deaths / 2), .before = !!paste0("population_",year_of_analysis)) %>%
-    #     mutate(hazard_rate = MODIFICATION_FACTOR * deaths / !!sym(paste0("population_",year_of_analysis)), .after = deaths) %>% # Hazard rate for calculating survival probabilities
+    #     mutate(hazard_rate = input_with_risk_and_pop_fraction$modification_factor[1] * deaths / !!sym(paste0("population_",year_of_analysis)), .after = deaths) %>% # Hazard rate for calculating survival probabilities
     #     mutate(prob_survival = (2 - hazard_rate) / (2 + hazard_rate), .after = deaths) %>%
     #     mutate(prob_survival_until_mid_year = 1 - ((1 - prob_survival) / 2), .after = deaths) %>%
     #     select(-hazard_rate)
@@ -278,7 +279,7 @@ get_pop_impact <-
     #
     #   pop_cutoff_female <- pop_female %>%
     #     mutate(!!paste0("population_",year_of_analysis,"_entry") := !!sym(paste0("population_",year_of_analysis)) + (deaths / 2), .before = !!paste0("population_",year_of_analysis)) %>%
-    #     mutate(hazard_rate = MODIFICATION_FACTOR * deaths / !!sym(paste0("population_",year_of_analysis)), .after = deaths) %>% # Hazard rate for calculating survival probabilities
+    #     mutate(hazard_rate = input_with_risk_and_pop_fraction$modification_factor[1] * deaths / !!sym(paste0("population_",year_of_analysis)), .after = deaths) %>% # Hazard rate for calculating survival probabilities
     #     mutate(prob_survival = (2 - hazard_rate) / (2 + hazard_rate), .after = deaths) %>%
     #     mutate(prob_survival_until_mid_year = 1 - ((1 - prob_survival) / 2), .after = deaths) %>%
     #     select(-hazard_rate)
@@ -365,7 +366,7 @@ get_pop_impact <-
     #            deaths_total = deaths_male + deaths_female) %>%
     #     mutate(!!paste0("population_",year_of_analysis,"_entry_total") := !!sym(paste0("population_",year_of_analysis)) + (deaths_total / 2)) %>%
     #     # Calculate hazard rates (absolute and percent)
-    #     mutate(hazard_rate_total = deaths_total * MODIFICATION_FACTOR / !!sym(paste0("population_",year_of_analysis)) ) %>%
+    #     mutate(hazard_rate_total = deaths_total * input_with_risk_and_pop_fraction$modification_factor[1] / !!sym(paste0("population_",year_of_analysis)) ) %>%
     #     mutate(hazard_rate_percent_total = hazard_rate_total * 100) %>%
     #     # Calculate modified survival probabilities
     #     ## Based on AirQ+ lifetable manual formula 4. on p 14: s_i = (2 - h_i) / (2 + h_i)
