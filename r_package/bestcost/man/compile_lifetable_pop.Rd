@@ -13,6 +13,8 @@ compile_lifetable_pop(
   prob_total_death_female,
   population_midyear_male,
   population_midyear_female,
+  deaths_male = NULL,
+  deaths_female = NULL,
   geo_id_raw = NULL,
   geo_id_aggregated = NULL
 )

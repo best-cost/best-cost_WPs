@@ -26,6 +26,8 @@ attribute_yll_from_lifetable(
   prob_total_death_female,
   population_midyear_male,
   population_midyear_female,
+  deaths_male = NULL,
+  deaths_female = NULL,
   year_of_analysis,
   corrected_discount_rate = NULL,
   min_age = NULL,

@@ -72,7 +72,7 @@ get_pop_impact <-
         mutate(lifetable_with_pop_nest = lifetable_with_pop_nest %>%
                  purrr::map(
                    .,
-                   function(.x){
+                   setup_lifetable(.x){
                      .x <- .x %>%
                        select(age, age_end, deaths, population) %>%
                        rename(!!paste0("population_",year_of_analysis) := population) %>%
@@ -91,7 +91,7 @@ get_pop_impact <-
         mutate(pop_modelled_nest = lifetable_with_pop_nest %>%
                purrr::map(
                  .,
-                 function(.x){
+                 project_population(.x){
                     for (i in 1:(length_period - 1)) { # starts with 1; ends with 99
 
                       # print(i)
@@ -116,7 +116,7 @@ get_pop_impact <-
         mutate(pop_cutoff_nest = lifetable_with_pop_nest %>%
                purrr::map(
                  .,
-                 function(.x){
+                 calculate_survival_probability_counterfactual(.x){
                    .x <- .x %>%
                      mutate(hazard_rate = input_with_risk_and_pop_fraction$modification_factor[1] * deaths / !!sym(paste0("population_",year_of_analysis)), .after = deaths) %>% # Hazard rate for calculating survival probabilities
                      mutate(prob_survival = (2 - hazard_rate) / (2 + hazard_rate), .after = deaths) %>%
@@ -128,7 +128,7 @@ get_pop_impact <-
         mutate(pop_cutoff_nest = pop_cutoff_nest %>%
                  purrr::map(
                    .,
-                   function(.x){
+                   adjust_survival_prob_below_min_age(.x){
                      .x %>%
                        # For all ages below min_age assign the unmodified survival probabilities
                        mutate(prob_survival = if_else(row_number() <= min_age, 1 - (deaths / !!sym(paste0("population_",year_of_analysis,"_entry"))), prob_survival)) %>%
@@ -144,7 +144,7 @@ get_pop_impact <-
           pop_cutoff_nest = pop_cutoff_nest %>%
             purrr::map(
               .,
-              function(.x){
+              project_population(.x){
                 for (i in 1:(length_period - 1)) { # starts with 1; ends with 99
 
                   # print(i)
@@ -164,11 +164,11 @@ get_pop_impact <-
             )
           )
 
-      # DETERMINE POPULATION IMPACT ###############################################################
+      # DETERMINE POPULATION IMPACT ################################################################
       pop <- pop %>%
         mutate(yll_nest = purrr::map2(
           pop_cutoff_nest, pop_modelled_nest,
-          function(.x, .y){
+          get_difference_between_scenarios(.x, .y){
             .x - .y
             }
           )
@@ -176,7 +176,7 @@ get_pop_impact <-
         mutate(premature_deaths_nest = yll_nest %>%
                  purrr::map(
                    .,
-                   function(.x){
+                   determine_premature_deaths_based_on_yll(.x){
                      .x * 2
                    }
                  )
@@ -184,12 +184,12 @@ get_pop_impact <-
         mutate(pop_impact_nest = yll_nest %>%
                  purrr::map(
                  .,
-                 function(.x){
+                 add_age_columns(.x){
                    .x %>%
                      mutate(age = 0:99, .before = !!paste0("population_",year_of_analysis)) %>%
                      mutate(age_end = 1:100, .after = age)}))
 
-      # COMPILE OUTPUT ############################################################################
+      # COMPILE OUTPUT #############################################################################
       pop$erf_ci <- "central"
       pop_impact <- input_with_risk_and_pop_fraction %>%
         filter(erf_ci == "central") %>%
@@ -242,7 +242,7 @@ get_pop_impact <-
                 )
           )))
 
-    # POPULATION PROJECTION #######################################################################
+    # POPULATION PROJECTION ########################################################################
     if(outcome_metric %in% c("yll", "yld")){
       # Now calculate population over time for the rest of year starting with YOA without considering air pollution
       period <- c( (year_of_analysis + 1) :
@@ -258,7 +258,7 @@ get_pop_impact <-
         dplyr::mutate(
           pop_impact_nest = purrr::map(
             pop_impact_nest,
-            function(.x) {
+            project_population(.x) {
               # length_period minus 1 because year_of_analysis+1 is already calculated
               for (i in 0:(length_period-1)){
                 current_year <- period[i+1]
@@ -277,14 +277,14 @@ get_pop_impact <-
               return(.x)
             } ))
 
-    # COMPILE OUTPUT ##############################################################################
+    # COMPILE OUTPUT ###############################################################################
       years <- 2020:2118
       pop_impact <-
         pop_impact %>%
         dplyr::mutate(
           pop_impact_nest = purrr::map(
             pop_impact_nest,
-            function(.x) {
+            project_population(.x) {
               # length_period minus 1 because year_of_analysis+1 is already calculated
               for (i in 1:99){
                 current_year <- years[i]
