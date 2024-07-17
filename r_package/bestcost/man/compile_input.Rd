@@ -40,7 +40,9 @@ compile_input(
   prob_total_death_male = NULL,
   prob_total_death_female = NULL,
   population_midyear_male = NULL,
-  population_midyear_female = NULL
+  population_midyear_female = NULL,
+  deaths_male = NULL,
+  deaths_female = NULL
 )
 }
 \arguments{

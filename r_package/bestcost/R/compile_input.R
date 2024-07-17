@@ -47,7 +47,9 @@ compile_input <-
            first_age_pop = NULL, last_age_pop = NULL,
            prob_natural_death_male = NULL, prob_natural_death_female = NULL,
            prob_total_death_male = NULL, prob_total_death_female = NULL,
-           population_midyear_male = NULL, population_midyear_female = NULL){
+           population_midyear_male = NULL, population_midyear_female = NULL,
+           # For AirQ+ approach for lifetables
+           deaths_male = NULL, deaths_female = NULL){
 
     # Check input data
     # stopifnot(exprs = {
@@ -198,7 +200,6 @@ compile_input <-
       # Rename column names to standard names
 
       # Define variables to be used below
-      sex <- c("male", "female")
       age_sequence <- seq(from = first_age_pop,
                           to = last_age_pop,
                           by = 1)
@@ -227,7 +228,7 @@ compile_input <-
         lifetable_with_pop_template %>%
         dplyr::mutate(
           sex = "male",
-          death_probability_natural = rep(unlist(prob_natural_death_male), length.out = n()),
+          prob_natural_death = rep(unlist(prob_natural_death_male), length.out = n()),
           prob_total_death = rep(unlist(prob_total_death_male), length.out = n()),
           population = rep(unlist(population_midyear_male), length.out = n()))
 
@@ -236,28 +237,64 @@ compile_input <-
         lifetable_with_pop_template %>%
         dplyr::mutate(
           sex = "female",
-          death_probability_natural = rep(unlist(prob_natural_death_female), length.out = n()),
+          prob_natural_death = rep(unlist(prob_natural_death_female), length.out = n()),
           prob_total_death = rep(unlist(prob_total_death_female), length.out = n()),
           population = rep(unlist(population_midyear_female), length.out = n()))
 
-
-      lifetable_with_pop <-
+      lifetable_with_pop_male_female <-
         # Bind male and female tibbles
         dplyr::bind_rows(
           lifetable_with_pop_male,
-          lifetable_with_pop_female) %>%
+          lifetable_with_pop_female)
+
+      lifetable_with_pop <-
+        lifetable_with_pop_male_female %>%
         # Nest the lifetable elements
         tidyr::nest(
           lifetable_with_pop_nest =
             c(age, age_end,
-              death_probability_natural, prob_total_death,
+              prob_natural_death, prob_total_death,
               population))
+
+
+      if(grepl("airqplus", health_metric)){
+        lifetable_with_pop_male <-
+          lifetable_with_pop_male %>%
+          dplyr::mutate(deaths = rep(unlist(deaths_male), length.out = n()))
+
+        lifetable_with_pop_female <-
+          lifetable_with_pop_female %>%
+          dplyr::mutate(deaths = rep(unlist(deaths_female), length.out = n()))
+
+        # The same for total
+        lifetable_with_pop_total <-
+          lifetable_with_pop_template %>%
+          dplyr::mutate(
+            sex = "total",
+            population = lifetable_with_pop_male$population + lifetable_with_pop_female$population,
+            deaths = lifetable_with_pop_male$deaths + lifetable_with_pop_female$deaths)
+
+        lifetable_with_pop_male_female <-
+          dplyr::bind_rows(lifetable_with_pop_male_female, lifetable_with_pop_total)
+
+        lifetable_with_pop <-
+          lifetable_with_pop_male_female %>%
+          # Nest the lifetable elements
+          tidyr::nest(
+            lifetable_with_pop_nest =
+              c(age, age_end,
+                prob_natural_death, prob_total_death,
+                population, deaths))
+      }
+
+
 
       # Join the input without and with lifetable variable into one tibble
       input <-
         dplyr::left_join(input_wo_lifetable,
                          lifetable_with_pop,
                          by = "geo_id_raw")
+
       } else {
       # If no lifetable, only use input_wo_lifetable
       input <- input_wo_lifetable}

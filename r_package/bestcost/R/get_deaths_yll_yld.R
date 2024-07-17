@@ -61,14 +61,17 @@ get_deaths_yll_yld <-
 
             # If YLL or YLD
             # Further data preparation is needed than for deaths
-            if(outcome_metric %in% c("yll", "yld")){
+            if(outcome_metric %in% c("yll", "yld", "yll_airqplus")){
               # Select relevant
               .x <-
                 .x %>%
                 dplyr::select(., contains("population_")) %>%
                 # Remove the year of analysis (we are only interested in the following ones)
-                dplyr::select(., -contains(as.character(year_of_analysis))) %>%
+                {if(outcome_metric != "yll_airqplus") dplyr::select(., -contains(as.character(year_of_analysis))) else .} %>%
                 # Sum over ages (i.e. vertically) that fulfill inputted "max_age" and "min_age" criteria
+                as.matrix() %>%
+                { `[<-`(., upper.tri(., diag = TRUE), NA) } %>%
+                as_tibble() %>%
                 dplyr::summarize_all(sum, na.rm = TRUE) %>%
                 # Reshape to long format (output is data frame with 2 columns "year" & "impact")
                 tidyr::pivot_longer(cols = starts_with("population_"),
@@ -94,7 +97,7 @@ get_deaths_yll_yld <-
             }
 
             # If yll
-            if(outcome_metric %in% "yll"){
+            if(outcome_metric %in% c("yll", "yll_airqplus")){
               .x <-
                 .x %>%
                 dplyr::summarise(., impact = sum(impact, na.rm = TRUE)) %>%
@@ -134,13 +137,13 @@ get_deaths_yll_yld <-
               x_discounted <-
                 .x %>%
                 # Convert year to numeric
-                dplyr::mutate(year = as.numeric(year))%>%
+                dplyr::mutate(year = as.numeric(year)) %>%
                 # Calculate discount rate for each year
                 dplyr::mutate(
-                  discount = 1/(discount_factor^(year-(year_of_analysis+1))))%>%
+                  discount = 1/(discount_factor^(year-(year_of_analysis+1)))) %>%
                 # Calculate life years discounted
                 dplyr::mutate(
-                  discounted_impact = impact * discount)%>%
+                  discounted_impact = impact * discount) %>%
                 {if(outcome_metric %in% "yll")
                   # Sum among years to obtain the total impact (single value)
                   dplyr::summarise(., impact = sum(discounted_impact), .groups = "drop") else .} %>%
