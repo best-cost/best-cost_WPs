@@ -612,7 +612,7 @@ print("YLL male 2019 identical:") ; round(yll_male) == round(624.43) # Value fro
 print("YLL female 2019 identical:") ; round(yll_female) == round(675.25) # Value from AirQ+ output Excel
 
 # Compare total YLL (YLL males + YLL females)
-airqplus_yll_difference <- read.xlsx("../testing/Replication_AirQ+/airqplus_deaths_yll_lifetable_adults.xlsx", sheet = "yll_difference", startRow = 1, rows = c(1:101))
+airqplus_yll_difference <- read.xlsx("../testing/output/airqplus_deaths_yll_lifetable_adults.xlsx", sheet = "yll_difference", startRow = 1, rows = c(1:101))
 yll_total_rounded <- round(bestcost_pm_yll_lifetable_airqplus[["detailed"]][["interim"]][["pop_impact_nest"]][[3]] %>% select(-age_end))
 
 print("2019 sum total YLLs (unrouded) identical:") # Value from AirQ+ output Excel
