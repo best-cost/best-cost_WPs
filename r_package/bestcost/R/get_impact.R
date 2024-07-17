@@ -54,7 +54,6 @@ get_impact <-
                                                       "yll_from_lifetable",
                                                       "yld_from_lifetable",
                                                       "yll_from_lifetable_airqplus")) {
-
           outcome_metric <-
             gsub("_from_lifetable", "", unique(input$health_metric))
 
@@ -81,7 +80,29 @@ get_impact <-
               duration = duration,
               input_with_risk_and_pop_fraction = input_with_risk_and_pop_fraction)
 
-        }
+    } else if (unique(input$health_metric) %in% "daly_from_lifetable"){
+
+      pop_impact <-
+        bestcost:::get_pop_impact(
+          lifetable_with_pop = lifetable_with_pop,
+          year_of_analysis = year_of_analysis,
+          input_with_risk_and_pop_fraction = input_with_risk_and_pop_fraction,
+          outcome_metric = "daly")
+
+
+      impact_raw <-
+        bestcost:::get_daly(
+          outcome_metric = outcome_metric,
+          pop_impact = pop_impact,
+          year_of_analysis = year_of_analysis,
+          min_age = min_age,
+          max_age = max_age,
+          corrected_discount_rate = corrected_discount_rate,
+          disability_weight = disability_weight,
+          duration = duration,
+          input_with_risk_and_pop_fraction = input_with_risk_and_pop_fraction)
+
+    }
 
     } else if(unique(input$risk_method) == "absolute_risk" &
               unique(input$health_metric) == "same_input_output"){
@@ -107,8 +128,3 @@ get_impact <-
     return(impact_raw)
 
   }
-
-
-
-
-

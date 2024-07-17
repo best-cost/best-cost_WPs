@@ -74,7 +74,7 @@ compile_lifetable_pop <-
                           to = last_age_pop + 1,
                           by = 1),
             death_probability_natural = prob_natural_death_male,
-            death_probability_total = prob_total_death_male,
+            prob_total_death = prob_total_death_male,
             population = population_midyear_male,
             deaths = deaths_male),
           tidyr::tibble(
@@ -85,7 +85,7 @@ compile_lifetable_pop <-
                           to = last_age_pop + 1,
                           by = 1),
             death_probability_natural = prob_natural_death_female,
-            death_probability_total = prob_total_death_female,
+            prob_total_death = prob_total_death_female,
             population = population_midyear_female,
             deaths = deaths_female))
       )
