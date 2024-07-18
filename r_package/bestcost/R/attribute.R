@@ -79,6 +79,7 @@ attribute <-
     #length(exp) == length(prop_pop_exp)
     #})
 
+    # if (approach = "cutoff_in_exposure") { # whole script in this loop
 
     # Compile input data (except lifetable)
     input <-
@@ -143,3 +144,50 @@ attribute <-
 
     return(output)
   }
+
+# } end of loop (for cutoff variante)
+
+
+# if(approach = "scenario_A_minus_scenario_B") { # cutoff in the exposure response function
+# bestcost:::compare() # calculates scenario_A_minus_scenario_B
+# comparison_yll_lifetable_delta  <- # code copied from "testing_Rpackage.Rmd"
+# impact_raw  <-
+#   bestcost::compare(
+#     health_metric = health_metric,
+#     comparison_method = "delta",
+#     exp_central_1 = exp_central, # Put exp_central here, maybe
+#     prop_pop_exp_1 = prop_pop_exp, # Fake data just for testing purposes
+#     exp_central_2 = cutoff, # Fake data just for testing purposes
+#     prop_pop_exp_2 = prop_pop_exp, # Fake data just for testing purposes
+#     cutoff = 0,   # put to 0, so that in get_risk we don't have cutoff - cutoff = 0
+#     rr_central = rr_central,
+#     rr_lower = rr_lower,
+#     rr_upper = rr_upper,
+#     erf_increment = erf_increment,
+#     erf_shape = erf_shape,
+#     first_age_pop_1 = first_age_pop, #
+#     last_age_pop_1 = 99,
+#     prob_natural_death_male_1 = lifetable_withPopulation[["male"]]$death_probability_natural,
+#     prob_natural_death_female_1 = lifetable_withPopulation[["female"]]$death_probability_natural,
+#     prob_total_death_male_1 = lifetable_withPopulation[["male"]]$death_probability_total,
+#     prob_total_death_female_1 = lifetable_withPopulation[["female"]]$death_probability_total,
+#     population_midyear_male_1 = lifetable_withPopulation[["male"]]$population,
+#     population_midyear_female_1 = lifetable_withPopulation[["female"]]$population,
+#     year_of_analysis_1 = 2019,
+#     first_age_pop_2 = first_age_pop, #
+#     last_age_pop_2 = 99,
+#     prob_natural_death_male_2 = lifetable_withPopulation[["male"]]$death_probability_natural,
+#     prob_natural_death_female_2 = lifetable_withPopulation[["female"]]$death_probability_natural,
+#     prob_total_death_male_2 = lifetable_withPopulation[["male"]]$death_probability_total,
+#     prob_total_death_female_2 = lifetable_withPopulation[["female"]]$death_probability_total,
+#     population_midyear_male_2 = lifetable_withPopulation[["male"]]$population,
+#     population_midyear_female_2 = lifetable_withPopulation[["female"]]$population,
+#     year_of_analysis_2 = 2019,
+#     info_1 = input_data_mortality$pollutant[2],
+#     info_2 = input_data_mortality$pollutant[2],
+#     min_age = 20,
+#     disability_weight = disability_weight,
+#     duration = duration)
+#
+#     return(output)
+# }
