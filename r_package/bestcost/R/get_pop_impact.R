@@ -19,7 +19,6 @@
 #'  \item And many more.
 #' }
 #' @import dplyr
-#' @import rlang
 #' @import purrr
 #' @examples
 #' TBD
@@ -87,6 +86,7 @@ get_pop_impact <-
       years <- c(year_of_analysis:(year_of_analysis + (nrow(pop[["lifetable_with_pop_nest"]][[1]]) - 1)))
       length_period <- length(years)
 
+      # Project population in modelled (= actually observed; reference) scenario
       pop <- pop %>%
         mutate(pop_modelled_nest = lifetable_with_pop_nest %>%
                purrr::map(
@@ -113,6 +113,7 @@ get_pop_impact <-
 
 
       pop <- pop %>%
+        # Calculate modified survival probability in cutoff (= counterfactual) scenario
         mutate(pop_cutoff_nest = lifetable_with_pop_nest %>%
                purrr::map(
                  .,
