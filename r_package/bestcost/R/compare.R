@@ -234,7 +234,16 @@ compare <-
           max_age = max_age,
           info = info_1,
           geo_id_raw = geo_id_raw,
-          geo_id_aggregated = geo_id_aggregated)
+          geo_id_aggregated = geo_id_aggregated,
+          # Lifetable data
+          first_age_pop =  first_age_pop_1,
+          last_age_pop = last_age_pop_1,
+          prob_natural_death_male = prob_natural_death_male_1,
+          prob_natural_death_female = prob_natural_death_female_1,
+          prob_total_death_male = prob_total_death_male_1,
+          prob_total_death_female = prob_total_death_female_1,
+          population_midyear_male = population_midyear_male_1,
+          population_midyear_female =  population_midyear_female_1)
 
       # Compile input data of scenario 2
       input_2 <-
@@ -255,10 +264,27 @@ compare <-
           max_age = max_age,
           info = info_2,
           geo_id_raw = geo_id_raw,
-          geo_id_aggregated = geo_id_aggregated)
+          geo_id_aggregated = geo_id_aggregated,
+          # Lifetable data
+          first_age_pop =  first_age_pop_2,
+          last_age_pop = last_age_pop_2,
+          prob_natural_death_male = prob_natural_death_male_2,
+          prob_natural_death_female = prob_natural_death_female_2,
+          prob_total_death_male = prob_total_death_male_2,
+          prob_total_death_female = prob_total_death_female_2,
+          population_midyear_male = population_midyear_male_2,
+          population_midyear_female =  population_midyear_female_2)
 
+      # Identify the arguments scenario specific arguments excluding bhd
+      # This will be used for the exceptions in the joining columns
+      # Scenario-specific arguments cannot be used as joining columns
+      # because we want to keep different columns for scenario_1 and _2
+      # bhd and lifetable_with_pop_nest are excluded
+      # because they have to be identical in scenario_1 and _2
+      # for the pif approach by definition
       scenario_specific_arguments_excluding_bhd <-
-        setdiff(scenario_specific_arguments, c("bhd_1", "bhd_2"))
+        setdiff(scenario_specific_arguments, c("bhd_central", "bhd_lower", "bhd_upper"))
+
 
       # Get identical columns to join data frames (as above)
       joining_columns_input <-
@@ -275,32 +301,11 @@ compare <-
           by = joining_columns_input,
           suffix = c("_1", "_2"))
 
-      # Only if it is a lifetable approach, lifetable data have to be compiled
-
-      if(grepl("lifetable", health_metric)){
-        # Compile list of life table data frame (by sex)
-        # Col 1: age; col 2: probability of death; col 3: population
-
-        lifetable_with_pop <-
-          bestcost:::compile_lifetable_pop(
-            first_age_pop =  first_age_pop_1,
-            last_age_pop = last_age_pop_1,
-            prob_natural_death_male = prob_natural_death_male_1,
-            prob_natural_death_female = prob_natural_death_female_1,
-            prob_total_death_male = prob_total_death_male_1,
-            prob_total_death_female = prob_total_death_female_1,
-            population_midyear_male = population_midyear_male_1,
-            population_midyear_female =  population_midyear_female_1,
-            geo_id_raw = geo_id_raw,
-            geo_id_aggregated = geo_id_aggregated)
-      }
-
 
       # Calculate the health impacts for each case (uncertainty, category, geo area...)
       impact_raw <-
         bestcost:::get_impact(
           input = input,
-          lifetable_with_pop = lifetable_with_pop,
           year_of_analysis = year_of_analysis,
           min_age = min_age,
           max_age = max_age,

@@ -98,35 +98,24 @@ attribute <-
         info = info,
         health_metric = health_metric,
         disability_weight = disability_weight,
-        risk_method = risk_method)
-
-    # Only if lifetable approach
-    # Compile list of life table data frame (by sex)
-    # Col 1: age; col 2: probability of death; col 3: population
-
-    if(grepl("lifetable", health_metric)){
-
-      lifetable_with_pop <-
-        bestcost:::compile_lifetable_pop(
-          first_age_pop =  first_age_pop,
-          last_age_pop = last_age_pop,
-          prob_natural_death_male = prob_natural_death_male,
-          prob_natural_death_female = prob_natural_death_female,
-          prob_total_death_male = prob_total_death_male,
-          prob_total_death_female = prob_total_death_female,
-          population_midyear_male = population_midyear_male,
-          population_midyear_female =  population_midyear_female,
-          deaths_male = deaths_male, deaths_female = deaths_female,
-          geo_id_raw = geo_id_raw,
-          geo_id_aggregated = geo_id_aggregated)
-
-    }
+        risk_method = risk_method,
+        # Lifetable arguments if needed
+        first_age_pop =  first_age_pop,
+        last_age_pop = last_age_pop,
+        prob_natural_death_male = prob_natural_death_male,
+        prob_natural_death_female = prob_natural_death_female,
+        prob_total_death_male = prob_total_death_male,
+        prob_total_death_female = prob_total_death_female,
+        population_midyear_male = population_midyear_male,
+        population_midyear_female =  population_midyear_female,
+        # For AirQ+ method for lifetable
+        deaths_male = deaths_male,
+        deaths_female = deaths_female)
 
 
     # Calculate the health impacts for each case (uncertainty, category, geo area...)
     impact_raw <-
       bestcost:::get_impact(input = input,
-                            lifetable_with_pop = lifetable_with_pop,
                             year_of_analysis = year_of_analysis,
                             min_age = min_age,
                             max_age = max_age,

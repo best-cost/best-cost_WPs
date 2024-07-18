@@ -53,7 +53,7 @@ get_deaths_yll_yld <-
                 dplyr::filter(., age <= {{max_age}})
             }
 
-            if(!is.null(min_age)){
+            if(!is.null({{min_age}})){
               .x <-
                 .x %>%
                 dplyr::filter(., age >= {{min_age}})
