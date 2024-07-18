@@ -68,10 +68,12 @@ get_pop_impact <-
               )
           )
 
+
       # Define loop variables (to be used in both modelled and cutoff population projection)
       years <- c(year_of_analysis:(year_of_analysis + (nrow(pop[["lifetable_with_pop_nest"]][[1]]) - 1)))
       length_period <- length(years)
 
+      # Project population in modelled (= actually observed; reference) scenario
       pop <- pop %>%
         mutate(pop_modelled_nest = lifetable_with_pop_nest %>%
                purrr::map(
@@ -98,6 +100,7 @@ get_pop_impact <-
 
 
       pop <- pop %>%
+        # Calculate modified survival probability in cutoff (= counterfactual) scenario
         mutate(pop_cutoff_nest = lifetable_with_pop_nest %>%
                purrr::map(
                  .,

@@ -601,6 +601,9 @@ bestcost_pm_yll_lifetable_airqplus <-
     year_of_analysis =  airqplus_pm_deaths_yll[["input"]]$start_year, 
     min_age = airqplus_pm_deaths_yll[["input"]]$apply_rr_from_age)
 
+# check_bestcost(result_list_bestcost = bestcost_pm_yll_lifetable_airqplus,
+#                result_vector_alternative = c(27742, 14641, 40542))
+
 # Compare sex-specific results
 yll_male <- bestcost_pm_yll_lifetable_airqplus[["detailed"]][["interim"]][["lifeyears_nest"]][[1]] %>% 
   filter(year == 2019) %>%  select(impact) %>%  as_vector() %>%  unname(.)
@@ -617,6 +620,9 @@ print("2019 sum total YLLs (unrouded) identical:") # Value from AirQ+ output Exc
 1300.43 == round(sum(bestcost_pm_yll_lifetable_airqplus[["detailed"]][["interim"]][["pop_impact_nest"]][[3]]$population_2019), digits = 2)
 print("2019 total YLLs identical:")
 table(airqplus_yll_difference$`2019` == yll_total_rounded$population_2019)
+
+print("2020 sum total YLLs (unrouded) identical:") # Value from AirQ+ output Excel
+3741.43 == round(sum(bestcost_pm_yll_lifetable_airqplus[["detailed"]][["interim"]][["pop_impact_nest"]][[3]]$population_2020, na.rm = TRUE), digits = 2)
 print("2020 total YLLs identical:")
 table(airqplus_yll_difference$`2020` == yll_total_rounded$population_2020)
 print("2020 absolute difference in YLLs:")
@@ -1251,6 +1257,17 @@ check_bestcost(result_list_bestcost = comparison_deaths_lifetable_pif_geo ,
                result_vector_alternative = c(2974, 1563, 4362)) # Result on 09 July 2024
 
 
+```
+
+```{r Illustration integrate compare() in attribute()}
+
+# Benefit of this: compare the two conceptionally different approaches
+ 
+# case1 <- attribute(approach= cutoff in exposure)
+
+# case2 <- attribute(approach = delta approach/cutoff in ERF)
+
+# difference impact <- case1[[impact]] - case2[[impact]]
 ```
 
 
