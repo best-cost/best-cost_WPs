@@ -42,7 +42,7 @@ attribute_yll_from_lifetable <-
     if (is.null(deaths_male)){
       output <-
         bestcost::attribute(
-          health_metric = "yll_from_lifetable",
+          health_metric = "yll_from_lifetable", # Set outcome metric
           risk_method = "relative_risk",
           exp_central = exp_central, exp_lower = exp_lower, exp_upper = exp_upper,
           prop_pop_exp = prop_pop_exp,
@@ -76,7 +76,7 @@ attribute_yll_from_lifetable <-
     if (is.null(deaths_male)==FALSE){
       output <-
         bestcost::attribute(
-          health_metric = "yll_from_lifetable_airqplus",
+          health_metric = "yll_from_lifetable_airqplus", # Set outcome metric
           risk_method = "relative_risk",
           exp_central = exp_central, exp_lower = exp_lower, exp_upper = exp_upper,
           prop_pop_exp = prop_pop_exp,
