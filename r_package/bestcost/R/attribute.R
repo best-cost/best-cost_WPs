@@ -17,6 +17,7 @@
 #' @param erf_increment \code{Numeric value} showing the increment of the exposure-response function in ug/m3 (usually 10 or 5).
 #' @param erf_shape \code{String} showing the shape of the exposure-response function to be assumed using the relative risk from the literature as support point. Options: "linear", log_linear", "linear_log", "log_log".
 #' @param erf_c \code{String} showing the user-defined function that puts the relative risk in relation with concentration. The function must have only one variable: c, which means concentration. E.g. "3+c+c^2". Default value = NULL.
+#' @param approach_exposure \code{String} showing whether air pollution is constant or only in one year. Options: "single_year", "constant"
 #' @param first_age_pop \code{Numeric value} starting age of the youngest age group from population and life table data (age interval = 1 year)
 #' @param last_age_pop \code{Numeric value} ending age of the oldest age group from population and life table data (age interval = 1 year)
 #' @param prob_natural_death_male,prob_natural_death_female \code{Numeric vector} containing the probability of dying due to natural cause (excluding non-natural deaths due to violence or accidents) by age or age group for male and female respectively.
@@ -60,18 +61,22 @@ attribute <-
            erf_shape = NULL,
            erf_c_central = NULL, erf_c_lower = NULL, erf_c_upper = NULL,
            bhd_central = NULL, bhd_lower = NULL, bhd_upper = NULL,
+           # Lifetable arguments
+           approach_exposure = NULL,
            first_age_pop = NULL, last_age_pop = NULL,
            prob_natural_death_male = NULL, prob_natural_death_female = NULL,
            prob_total_death_male, prob_total_death_female = NULL,
            population_midyear_male = NULL, population_midyear_female = NULL,
-           deaths_male = NULL, deaths_female = NULL,
+           deaths_male = NULL, deaths_female = NULL, # For AirQ+ method for lifetable
            year_of_analysis = NULL,
            min_age = NULL, max_age = NULL,
            disability_weight = NULL,
            duration = NULL,
            corrected_discount_rate = NULL,
+           # Iteration arguments
            geo_id_raw = NULL,
            geo_id_aggregated = NULL,
+           # Meta-information
            info = NULL){
 
     # Check input data
@@ -100,6 +105,7 @@ attribute <-
         disability_weight = disability_weight,
         risk_method = risk_method,
         # Lifetable arguments if needed
+        approach_exposure = approach_exposure,
         first_age_pop =  first_age_pop,
         last_age_pop = last_age_pop,
         prob_natural_death_male = prob_natural_death_male,

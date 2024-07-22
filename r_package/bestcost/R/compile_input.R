@@ -44,6 +44,7 @@ compile_input <-
            corrected_discount_rate = NULL,
            duration = NULL,
            # And lifetable-related data...
+           approach_exposure = NULL,
            first_age_pop = NULL, last_age_pop = NULL,
            prob_natural_death_male = NULL, prob_natural_death_female = NULL,
            prob_total_death_male = NULL, prob_total_death_female = NULL,
@@ -96,7 +97,7 @@ compile_input <-
 
     }
 
-    # Store the lentgh of the exposure distribution (to be used below)
+    # Store the length of the exposure distribution (to be used below)
     # Let's take the first element
     length_exp_dist <-
       ifelse(is.list(exp_central),
@@ -123,6 +124,7 @@ compile_input <-
         bhd_upper = rep(unlist(bhd_lower), each = length_exp_dist),
         min_age = rep(min_age, each = length_exp_dist),
         max_age = rep(max_age, each = length_exp_dist),
+        approach_exposure = rep(approach_exposure, each = length_exp_dist),
 
         # Second those variables that will have length = 1 (no problematic)
         disability_weight = disability_weight,
@@ -149,6 +151,7 @@ compile_input <-
         # Add the risk_method that refer to the function
         risk_method = risk_method,
         health_metric = health_metric,
+        approach_exposure = approach_exposure,
         # Using {{}} to call the argument instead of the column (same name)
         exposure_dimension =
           rep(1:length_exp_dist, length_exp_list),

@@ -581,6 +581,7 @@ for(d in c("natural", "total")){
 
 bestcost_pm_yll_lifetable_airqplus <-
   bestcost::attribute_yll_from_lifetable(
+    approach_exposure = "constant",
     exp_central = airqplus_pm_deaths_yll[["input"]]$mean_concentration,
     cutoff = airqplus_pm_deaths_yll[["input"]]$cut_off_value,
     rr_central = airqplus_pm_deaths_yll[["input"]]$relative_risk,
