@@ -607,8 +607,8 @@ bestcost_pm_yll_exposure_single_year_lifetable_airqplus <-
 # check_bestcost(result_list_bestcost = bestcost_pm_yll_exposure_single_year_lifetable_airqplus,
 #                result_vector_alternative = c(27742, 14641, 40542))
 
-View(bestcost_pm_yll_exposure_single_year_lifetable_airqplus)
-View(bestcost_pm_yll_lifetable_geluft)
+# View(bestcost_pm_yll_exposure_single_year_lifetable_airqplus)
+# View(bestcost_pm_yll_lifetable_geluft)
 
 # Comparison premature-deaths in year of analysis
 deaths_yoa <- tibble(

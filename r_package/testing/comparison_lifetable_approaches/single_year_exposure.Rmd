@@ -1,0 +1,580 @@
+# COMPARISON DIFFERENT LIFETABLE APPROACHES SINGLE-YEAR EXPOSURE CASE ##############################
+
+Goal:
+Compare different calculation pathways, that differ regarding 3 aspects:
+1) Attribution approach: how the premature deaths attributable to 2019 air pollution are calculated (GeLuft vs AirQ+)
+2) Projection approach: how these premature deaths are projected over time (Geluft vs AirQ+)
+3) Death probability: whether total or natural death probabability is used for population projection
+
+As we have 2 options for each of the 3 aspects, we end up with 2 x 2 x 2 = 8 calculation pathways.
+The results of each pathway are named based on these options: the naming template is
+
+attr_xxx_proj_xxx_prob_xxx
+
+- e.g. a pathway that follows the GeLuft attribution approach, the AirQ+ projection approach and natural
+death probability for the population projection is named: attr_air_proj_ge_prob_nat
+
+All pathways have the same calculation basis: 2019 mid-year population, 2019 survival probabilities, 2019 deaths
+
+```{r Load}
+knitr::opts_knit$set(root.dir = getwd())
+load("../testing/comparison_lifetable_approaches/input_data_get_pop_impact.Rdata")
+options(digits = 15)
+
+pacman::p_load("dplyr", "purrr", "tidyr", "tibble")
+
+input_with_risk_and_pop_fraction <-
+  input_with_risk_and_pop_fraction %>%
+  filter(erf_ci == "central") %>%
+  relocate(lifetable_with_pop_nest, .before = 1) %>%
+  filter(sex == "male" | sex == "female")
+
+```
+
+## POPULATION SETUP
+```{r Prepare lifetable}
+
+pop <- input_with_risk_and_pop_fraction %>%
+  dplyr::mutate(
+    lifetable_with_pop_nest =
+      lifetable_with_pop_nest %>%
+      purrr::map(
+        function(.x){
+          .x <- .x %>%
+            select(age, age_end, prob_natural_death, prob_total_death, deaths, population) %>%
+            rename(!!paste0("population_",year_of_analysis) := population) %>%
+            mutate(!!paste0("population_",year_of_analysis,"_entry") := !!sym(paste0("population_",year_of_analysis)) + (deaths / 2), .before = !!paste0("population_",year_of_analysis)) %>%
+            mutate(prob_survival_natural = 1 - (deaths / !!sym(paste0("population_",year_of_analysis,"_entry"))), .after = deaths) %>% # probability of survival from start of year i to start of year i+1 (entry to entry)
+            mutate(prob_survival_until_mid_year_natural = 1 - ((1 - prob_survival_natural) / 2), .after = deaths) %>%  # mutate(prob_survival_based_on_mid_year_pop = 1 - (deaths / !!sym(paste0("population_",year_of_analysis))), .after = prob_survival) %>% 
+            mutate(deaths_total = population_2019 * prob_total_death, .before = deaths) %>% 
+            mutate(prob_survival_total = 1 - (deaths_total / population_2019_entry), .after = deaths) %>% 
+            mutate(prob_survival_until_mid_year_total = 1 - ((1 - prob_survival_total) / 2), .after = deaths)
+          }
+      )
+    , .before = 1)
+
+# Get difference in survival probabilities (Prob. survival inputted - prob. survival calculated)
+diff_prob_survival_natural <- tibble(
+  survival_prob_natural_geluft = 1 - pop$lifetable_with_pop_nest[[1]]$prob_natural_death,
+  survival_prob_natural_airqplus = pop$lifetable_with_pop_nest[[1]]$prob_survival_natural,
+  diff_abs = abs( ( 1 - pop$lifetable_with_pop_nest[[1]]$prob_natural_death) - pop$lifetable_with_pop_nest[[1]]$prob_survival_natural),
+  diff_as_percent_of_input_survival_prob = diff_abs / ( 1- pop$lifetable_with_pop_nest[[1]]$prob_natural_death) * 100)
+```
+There is already a difference in survival probabilities at the start of calculations (see "diff_prob_survival_natural"):
+- For ages 1 - 80 the difference is < 0.1%
+- For ages 80 - 90 the difference is between 0.1% & 1%
+- For ages 90+ the differences get pretty big
+
+To remove this possible source of the diverging results,
+the next calculations will use all the same survival probabilities ("prob_survival_natural", i.e. the ones
+calculated in the chunk above).
+
+```{r Add PAF & modification factor and modified survival probabilities}
+pop <-
+  pop %>%
+  dplyr::mutate(beta =
+                  log(rr)/erf_increment,
+                .after = rr) %>%
+  dplyr::mutate(modification_factor = exp(beta * (cutoff - exp)), .after = beta) %>% 
+  mutate(modification_factor_test = 1 / rr_conc)
+
+pop <- pop %>%
+  # Add the modification factor to the nested tibble "lifetable_with_pop_nest" using pmap()
+  mutate(lifetable_with_pop_nest =
+           pmap(
+             list(lifetable_with_pop_nest, modification_factor),
+             function(lifetable_with_pop_nest, modification_factor){
+               lifetable_with_pop_nest <- lifetable_with_pop_nest %>%
+                 mutate(modification_factor = modification_factor, .after = age_end)
+             }
+           )) %>% 
+  # Add the PAF to the nested tibble "lifetable_with_pop_nest" using pmap()
+  mutate(lifetable_with_pop_nest =
+           pmap(
+             list(lifetable_with_pop_nest, pop_fraction),
+             function(lifetable_with_pop_nest, pop_fraction){
+               lifetable_with_pop_nest <- lifetable_with_pop_nest %>% 
+                 mutate(paf = pop_fraction, .after = modification_factor)
+             })
+         )
+
+pop <- pop %>%
+        dplyr::mutate(
+          lifetable_with_pop_nest =
+            lifetable_with_pop_nest %>%
+            purrr::map(
+              function(.x){
+                .x <- .x %>%
+                  mutate(hazard_rate_natural_modified = modification_factor * deaths / !!sym(paste0("population_",year_of_analysis)), .after = deaths) %>% # Hazard rate for calculating survival probabilities
+                  mutate(prob_survival_natural_modified = (2 - hazard_rate_natural_modified) / (2 + hazard_rate_natural_modified), .after = deaths) %>%
+                  mutate(prob_survival_until_mid_year_natural_modified = 1 - ((1 - prob_survival_natural_modified) / 2), .after = deaths) %>%
+                  mutate(hazard_rate_total_modified = modification_factor * deaths_total / !!sym(paste0("population_",year_of_analysis)), .after = deaths) %>% 
+                  mutate(prob_survival_total_modified = (2 - hazard_rate_total_modified) / (2 + hazard_rate_total_modified), .after = deaths) %>%
+                  mutate(prob_survival_until_mid_year_total_modified = 1 - ((1 - prob_survival_total_modified) / 2), .after = deaths) %>%
+                  mutate(prob_survival_natural_difference = prob_survival_natural_modified - prob_survival_natural, .after = prob_survival_natural) %>%
+                  mutate(prob_survival_until_mid_year_natural_difference = prob_survival_until_mid_year_natural_modified - prob_survival_until_mid_year_natural, .before = prob_survival_natural_difference)
+                  }
+            )
+        , .before = 1)
+```
+1 / rr_conc = modification_factor (this allows to circumvent the use of beta)
+
+## GET IMPACT YEAR OF SINGLE YEAR EXPOSURE #########################################################
+
+### AirQ+ APPROACH DIRECT ##########################################################################
+
+```{r Calculate premature deaths directly}
+pop <- pop %>%
+        dplyr::mutate(
+          attr_air =
+            lifetable_with_pop_nest %>%
+            purrr::map(
+              function(.x){
+                .x <- .x %>%
+                  # Calculate premature deaths directly using 2019 entry pop
+                  mutate(premature_deaths_2019 = 
+                             population_2019_entry * prob_survival_natural_difference) %>% 
+                  mutate(paf_from_mid_year_pop = premature_deaths_2019 / population_2019 / (1 - prob_survival_natural)) %>% 
+                  mutate(paf_from_entry_pop = premature_deaths_2019 / population_2019_entry / (1 - prob_survival_natural), .after = paf) %>% 
+                  mutate(paf = 1 - modification_factor, .after = paf_from_entry_pop)
+                
+                  }
+            )
+        , .after = lifetable_with_pop_nest)
+```
+
+AirQ+ APPROACH ORIGINAL (as a check that the direct approach gives correct results)
+Calculate premature deaths as: modelled 2019 mid-year population - cutoff 2019 mid-year population
+```{r Calculate premature deaths indirectly, eval=FALSE, include=FALSE}
+pop <- pop %>%
+        dplyr::mutate(
+          attr_air_original =
+            attr_air %>%
+            purrr::map(
+              function(.x){
+                .x <- .x %>%
+                  mutate(population_2019_cutoff = population_2019_entry * prob_survival_until_mid_year_natural_modified) %>% 
+                  rename(population_2019_modelled = population_2019) %>% 
+                  mutate(premature_deaths_2019_airqplus_original = 2 * (population_2019_cutoff - population_2019_modelled)) %>% 
+                  select(age, age_end, population_2019_cutoff, population_2019_modelled, premature_deaths_2019_airqplus_original)
+                }
+              )
+          , .after = attr_air)
+```
+I.e. results are the same as when using the direct calculation method.
+Difference only after the 8th or 9th decimal, which is presumably a rounding error.
+
+### GeLuft APPROACH ################################################################################
+
+```{r}
+pop <- pop %>% 
+  dplyr::mutate(
+    attr_ge =
+      lifetable_with_pop_nest %>% 
+      purrr::map(
+        function(.x){
+          .x <- .x %>% 
+            # mutate(premature_deaths_2019 = population_2019_entry * (1 - prob_survival_natural) * paf) %>% 
+            mutate(premature_deaths_2019 = population_2019 * (1 - prob_survival_natural) * paf) # GeLuft approach
+        }
+      )
+  , .after = attr_air)
+
+```
+
+## PROJECT POPULATIONS #############################################################################
+
+The "premature death populations" will be projected.
+
+### AirQ+ APPROACH FOR POPULATION PROJECTION #######################################################
+
+#### PROJECT USING NATURAL MORTALITY ###############################################################
+
+The premature deaths attributed to exposure in the year 2019 are the 2020 entry population.
+Natural mortality probability is used to project population.
+
+```{r Project with natural mortality, include=FALSE}
+
+years <- c(year_of_analysis:(year_of_analysis + (nrow(pop[["lifetable_with_pop_nest"]][[1]]) - 1)))
+length_period <- length(years)
+
+# Project premature deaths from AirQ+
+pop <- pop %>% 
+  mutate(attr_air_proj_air_prob_nat = attr_air %>% 
+           purrr::map(function(.x){
+             .x <- .x %>% 
+               select(age, age_end, prob_survival_until_mid_year_natural, prob_survival_natural, population_2019, premature_deaths_2019 = premature_deaths_2019) %>% 
+               mutate(pop_2020_entry = lag(premature_deaths_2019)) %>% 
+               mutate(pop_2020 = pop_2020_entry * prob_survival_until_mid_year_natural)
+             }
+           )
+         , .after = attr_air)
+
+pop <- pop %>% 
+  mutate(attr_air_proj_air_prob_nat = attr_air_proj_air_prob_nat %>% 
+           purrr::map(function(.x){
+             
+             for (i in 2:(length_period - 1)) { # starts with 2 (corresponds to year 2020); ends with 99
+               
+                  cat("\nCalculate pop of year: ", years[i+1])
+
+                  .x[(i + 1):length_period, paste0("pop_", years[i] + 1, "_entry")] <-
+                    .x[i:(length_period - 1), paste0("pop_", years[i], "_entry")] * .x[i:(length_period - 1), "prob_survival_natural"]
+
+                  .x[(i + 1):length_period, paste0("pop_", years[i] + 1)] <-
+                    .x[(i + 1):length_period, paste0("pop_", years[i] + 1, "_entry")] * .x[(i + 1):length_period, "prob_survival_until_mid_year_natural"]
+                }
+
+                .x <- .x %>%
+                  select(-contains("entry"))
+                }
+             )
+         )
+
+
+# Project premature deaths 2019 from GeLuft
+pop <- pop %>% 
+  mutate(attr_ge_proj_air_prob_nat = attr_ge %>% 
+           purrr::map(function(.x){
+             .x <- .x %>% 
+               select(age, age_end, prob_survival_until_mid_year_natural, prob_survival_natural, population_2019, premature_deaths_2019 = premature_deaths_2019) %>% 
+               mutate(pop_2020_entry = lag(premature_deaths_2019)) %>% 
+               mutate(pop_2020 = pop_2020_entry * prob_survival_until_mid_year_natural)
+             }
+           )
+         , .after = attr_ge)
+
+pop <- pop %>% 
+  mutate(attr_ge_proj_air_prob_nat = attr_ge_proj_air_prob_nat %>% 
+           purrr::map(function(.x){
+             
+             for (i in 2:(length_period - 1)) { # starts with 2 (corresponds to year 2020); ends with 99
+               
+                  # cat("\nCalculate pop of year: ", years[i+1])
+
+                  .x[(i + 1):length_period, paste0("pop_", years[i] + 1, "_entry")] <-
+                    .x[i:(length_period - 1), paste0("pop_", years[i], "_entry")] * .x[i:(length_period - 1), "prob_survival_natural"]
+
+                  .x[(i + 1):length_period, paste0("pop_", years[i] + 1)] <-
+                    .x[(i + 1):length_period, paste0("pop_", years[i] + 1, "_entry")] * .x[(i + 1):length_period, "prob_survival_until_mid_year_natural"]
+                }
+
+                .x <- .x %>%
+                  select(-contains("entry"))
+                }
+             )
+         )
+```
+
+#### PROJECT USING TOTAL MORTALITY #################################################################
+
+```{r Project with total mortality, include=FALSE}
+
+years <- c(year_of_analysis:(year_of_analysis + (nrow(pop[["lifetable_with_pop_nest"]][[1]]) - 1)))
+length_period <- length(years)
+
+# Project premature deaths from AirQ+
+pop <- pop %>% 
+  mutate(attr_air_proj_air_prob_tot = attr_air %>% 
+           purrr::map(function(.x){
+             .x <- .x %>% 
+               select(age, age_end, prob_survival_total, prob_survival_until_mid_year_total, population_2019, premature_deaths_2019 = premature_deaths_2019) %>% 
+               mutate(pop_2020_entry = lag(premature_deaths_2019)) %>% 
+               mutate(pop_2020 = pop_2020_entry * prob_survival_until_mid_year_total)
+             }
+           )
+         , .after = attr_air)
+
+pop <- pop %>% 
+  mutate(attr_air_proj_air_prob_tot = attr_air_proj_air_prob_tot %>% 
+           purrr::map(function(.x){
+             
+             for (i in 2:(length_period - 1)) { # starts with 2 (corresponds to year 2020); ends with 99
+               
+                  cat("\nCalculate pop of year: ", years[i+1])
+
+                  .x[(i + 1):length_period, paste0("pop_", years[i] + 1, "_entry")] <-
+                    .x[i:(length_period - 1), paste0("pop_", years[i], "_entry")] * .x[i:(length_period - 1), "prob_survival_total"]
+
+                  .x[(i + 1):length_period, paste0("pop_", years[i] + 1)] <-
+                    .x[(i + 1):length_period, paste0("pop_", years[i] + 1, "_entry")] * .x[(i + 1):length_period, "prob_survival_until_mid_year_total"]
+                }
+
+                .x <- .x %>%
+                  select(-contains("entry"))
+                }
+             )
+         )
+
+
+# Project premature deaths 2019 from GeLuft
+pop <- pop %>% 
+  mutate(attr_ge_proj_air_prob_tot = attr_ge %>% 
+           purrr::map(function(.x){
+             .x <- .x %>% 
+               select(age, age_end, prob_survival_total, prob_survival_until_mid_year_total, population_2019, premature_deaths_2019 = premature_deaths_2019) %>% 
+               mutate(pop_2020_entry = lag(premature_deaths_2019)) %>% 
+               mutate(pop_2020 = pop_2020_entry * prob_survival_until_mid_year_total)
+             }
+           )
+         , .after = attr_ge)
+
+pop <- pop %>% 
+  mutate(attr_ge_proj_air_prob_tot = attr_ge_proj_air_prob_tot %>% 
+           purrr::map(function(.x){
+             
+             for (i in 2:(length_period - 1)) { # starts with 2 (corresponds to year 2020); ends with 99
+               
+                  # cat("\nCalculate pop of year: ", years[i+1])
+
+                  .x[(i + 1):length_period, paste0("pop_", years[i] + 1, "_entry")] <-
+                    .x[i:(length_period - 1), paste0("pop_", years[i], "_entry")] * .x[i:(length_period - 1), "prob_survival_total"]
+
+                  .x[(i + 1):length_period, paste0("pop_", years[i] + 1)] <-
+                    .x[(i + 1):length_period, paste0("pop_", years[i] + 1, "_entry")] * .x[(i + 1):length_period, "prob_survival_until_mid_year_total"]
+                }
+
+                .x <- .x %>%
+                  select(-contains("entry"))
+                }
+             )
+         )
+```
+
+
+### GeLuft APPROACH FOR POPULATION PROJECTION ######################################################
+
+#### PROJECT USING NATURAL MORTALITY #################################################################
+
+The premature deaths attributed to exposure in the year 2019 are the 2020 mid year population.
+Total mortality probability is used to project population.
+```{r include=FALSE}
+
+# Project premature deaths from AirQ+
+pop <- pop %>% 
+  mutate(attr_air_proj_ge_prob_nat = attr_air %>% 
+           purrr::map(function(.x){
+             .x <- .x %>% 
+               select(age, age_end, prob_natural_death, population_2019, premature_deaths_2019 = premature_deaths_2019) %>% 
+               mutate(pop_2020 = lag(premature_deaths_2019)) %>% 
+               mutate(survival_probability_natural = 1 - prob_natural_death, .after = prob_natural_death)
+             }
+           )
+         , .after = attr_air_proj_air_prob_nat)
+
+pop <- pop %>% 
+  mutate(attr_air_proj_ge_prob_nat = attr_air_proj_ge_prob_nat %>% 
+           purrr::map(
+             .,
+             function(.x){
+               
+               for (i in 2:(length_period - 1)) { # starts with 2 (corresponds to year 2020); ends with 99
+                 
+                 cat("\nCalculate pop of year: ", years[i+1])
+                 
+                 .x[(i + 1):length_period, paste0("pop_", years[i] + 1)] <-
+                   .x[i:(length_period - 1), paste0("pop_", years[i])] * .x[i:(length_period - 1), "survival_probability_natural"]
+              
+               }
+               .x <- .x
+             }
+           )
+  )
+
+
+# Project premature deaths from GeLuft
+pop <- pop %>% 
+  mutate(attr_ge_proj_ge_prob_nat = attr_ge %>% 
+           purrr::map(function(.x){
+             .x <- .x %>% 
+               select(age, age_end, prob_natural_death, population_2019, premature_deaths_2019 = premature_deaths_2019) %>% 
+               mutate(pop_2020 = lag(premature_deaths_2019)) %>% 
+               mutate(survival_probability_natural = 1 - prob_natural_death, .after = prob_natural_death)
+             }
+           )
+         , .after = attr_ge_proj_air_prob_nat)
+
+pop <- pop %>% 
+  mutate(attr_ge_proj_ge_prob_nat = attr_ge_proj_ge_prob_nat %>% 
+           purrr::map(
+             .,
+             function(.x){
+               
+               for (i in 2:(length_period - 1)) { # starts with 2 (corresponds to year 2020); ends with 99
+                 
+                 cat("\nCalculate pop of year: ", years[i+1])
+                 
+                 .x[(i + 1):length_period, paste0("pop_", years[i] + 1)] <-
+                   .x[i:(length_period - 1), paste0("pop_", years[i])] * .x[i:(length_period - 1), "survival_probability_natural"]
+              
+               }
+               .x <- .x
+             }
+           )
+  )
+```
+
+
+#### PROJECT USING TOTAL MORTALITY ###############################################################
+The premature deaths attributed to exposure in the year 2019 are the 2020 mid year population.
+Total mortality probability is used to project population.
+```{r include=FALSE}
+
+# Project premature deaths from AirQ+
+pop <- pop %>% 
+  mutate(attr_air_proj_ge_prob_tot = attr_air %>% 
+           purrr::map(function(.x){
+             .x <- .x %>% 
+               select(age, age_end, prob_total_death, population_2019, premature_deaths_2019 = premature_deaths_2019) %>% 
+               mutate(pop_2020 = lag(premature_deaths_2019)) %>% 
+               mutate(survival_probability_total = 1 - prob_total_death, .after = prob_total_death)
+             }
+           )
+         , .after = attr_air_proj_air_prob_nat)
+
+pop <- pop %>% 
+  mutate(attr_air_proj_ge_prob_tot = attr_air_proj_ge_prob_tot %>% 
+           purrr::map(
+             .,
+             function(.x){
+               
+               for (i in 2:(length_period - 1)) { # starts with 2 (corresponds to year 2020); ends with 99
+                 
+                 cat("\nCalculate pop of year: ", years[i+1])
+                 
+                 .x[(i + 1):length_period, paste0("pop_", years[i] + 1)] <-
+                   .x[i:(length_period - 1), paste0("pop_", years[i])] * .x[i:(length_period - 1), "survival_probability_total"]
+              
+               }
+               .x <- .x
+             }
+           )
+  )
+
+
+# Project premature deaths from GeLuft
+pop <- pop %>% 
+  mutate(attr_ge_proj_ge_prob_tot = attr_ge %>% 
+           purrr::map(function(.x){
+             .x <- .x %>% 
+               select(age, age_end, prob_total_death, population_2019, premature_deaths_2019 = premature_deaths_2019) %>% 
+               mutate(pop_2020 = lag(premature_deaths_2019)) %>% 
+               mutate(survival_probability_total = 1 - prob_total_death, .after = prob_total_death)
+             }
+           )
+         , .after = attr_ge_proj_air_prob_nat)
+
+pop <- pop %>% 
+  mutate(attr_ge_proj_ge_prob_tot = attr_ge_proj_ge_prob_tot %>% 
+           purrr::map(
+             .,
+             function(.x){
+               
+               for (i in 2:(length_period - 1)) { # starts with 2 (corresponds to year 2020); ends with 99
+                 
+                 cat("\nCalculate pop of year: ", years[i+1])
+                 
+                 .x[(i + 1):length_period, paste0("pop_", years[i] + 1)] <-
+                   .x[i:(length_period - 1), paste0("pop_", years[i])] * .x[i:(length_period - 1), "survival_probability_total"]
+              
+               }
+               .x <- .x
+             }
+           )
+  )
+```
+
+
+
+## COMPARE RESULTS #################################################################################
+
+### CREATE OVERVIEW DATA FRAMES ##################################################################
+
+#### PAF ###########################################################################################
+
+```{r}
+paf <- tibble(
+  paf_geluft = pop$lifetable_with_pop_nest[[1]]$paf,
+  paf_airqplus = pop$attr_air[[1]]$paf,
+  diff_abs = round(abs(paf_geluft - paf_airqplus), digits = 7),
+  diff_percentage_of_geluft_paf = round(abs(paf_geluft - paf_airqplus) / paf_geluft * 100, digits = 5),
+  paf_airqplus_from_entry_pop = pop$attr_air[[1]]$paf_from_entry_pop,
+  paf_airqplus_from_entry_pop = pop$attr_air[[1]]$paf_from_entry_pop)
+```
+It's possible to calculate the PAF in the AirQ+ approach using the equation:
+PAF = abs(1 - modification_factor)!
+Note that the PAF calculated using the formula:
+paf = premature_deaths_2019_based_on_xxx_pop / population_2019 / (1 - prob_survival) is different for every year!!!
+
+#### PREMATURE DEATHS ##############################################################################
+
+```{r Compare premature deaths}
+
+deaths <- tibble(
+  age = pop$attr_air_proj_air_prob_tot[[1]]$age,
+  deaths_airqplus = pop$attr_air_proj_air_prob_tot[[1]]$premature_deaths_2019,
+  deaths_geluft = pop$attr_ge_proj_ge_prob_nat[[1]]$premature_deaths_2019,
+  diff_abs = abs(deaths_airqplus - deaths_geluft),
+  diff_as_percent_of_geluft = diff_abs / deaths_geluft * 100) #%>% 
+  # mutate_all(., .funs = round, digits = 6)
+
+cat("Sum premature deaths AirQ+: ", sum(deaths$deaths_airqplus))
+cat("\nSum premature deaths GeLuft: ", sum(deaths$deaths_geluft))
+cat("\nDifference: ", sum(deaths$deaths_airqplus) - sum(deaths$deaths_geluft))
+cat("\nDifference as percent of GeLuft total: ", 
+    (sum(deaths$deaths_airqplus) - sum(deaths$deaths_geluft)) / sum(deaths$deaths_geluft) * 100) 
+```
+
+#### YLL ###########################################################################################
+
+```{r Compare age-specific yearly YLL}
+yll_2020 <- tibble(
+  age = pop$attr_air_proj_air_prob_tot[[1]]$age,
+  attr_air_proj_air_prob_tot = pop$attr_air_proj_air_prob_tot[[1]]$pop_2020,
+  attr_air_proj_air_prob_nat = pop$attr_air_proj_air_prob_nat[[1]]$pop_2020,
+  attr_air_proj_ge_prob_tot = pop$attr_air_proj_ge_prob_tot[[1]]$pop_2020,
+  attr_air_proj_ge_prob_nat = pop$attr_air_proj_ge_prob_nat[[1]]$pop_2020,
+  attr_ge_proj_air_prob_tot = pop$attr_ge_proj_air_prob_tot[[1]]$pop_2020,
+  attr_ge_proj_ge_prob_nat = pop$attr_ge_proj_ge_prob_nat[[1]]$pop_2020,
+  attr_ge_proj_ge_prob_tot = pop$attr_ge_proj_ge_prob_tot[[1]]$pop_2020,
+  attr_ge_proj_air_prob_nat = pop$attr_ge_proj_air_prob_nat[[1]]$pop_2020) #%>% 
+  # mutate_all(., .funs = round, digits = 6)
+
+yll_2050 <- tibble(
+  age = pop$attr_air_proj_air_prob_tot[[1]]$age,
+  attr_air_proj_air_prob_tot = pop$attr_air_proj_air_prob_tot[[1]]$pop_2050,
+  attr_air_proj_air_prob_nat = pop$attr_air_proj_air_prob_nat[[1]]$pop_2050,
+  attr_air_proj_ge_prob_tot = pop$attr_air_proj_ge_prob_tot[[1]]$pop_2050,
+  attr_air_proj_ge_prob_nat = pop$attr_air_proj_ge_prob_nat[[1]]$pop_2050,
+  attr_ge_proj_air_prob_tot = pop$attr_ge_proj_air_prob_tot[[1]]$pop_2050,
+  attr_ge_proj_ge_prob_nat = pop$attr_ge_proj_ge_prob_nat[[1]]$pop_2050,
+  attr_ge_proj_ge_prob_tot = pop$attr_ge_proj_ge_prob_tot[[1]]$pop_2050,
+  attr_ge_proj_air_prob_nat = pop$attr_ge_proj_air_prob_nat[[1]]$pop_2050) #%>% 
+  # mutate_all(., .funs = round, digits = 6)
+```
+
+```{r Compare total yearly YLL}
+yll_difference <- abs(
+  (pop$attr_air_proj_air_prob_nat[[1]] %>% select(contains("pop_"))) - (pop$attr_ge_proj_ge_prob_tot[[1]] %>% select(contains("pop_")))) 
+
+yll_sum <- tibble(
+  year = names(yll_difference),
+  total_yll_airqplus_approach = colSums(pop$attr_air_proj_air_prob_nat[[1]] %>% select(contains("pop_")), na.rm = TRUE),
+  total_yll_geluft_approach = colSums(pop$attr_ge_proj_ge_prob_tot[[1]] %>% select(contains("pop_")), na.rm = TRUE),
+  diff_airqplus_minus_geluft = total_yll_airqplus_approach - total_yll_geluft_approach, 
+  diff_as_percent_of_geluft = diff_airqplus_minus_geluft / total_yll_geluft_approach * 100) %>% 
+  mutate_if(., is.numeric, round, digits = 4)
+```
+
+```{r Using natural vs total survival probability}
+
+nat_vs_tot_survival_prob_airqplus <- tibble(
+  year = names(pop$attr_air_proj_air_prob_tot[[1]] %>% select(contains("pop_"))),
+  projection_with_survival_prob_natural = colSums(pop$attr_air_proj_air_prob_nat[[1]] %>% select(contains("pop_")), na.rm = TRUE),
+  projection_with_survival_prob_total = colSums(pop$attr_air_proj_air_prob_tot[[1]] %>% select(contains("pop_")), na.rm = TRUE),
+  diff_abs = projection_with_survival_prob_natural - projection_with_survival_prob_total,
+  diff_as_percent_of_natural = diff_abs / projection_with_survival_prob_natural * 100) %>% 
+  mutate_if(., is.numeric, round, digits = 4)
+```
+
+Other comparisons can be added below!
