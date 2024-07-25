@@ -30,6 +30,8 @@ input_with_risk_and_pop_fraction <-
   filter(sex == "male" | sex == "female")
 
 ```
+This is the input data as it appeared at the start of "get_pop_impact()" after the call to "attribute_yll_from_lifetable"
+
 
 ## POPULATION SETUP
 ```{r Prepare lifetable}
@@ -64,6 +66,8 @@ There is already a difference in survival probabilities at the start of calculat
 - For ages 1 - 80 the difference is < 0.1%
 - For ages 80 - 90 the difference is between 0.1% & 1%
 - For ages 90+ the differences get pretty big
+
+"prob_natural_death" comes from lifetable_withPopulation
 
 To remove this possible source of the diverging results,
 the next calculations will use all the same survival probabilities ("prob_survival_natural", i.e. the ones
@@ -134,14 +138,20 @@ pop <- pop %>%
                   # Calculate premature deaths directly using 2019 entry pop
                   mutate(premature_deaths_2019 = 
                              population_2019_entry * prob_survival_natural_difference) %>% 
-                  mutate(paf_from_mid_year_pop = premature_deaths_2019 / population_2019 / (1 - prob_survival_natural)) %>% 
+                  mutate(paf_from_mid_year_pop = premature_deaths_2019 / population_2019 / (1 - prob_survival_natural), .after = paf) %>% 
                   mutate(paf_from_entry_pop = premature_deaths_2019 / population_2019_entry / (1 - prob_survival_natural), .after = paf) %>% 
-                  mutate(paf = 1 - modification_factor, .after = paf_from_entry_pop)
+                  mutate(paf_1_minus_mod_factor = 1 - modification_factor, .after = paf_from_entry_pop) %>% 
+                  mutate(premature_deaths_2019_paf_times_deaths = paf * deaths, .after = premature_deaths_2019) %>% 
+                  mutate(premature_deaths_2019_using_paf_based_on_mod = paf_1_minus_mod_factor * deaths, .after = premature_deaths_2019) %>% 
+                  mutate(deaths_from_entry_pop = population_2019_entry * (1 - prob_survival_natural), .after = deaths)
+
                 
                   }
             )
         , .after = lifetable_with_pop_nest)
 ```
+In the AirQ+ approach, calculations of premature deaths 2019 use the 2019 entry population.
+
 
 AirQ+ APPROACH ORIGINAL (as a check that the direct approach gives correct results)
 Calculate premature deaths as: modelled 2019 mid-year population - cutoff 2019 mid-year population
@@ -174,13 +184,28 @@ pop <- pop %>%
       purrr::map(
         function(.x){
           .x <- .x %>% 
-            # mutate(premature_deaths_2019 = population_2019_entry * (1 - prob_survival_natural) * paf) %>% 
-            mutate(premature_deaths_2019 = population_2019 * (1 - prob_survival_natural) * paf) # GeLuft approach
+            mutate(premature_deaths_2019_based_on_input_prob_natural_death = population_2019 * prob_natural_death * paf) %>% # GeLuft approach using inputted prob of dying
+            mutate(premature_deaths_2019 = population_2019 * (1 - prob_survival_natural) * paf) %>% # Geluft approach using calculated prob. of dying
+            mutate(premature_deaths_2019_based_on_entry_pop = population_2019_entry * (1 - prob_survival_natural) * paf) %>%  # AirQplus approach
+            mutate(premature_deaths_paf_times_deaths = paf * deaths) # Expected output
+
         }
       )
   , .after = attr_air)
 
 ```
+In the GeLuft approach, calculations of premature deaths 2019 use the 2019 mid-year population,
+but the survival probability that is applied is for start of 2019 to the end of 2019. This is a misalignment,
+and introduces an error. 
+The resulting absolute error in the premature deaths is smaller for ages when deaths are few (i.e. lower ages), but substantial
+(several deaths) for higher ages, when deaths are higher.
+
+If the mid-year 2019 population is to be used in calculations, the start-to-end of year survival probability has to 
+be transformed to a mid-to-end of year survival probability! However, this seems artificial and 
+unnecessarily complicated: first the start-to-end survival probability has to be calculated, and
+then this has to be adjusted. Easier to calculate the entry population (= mid-year pop + half of 
+deaths) and apply the start-to-end survival probability.
+
 
 ## PROJECT POPULATIONS #############################################################################
 
@@ -498,7 +523,6 @@ paf <- tibble(
   paf_airqplus = pop$attr_air[[1]]$paf,
   diff_abs = round(abs(paf_geluft - paf_airqplus), digits = 7),
   diff_percentage_of_geluft_paf = round(abs(paf_geluft - paf_airqplus) / paf_geluft * 100, digits = 5),
-  paf_airqplus_from_entry_pop = pop$attr_air[[1]]$paf_from_entry_pop,
   paf_airqplus_from_entry_pop = pop$attr_air[[1]]$paf_from_entry_pop)
 ```
 It's possible to calculate the PAF in the AirQ+ approach using the equation:
@@ -524,10 +548,21 @@ cat("\nDifference: ", sum(deaths$deaths_airqplus) - sum(deaths$deaths_geluft))
 cat("\nDifference as percent of GeLuft total: ", 
     (sum(deaths$deaths_airqplus) - sum(deaths$deaths_geluft)) / sum(deaths$deaths_geluft) * 100) 
 ```
+Small difference in the first year.
 
 #### YLL ###########################################################################################
 
 ```{r Compare age-specific yearly YLL}
+
+yll_yoa <- tibble(age = pop$attr_air_proj_air_prob_tot[[1]]$age,
+                  airqplus = pop$attr_air_proj_air_prob_nat[[1]]$premature_deaths_2019 / 2,
+                  geluft_is = pop$attr_ge_proj_air_prob_tot[[1]]$premature_deaths_2019,
+                  geluft_should = pop$attr_ge_proj_air_prob_tot[[1]]$premature_deaths_2019 / 2)
+# In the year of analysis, with the GeLuft approach the number of premature deaths are the same as YLLs.
+# This is correct for the population projections after the year of analysis, but not for the deaths,
+# because we assume that on average people die in the middle of the year, so two people have to die
+# for a "full" YLL.
+
 yll_2020 <- tibble(
   age = pop$attr_air_proj_air_prob_tot[[1]]$age,
   attr_air_proj_air_prob_tot = pop$attr_air_proj_air_prob_tot[[1]]$pop_2020,

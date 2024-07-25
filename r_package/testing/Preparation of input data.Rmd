@@ -1114,6 +1114,6 @@ rm(list=setdiff(ls(),
                   "check_bestcost",
                   "runif_with_seed"
                   )))
-save.image(file = "../testing/input/data/input_data_for_testing_Rpackage.RData")
+# save.image(file = "../testing/input/data/input_data_for_testing_Rpackage.RData")
 ```
 
