@@ -4,7 +4,7 @@
 \alias{find_joining_columns}
 \title{Find joining columns}
 \usage{
-find_joining_columns(df1, df2, except)
+find_joining_columns(df1, df2, except = NULL)
 }
 \arguments{
 \item{df1}{First \code{Data frame}}

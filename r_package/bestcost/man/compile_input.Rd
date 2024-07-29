@@ -33,6 +33,7 @@ compile_input(
   disability_weight = NULL,
   corrected_discount_rate = NULL,
   duration = NULL,
+  approach_exposure = NULL,
   first_age_pop = NULL,
   last_age_pop = NULL,
   prob_natural_death_male = NULL,
@@ -89,6 +90,8 @@ estimate and (optionally) the lower bound and the upper bound of the confidence
 interval of the baseline health data (e.g. incidence of the health outcome in the population).}
 
 \item{duration}{\code{Numeric value} showing the disease duration}
+
+\item{approach_exposure}{\code{String} showing whether air pollution is constant or only in one year. Options: "single_year", "constant"}
 
 \item{first_age_pop}{\code{Numeric value} starting age of the youngest age group from population and life table data (age interval = 1 year)}
 
