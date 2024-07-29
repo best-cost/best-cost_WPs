@@ -28,7 +28,7 @@ get_output <-
 
     output_last <- impact_raw[["main"]]
 
-    if(unique(impact_raw[["main"]]$risk_method) == "absolute_risk") {
+    if(unique(impact_raw[["main"]]$approach_risk) == "absolute_risk") {
 
       output[["detailed"]][["agg_exp_cat"]] <-
         output_last %>%

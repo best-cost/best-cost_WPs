@@ -29,7 +29,8 @@ attribute_deaths_from_lifetable <-
            rr_central = NULL, rr_lower = NULL, rr_upper = NULL,
            erf_increment = NULL, erf_shape = NULL,
            erf_c_central = NULL, erf_c_lower = NULL, erf_c_upper = NULL,
-           approach_exposure = NULL,
+           approach_exposure = "single_year",
+           approach_newborns = "without_newborns",
            first_age_pop, last_age_pop,
            prob_natural_death_male, prob_natural_death_female,
            prob_total_death_male, prob_total_death_female,
@@ -41,7 +42,7 @@ attribute_deaths_from_lifetable <-
     output <-
       bestcost::attribute(
         health_metric = "deaths_from_lifetable",
-        risk_method = "relative_risk",
+        approach_risk = "relative_risk",
         exp_central = exp_central, exp_lower = exp_lower, exp_upper = exp_upper,
         prop_pop_exp = prop_pop_exp,
         pop_exp = NULL,
@@ -54,6 +55,7 @@ attribute_deaths_from_lifetable <-
         disability_weight = NULL,
         duration = NULL,
         approach_exposure = approach_exposure,
+        approach_newborns = approach_newborns,
         first_age_pop = first_age_pop, last_age_pop = last_age_pop,
         prob_natural_death_male = prob_natural_death_male, prob_natural_death_female = prob_natural_death_female,
         prob_total_death_male = prob_total_death_male, prob_total_death_female = prob_total_death_female,

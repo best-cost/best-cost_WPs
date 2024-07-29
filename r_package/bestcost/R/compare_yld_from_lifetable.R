@@ -23,7 +23,7 @@
 #' @note Experimental function
 #' @export
 compare_yld_from_lifetable <-
-  function(comparison_method = "delta",
+  function(approach_comparison = "delta",
            exp_central_1, exp_lower_1 = NULL, exp_upper_1 = NULL,
            exp_central_2, exp_lower_2 = NULL, exp_upper_2 = NULL,
            prop_pop_exp_1 = 1,
@@ -33,11 +33,15 @@ compare_yld_from_lifetable <-
            erf_increment = NULL,
            erf_shape = NULL,
            erf_c_central = NULL, erf_c_lower = NULL, erf_c_upper = NULL,
+           approach_exposure_1 = "single_year",
+           approach_newborns_1 = "without_newborns",
            first_age_pop_1, last_age_pop_1,
            prob_natural_death_male_1, prob_natural_death_female_1,
            prob_total_death_male_1, prob_total_death_female_1,
            population_midyear_male_1, population_midyear_female_1,
            year_of_analysis_1,
+           approach_exposure_2 = "single_year",
+           approach_newborns_2 = "without_newborns",
            first_age_pop_2, last_age_pop_2,
            prob_natural_death_male_2, prob_natural_death_female_2,
            prob_total_death_male_2, prob_total_death_female_2,
@@ -55,9 +59,9 @@ compare_yld_from_lifetable <-
 
     output <-
       bestcost::compare(
-        comparison_method = comparison_method,
+        approach_comparison = approach_comparison,
         health_metric = "yld_from_lifetable",
-        risk_method = "relative_risk",
+        approach_risk = "relative_risk",
         exp_central_1, exp_lower_1 = exp_lower_1, exp_upper_1 = exp_upper_1,
         exp_central_2, exp_lower_2 = exp_lower_2, exp_upper_2 = exp_upper_2,
         prop_pop_exp_1 = prop_pop_exp_1,
@@ -71,11 +75,15 @@ compare_yld_from_lifetable <-
         erf_c_central = erf_c_central, erf_c_lower = erf_c_lower, erf_c_upper = erf_c_upper,
         bhd_central_1 = NULL, bhd_lower_1 = NULL, bhd_upper_1 = NULL,
         bhd_central_2 = NULL, bhd_lower_2 = NULL, bhd_upper_2 = NULL,
+        approach_exposure_1 = approach_exposure_1,
+        approach_newborns_1 = approach_newborns_1,
         first_age_pop_1 = first_age_pop_1, last_age_pop_1 = last_age_pop_1,
         prob_natural_death_male_1 = prob_natural_death_male_1, prob_natural_death_female_1 = prob_natural_death_female_1,
         prob_total_death_male_1 = prob_total_death_male_1, prob_total_death_female_1 = prob_total_death_female_1,
         population_midyear_male_1 = population_midyear_male_1, population_midyear_female_1 = population_midyear_female_1,
         year_of_analysis_1 = year_of_analysis_1,
+        approach_exposure_2 = approach_exposure_2,
+        approach_newborns_2 = approach_newborns_2,
         first_age_pop_2 = first_age_pop_2, last_age_pop_2 = last_age_pop_2,
         prob_natural_death_male_2 = prob_natural_death_male_2, prob_natural_death_female_2 = prob_natural_death_female_2,
         prob_total_death_male_2 = prob_total_death_male_2, prob_total_death_female_2 = prob_total_death_female_2,

@@ -2,7 +2,7 @@
 
 #' @description Calculates the health impacts, mortality or morbidity, of an environmental stressor using a single value for baseline heath data, i.e. without life table. It provides as a result the mean as well as the lower and the higher bound of the impact based on the confidence interval of the concentration-response function.
 #' @param health_metric \code{String} showing the change in outcome metric to assess attributable health impacts. To choose between "same_input_output" (default), "yld_from_prevalence", "deaths_from_lifetable", "yll_from_lifetable", "yld_from_lifetable" and "daly_from_lifetable".
-#' @param risk_method \code{String} showing the risk risk method. To choose between: "relative_risk" (default) or "absolute_risk".
+#' @param approach_risk \code{String} showing the risk risk method. To choose between: "relative_risk" (default) or "absolute_risk".
 #' @param exp_central,exp_lower,exp_upper \code{Numeric values} of the exposure
 #' to the environmental stressor referring to the central estimate and (optionally)
 #' to lower and upper bound of the confidence interval. If only one value is provided,
@@ -17,7 +17,12 @@
 #' @param erf_increment \code{Numeric value} showing the increment of the exposure-response function in ug/m3 (usually 10 or 5).
 #' @param erf_shape \code{String} showing the shape of the exposure-response function to be assumed using the relative risk from the literature as support point. Options: "linear", log_linear", "linear_log", "log_log".
 #' @param erf_c \code{String} showing the user-defined function that puts the relative risk in relation with concentration. The function must have only one variable: c, which means concentration. E.g. "3+c+c^2". Default value = NULL.
+<<<<<<< HEAD
 #' @param approach_exposure \code{String} showing whether air pollution is constant or only in one year. Options: "single_year", "constant"
+=======
+#' @param approach_exposure \code{String} showing whether air pollution is constant or only in one year. Options: "single_year" (default), "constant"
+#' @param approach_newborns \code{String} showing whether newborns are considered in the years after the year of analysis. Options: "without_newborns" (default), "with_newborns"
+>>>>>>> Improvements
 #' @param first_age_pop \code{Numeric value} starting age of the youngest age group from population and life table data (age interval = 1 year)
 #' @param last_age_pop \code{Numeric value} ending age of the oldest age group from population and life table data (age interval = 1 year)
 #' @param prob_natural_death_male,prob_natural_death_female \code{Numeric vector} containing the probability of dying due to natural cause (excluding non-natural deaths due to violence or accidents) by age or age group for male and female respectively.
@@ -51,7 +56,7 @@
 
 attribute <-
   function(health_metric = "same_input_output",
-           risk_method = "relative_risk",
+           approach_risk = "relative_risk",
            exp_central, exp_lower = NULL, exp_upper = NULL,
            prop_pop_exp = 1,
            pop_exp = NULL,
@@ -63,6 +68,7 @@ attribute <-
            bhd_central = NULL, bhd_lower = NULL, bhd_upper = NULL,
            # Lifetable arguments
            approach_exposure = NULL,
+           approach_newborns = NULL,
            first_age_pop = NULL, last_age_pop = NULL,
            prob_natural_death_male = NULL, prob_natural_death_female = NULL,
            prob_total_death_male, prob_total_death_female = NULL,
@@ -103,9 +109,10 @@ attribute <-
         info = info,
         health_metric = health_metric,
         disability_weight = disability_weight,
-        risk_method = risk_method,
+        approach_risk = approach_risk,
         # Lifetable arguments if needed
         approach_exposure = approach_exposure,
+        approach_newborns = approach_newborns,
         first_age_pop =  first_age_pop,
         last_age_pop = last_age_pop,
         prob_natural_death_male = prob_natural_death_male,
@@ -149,7 +156,7 @@ attribute <-
 # impact_raw  <-
 #   bestcost::compare(
 #     health_metric = health_metric,
-#     comparison_method = "delta",
+#     approach_comparison = "delta",
 #     exp_central_1 = exp_central, # Put exp_central here, maybe
 #     prop_pop_exp_1 = prop_pop_exp, # Fake data just for testing purposes
 #     exp_central_2 = cutoff, # Fake data just for testing purposes

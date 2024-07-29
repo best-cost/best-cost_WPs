@@ -39,7 +39,7 @@ attribute_health <-
     output <-
       bestcost::attribute(
         health_metric = "same_input_output",
-        risk_method = "relative_risk",
+        approach_risk = "relative_risk",
         exp_central = exp_central, exp_lower = exp_lower, exp_upper = exp_upper,
         prop_pop_exp = prop_pop_exp,
         pop_exp = NULL,
@@ -49,6 +49,8 @@ attribute_health <-
         erf_shape = erf_shape,
         erf_c_central = erf_c_central, erf_c_lower = erf_c_lower, erf_c_upper = erf_c_upper,
         bhd_central = bhd_central, bhd_lower = bhd_lower, bhd_upper = bhd_lower,
+        approach_exposure = NULL,
+        approach_newborns = NULL,
         first_age_pop = NULL, last_age_pop = NULL,
         prob_natural_death_male = NULL, prob_natural_death_female = NULL,
         prob_total_death_male = NULL, prob_total_death_female = NULL,

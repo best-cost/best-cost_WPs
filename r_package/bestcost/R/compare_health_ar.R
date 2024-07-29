@@ -23,7 +23,7 @@
 #' @note Experimental function
 #' @export
 compare_health_ar <-
-  function(comparison_method = "delta",
+  function(approach_comparison = "delta",
            exp_central_1, exp_lower_1 = NULL, exp_upper_1 = NULL,
            exp_central_2, exp_lower_2 = NULL, exp_upper_2 = NULL,
            pop_exp_1, pop_exp_2,
@@ -34,9 +34,9 @@ compare_health_ar <-
 
     output <-
       bestcost::compare(
-        comparison_method = comparison_method,
+        approach_comparison = approach_comparison,
         health_metric = "same_input_output",
-        risk_method = "absolute_risk",
+        approach_risk = "absolute_risk",
         exp_central_1, exp_lower_1 = exp_lower_1, exp_upper_1 = exp_upper_1,
         exp_central_2, exp_lower_2 = exp_lower_2, exp_upper_2 = exp_upper_2,
         prop_pop_exp_1 = NULL,
@@ -52,11 +52,15 @@ compare_health_ar <-
         bhd_central_2 = NULL, bhd_lower_2 = NULL, bhd_upper_2 = NULL,
         disability_weight = NULL,
         duration = NULL,
+        approach_exposure_1 = NULL,
+        approach_newborns_1 = NULL,
         first_age_pop_1 = NULL, last_age_pop_1 = NULL,
         prob_natural_death_male_1 = NULL, prob_natural_death_female_1 = NULL,
         prob_total_death_male_1 = NULL, prob_total_death_female_1 = NULL,
         population_midyear_male_1 = NULL, population_midyear_female_1 = NULL,
         year_of_analysis_1 = NULL,
+        approach_exposure_2 = NULL,
+        approach_newborns_2 = NULL,
         first_age_pop_2 = NULL, last_age_pop_2 = NULL,
         prob_natural_death_male_2 = NULL, prob_natural_death_female_2 = NULL,
         prob_total_death_male_2 = NULL, prob_total_death_female_2 = NULL,

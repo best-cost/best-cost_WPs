@@ -24,7 +24,7 @@
 #' @keywords internal
 
 compile_input <-
-  function(risk_method = NULL,
+  function(approach_risk = NULL,
            health_metric = NULL,
            exp_central, exp_lower = NULL, exp_upper = NULL,
            prop_pop_exp = NULL,
@@ -45,6 +45,7 @@ compile_input <-
            duration = NULL,
            # And lifetable-related data...
            approach_exposure = NULL,
+           approach_newborns = NULL,
            first_age_pop = NULL, last_age_pop = NULL,
            prob_natural_death_male = NULL, prob_natural_death_female = NULL,
            prob_total_death_male = NULL, prob_total_death_female = NULL,
@@ -125,6 +126,7 @@ compile_input <-
         min_age = rep(min_age, each = length_exp_dist),
         max_age = rep(max_age, each = length_exp_dist),
         approach_exposure = rep(approach_exposure, each = length_exp_dist),
+        approach_newborns = rep(approach_newborns, each = length_exp_dist),
 
         # Second those variables that will have length = 1 (no problematic)
         disability_weight = disability_weight,
@@ -148,10 +150,11 @@ compile_input <-
         age_range = ifelse(!is.null(max_age) & is.null(min_age), paste0("below", max_age + 1),
                            ifelse(!is.null(min_age) & is.null(max_age), paste0("from", min_age),
                                   NA)),
-        # Add the risk_method that refer to the function
-        risk_method = risk_method,
+        # Add the approach_risk that refer to the function
+        approach_risk = approach_risk,
         health_metric = health_metric,
         approach_exposure = approach_exposure,
+        approach_newborns = approach_newborns,
         # Using {{}} to call the argument instead of the column (same name)
         exposure_dimension =
           rep(1:length_exp_dist, length_exp_list),
