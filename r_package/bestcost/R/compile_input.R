@@ -24,7 +24,7 @@
 #' @keywords internal
 
 compile_input <-
-  function(risk_method = NULL,
+  function(approach_risk = NULL,
            health_metric = NULL,
            exp_central, exp_lower = NULL, exp_upper = NULL,
            prop_pop_exp = NULL,
@@ -148,8 +148,8 @@ compile_input <-
         age_range = ifelse(!is.null(max_age) & is.null(min_age), paste0("below", max_age + 1),
                            ifelse(!is.null(min_age) & is.null(max_age), paste0("from", min_age),
                                   NA)),
-        # Add the risk_method that refer to the function
-        risk_method = risk_method,
+        # Add the approach_risk that refer to the function
+        approach_risk = approach_risk,
         health_metric = health_metric,
         approach_exposure = approach_exposure,
         # Using {{}} to call the argument instead of the column (same name)

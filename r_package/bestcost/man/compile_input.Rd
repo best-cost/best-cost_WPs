@@ -6,7 +6,7 @@
 Compiles the input data of the main function and calculates the population attributable fraction based on the input data (all in one data frame)}
 \usage{
 compile_input(
-  risk_method = NULL,
+  approach_risk = NULL,
   health_metric = NULL,
   exp_central,
   exp_lower = NULL,
@@ -47,7 +47,7 @@ compile_input(
 )
 }
 \arguments{
-\item{risk_method}{\code{String} showing the risk risk method. To choose between: "relative_risk" (default) or "absolute_risk".}
+\item{approach_risk}{\code{String} showing the risk risk method. To choose between: "relative_risk" (default) or "absolute_risk".}
 
 \item{health_metric}{\code{String} showing the change in outcome metric to assess attributable health impacts. To choose between "same_input_output" (default), "yld_from_prevalence", "deaths_from_lifetable", "yll_from_lifetable", "yld_from_lifetable" and "daly_from_lifetable".}
 

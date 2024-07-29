@@ -6,7 +6,7 @@
 \usage{
 attribute(
   health_metric = "same_input_output",
-  risk_method = "relative_risk",
+  approach_risk = "relative_risk",
   exp_central,
   exp_lower = NULL,
   exp_upper = NULL,
@@ -49,7 +49,7 @@ attribute(
 \arguments{
 \item{health_metric}{\code{String} showing the change in outcome metric to assess attributable health impacts. To choose between "same_input_output" (default), "yld_from_prevalence", "deaths_from_lifetable", "yll_from_lifetable", "yld_from_lifetable" and "daly_from_lifetable".}
 
-\item{risk_method}{\code{String} showing the risk risk method. To choose between: "relative_risk" (default) or "absolute_risk".}
+\item{approach_risk}{\code{String} showing the risk risk method. To choose between: "relative_risk" (default) or "absolute_risk".}
 
 \item{exp_central, exp_lower, exp_upper}{\code{Numeric values} of the exposure
 to the environmental stressor referring to the central estimate and (optionally)
