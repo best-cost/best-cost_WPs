@@ -18,7 +18,8 @@ attribute_deaths_from_lifetable(
   erf_c_central = NULL,
   erf_c_lower = NULL,
   erf_c_upper = NULL,
-  approach_exposure = NULL,
+  approach_exposure = "single_year",
+  approach_newborns = "without_newborns",
   first_age_pop,
   last_age_pop,
   prob_natural_death_male,
@@ -52,7 +53,9 @@ If a {vector} is provided, it will be assumed that it refers to the exposure cat
 
 \item{erf_shape}{\code{String} showing the shape of the exposure-response function to be assumed using the relative risk from the literature as support point. Options: "linear", log_linear", "linear_log", "log_log".}
 
-\item{approach_exposure}{\code{String} showing whether air pollution is constant or only in one year. Options: "single_year", "constant"}
+\item{approach_exposure}{\code{String} showing whether air pollution is constant or only in one year. Options: "single_year" (default), "constant"}
+
+\item{approach_newborns}{\code{String} showing whether newborns are considered in the years after the year of analysis. Options: "without_newborns" (default), "with_newborns"}
 
 \item{first_age_pop}{\code{Numeric value} starting age of the youngest age group from population and life table data (age interval = 1 year)}
 
