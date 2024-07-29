@@ -2,7 +2,7 @@
 
 #' @description Calculates the health impacts, mortality or morbidity, of an environmental stressor using a single value for baseline heath data, i.e. without life table. It provides as a result the mean as well as the lower and the higher bound of the impact based on the confidence interval of the concentration-response function.
 #' @param health_metric \code{String} showing the change in outcome metric to assess attributable health impacts. To choose between "same_input_output" (default), "yld_from_prevalence", "deaths_from_lifetable", "yll_from_lifetable", "yld_from_lifetable" and "daly_from_lifetable".
-#' @param risk_method \code{String} showing the risk risk method. To choose between: "relative_risk" (default) or "absolute_risk".
+#' @param approach_risk \code{String} showing the risk risk method. To choose between: "relative_risk" (default) or "absolute_risk".
 #' @param exp_central,exp_lower,exp_upper \code{Numeric values} of the exposure
 #' to the environmental stressor referring to the central estimate and (optionally)
 #' to lower and upper bound of the confidence interval. If only one value is provided,
@@ -51,7 +51,7 @@
 
 attribute <-
   function(health_metric = "same_input_output",
-           risk_method = "relative_risk",
+           approach_risk = "relative_risk",
            exp_central, exp_lower = NULL, exp_upper = NULL,
            prop_pop_exp = 1,
            pop_exp = NULL,
@@ -103,7 +103,7 @@ attribute <-
         info = info,
         health_metric = health_metric,
         disability_weight = disability_weight,
-        risk_method = risk_method,
+        approach_risk = approach_risk,
         # Lifetable arguments if needed
         approach_exposure = approach_exposure,
         first_age_pop =  first_age_pop,

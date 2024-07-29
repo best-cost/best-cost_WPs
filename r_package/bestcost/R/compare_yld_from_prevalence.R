@@ -44,7 +44,7 @@ compare_yld_from_prevalence <-
       bestcost::compare(
         approach_comparison = approach_comparison,
         health_metric = "yld_from_prevalence",
-        risk_method = "relative_risk",
+        approach_risk = "relative_risk",
         exp_central_1, exp_lower_1 = exp_lower_1, exp_upper_1 = exp_upper_1,
         exp_central_2, exp_lower_2 = exp_lower_2, exp_upper_2 = exp_upper_2,
         prop_pop_exp_1 = prop_pop_exp_1,

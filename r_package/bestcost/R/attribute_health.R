@@ -39,7 +39,7 @@ attribute_health <-
     output <-
       bestcost::attribute(
         health_metric = "same_input_output",
-        risk_method = "relative_risk",
+        approach_risk = "relative_risk",
         exp_central = exp_central, exp_lower = exp_lower, exp_upper = exp_upper,
         prop_pop_exp = prop_pop_exp,
         pop_exp = NULL,

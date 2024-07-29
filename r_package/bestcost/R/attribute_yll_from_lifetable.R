@@ -43,7 +43,7 @@ attribute_yll_from_lifetable <-
       output <-
         bestcost::attribute(
           health_metric = "yll_from_lifetable", # Set outcome metric
-          risk_method = "relative_risk",
+          approach_risk = "relative_risk",
           exp_central = exp_central, exp_lower = exp_lower, exp_upper = exp_upper,
           prop_pop_exp = prop_pop_exp,
           pop_exp = NULL,
@@ -77,7 +77,7 @@ attribute_yll_from_lifetable <-
       output <-
         bestcost::attribute(
           health_metric = "yll_from_lifetable_airqplus", # Set outcome metric
-          risk_method = "relative_risk",
+          approach_risk = "relative_risk",
           exp_central = exp_central, exp_lower = exp_lower, exp_upper = exp_upper,
           prop_pop_exp = prop_pop_exp,
           pop_exp = NULL,

@@ -59,7 +59,7 @@
 compare <-
   function(approach_comparison = "delta",
            health_metric = "same_input_output",
-           risk_method = "relative_risk",
+           approach_risk = "relative_risk",
            exp_central_1, exp_lower_1 = NULL, exp_upper_1 = NULL,
            exp_central_2, exp_lower_2 = NULL, exp_upper_2 = NULL,
            prop_pop_exp_1 = 1,
@@ -94,7 +94,7 @@ compare <-
     # Calculate attributable health impacts in the scenario 1
     impact_raw_1 <-
       bestcost::attribute(
-        risk_method = risk_method,
+        approach_risk = approach_risk,
         health_metric = health_metric,
         exp_central = exp_central_1, exp_lower = exp_lower_1, exp_upper = exp_upper_1,
         prop_pop_exp = prop_pop_exp_1,
@@ -126,7 +126,7 @@ compare <-
     # Calculate attributable health impacts in the scenario 2
     impact_raw_2 <-
       bestcost::attribute(
-        risk_method = risk_method,
+        approach_risk = approach_risk,
         health_metric = health_metric,
         exp_central = exp_central_2, exp_lower = exp_lower_2, exp_upper = exp_upper_2,
         prop_pop_exp = prop_pop_exp_2,
@@ -219,7 +219,7 @@ compare <-
       input_1 <-
         bestcost:::compile_input(
           health_metric = health_metric,
-          risk_method = risk_method,
+          approach_risk = approach_risk,
           exp_central = exp_central_1, exp_lower = exp_lower_1, exp_upper = exp_upper_1,
           prop_pop_exp = prop_pop_exp_1,
           cutoff = cutoff,
@@ -249,7 +249,7 @@ compare <-
       input_2 <-
         bestcost:::compile_input(
           health_metric = health_metric,
-          risk_method = risk_method,
+          approach_risk = approach_risk,
           exp_central = exp_central_2, exp_lower = exp_lower_2, exp_upper = exp_upper_2,
           prop_pop_exp = prop_pop_exp_2,
           cutoff = cutoff,

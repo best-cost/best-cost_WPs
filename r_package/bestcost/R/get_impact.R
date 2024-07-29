@@ -28,7 +28,7 @@ get_impact <-
            duration = NULL,
            pop_fraction_type){
 
-    if(unique(input$risk_method) == "relative_risk"){
+    if(unique(input$approach_risk) == "relative_risk"){
       # Get pop_fraction and add to the input data frame
       input_with_risk_and_pop_fraction <-
         bestcost:::get_risk_and_pop_fraction(input = input,
@@ -101,7 +101,7 @@ get_impact <-
 
     }
 
-    } else if(unique(input$risk_method) == "absolute_risk" &
+    } else if(unique(input$approach_risk) == "absolute_risk" &
               unique(input$health_metric) == "same_input_output"){
 
       # Calculate absolute risk for each exposure category ####

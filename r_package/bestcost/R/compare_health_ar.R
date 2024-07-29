@@ -36,7 +36,7 @@ compare_health_ar <-
       bestcost::compare(
         approach_comparison = approach_comparison,
         health_metric = "same_input_output",
-        risk_method = "absolute_risk",
+        approach_risk = "absolute_risk",
         exp_central_1, exp_lower_1 = exp_lower_1, exp_upper_1 = exp_upper_1,
         exp_central_2, exp_lower_2 = exp_lower_2, exp_upper_2 = exp_upper_2,
         prop_pop_exp_1 = NULL,
