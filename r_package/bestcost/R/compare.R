@@ -3,7 +3,7 @@
 #' Compare attributable health cases based on single baseline health value and relative risk
 
 #' Calculates the health impacts between two scenarios (e.g. before and after a intervention in a health impact assessments). It provides as a result the central estimate as well as the lower and the higher bound of the confidence interval based on the uncertainty of the exposure-response function.
-#' @param comparison_method \code{String} showing the method of comparison. Options: "delta" or "pif".
+#' @param approach_comparison \code{String} showing the method of comparison. Options: "delta" or "pif".
 #' @param exp_central_1 \code{Numeric value} showing the population-weighted mean exposure in ug/m3 or {vector} showing the exposure category in a exposure distribution in the scenario 1.
 #' @param exp_central_2 \code{Numeric value} showing the population-weighted mean exposure in ug/m3 or {vector} showing the exposure category in a exposure distribution in the scenario 2.
 #' @param prop_pop_exp_1 \code{Numeric value} or {vector} showing the proportion of population exposed in the scenario 1. The value is a fraction, i.e. values between 0 and 1) for a single exposure value or for multiple categories, i.e., a exposure distribution, respectively. If a exposure distribution is used, the dimension of this input variable should be the same as "exp". By default, 1 for single exposure value will be assigned to this input variable assuming a single exposure value, but users can change this value.
@@ -57,7 +57,7 @@
 #' @note Experimental function
 #' @export
 compare <-
-  function(comparison_method = "delta",
+  function(approach_comparison = "delta",
            health_metric = "same_input_output",
            risk_method = "relative_risk",
            exp_central_1, exp_lower_1 = NULL, exp_upper_1 = NULL,
@@ -166,7 +166,7 @@ compare <-
     # If the user choose "pif"  as comparison method
     # pif is additonally calculated
     # impact is overwritten with the new values that refer to pif instead of paf
-    if(comparison_method == "delta"){
+    if(approach_comparison == "delta"){
 
       # Identify the columns that are to be used to join impact_raw_1 and _2
       joining_columns_output <-
@@ -195,7 +195,7 @@ compare <-
     # impact is overwritten with the new values that refer to pif instead of paf
     # Use if instead of else if becuase otherwise the package will read here inside
     # and produce an error because the variables are different
-    if(comparison_method == "pif"){
+    if(approach_comparison == "pif"){
       # Either both NULL or identical. Use the function identical() to enable NULL==NULL
       if(!identical(bhd_lower_1, bhd_lower_2) & identical(bhd_lower_1, bhd_lower_2) & identical(bhd_upper_1, bhd_upper_2)){
         stop("Baseline health data have to be identical for scenario 1 and 2.")
