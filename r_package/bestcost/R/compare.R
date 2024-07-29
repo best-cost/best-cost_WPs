@@ -15,6 +15,8 @@
 #' @param erf_increment \code{Numeric value} showing the increment of the concentration-response function in ug/m3 (usually 10 or 5).
 #' @param erf_shape \code{String} showing the shape of the exposure-response function to be assumed using the relative risk from the literature as support point. Options: "linear", log_linear", "linear_log", "log_log".
 #' @param erf_c \code{String} showing the user-defined function that puts the relative risk in relation with concentration. The function must have only one variable: c, which means concentration. E.g. "3+c+c^2". Default value = NULL.
+#' @param approach_exposure_1 \code{String} showing whether air pollution is constant or only in one year. Options: "single_year" (default), "constant"
+#' @param approach_newborns_1 \code{String} showing whether newborns are considered in the years after the year of analysis. Options: "without_newborns" (default), "with_newborns"
 #' @param first_age_pop_1 \code{Numeric value} starting age of the youngest age group from population and life table data in the scenario 1.
 #' @param last_age_pop_1 \code{Numeric value} ending age of the oldest age group from population and life table data in the scenario 1.
 #' @param prob_natural_death_male-1 \code{Numeric vector} containing the probability of dying due to natural cause (excluding non-natural deaths due to violence or accidents) by age or age group for males in the scenario 1.
@@ -24,6 +26,8 @@
 #' @param population_midyear_male_1 \code{Numeric vector} containing the mid-year male population for the year of analysis of the scenario 1.
 #' @param population_midyear_female_1 \code{Vector} containing the mid-year female population for the year of analysis.
 #' @param year_of_analysis_1 \code{Numeric value} of the year of analysis, which corresponds to the first year of the life table in the scenario 2.
+#' @param approach_exposure_2 \code{String} showing whether air pollution is constant or only in one year. Options: "single_year" (default), "constant"
+#' @param approach_newborns_2 \code{String} showing whether newborns are considered in the years after the year of analysis. Options: "without_newborns" (default), "with_newborns"
 #' @param first_age_pop_2 \code{Numeric value} starting age of the youngest age group from population and life table data in the scenario 2.
 #' @param last_age_pop_2 \code{Numeric value} ending age of the oldest age group from population and life table data in the scenario 2.
 #' @param prob_natural_death_male_2 \code{Numeric vector} containing the probability of dying due to natural cause (excluding non-natural deaths due to violence or accidents) by age or age group for males in the scenario 2.
@@ -73,11 +77,16 @@ compare <-
            erf_c_central = NULL, erf_c_lower = NULL, erf_c_upper = NULL,
            bhd_central_1 = NULL, bhd_lower_1 = NULL, bhd_upper_1 = NULL,
            bhd_central_2 = NULL, bhd_lower_2 = NULL, bhd_upper_2 = NULL,
+           # Lifetable arguments
+           approach_exposure_1 = NULL,
+           approach_newborns_1 = NULL,
            first_age_pop_1 = NULL, last_age_pop_1 = NULL,
            prob_natural_death_male_1 = NULL, prob_natural_death_female_1 = NULL,
            prob_total_death_male_1 = NULL, prob_total_death_female_1 = NULL,
            population_midyear_male_1 = NULL, population_midyear_female_1 = NULL,
            year_of_analysis_1 = NULL,
+           approach_exposure_2 = NULL,
+           approach_newborns_2 = NULL,
            first_age_pop_2 = NULL, last_age_pop_2 = NULL,
            prob_natural_death_male_2 = NULL, prob_natural_death_female_2 = NULL,
            prob_total_death_male_2 = NULL, prob_total_death_female_2 = NULL,
@@ -87,6 +96,7 @@ compare <-
            disability_weight = NULL,
            duration = NULL,
            corrected_discount_rate = NULL,
+           # Iteration
            geo_id_raw = NULL,
            geo_id_aggregated = NULL,
            info_1 = NULL, info_2 = NULL){
@@ -105,6 +115,8 @@ compare <-
         erf_shape = erf_shape,
         erf_c_central = erf_c_central, erf_c_lower = erf_c_lower, erf_c_upper = erf_c_upper,
         bhd_central = bhd_central_1, bhd_lower = bhd_lower_1, bhd_upper = bhd_upper_1,
+        approach_exposure = approach_exposure_1,
+        approach_newborns = approach_newborns_1,
         first_age_pop = first_age_pop_1,
         last_age_pop = last_age_pop_1,
         prob_natural_death_male = prob_natural_death_male_1,
@@ -137,6 +149,8 @@ compare <-
         erf_shape = erf_shape,
         erf_c_central = erf_c_central, erf_c_lower = erf_c_lower, erf_c_upper = erf_c_upper,
         bhd_central = bhd_central_2, bhd_lower = bhd_lower_2, bhd_upper = bhd_upper_2,
+        approach_newborns  = approach_newborns_2,
+        approach_exposure = approach_exposure_2,
         first_age_pop = first_age_pop_2,
         last_age_pop = last_age_pop_2,
         prob_natural_death_male = prob_natural_death_male_2,
@@ -157,7 +171,7 @@ compare <-
 
 
     # Identify the arguments that have _1 or _2 in the name (scenario specific)
-    # This useful for joining data frames below
+    # This is useful for joining data frames below
     scenario_specific_arguments <-
       grep("_1|_2", names(formals(compare)), value = TRUE) %>%
       gsub("_1|_2", "", .) %>%
@@ -236,6 +250,8 @@ compare <-
           geo_id_raw = geo_id_raw,
           geo_id_aggregated = geo_id_aggregated,
           # Lifetable data
+          approach_exposure_1 = approach_exposure_1,
+          approach_newborns_1 = approach_newborns_1,
           first_age_pop =  first_age_pop_1,
           last_age_pop = last_age_pop_1,
           prob_natural_death_male = prob_natural_death_male_1,
@@ -266,6 +282,8 @@ compare <-
           geo_id_raw = geo_id_raw,
           geo_id_aggregated = geo_id_aggregated,
           # Lifetable data
+          approach_exposure_2 = approach_exposure_2,
+          approach_newborns_2 = approach_newborns_2,
           first_age_pop =  first_age_pop_2,
           last_age_pop = last_age_pop_2,
           prob_natural_death_male = prob_natural_death_male_2,
