@@ -17,6 +17,7 @@
 #' @param erf_increment \code{Numeric value} showing the increment of the exposure-response function in ug/m3 (usually 10 or 5).
 #' @param erf_shape \code{String} showing the shape of the exposure-response function to be assumed using the relative risk from the literature as support point. Options: "linear", log_linear", "linear_log", "log_log".
 #' @param erf_c \code{String} showing the user-defined function that puts the relative risk in relation with concentration. The function must have only one variable: c, which means concentration. E.g. "3+c+c^2". Default value = NULL.
+#' @param approach_exposure \code{String} showing whether air pollution is constant or only in one year. Options: "single_year", "constant"
 #' @param first_age_pop \code{Numeric value} starting age of the youngest age group from population and life table data (age interval = 1 year)
 #' @param last_age_pop \code{Numeric value} ending age of the oldest age group from population and life table data (age interval = 1 year)
 #' @param prob_natural_death_male,prob_natural_death_female \code{Numeric vector} containing the probability of dying due to natural cause (excluding non-natural deaths due to violence or accidents) by age or age group for male and female respectively.
@@ -60,18 +61,22 @@ attribute <-
            erf_shape = NULL,
            erf_c_central = NULL, erf_c_lower = NULL, erf_c_upper = NULL,
            bhd_central = NULL, bhd_lower = NULL, bhd_upper = NULL,
+           # Lifetable arguments
+           approach_exposure = NULL,
            first_age_pop = NULL, last_age_pop = NULL,
            prob_natural_death_male = NULL, prob_natural_death_female = NULL,
            prob_total_death_male, prob_total_death_female = NULL,
            population_midyear_male = NULL, population_midyear_female = NULL,
-           deaths_male = NULL, deaths_female = NULL,
+           deaths_male = NULL, deaths_female = NULL, # For AirQ+ method for lifetable
            year_of_analysis = NULL,
            min_age = NULL, max_age = NULL,
            disability_weight = NULL,
            duration = NULL,
            corrected_discount_rate = NULL,
+           # Iteration arguments
            geo_id_raw = NULL,
            geo_id_aggregated = NULL,
+           # Meta-information
            info = NULL){
 
     # Check input data
@@ -79,6 +84,7 @@ attribute <-
     #length(exp) == length(prop_pop_exp)
     #})
 
+    # if (approach = "cutoff_in_exposure") { # whole script in this loop
 
     # Compile input data (except lifetable)
     input <-
@@ -99,6 +105,7 @@ attribute <-
         disability_weight = disability_weight,
         risk_method = risk_method,
         # Lifetable arguments if needed
+        approach_exposure = approach_exposure,
         first_age_pop =  first_age_pop,
         last_age_pop = last_age_pop,
         prob_natural_death_male = prob_natural_death_male,
@@ -132,3 +139,50 @@ attribute <-
 
     return(output)
   }
+
+# } end of loop (for cutoff variante)
+
+
+# if(approach = "scenario_A_minus_scenario_B") { # cutoff in the exposure response function
+# bestcost:::compare() # calculates scenario_A_minus_scenario_B
+# comparison_yll_lifetable_delta  <- # code copied from "testing_Rpackage.Rmd"
+# impact_raw  <-
+#   bestcost::compare(
+#     health_metric = health_metric,
+#     comparison_method = "delta",
+#     exp_central_1 = exp_central, # Put exp_central here, maybe
+#     prop_pop_exp_1 = prop_pop_exp, # Fake data just for testing purposes
+#     exp_central_2 = cutoff, # Fake data just for testing purposes
+#     prop_pop_exp_2 = prop_pop_exp, # Fake data just for testing purposes
+#     cutoff = 0,   # put to 0, so that in get_risk we don't have cutoff - cutoff = 0
+#     rr_central = rr_central,
+#     rr_lower = rr_lower,
+#     rr_upper = rr_upper,
+#     erf_increment = erf_increment,
+#     erf_shape = erf_shape,
+#     first_age_pop_1 = first_age_pop, #
+#     last_age_pop_1 = 99,
+#     prob_natural_death_male_1 = lifetable_withPopulation[["male"]]$death_probability_natural,
+#     prob_natural_death_female_1 = lifetable_withPopulation[["female"]]$death_probability_natural,
+#     prob_total_death_male_1 = lifetable_withPopulation[["male"]]$death_probability_total,
+#     prob_total_death_female_1 = lifetable_withPopulation[["female"]]$death_probability_total,
+#     population_midyear_male_1 = lifetable_withPopulation[["male"]]$population,
+#     population_midyear_female_1 = lifetable_withPopulation[["female"]]$population,
+#     year_of_analysis_1 = 2019,
+#     first_age_pop_2 = first_age_pop, #
+#     last_age_pop_2 = 99,
+#     prob_natural_death_male_2 = lifetable_withPopulation[["male"]]$death_probability_natural,
+#     prob_natural_death_female_2 = lifetable_withPopulation[["female"]]$death_probability_natural,
+#     prob_total_death_male_2 = lifetable_withPopulation[["male"]]$death_probability_total,
+#     prob_total_death_female_2 = lifetable_withPopulation[["female"]]$death_probability_total,
+#     population_midyear_male_2 = lifetable_withPopulation[["male"]]$population,
+#     population_midyear_female_2 = lifetable_withPopulation[["female"]]$population,
+#     year_of_analysis_2 = 2019,
+#     info_1 = input_data_mortality$pollutant[2],
+#     info_2 = input_data_mortality$pollutant[2],
+#     min_age = 20,
+#     disability_weight = disability_weight,
+#     duration = duration)
+#
+#     return(output)
+# }

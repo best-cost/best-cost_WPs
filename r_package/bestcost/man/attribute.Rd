@@ -24,6 +24,7 @@ attribute(
   bhd_central = NULL,
   bhd_lower = NULL,
   bhd_upper = NULL,
+  approach_exposure = NULL,
   first_age_pop = NULL,
   last_age_pop = NULL,
   prob_natural_death_male = NULL,
@@ -71,6 +72,8 @@ If a {vector} is provided, it will be assumed that it refers to the exposure cat
 \item{erf_shape}{\code{String} showing the shape of the exposure-response function to be assumed using the relative risk from the literature as support point. Options: "linear", log_linear", "linear_log", "log_log".}
 
 \item{bhd_central, bhd_lower, bhd_upper}{\code{Numeric value} showing the central}
+
+\item{approach_exposure}{\code{String} showing whether air pollution is constant or only in one year. Options: "single_year", "constant"}
 
 \item{first_age_pop}{\code{Numeric value} starting age of the youngest age group from population and life table data (age interval = 1 year)}
 

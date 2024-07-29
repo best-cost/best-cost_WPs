@@ -19,6 +19,7 @@ attribute_daly_from_lifetable(
   erf_c_central = NULL,
   erf_c_lower = NULL,
   erf_c_upper = NULL,
+  approach_exposure = NULL,
   first_age_pop,
   last_age_pop,
   prob_natural_death_male,
@@ -54,6 +55,8 @@ If a {vector} is provided, it will be assumed that it refers to the exposure cat
 \item{erf_increment}{\code{Numeric value} showing the increment of the exposure-response function in ug/m3 (usually 10 or 5).}
 
 \item{erf_shape}{\code{String} showing the shape of the exposure-response function to be assumed using the relative risk from the literature as support point. Options: "linear", log_linear", "linear_log", "log_log".}
+
+\item{approach_exposure}{\code{String} showing whether air pollution is constant or only in one year. Options: "single_year", "constant"}
 
 \item{first_age_pop}{\code{Numeric value} starting age of the youngest age group from population and life table data (age interval = 1 year)}
 
