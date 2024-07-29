@@ -149,7 +149,7 @@ attribute <-
 # impact_raw  <-
 #   bestcost::compare(
 #     health_metric = health_metric,
-#     comparison_method = "delta",
+#     approach_comparison = "delta",
 #     exp_central_1 = exp_central, # Put exp_central here, maybe
 #     prop_pop_exp_1 = prop_pop_exp, # Fake data just for testing purposes
 #     exp_central_2 = cutoff, # Fake data just for testing purposes

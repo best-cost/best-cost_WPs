@@ -6,7 +6,7 @@
 Calculates the health impacts between two scenarios (e.g. before and after a intervention in a health impact assessments). It provides as a result the central estimate as well as the lower and the higher bound of the confidence interval based on the uncertainty of the exposure-response function.}
 \usage{
 compare_yld_from_prevalence(
-  comparison_method = "delta",
+  approach_comparison = "delta",
   exp_central_1,
   exp_lower_1 = NULL,
   exp_upper_1 = NULL,
@@ -38,7 +38,7 @@ compare_yld_from_prevalence(
 )
 }
 \arguments{
-\item{comparison_method}{\code{String} showing the method of comparison. Options: "delta" or "pif".}
+\item{approach_comparison}{\code{String} showing the method of comparison. Options: "delta" or "pif".}
 
 \item{exp_central_1}{\code{Numeric value} showing the population-weighted mean exposure in ug/m3 or {vector} showing the exposure category in a exposure distribution in the scenario 1.}
 

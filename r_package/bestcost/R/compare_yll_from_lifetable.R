@@ -23,7 +23,7 @@
 #' @note Experimental function
 #' @export
 compare_yll_from_lifetable <-
-  function(comparison_method = "delta",
+  function(approach_comparison = "delta",
            exp_central_1, exp_lower_1 = NULL, exp_upper_1 = NULL,
            exp_central_2, exp_lower_2 = NULL, exp_upper_2 = NULL,
            prop_pop_exp_1 = 1, prop_pop_exp_2 = 1,
@@ -52,7 +52,7 @@ compare_yll_from_lifetable <-
 
     output <-
       bestcost::compare(
-        comparison_method = comparison_method,
+        approach_comparison = approach_comparison,
         health_metric = "yll_from_lifetable",
         risk_method = "relative_risk",
         exp_central_1, exp_lower_1 = exp_lower_1, exp_upper_1 = exp_upper_1,
