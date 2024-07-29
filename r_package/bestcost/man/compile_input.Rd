@@ -34,6 +34,7 @@ compile_input(
   corrected_discount_rate = NULL,
   duration = NULL,
   approach_exposure = NULL,
+  approach_newborns = NULL,
   first_age_pop = NULL,
   last_age_pop = NULL,
   prob_natural_death_male = NULL,
@@ -91,7 +92,9 @@ interval of the baseline health data (e.g. incidence of the health outcome in th
 
 \item{duration}{\code{Numeric value} showing the disease duration}
 
-\item{approach_exposure}{\code{String} showing whether air pollution is constant or only in one year. Options: "single_year", "constant"}
+\item{approach_exposure}{\code{String} showing whether air pollution is constant or only in one year. Options: "single_year" (default), "constant"}
+
+\item{approach_newborns}{\code{String} showing whether newborns are considered in the years after the year of analysis. Options: "without_newborns" (default), "with_newborns"}
 
 \item{first_age_pop}{\code{Numeric value} starting age of the youngest age group from population and life table data (age interval = 1 year)}
 

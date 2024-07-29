@@ -24,6 +24,8 @@ compare_daly_from_lifetable(
   erf_c_central = NULL,
   erf_c_lower = NULL,
   erf_c_upper = NULL,
+  approach_exposure_1 = "single_year",
+  approach_newborns_1 = "without_newborns",
   first_age_pop_1,
   last_age_pop_1,
   prob_natural_death_male_1,
@@ -33,6 +35,8 @@ compare_daly_from_lifetable(
   population_midyear_male_1,
   population_midyear_female_1,
   year_of_analysis_1,
+  approach_exposure_2 = "single_year",
+  approach_newborns_2 = "without_newborns",
   first_age_pop_2,
   last_age_pop_2,
   prob_natural_death_male_2,
@@ -70,6 +74,10 @@ compare_daly_from_lifetable(
 
 \item{erf_shape}{\code{String} showing the shape of the exposure-response function to be assumed using the relative risk from the literature as support point. Options: "linear", log_linear", "linear_log", "log_log".}
 
+\item{approach_exposure_1}{\code{String} showing whether air pollution is constant or only in one year. Options: "single_year" (default), "constant"}
+
+\item{approach_newborns_1}{\code{String} showing whether newborns are considered in the years after the year of analysis. Options: "without_newborns" (default), "with_newborns"}
+
 \item{first_age_pop_1}{\code{Numeric value} starting age of the youngest age group from population and life table data in the scenario 1.}
 
 \item{last_age_pop_1}{\code{Numeric value} ending age of the oldest age group from population and life table data in the scenario 1.}
@@ -85,6 +93,10 @@ compare_daly_from_lifetable(
 \item{population_midyear_female_1}{\code{Vector} containing the mid-year female population for the year of analysis.}
 
 \item{year_of_analysis_1}{\code{Numeric value} of the year of analysis, which corresponds to the first year of the life table in the scenario 2.}
+
+\item{approach_exposure_2}{\code{String} showing whether air pollution is constant or only in one year. Options: "single_year" (default), "constant"}
+
+\item{approach_newborns_2}{\code{String} showing whether newborns are considered in the years after the year of analysis. Options: "without_newborns" (default), "with_newborns"}
 
 \item{first_age_pop_2}{\code{Numeric value} starting age of the youngest age group from population and life table data in the scenario 2.}
 

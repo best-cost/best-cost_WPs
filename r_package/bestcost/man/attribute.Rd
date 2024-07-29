@@ -25,6 +25,7 @@ attribute(
   bhd_lower = NULL,
   bhd_upper = NULL,
   approach_exposure = NULL,
+  approach_newborns = NULL,
   first_age_pop = NULL,
   last_age_pop = NULL,
   prob_natural_death_male = NULL,
@@ -73,7 +74,9 @@ If a {vector} is provided, it will be assumed that it refers to the exposure cat
 
 \item{bhd_central, bhd_lower, bhd_upper}{\code{Numeric value} showing the central}
 
-\item{approach_exposure}{\code{String} showing whether air pollution is constant or only in one year. Options: "single_year", "constant"}
+\item{approach_exposure}{\code{String} showing whether air pollution is constant or only in one year. Options: "single_year" (default), "constant"}
+
+\item{approach_newborns}{\code{String} showing whether newborns are considered in the years after the year of analysis. Options: "without_newborns" (default), "with_newborns"}
 
 \item{first_age_pop}{\code{Numeric value} starting age of the youngest age group from population and life table data (age interval = 1 year)}
 
@@ -105,7 +108,7 @@ interval of the baseline health data (e.g. incidence of the health outcome in th
 
 \item{info}{\code{String} or {data frame} showing additional information or id. The suffix "info" will be added to the column name. Default value = NULL.}
 
-\item{erf_c}{\code{String} showing the user-defined function that puts the relative risk in relation with concentration. The function must have only one variable: c, which means concentration. E.g. "3+c+c^2". Default value = NULL.}
+\item{erf_c}{\code{String} showing the user-defined function that puts the relative risk in relation with concentration. The function must have only one variable: c, which means concentration. E.g. "3+c+c^2". Default value = NULL.<<<<<<< HEAD}
 }
 \value{
 TBD. E.g. This function returns a \code{data.frame} with one row for each value of the
