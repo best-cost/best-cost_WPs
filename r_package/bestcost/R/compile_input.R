@@ -45,6 +45,7 @@ compile_input <-
            duration = NULL,
            # And lifetable-related data...
            approach_exposure = NULL,
+           approach_newborns = NULL,
            first_age_pop = NULL, last_age_pop = NULL,
            prob_natural_death_male = NULL, prob_natural_death_female = NULL,
            prob_total_death_male = NULL, prob_total_death_female = NULL,
@@ -125,6 +126,7 @@ compile_input <-
         min_age = rep(min_age, each = length_exp_dist),
         max_age = rep(max_age, each = length_exp_dist),
         approach_exposure = rep(approach_exposure, each = length_exp_dist),
+        approach_newborns = rep(approach_newborns, each = length_exp_dist),
 
         # Second those variables that will have length = 1 (no problematic)
         disability_weight = disability_weight,
@@ -152,6 +154,7 @@ compile_input <-
         approach_risk = approach_risk,
         health_metric = health_metric,
         approach_exposure = approach_exposure,
+        approach_newborns = approach_newborns,
         # Using {{}} to call the argument instead of the column (same name)
         exposure_dimension =
           rep(1:length_exp_dist, length_exp_list),

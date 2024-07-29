@@ -17,7 +17,8 @@
 #' @param erf_increment \code{Numeric value} showing the increment of the exposure-response function in ug/m3 (usually 10 or 5).
 #' @param erf_shape \code{String} showing the shape of the exposure-response function to be assumed using the relative risk from the literature as support point. Options: "linear", log_linear", "linear_log", "log_log".
 #' @param erf_c \code{String} showing the user-defined function that puts the relative risk in relation with concentration. The function must have only one variable: c, which means concentration. E.g. "3+c+c^2". Default value = NULL.
-#' @param approach_exposure \code{String} showing whether air pollution is constant or only in one year. Options: "single_year", "constant"
+#' @param approach_exposure \code{String} showing whether air pollution is constant or only in one year. Options: "single_year" (default), "constant"
+#' @param approach_newborns \code{String} showing whether newborns are considered in the years after the year of analysis. Options: "without_newborns" (default), "with_newborns"
 #' @param first_age_pop \code{Numeric value} starting age of the youngest age group from population and life table data (age interval = 1 year)
 #' @param last_age_pop \code{Numeric value} ending age of the oldest age group from population and life table data (age interval = 1 year)
 #' @param prob_natural_death_male,prob_natural_death_female \code{Numeric vector} containing the probability of dying due to natural cause (excluding non-natural deaths due to violence or accidents) by age or age group for male and female respectively.
@@ -63,6 +64,7 @@ attribute <-
            bhd_central = NULL, bhd_lower = NULL, bhd_upper = NULL,
            # Lifetable arguments
            approach_exposure = NULL,
+           approach_newborns = NULL,
            first_age_pop = NULL, last_age_pop = NULL,
            prob_natural_death_male = NULL, prob_natural_death_female = NULL,
            prob_total_death_male, prob_total_death_female = NULL,
@@ -106,6 +108,7 @@ attribute <-
         approach_risk = approach_risk,
         # Lifetable arguments if needed
         approach_exposure = approach_exposure,
+        approach_newborns = approach_newborns,
         first_age_pop =  first_age_pop,
         last_age_pop = last_age_pop,
         prob_natural_death_male = prob_natural_death_male,
