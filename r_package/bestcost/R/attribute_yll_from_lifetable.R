@@ -40,71 +40,34 @@ attribute_yll_from_lifetable <-
            min_age = NULL, max_age = NULL,
            info = NULL){
 
-    if (is.null(deaths_male)){
-      output <-
-        bestcost::attribute(
-          health_metric = "yll_from_lifetable", # Set outcome metric
-          approach_risk = "relative_risk",
-          exp_central = exp_central, exp_lower = exp_lower, exp_upper = exp_upper,
-          prop_pop_exp = prop_pop_exp,
-          pop_exp = NULL,
-          cutoff = cutoff,
-          rr_central = rr_central, rr_lower = rr_lower, rr_upper = rr_upper,
-          erf_increment = erf_increment,
-          erf_shape = erf_shape,
-          erf_c_central = erf_c_central, erf_c_lower = erf_c_lower, erf_c_upper = erf_c_upper,
-          bhd_central = NULL, bhd_lower = NULL, bhd_upper = NULL,
-          disability_weight = NULL,
-          duration = NULL,
-          approach_exposure = approach_exposure,
-          approach_newborns = approach_newborns,
-          first_age_pop = first_age_pop, last_age_pop = last_age_pop,
-          prob_natural_death_male = prob_natural_death_male, prob_natural_death_female = prob_natural_death_female,
-          prob_total_death_male = prob_total_death_male, prob_total_death_female = prob_total_death_female,
-          population_midyear_male = population_midyear_male, population_midyear_female = population_midyear_female,
-          deaths_male = NULL, deaths_female = NULL,
-          year_of_analysis = year_of_analysis,
-          min_age = min_age, max_age = max_age,
-          corrected_discount_rate = corrected_discount_rate,
-          geo_id_raw = NULL, geo_id_aggregated = NULL,
-          info = info)
+    output <-
+      bestcost::attribute(
+        health_metric = "yll_from_lifetable", # Set outcome metric
+        approach_risk = "relative_risk",
+        exp_central = exp_central, exp_lower = exp_lower, exp_upper = exp_upper,
+        prop_pop_exp = prop_pop_exp,
+        pop_exp = NULL,
+        cutoff = cutoff,
+        rr_central = rr_central, rr_lower = rr_lower, rr_upper = rr_upper,
+        erf_increment = erf_increment,
+        erf_shape = erf_shape,
+        erf_c_central = erf_c_central, erf_c_lower = erf_c_lower, erf_c_upper = erf_c_upper,
+        bhd_central = NULL, bhd_lower = NULL, bhd_upper = NULL,
+        disability_weight = NULL,
+        duration = NULL,
+        approach_exposure = approach_exposure,
+        first_age_pop = first_age_pop, last_age_pop = last_age_pop,
+        prob_natural_death_male = prob_natural_death_male, prob_natural_death_female = prob_natural_death_female,
+        prob_total_death_male = prob_total_death_male, prob_total_death_female = prob_total_death_female,
+        population_midyear_male = population_midyear_male, population_midyear_female = population_midyear_female,
+        deaths_male = deaths_male, deaths_female = deaths_female,
+        year_of_analysis = year_of_analysis,
+        min_age = min_age, max_age = max_age,
+        corrected_discount_rate = corrected_discount_rate,
+        geo_id_raw = NULL, geo_id_aggregated = NULL,
+        info = info)
 
-      return(output)
+    return(output)
 
-    }
+  }
 
-
-
-    if (is.null(deaths_male)==FALSE){
-      output <-
-        bestcost::attribute(
-          health_metric = "yll_from_lifetable_airqplus", # Set outcome metric
-          approach_risk = "relative_risk",
-          exp_central = exp_central, exp_lower = exp_lower, exp_upper = exp_upper,
-          prop_pop_exp = prop_pop_exp,
-          pop_exp = NULL,
-          cutoff = cutoff,
-          rr_central = rr_central, rr_lower = rr_lower, rr_upper = rr_upper,
-          erf_increment = erf_increment,
-          erf_shape = erf_shape,
-          erf_c_central = erf_c_central, erf_c_lower = erf_c_lower, erf_c_upper = erf_c_upper,
-          bhd_central = NULL, bhd_lower = NULL, bhd_upper = NULL,
-          disability_weight = NULL,
-          duration = NULL,
-          approach_exposure = approach_exposure,
-          first_age_pop = first_age_pop, last_age_pop = last_age_pop,
-          prob_natural_death_male = prob_natural_death_male, prob_natural_death_female = prob_natural_death_female,
-          prob_total_death_male = prob_total_death_male, prob_total_death_female = prob_total_death_female,
-          population_midyear_male = population_midyear_male, population_midyear_female = population_midyear_female,
-          deaths_male = deaths_male, deaths_female = deaths_female,
-          year_of_analysis = year_of_analysis,
-          min_age = min_age, max_age = max_age,
-          corrected_discount_rate = corrected_discount_rate,
-          geo_id_raw = NULL, geo_id_aggregated = NULL,
-          info = info)
-
-          return(output)
-
-      }
-
-    }

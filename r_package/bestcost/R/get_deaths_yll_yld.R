@@ -61,7 +61,7 @@ get_deaths_yll_yld <-
 
             # If YLL or YLD
             # Further data preparation is needed than for deaths
-            if(outcome_metric %in% c("yll", "yld", "yll_airqplus")){
+            if(outcome_metric %in% c("yll", "yld", "yll")){
               # Select relevant
               .x <-
                 .x %>%
@@ -81,10 +81,11 @@ get_deaths_yll_yld <-
                 # Convert year to numeric
                 dplyr::mutate(year = as.numeric(year))
             } else
-              .x<-.x}),
+              .x<-.x}))
 
+    impact_detailed <- impact_detailed %>%
         # Calculate total, not discounted YLL (single number) ####
-        impact_nest = purrr::map(
+    dplyr::mutate(impact_nest = purrr::map(
           lifeyears_nest,
           function(.x){
 
@@ -97,7 +98,7 @@ get_deaths_yll_yld <-
             }
 
             # If yll
-            if(outcome_metric %in% c("yll", "yll_airqplus")){
+            if(outcome_metric %in% c("yll")){
               .x <-
                 .x %>%
                 dplyr::summarise(., impact = sum(impact, na.rm = TRUE)) %>%
@@ -124,7 +125,7 @@ get_deaths_yll_yld <-
     # If a value for corrected_discount_rate was provided by the user,
     # apply discount
     if(!is.null(corrected_discount_rate)){
-
+    # if(corrected_discount_rate != 0) {
       discount_factor <- corrected_discount_rate + 1
 
       impact_detailed <-
@@ -200,6 +201,7 @@ get_deaths_yll_yld <-
       dplyr::select(., -contains("nest"))%>%
       dplyr::filter(., sex %in% "total") %>%
       {if(!is.null(corrected_discount_rate))
+      # {if(corrected_discount_rate != 0)
         dplyr::filter(., discounted %in% TRUE) else .}
 
 

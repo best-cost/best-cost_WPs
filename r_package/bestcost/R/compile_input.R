@@ -88,7 +88,7 @@ compile_input <-
           rr_lower =  rr_lower,
           rr_upper = rr_upper)
 
-    }else{ # If it is defined by the erf function
+    } else { # If it is defined by the erf function
       erf_data <-
         # tibble instead of data.frame because tibble converts NULL into NA
         dplyr::tibble(
@@ -263,7 +263,7 @@ compile_input <-
               population))
 
 
-      if(grepl("airqplus", health_metric)){
+      # if(grepl("airqplus", health_metric)){
         lifetable_with_pop_male <-
           lifetable_with_pop_male %>%
           dplyr::mutate(deaths = rep(unlist(deaths_male), length.out = n()))
@@ -293,7 +293,7 @@ compile_input <-
               c(age, age_end,
                 prob_natural_death, prob_total_death,
                 population, deaths))
-      }
+      # }
 
 
 
