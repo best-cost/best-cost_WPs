@@ -83,7 +83,8 @@ get_impact <-
         bestcost:::get_pop_impact(
           year_of_analysis = year_of_analysis,
           input_with_risk_and_pop_fraction = input_with_risk_and_pop_fraction,
-          outcome_metric = "daly")
+          outcome_metric = "daly",
+          min_age = min_age)
 
 
       impact_raw <-

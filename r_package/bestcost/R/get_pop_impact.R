@@ -68,15 +68,17 @@ get_pop_impact <-
     options(digits = 15)
     input_with_risk_and_pop_fraction <-
       input_with_risk_and_pop_fraction %>%
-      # Determine beta value: beta = ln(RR) / increment (R's log() takes the natural logarithm)
-      dplyr::mutate(beta =
-                      # as.numeric(format(
-                      log(rr)/erf_increment,
-                    # digits = 14)),
-                    .after = rr) %>%
+        dplyr::mutate(modification_factor = (1 / rr_conc), .after = rr)
+    # Determine beta value: beta = ln(RR) / increment (R's log() takes the natural logarithm)
+      # dplyr::mutate(beta =
+      #                 # as.numeric(format(
+      #                 log(rr)/erf_increment,
+      #               # digits = 14)),
+      #               .after = rr) %>%
       # Determine modification factor for determining survival probability in counterfactual scenario
       # Based on AirQ+ lifetable manual formula 7 on p 17): RR(x_1 - x_0) = exp( beta * (x_1 - x_0) )
-      dplyr::mutate(modification_factor = exp(beta * (cutoff - exp)), .after = beta)
+      # dplyr::mutate(modification_factor = exp(beta * (cutoff - exp)), .after = beta)
+
 
     ## POPULATION SETUP AND PROJECTION ###########################################################
 
