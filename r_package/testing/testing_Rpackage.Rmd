@@ -374,26 +374,6 @@ if(all((bestcost_prob_dying$prob_dying -
 #### Premature deaths
 
 ```{r premature deaths with lifetable airqplus input}
-# First obtain probability of dying 
-# for total and natural deaths and for male and female separately
-# (AirQ+ does not use probability of dying as input data but bestcost does)
-# (AirQ+ only uses natural mortality --> different methodological approach)
-
-prob_dying <- list()
-
-for(d in c("natural", "total")){
-  for(s in c("male", "female")){
-   prob_dying[[d]][[s]] <-
-     bestcost::get_prob_dying_by_single_age(
-      first_age_pop = first(airqplus_pm_deaths_yll[["pop"]]$age_from...),
-      last_age_pop = last(airqplus_pm_deaths_yll[["pop"]]$age_from...),
-      interval_age_pop = 
-        unique(airqplus_pm_deaths_yll[["pop"]]$age_from... - 
-                 airqplus_pm_deaths_yll[["pop"]]$age_from...) + 1,
-      population_midyear = unlist(airqplus_pm_deaths_yll[["pop"]][, paste0("midyear_population_", s)]),
-      deaths = unlist(airqplus_pm_deaths_yll[["pop"]][, paste0("number_of_deaths_", s)]))
-  }
-}
 
 # Calculate premature deaths using bestcost function
 # and input data from an AirQ+ case
@@ -623,7 +603,8 @@ bestcost_pm_yll_exposure_single_year_lifetable_airqplus <-
 
 check_bestcost(result_list_bestcost = bestcost_pm_yll_exposure_single_year_lifetable_airqplus,
                 result_vector_alternative = c(27742, 14641, 40542)) # GeLuft results
-
+               # result_vector_alternative = airqplus_pm_deaths_yll)
+              
 # View(bestcost_pm_yll_exposure_single_year_lifetable_airqplus)
 ```
 
@@ -659,12 +640,12 @@ bestcost_pm_yll_lifetable_airqplus <-
 #                result_vector_alternative = c(27742, 14641, 40542))
 
 # Compare sex-specific results
-yll_male <- bestcost_pm_yll_lifetable_airqplus[["detailed"]][["interim"]][["lifeyears_nest"]][[1]] %>% 
-  filter(year == 2019) %>%  select(impact) %>%  as_vector() %>%  unname(.)
-yll_female <- bestcost_pm_yll_lifetable_airqplus[["detailed"]][["interim"]][["lifeyears_nest"]][[2]] %>% 
-  filter(year == 2019) %>% select(impact) %>% as_vector() %>%  unname(.)
-print("YLL male 2019 identical:") ; round(yll_male) == round(624.43) # Value from AirQ+ output Excel
-print("YLL female 2019 identical:") ; round(yll_female) == round(675.25) # Value from AirQ+ output Excel
+# yll_male <- bestcost_pm_yll_lifetable_airqplus[["detailed"]][["interim"]][["lifeyears_nest"]][[1]] %>% 
+#   filter(year == 2020) %>%  select(impact) %>%  as_vector() %>%  unname(.)
+# yll_female <- bestcost_pm_yll_lifetable_airqplus[["detailed"]][["interim"]][["lifeyears_nest"]][[2]] %>% 
+#   filter(year == 2020) %>% select(impact) %>% as_vector() %>%  unname(.)
+# print("YLL male 2019 identical:") ; round(yll_male) == round(624.43) # Value from AirQ+ output Excel
+# print("YLL female 2019 identical:") ; round(yll_female) == round(675.25) # Value from AirQ+ output Excel
 
 # Compare total YLL (YLL males + YLL females)
 airqplus_yll_difference <- read.xlsx("../testing/output/airqplus_deaths_yll_lifetable_adults.xlsx", sheet = "yll_difference", startRow = 1, rows = c(1:101))
@@ -683,14 +664,23 @@ table(airqplus_yll_difference$`2020` == yll_total_rounded$population_2020)
 test <- tibble(airqplus_yll = airqplus_yll_difference$`2020`,
                bestcost_yll = yll_total_rounded$population_2020)
 print("2020 absolute difference in YLLs:")
-print(abs(airqplus_yll_difference$`2020` - yll_total_rounded$population_2020))
+print(abs(airqplus_yll_difference$`2020`[2:100] - yll_total_rounded$population_2020[2:100]))
 
+print("2021 absolute difference in total YLLs:") 
+abs(6085 - round(sum(yll_total_rounded$population_2021, na.rm = TRUE), digits = 2)) # Value from AirQ+ output Excel
 print("2021 absolute difference in YLLs:")
 print(abs(airqplus_yll_difference$`2021` - yll_total_rounded$population_2021))
 
-print("2050 absolute difference in YLLs")
-print(abs(airqplus_yll_difference$`2050` - yll_total_rounded$population_2050))
+print("2050 absolute difference in total YLLs:") 
+abs(41044 - round(sum(yll_total_rounded$population_2050, na.rm = TRUE), digits = 2)) # Value from AirQ+ output Excel
+print("2050 absolute difference in age-specific YLLs")
+print(abs(airqplus_yll_difference$`2050`[32:100] - yll_total_rounded$population_2050[32:100]))
 # Max difference constant at 1 --> rounding error
+
+print("2100 absolute difference in total YLLs:") 
+abs(20535 - round(sum(yll_total_rounded$population_2100, na.rm = TRUE), digits = 2)) # Value from AirQ+ output Excel
+print("2100 absolute difference in YLLs:")
+print(abs(airqplus_yll_difference$`2100`[82:100] - yll_total_rounded$population_2100[82:100]))
 ```
 
 

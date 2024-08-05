@@ -93,7 +93,7 @@ get_deaths_yll_yld <-
             if(outcome_metric == "deaths"){
               .x <-
                 .x %>%
-                dplyr::select(.,all_of(paste0("population_", year_of_analysis+1))) %>%
+                dplyr::select(.,all_of(paste0("population_", year_of_analysis))) %>%
                 sum(., na.rm = TRUE)
             }
 

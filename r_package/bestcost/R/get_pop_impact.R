@@ -35,33 +35,34 @@ get_pop_impact <-
 
 
     # PREMATURE DEATHS
-    if(outcome_metric %in% c("deaths")){
-    second_year <- year_of_analysis + 1
-
-    ## DETERMINE POPULATION IMPACT
-    pop_impact <-
-      input_with_risk_and_pop_fraction %>%
-      dplyr::mutate(
-        pop_impact_nest = purrr::map(
-          lifetable_with_pop_nest,
-          ~ dplyr::rename(
-            .x,
-            !!paste0("population_", year_of_analysis) := population))) %>%
-      # Calculate the population the second year (first column after first year) considering the health effect of air pollution
-      # And move column up one row: lead()
-      dplyr::mutate(
-        pop_impact_nest = purrr::map2(
-          pop_impact_nest, pop_fraction,
-          ~ dplyr::mutate(
-            .x,
-            "population_{second_year}" :=
-              lead(
-                dplyr::lag(!!as.symbol(paste0("population_",year_of_analysis))) *
-                  dplyr::lag(prob_natural_death) * .y
-              )
-          )))
-    return(pop_impact)
-    }
+    # if(outcome_metric %in% c("deaths")){
+    # # second_year <- year_of_analysis + 1
+    #
+    # ## DETERMINE POPULATION IMPACT
+    # pop_impact <-
+    #   input_with_risk_and_pop_fraction %>%
+    #   dplyr::mutate(
+    #     pop_impact_nest = purrr::map(
+    #       lifetable_with_pop_nest,
+    #       ~ dplyr::rename(
+    #         .x,
+    #         !!paste0("population_", year_of_analysis) := population))) %>%
+    #   # Calculate the population the second year (first column after first year) considering the health effect of air pollution
+    #   # And move column up one row: lead()
+    #   dplyr::mutate(
+    #     pop_impact_nest = purrr::map2(
+    #       pop_impact_nest, pop_fraction,
+    #       ~ dplyr::mutate(
+    #         .x,
+    #         "population_{year_of_analysis}" :=
+    #           # lead(
+    #           !!as.symbol(paste0("population_",year_of_analysis)) * prob_natural_death * .y
+    #             # dplyr::lag(!!as.symbol(paste0("population_",year_of_analysis))) *
+    #             #   dplyr::lag(prob_natural_death) * .y
+    #           # )
+    #       )))
+    # return(pop_impact)
+    # }
 
     # FACTORS NEEDED FOR CALCULATIONS
     user_options <- options()
@@ -69,20 +70,11 @@ get_pop_impact <-
     input_with_risk_and_pop_fraction <-
       input_with_risk_and_pop_fraction %>%
         dplyr::mutate(modification_factor = (1 / rr_conc), .after = rr)
-    # Determine beta value: beta = ln(RR) / increment (R's log() takes the natural logarithm)
-      # dplyr::mutate(beta =
-      #                 # as.numeric(format(
-      #                 log(rr)/erf_increment,
-      #               # digits = 14)),
-      #               .after = rr) %>%
-      # Determine modification factor for determining survival probability in counterfactual scenario
-      # Based on AirQ+ lifetable manual formula 7 on p 17): RR(x_1 - x_0) = exp( beta * (x_1 - x_0) )
-      # dplyr::mutate(modification_factor = exp(beta * (cutoff - exp)), .after = beta)
 
-
-    ## POPULATION SETUP AND PROJECTION ###########################################################
+    ## LIFETABLE SETUP ############################################################################
 
     input_with_risk_and_pop_fraction <- input_with_risk_and_pop_fraction %>%
+      dplyr::relocate(lifetable_with_pop_nest, .before = 1) %>%
       dplyr::mutate(
         lifetable_with_pop_nest =
           lifetable_with_pop_nest %>%
@@ -92,14 +84,16 @@ get_pop_impact <-
               .x <- .x %>%
                 select(age, age_end, deaths, population) %>%
                 rename(!!paste0("population_",year_of_analysis) := population) %>%
+                # CALCULATE ENTRY POPULATION OF YOA
                 mutate(!!paste0("population_",year_of_analysis,"_entry") := !!sym(paste0("population_",year_of_analysis)) + (deaths / 2), .before = !!paste0("population_",year_of_analysis)) %>%
-                mutate(prob_survival = 1 - (deaths / !!sym(paste0("population_",year_of_analysis,"_entry"))), .after = deaths) %>% # probability of survival from start of year i to start of year i+1 (entry to entry)
+                # CALCULATE PROBABILITY OF SURVIVAL FROM START YEAR TO END YEAR & START YEAR TO MID YEAR
+                mutate(prob_survival = ( !!sym(paste0("population_",year_of_analysis)) - ( deaths / 2 ) ) / (!!sym(paste0("population_",year_of_analysis)) + ( deaths / 2 ) ), .after = deaths) %>% # probability of survival from start of year i to start of year i+1 (entry to entry)
                 mutate(prob_survival_until_mid_year = 1 - ((1 - prob_survival) / 2), .after = deaths)
             }
           )
       )
 
-    # Add the modification factor to the nested tibble "lifetable_with_pop_nest" using pmap()
+    # ADD THE MODIFICATION FACTOR TO THE NESTED TIBBLE "LIFETABLE_WITH_POP_NEST" USING FCT PMAP()
     input_with_risk_and_pop_fraction <- input_with_risk_and_pop_fraction %>%
       mutate(lifetable_with_pop_nest =
                pmap(
@@ -111,216 +105,256 @@ get_pop_impact <-
                )
       )
 
-    # Calculate premature deaths directly & project "dead" population (like GeLuft)
-    # using the difference in survival probabilities between modelled & cutoff populations
+    ## DETERMINE POPULATIONS IN YOA AND YOA+1 ######################################################
+    # YOA = YEAR OF ANALYSIS
+
+    ### BASELINE SCENARIO ##########################################################################
+
+    # DETERMINE ENTRY POPULATION OF YOA+1 IN BASELINE SCENARIO
     pop <- input_with_risk_and_pop_fraction %>%
-      dplyr::mutate(
-        pop_dead_nest =
-          lifetable_with_pop_nest %>%
-          purrr::map(
-            .,
-            function(.x){
-              .x <- .x %>%
-                mutate(hazard_rate_modified = modification_factor * deaths / !!sym(paste0("population_",year_of_analysis)), .after = deaths) %>% # Hazard rate for calculating survival probabilities
-                mutate(prob_survival_modified = (2 - hazard_rate_modified) / (2 + hazard_rate_modified), .after = deaths) %>%
-                mutate(prob_survival_until_mid_year_modified = 1 - ((1 - prob_survival_modified) / 2), .after = deaths) %>%
-                mutate(prob_survival_difference = prob_survival_modified - prob_survival) %>%
-                mutate(prob_survival_until_mid_year_difference = prob_survival_until_mid_year_modified - prob_survival_until_mid_year) %>%
-                mutate(population_2020_entry = lag(population_2019 * prob_survival_difference)) %>%
-                mutate(population_2020 = population_2020_entry * prob_survival_until_mid_year)
-            }
-          )
+      mutate(pop_baseline_scenario = lifetable_with_pop_nest %>%
+               purrr::map(
+                 .,
+                 function(.x){
+
+                   .x <- .x %>%
+                     mutate(!!paste0("population_",year_of_analysis,"_end") :=
+                              !!sym(paste0("population_",year_of_analysis,"_entry")) * prob_survival) %>%
+                     mutate(!!paste0("population_",year_of_analysis+1,"_entry") :=
+                              lag(!!sym(paste0("population_",year_of_analysis,"_end"))))
+
+                 }
+               )
+      , .after = lifetable_with_pop_nest)
+
+    ### IMPACTED SCENARIO ##########################################################################
+
+    # CALCULATE MODIFIED SURVIVAL PROBABILITIES
+    pop <- pop %>%
+      mutate(pop_impacted_scenario = lifetable_with_pop_nest %>%
+               purrr::map(
+                 .,
+                 function(.x){
+                   .x <- .x %>%
+                     # For all ages min_age and higher calculate modified survival probabilities
+                     mutate(hazard_rate = if_else(row_number() > min_age, modification_factor * deaths / !!sym(paste0("population_",year_of_analysis)), deaths / !!sym(paste0("population_",year_of_analysis))), .after = deaths) %>% # Hazard rate for calculating survival probabilities
+                     mutate(prob_survival_mod = if_else(row_number() > min_age, (2 - hazard_rate) / (2 + hazard_rate), prob_survival), .after = deaths) %>%
+                     mutate(prob_survival_until_mid_year_mod = if_else(row_number() > min_age, 1 - ((1 - prob_survival_mod) / 2), prob_survival_until_mid_year), .after = deaths) # %>%
+                   # select(-hazard_rate)
+                 }
+               )
+             , .after = pop_baseline_scenario)
+
+    # CALCULATE MID-YEAR POPULATION OF YOA USING MODIFIED SURVIVAL PROBABILITIES
+    pop <- pop %>%
+      mutate(pop_impacted_scenario = pop_impacted_scenario %>%
+               purrr::map(
+                 .,
+                 function(.x){
+                   .x <- .x %>%
+                     mutate(!!paste0("population_",year_of_analysis) :=
+                              !!sym(paste0("population_",year_of_analysis,"_entry")) * prob_survival_until_mid_year_mod)
+                 }
+               )
+             )
+
+    # CALCULATE ENTRY POPULATION OF YOA+1 USING MODIFIED SURVIVAL PROBABILITIES
+    pop <- pop %>%
+      mutate(pop_impacted_scenario = pop_impacted_scenario %>%
+               purrr::map(
+                 .,
+                 function(.x){
+
+                   .x <- .x %>%
+                     mutate(!!paste0("population_",year_of_analysis,"_end") :=
+                              !!sym(paste0("population_",year_of_analysis,"_entry")) * prob_survival_mod) %>%
+                     mutate(!!paste0("population_",year_of_analysis+1,"_entry") :=
+                              lag(!!sym(paste0("population_",year_of_analysis,"_end"))))
+
+                 }
+               )
       )
+
+    ## DETERMINE PREMATURE DEATHS IN YOA ###########################################################
+    # premature deaths = impacted scenario YOA end-of-year population - baseline scenario YOA end-of-year pop
+    pop <- pop %>%
+      mutate(premature_deaths_nest = purrr::map2(
+        pop_impacted_scenario, pop_baseline_scenario,
+        ~ tibble(premature_deaths = .x$population_2019_end - .y$population_2019_end)),
+        .after = pop_impacted_scenario)
+
+    ## PROJECT POPULATIONS #########################################################################
 
     # Define loop variables (to be used in both modelled and cutoff population projection)
-    years <- c(year_of_analysis:(year_of_analysis + (nrow(pop[["lifetable_with_pop_nest"]][[1]]) - 1)))
-    length_period <- length(years)
+    # years <- c((year_of_analysis+1):(year_of_analysis + (nrow(pop[["lifetable_with_pop_nest"]][[1]]))))
+    # length_period <- length(years)
 
-    pop <- pop %>%
-      dplyr::mutate(
-        pop_dead_nest =
-          pop_dead_nest %>%
-          purrr::map(
-            .,
-            function(.x){
-              for (i in 2:(length_period - 1)) { # starts with 2; ends with 99
+    project_pop <- function(df, prob_survival, prob_survival_until_mid_year){
 
-                # print(i)
+      years <- c((year_of_analysis+1):(year_of_analysis + (nrow(pop[["lifetable_with_pop_nest"]][[1]]))))
+      length_period <- length(years)
 
-                .x[(i + 1):length_period, paste0("population_", years[i] + 1, "_entry")] <-
-                  .x[i:(length_period - 1), paste0("population_", years[i], "_entry")] * .x[i:(length_period - 1), "prob_survival"]
+      for (i in 1:(length_period - 2)) { # starts with 1; ends with 98 (years 2020 - 2118)
 
-                .x[(i + 1):length_period, paste0("population_", years[i] + 1)] <-
-                  .x[(i + 1):length_period, paste0("population_", years[i] + 1, "_entry")] * .x[(i + 1):length_period, "prob_survival_until_mid_year"]
-              }
+        # print(i)
 
-              .x <- .x %>%
-                select(-contains("entry")) %>%
-                select(contains("population"))
-            }
-          )
-      )
+        df[(i + 1):length_period, paste0("population_", years[i] + 1, "_entry")] <-
+          df[i:(length_period - 1), paste0("population_", years[i], "_entry")] * prob_survival[i:(length_period - 1)]
 
-    ## Different computation depending on value of approach_exposure #############################
+        df[(i + 1):length_period, paste0("population_", years[i] + 1)] <-
+          df[(i + 1):length_period, paste0("population_", years[i] + 1, "_entry")] * prob_survival_until_mid_year[(i + 1):length_period]
+      }
+
+      df <- df #%>%
+      # select(-contains("entry")) %>%
+      # select(contains("population"))
+
+      return(df)
+
+    }
+
+    ### SINGLE YEAR EXPOSURE #######################################################################
     if (unique(input_with_risk_and_pop_fraction$approach_exposure == "single_year")){
 
+      # DETERMINE MID-YEAR POPULATION OF YOA+1 IN BOTH IMPACTED AND BASELINE SCENARIO
+      # USING UNMODIFIED SURVIVAL PROBABILITIES
+
       pop <- pop %>%
-        # Calculate entry population of year of analysis + 1 using observed survival probabilities
-        mutate(pop_modelled_nest = lifetable_with_pop_nest %>%
-                 purrr::map(
-                   .,
-                   function(.x){
-
-                     .x <- .x %>%
-                       mutate(!!paste0("population_",year_of_analysis+1,"_entry") :=
-                                lag(!!sym(paste0("population_",year_of_analysis,"_entry")) * prob_survival))
-
-                   }
-                 )
-        ) %>%
-        # Assign modified survival probabilities
-        mutate(pop_modelled_nest = pop_modelled_nest %>%
-                 purrr::map(
-                   .,
-                   function(.x){
-                     .x <- .x %>%
-                       mutate(hazard_rate = if_else(row_number() > min_age, modification_factor * deaths / !!sym(paste0("population_",year_of_analysis)), deaths / !!sym(paste0("population_",year_of_analysis))), .after = deaths) %>% # Hazard rate for calculating survival probabilities
-                       mutate(prob_survival = if_else(row_number() > min_age, (2 - hazard_rate) / (2 + hazard_rate), prob_survival), .after = deaths) %>%
-                       mutate(prob_survival_until_mid_year = if_else(row_number() > min_age, 1 - ((1 - prob_survival) / 2), prob_survival_until_mid_year), .after = deaths) # %>%
-                     # select(-hazard_rate)
-                   }
-                 )
-        ) %>%
-
-        # Determine mid-year population of year yoa + 1 using modified survival probabilities
-        mutate(pop_modelled_nest = pop_modelled_nest %>%
+        mutate(pop_baseline_scenario = pop_baseline_scenario %>%
                  purrr::map(
                    .,
                    function(.x){
 
                      .x <- .x %>%
                        mutate(!!paste0("population_",year_of_analysis+1) :=
-                                !!sym(paste0("population_",year_of_analysis+1,"_entry")) * prob_survival_until_mid_year)
-
+                                !!sym(paste0("population_",year_of_analysis+1,"_entry")) * prob_survival_until_mid_year,
+                              .after = !!paste0("population_",year_of_analysis+1,"_entry"))
                    }
                  )
         )
 
       pop <- pop %>%
-        # Project population from yoa+1 until end
-        mutate(pop_modelled_nest = pop_modelled_nest %>%
+        mutate(pop_impacted_scenario = pop_impacted_scenario %>%
                  purrr::map(
                    .,
                    function(.x){
-                     for (i in 2:(length_period - 1)) { # starts with 2; ends with 99
-
-                       # print(i)
-
-                       .x[(i + 1):length_period, paste0("population_", years[i] + 1, "_entry")] <-
-                         .x[i:(length_period - 1), paste0("population_", years[i], "_entry")] * .x[i:(length_period - 1), "prob_survival"]
-
-                       .x[(i + 1):length_period, paste0("population_", years[i] + 1)] <-
-                         .x[(i + 1):length_period, paste0("population_", years[i] + 1, "_entry")] * .x[(i + 1):length_period, "prob_survival_until_mid_year"]
-                     }
 
                      .x <- .x %>%
-                       select(-contains("entry")) %>%
-                       select(contains("population"))
-
+                       mutate(!!paste0("population_",year_of_analysis+1) :=
+                                !!sym(paste0("population_",year_of_analysis+1,"_entry")) * prob_survival_until_mid_year,
+                              .after = !!paste0("population_",year_of_analysis+1,"_entry"))
                    }
                  )
         )
+
+      # PROJECT POPULATIONS IN BOTH IMPACTED AND BASELINE SCENARIO FROM YOA+1 UNTIL THE END
+      # USING UNMODIFIED SURVIVAL PROBABILITIES (BECAUSE AFTER YOA THERE IS NO MORE AIR POLLUTION)
+
+      pop <- pop %>%
+        mutate(pop_baseline_scenario = pop_baseline_scenario %>%
+                 purrr::map(
+                   .,
+                   function(.x){
+                     project_pop(df = .x,
+                                 prob_survival = .x$prob_survival,
+                                 prob_survival_until_mid_year = .x$prob_survival_until_mid_year)
+                   }
+                 )
+        )
+
+      pop <- pop %>%
+        mutate(pop_impacted_scenario = pop_impacted_scenario %>%
+                 purrr::map(
+                   .,
+                   function(.x){
+                     project_pop(df = .x,
+                                 prob_survival = .x$prob_survival,
+                                 prob_survival_until_mid_year = .x$prob_survival_until_mid_year)
+                   }
+                 )
+        )
+
+      ### CONSTANT EXPOSURE ########################################################################
 
     } else {
 
-      # Project population in modelled (= actually observed; reference) scenario
+      # DETERMINE MID-YEAR POPULATION OF YOA+1 ...
+      # ... USING UNMODIFIED SURVIVAL PROBABILITIES IN BASELINE SCENARIO
       pop <- pop %>%
-        mutate(pop_modelled_nest = lifetable_with_pop_nest %>%
+        mutate(pop_baseline_scenario = pop_baseline_scenario %>%
                  purrr::map(
                    .,
                    function(.x){
-                     for (i in 1:(length_period - 1)) { # starts with 1; ends with 99
-
-                       # print(i)
-
-                       .x[(i + 1):length_period, paste0("population_", years[i] + 1, "_entry")] <-
-                         .x[i:(length_period - 1), paste0("population_", years[i], "_entry")] * .x[i:(length_period - 1), "prob_survival"]
-
-                       .x[(i + 1):length_period, paste0("population_", years[i] + 1)] <-
-                         .x[(i + 1):length_period, paste0("population_", years[i] + 1, "_entry")] * .x[(i + 1):length_period, "prob_survival_until_mid_year"]
-                     }
 
                      .x <- .x %>%
-                       select(-contains("entry")) %>%
-                       select(contains("population"))
-
+                       mutate(!!paste0("population_",year_of_analysis+1) :=
+                                !!sym(paste0("population_",year_of_analysis+1,"_entry")) * prob_survival_until_mid_year,
+                              .after = !!paste0("population_",year_of_analysis+1,"_entry"))
                    }
                  )
         )
+      # ... USING MODIFIED SURVIVAL PROBABILITIES IN IMPACTED SCENARIO
+      pop <- pop %>%
+        mutate(pop_impacted_scenario = pop_impacted_scenario %>%
+                 purrr::map(
+                   .,
+                   function(.x){
+
+                     .x <- .x %>%
+                       mutate(!!paste0("population_",year_of_analysis+1) :=
+                                !!sym(paste0("population_",year_of_analysis+1,"_entry")) * prob_survival_until_mid_year_mod,
+                              .after = !!paste0("population_",year_of_analysis+1,"_entry"))
+                   }
+                 )
+        )
+
+      # PROJECT POPULATION IN BASELINE SCENARIO
+      pop <- pop %>%
+        mutate(pop_baseline_scenario = pop_baseline_scenario %>%
+                 purrr::map(
+                   .,
+                   function(.x){
+                     project_pop(df = .x,
+                                 prob_survival = .x$prob_survival,
+                                 prob_survival_until_mid_year = .x$prob_survival_until_mid_year)
+                   }
+                 )
+        )
+
+      # PROJECT POPULATION IN IMPACTED SCENARIO
+      pop <- pop %>%
+        mutate(
+          pop_impacted_scenario = pop_impacted_scenario %>%
+            purrr::map(
+              .,
+              function(.x){
+                project_pop(df = .x,
+                            prob_survival = .x$prob_survival_mod,
+                            prob_survival_until_mid_year = .x$prob_survival_until_mid_year_mod)
+              }
+            )
+        )
+
     }
 
-    pop <- pop %>%
-      # Calculate modified survival probability in cutoff (= counterfactual) scenario
-      mutate(pop_cutoff_nest = lifetable_with_pop_nest %>%
-               purrr::map(
-                 .,
-                 function(.x){
-                   .x <- .x %>%
-                     mutate(hazard_rate = modification_factor * deaths / !!sym(paste0("population_",year_of_analysis)), .after = deaths) %>% # Hazard rate for calculating survival probabilities
-                     mutate(prob_survival = (2 - hazard_rate) / (2 + hazard_rate), .after = deaths) %>%
-                     mutate(prob_survival_until_mid_year = 1 - ((1 - prob_survival) / 2), .after = deaths) %>%
-                     select(-hazard_rate)
-                 }
-               )
-      ) %>%
-      mutate(pop_cutoff_nest = pop_cutoff_nest %>%
-               purrr::map(
-                 .,
-                 function(.x){
-                   .x %>%
-                     # For all ages below min_age assign the unmodified survival probabilities
-                     mutate(prob_survival = if_else(row_number() <= min_age, 1 - (deaths / !!sym(paste0("population_",year_of_analysis,"_entry"))), prob_survival)) %>%
-                     mutate(prob_survival_until_mid_year = if_else(row_number() <= min_age, 1 - ((1 - prob_survival) / 2), prob_survival_until_mid_year)) %>%
-                     # Re-calculate the "pop_2019_mid_year_total" using the modified survival rates
-                     mutate(!!paste0("population_",year_of_analysis) := !!sym(paste0("population_",year_of_analysis,"_entry")) * prob_survival_until_mid_year)
-                 }
-               )
-      )
-
-    pop <- pop %>%
-      mutate(
-        pop_cutoff_nest = pop_cutoff_nest %>%
-          purrr::map(
-            .,
-            function(.x){
-              for (i in 1:(length_period - 1)) { # starts with 1; ends with 99
-
-                # print(i)
-
-                .x[(i + 1):length_period, paste0("population_", years[i] + 1, "_entry")] <-
-                  .x[i:(length_period - 1), paste0("population_", years[i], "_entry")] * .x[i:(length_period - 1), "prob_survival"]
-
-                .x[(i + 1):length_period, paste0("population_", years[i] + 1)] <-
-                  .x[(i + 1):length_period, paste0("population_", years[i] + 1, "_entry")] * .x[(i + 1):length_period, "prob_survival_until_mid_year"]
-              }
-
-              .x <- .x %>%
-                select(-contains("entry")) %>%
-                select(contains("population"))
-
-            }
-          )
-      )
-
-    ## DETERMINE POPULATION IMPACT ################################################################
+    ## DETERMINE POPULATION IMPACT #################################################################
     pop <- pop %>%
       mutate(yll_nest = purrr::map2(
-        pop_cutoff_nest, pop_modelled_nest,
+        pop_impacted_scenario, pop_baseline_scenario,
         function(.x, .y){
-          .x - .y
+        x <- .x %>%
+            select(-contains("entry"), -population_2019_end) %>%
+            select(contains("population"))
+        y <- .y %>%
+            select(-contains("entry"), -population_2019_end) %>%
+            select(contains("population"))
+        diff <- x - y
+        return(diff)
         }
       )
-      ) %>%
+      , .before = 1)
+
+    pop <- pop %>%
       mutate(premature_deaths_nest = yll_nest %>%
                purrr::map(
                  .,
@@ -328,24 +362,42 @@ get_pop_impact <-
                    .x * 2
                  }
                )
-      ) %>%
-      mutate(pop_impact_nest = yll_nest %>%
+      , .before = 1)
+
+    ## COMPILE OUTPUT ##############################################################################
+    if (outcome_metric == "deaths"){
+    pop <- pop %>%
+      mutate(pop_impact_nest = premature_deaths_nest %>%
                purrr::map(
                  .,
                  function(.x){
                    .x <- .x %>%
                      mutate(age = 0:99, .before = !!paste0("population_",year_of_analysis)) %>%
-                     mutate(age_end = 1:100, .after = age)})) %>%
+                     mutate(age_end = 1:100, .after = age)})
+             , .before = 1) %>%
       select(-lifetable_with_pop_nest) # Remove from pop, as already present in input_with_risk_...
+    }
 
-    ## COMPILE OUTPUT #############################################################################
+    if ((outcome_metric == "yll") | (outcome_metric == "yld") | (outcome_metric == "daly")){
+      pop <- pop %>%
+        mutate(pop_impact_nest = yll_nest %>%
+                 purrr::map(
+                   .,
+                   function(.x){
+                     .x <- .x %>%
+                       mutate(age = 0:99, .before = !!paste0("population_",year_of_analysis)) %>%
+                       mutate(age_end = 1:100, .after = age)})
+               , .before = 1) %>%
+        select(-lifetable_with_pop_nest) # Remove from pop, as already present in input_with_risk_...
+    }
+
+
 
     joining_columns_pop_impact <-
       bestcost:::find_joining_columns(input_with_risk_and_pop_fraction,
                                       pop,
                                       except = "lifetable_with_pop_nest")
 
-    # NOTE:
     pop_impact <-
       input_with_risk_and_pop_fraction %>%
       dplyr::right_join(., pop, by = joining_columns_pop_impact)
