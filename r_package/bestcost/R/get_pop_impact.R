@@ -31,47 +31,26 @@ get_pop_impact <-
            outcome_metric,
            min_age){
 
-    # AirQ+ APPROACH ###############################################################################
-
-
-    # PREMATURE DEATHS
-    # if(outcome_metric %in% c("deaths")){
-    # # second_year <- year_of_analysis + 1
-    #
-    # ## DETERMINE POPULATION IMPACT
-    # pop_impact <-
-    #   input_with_risk_and_pop_fraction %>%
-    #   dplyr::mutate(
-    #     pop_impact_nest = purrr::map(
-    #       lifetable_with_pop_nest,
-    #       ~ dplyr::rename(
-    #         .x,
-    #         !!paste0("population_", year_of_analysis) := population))) %>%
-    #   # Calculate the population the second year (first column after first year) considering the health effect of air pollution
-    #   # And move column up one row: lead()
-    #   dplyr::mutate(
-    #     pop_impact_nest = purrr::map2(
-    #       pop_impact_nest, pop_fraction,
-    #       ~ dplyr::mutate(
-    #         .x,
-    #         "population_{year_of_analysis}" :=
-    #           # lead(
-    #           !!as.symbol(paste0("population_",year_of_analysis)) * prob_natural_death * .y
-    #             # dplyr::lag(!!as.symbol(paste0("population_",year_of_analysis))) *
-    #             #   dplyr::lag(prob_natural_death) * .y
-    #           # )
-    #       )))
-    # return(pop_impact)
-    # }
-
-    # FACTORS NEEDED FOR CALCULATIONS
     user_options <- options()
     options(digits = 15)
+
+    # LIFETABLE SETUP ############################################################################
+
     input_with_risk_and_pop_fraction <-
       input_with_risk_and_pop_fraction %>%
         dplyr::mutate(modification_factor = (1 / rr_conc), .after = rr)
 
-    ## LIFETABLE SETUP ############################################################################
+    # ADD THE MODIFICATION FACTOR TO THE NESTED TIBBLE "LIFETABLE_WITH_POP_NEST" USING FCT PMAP()
+    input_with_risk_and_pop_fraction <- input_with_risk_and_pop_fraction %>%
+      mutate(lifetable_with_pop_nest =
+               pmap(
+                 list(lifetable_with_pop_nest, modification_factor),
+                 function(lifetable_with_pop_nest, modification_factor){
+                   lifetable_with_pop_nest <- lifetable_with_pop_nest %>%
+                     mutate(modification_factor = modification_factor)
+                 }
+               )
+      )
 
     input_with_risk_and_pop_fraction <- input_with_risk_and_pop_fraction %>%
       dplyr::relocate(lifetable_with_pop_nest, .before = 1) %>%
@@ -93,22 +72,10 @@ get_pop_impact <-
           )
       )
 
-    # ADD THE MODIFICATION FACTOR TO THE NESTED TIBBLE "LIFETABLE_WITH_POP_NEST" USING FCT PMAP()
-    input_with_risk_and_pop_fraction <- input_with_risk_and_pop_fraction %>%
-      mutate(lifetable_with_pop_nest =
-               pmap(
-                 list(lifetable_with_pop_nest, modification_factor),
-                 function(lifetable_with_pop_nest, modification_factor){
-                   lifetable_with_pop_nest <- lifetable_with_pop_nest %>%
-                     mutate(modification_factor = modification_factor)
-                 }
-               )
-      )
-
-    ## DETERMINE POPULATIONS IN YOA AND YOA+1 ######################################################
+    # DETERMINE POPULATIONS IN YOA AND YOA+1 #######################################################
     # YOA = YEAR OF ANALYSIS
 
-    ### BASELINE SCENARIO ##########################################################################
+    ## BASELINE SCENARIO ##########################################################################
 
     # DETERMINE ENTRY POPULATION OF YOA+1 IN BASELINE SCENARIO
     pop <- input_with_risk_and_pop_fraction %>%
@@ -127,7 +94,7 @@ get_pop_impact <-
                )
       , .after = lifetable_with_pop_nest)
 
-    ### IMPACTED SCENARIO ##########################################################################
+    ## IMPACTED SCENARIO ##########################################################################
 
     # CALCULATE MODIFIED SURVIVAL PROBABILITIES
     pop <- pop %>%
@@ -185,12 +152,10 @@ get_pop_impact <-
 
     ## PROJECT POPULATIONS #########################################################################
 
-    # Define loop variables (to be used in both modelled and cutoff population projection)
-    # years <- c((year_of_analysis+1):(year_of_analysis + (nrow(pop[["lifetable_with_pop_nest"]][[1]]))))
-    # length_period <- length(years)
-
+    # DEFINE FUNCTION FOR POPULATION PROJECTION
     project_pop <- function(df, prob_survival, prob_survival_until_mid_year){
 
+    # Define loop variables (to be used in both modelled and cutoff population projection)
       years <- c((year_of_analysis+1):(year_of_analysis + (nrow(pop[["lifetable_with_pop_nest"]][[1]]))))
       length_period <- length(years)
 
@@ -205,9 +170,7 @@ get_pop_impact <-
           df[(i + 1):length_period, paste0("population_", years[i] + 1, "_entry")] * prob_survival_until_mid_year[(i + 1):length_period]
       }
 
-      df <- df #%>%
-      # select(-contains("entry")) %>%
-      # select(contains("population"))
+      df <- df
 
       return(df)
 
@@ -337,7 +300,7 @@ get_pop_impact <-
 
     }
 
-    ## DETERMINE POPULATION IMPACT #################################################################
+    # DETERMINE POPULATION IMPACT #################################################################
     pop <- pop %>%
       mutate(yll_nest = purrr::map2(
         pop_impacted_scenario, pop_baseline_scenario,
@@ -403,93 +366,7 @@ get_pop_impact <-
       dplyr::right_join(., pop, by = joining_columns_pop_impact)
 
     on.exit(options(user_options))
+
     return(pop_impact)
 
   }
-
-  # # GeLuft APPROACH ##############################################################################
-
-  # second_year <- year_of_analysis + 1
-  #
-  # ## DETERMINE POPULATION IMPACT
-  # pop_impact <-
-  #   input_with_risk_and_pop_fraction %>%
-  #   dplyr::mutate(
-  #     pop_impact_nest = purrr::map(
-  #       lifetable_with_pop_nest,
-  #       ~ dplyr::rename(
-  #         .x,
-  #         !!paste0("population_", year_of_analysis) := population))) %>%
-  #   # Calculate the population the second year (first column after first year) considering the health effect of air pollution
-  #   # And move column up one row: lead()
-  #   dplyr::mutate(
-  #     pop_impact_nest = purrr::map2(
-  #       pop_impact_nest, pop_fraction,
-  #       ~ dplyr::mutate(
-  #         .x,
-  #         "population_{second_year}" :=
-  #           lead(
-  #             dplyr::lag(!!as.symbol(paste0("population_",year_of_analysis))) *
-  #               dplyr::lag(prob_natural_death) * .y
-  #           )
-  #       )))
-  #
-  # if(outcome_metric %in% c("yll", "yld", "daly")){
-  #
-  #   # Now calculate population over time for the rest of year starting with YOA without considering air pollution
-  #   period <- c( (year_of_analysis + 1) :
-  #                  ((year_of_analysis +
-  #                      unique(purrr::map_int(input_with_risk_and_pop_fraction$lifetable_with_pop_nest,
-  #                                            ~nrow(.x))) - 2)) )
-  #   length_period <- length(period)
-  #   population_period <- paste0("population_", period)
-  #
-  #
-  #   pop_impact <-
-  #     pop_impact %>%
-  #     dplyr::mutate(
-  #       pop_impact_nest = purrr::map(
-  #         pop_impact_nest,
-  #         function(.x) {
-  #           # length_period minus 1 because year_of_analysis+1 is already calculated
-  #           for (i in 0:(length_period-1)){
-  #             current_year <- period[i+1]
-  #             col_current <- paste0("population_", current_year)
-  #             col_next <- paste0("population_", current_year + 1)
-  #             # avoiding the later introduction of NAs in the right top corner:
-  #             .x[1:(length_period-i), col_next] <-
-  #               .x[1:(length_period-i), col_current] * (1 - .x$prob_total_death[(i+2):(length_period+1)])
-  #
-  #
-  #             # Alternative code
-  #             # Simpler but it does not provide the right result
-  #             # .x[[col_next]] <-
-  #             #  .x[[col_current]] * (1 - .x[["prob_total_death"]])
-  #           }
-  #           return(.x)
-  #         } ))
-  #
-  #   # COMPILE OUTPUT
-  #   years <- 2020:2118
-  #   pop_impact <-
-  #     pop_impact %>%
-  #     dplyr::mutate(
-  #       pop_impact_nest = purrr::map(
-  #         pop_impact_nest,
-  #         function(.x) {
-  #           # length_period minus 1 because year_of_analysis+1 is already calculated
-  #           for (i in 1:99){
-  #             current_year <- years[i]
-  #             col_current <- paste0("population_", current_year)
-  #             # avoiding the later introduction of NAs in the right top corner:
-  #             .x[, col_current] <- lag(.x[,col_current], n = i)
-  #           }
-  #           return(.x)
-  #         } ))
-  #
-  # }
-  # return(pop_impact)
-  # }
-
-
-
