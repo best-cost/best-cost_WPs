@@ -82,7 +82,7 @@ get_deaths_yll_yld <-
             # Convert year to numeric
             dplyr::mutate(year = as.numeric(year))
             } else
-              .x<-.x}))
+              .x<-.x}), .before = 1)
 
     impact_detailed <- impact_detailed %>%
         # Calculate total, not discounted YLL (single number) ####
