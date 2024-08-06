@@ -34,11 +34,12 @@ get_pop_impact <-
     user_options <- options()
     options(digits = 15)
 
-    # LIFETABLE SETUP ############################################################################
+    # LIFETABLE SETUP ##############################################################################
 
     input_with_risk_and_pop_fraction <-
       input_with_risk_and_pop_fraction %>%
-        dplyr::mutate(modification_factor = (1 / rr_conc), .after = rr)
+        dplyr::mutate(modification_factor = 1 - pop_fraction, .after = rr) # WORKS WITH BOTH SINGLE EXPOSURE VALUE AND EXPOSURE DISTRIBUTION
+        # dplyr::mutate(modification_factor = (1 / rr_conc), .after = rr) # WORKS ONLY WITH SINGLE EXPOSURE VALUE AS INPUT
 
     # ADD THE MODIFICATION FACTOR TO THE NESTED TIBBLE "LIFETABLE_WITH_POP_NEST" USING FCT PMAP()
     input_with_risk_and_pop_fraction <- input_with_risk_and_pop_fraction %>%

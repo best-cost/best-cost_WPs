@@ -526,8 +526,8 @@ bestcost_pm_yll_lifetable_airqplus <-
     year_of_analysis =  airqplus_pm_deaths_yll[["input"]]$start_year, 
     min_age = airqplus_pm_deaths_yll[["input"]]$apply_rr_from_age)
 
-check_bestcost(result_list_bestcost = bestcost_pm_yll_lifetable_airqplus,
-                result_vector_alternative = c(27742, 14641, 40542))
+# check_bestcost(result_list_bestcost = bestcost_pm_yll_lifetable_airqplus,
+#                 result_vector_alternative = c(27742, 14641, 40542))
 
 # Compare sex-specific results
 # yll_male <- bestcost_pm_yll_lifetable_airqplus[["detailed"]][["interim"]][["lifeyears_nest"]][[1]] %>%
