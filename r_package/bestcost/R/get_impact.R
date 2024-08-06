@@ -51,8 +51,7 @@ get_impact <-
 
         } else if (unique(input$health_metric) %in% c("deaths_from_lifetable",
                                                       "yll_from_lifetable",
-                                                      "yld_from_lifetable",
-                                                      "yll_from_lifetable_airqplus")) {
+                                                      "yld_from_lifetable")) {
           outcome_metric <-
             gsub("_from_lifetable", "", unique(input$health_metric))
 
@@ -84,7 +83,8 @@ get_impact <-
         bestcost:::get_pop_impact(
           year_of_analysis = year_of_analysis,
           input_with_risk_and_pop_fraction = input_with_risk_and_pop_fraction,
-          outcome_metric = "daly")
+          outcome_metric = "daly",
+          min_age = min_age)
 
 
       impact_raw <-

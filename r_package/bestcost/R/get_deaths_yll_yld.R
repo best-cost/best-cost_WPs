@@ -45,6 +45,10 @@ get_deaths_yll_yld <-
           pop_impact_nest %>%
           purrr::map(.,
           function(.x){
+            .x <- .x %>%
+              mutate(across(contains("population"),
+                            ~ . %>%
+                              { `[<-`(., upper.tri(., diag = FALSE), NA) })) # Set values in upper triangle to NA
             # Filter keeping only the relevant age
             # use {{}} to refer to the argument and avoid warnings
             if(!is.null({{max_age}})){
@@ -61,30 +65,28 @@ get_deaths_yll_yld <-
 
             # If YLL or YLD
             # Further data preparation is needed than for deaths
-            if(outcome_metric %in% c("yll", "yld", "yll_airqplus")){
+            if(outcome_metric %in% c("yll", "yld", "yll")){
               # Select relevant
               .x <-
                 .x %>%
                 dplyr::select(., contains("population_")) %>%
                 # Remove the year of analysis (we are only interested in the following ones)
-                {if(outcome_metric != "yll_airqplus") dplyr::select(., -contains(as.character(year_of_analysis))) else .} %>%
+                # {if(outcome_metric != "yll_airqplus") dplyr::select(., -contains(as.character(year_of_analysis))) else .} %>%
                 # Sum over ages (i.e. vertically) that fulfill inputted "max_age" and "min_age" criteria
-                as.matrix() %>%
-                { `[<-`(., upper.tri(., diag = TRUE), NA) } %>%
-                as_tibble() %>%
-                dplyr::summarize_all(sum, na.rm = TRUE) %>%
-                # Reshape to long format (output is data frame with 2 columns "year" & "impact")
-                tidyr::pivot_longer(cols = starts_with("population_"),
-                                    names_to = "year",
-                                    values_to = "impact",
-                                    names_prefix = "population_") %>%
-                # Convert year to numeric
-                dplyr::mutate(year = as.numeric(year))
+            dplyr::summarize_all(sum, na.rm = TRUE) %>%
+            # Reshape to long format (output is data frame with 2 columns "year" & "impact")
+            tidyr::pivot_longer(cols = starts_with("population_"),
+                                names_to = "year",
+                                values_to = "impact",
+                                names_prefix = "population_") %>%
+            # Convert year to numeric
+            dplyr::mutate(year = as.numeric(year))
             } else
-              .x<-.x}),
+              .x<-.x}), .before = 1)
 
+    impact_detailed <- impact_detailed %>%
         # Calculate total, not discounted YLL (single number) ####
-        impact_nest = purrr::map(
+    dplyr::mutate(impact_nest = purrr::map(
           lifeyears_nest,
           function(.x){
 
@@ -92,12 +94,12 @@ get_deaths_yll_yld <-
             if(outcome_metric == "deaths"){
               .x <-
                 .x %>%
-                dplyr::select(.,all_of(paste0("population_", year_of_analysis+1))) %>%
+                dplyr::select(.,all_of(paste0("population_", year_of_analysis))) %>%
                 sum(., na.rm = TRUE)
             }
 
             # If yll
-            if(outcome_metric %in% c("yll", "yll_airqplus")){
+            if(outcome_metric %in% c("yll")){
               .x <-
                 .x %>%
                 dplyr::summarise(., impact = sum(impact, na.rm = TRUE)) %>%
@@ -124,7 +126,7 @@ get_deaths_yll_yld <-
     # If a value for corrected_discount_rate was provided by the user,
     # apply discount
     if(!is.null(corrected_discount_rate)){
-
+    # if(corrected_discount_rate != 0) {
       discount_factor <- corrected_discount_rate + 1
 
       impact_detailed <-
@@ -200,6 +202,7 @@ get_deaths_yll_yld <-
       dplyr::select(., -contains("nest"))%>%
       dplyr::filter(., sex %in% "total") %>%
       {if(!is.null(corrected_discount_rate))
+      # {if(corrected_discount_rate != 0)
         dplyr::filter(., discounted %in% TRUE) else .}
 
 

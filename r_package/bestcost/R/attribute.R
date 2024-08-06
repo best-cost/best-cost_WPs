@@ -117,7 +117,6 @@ attribute <-
         prob_total_death_female = prob_total_death_female,
         population_midyear_male = population_midyear_male,
         population_midyear_female =  population_midyear_female,
-        # For AirQ+ method for lifetable
         deaths_male = deaths_male,
         deaths_female = deaths_female)
 

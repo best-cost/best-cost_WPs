@@ -20,6 +20,8 @@ attribute_deaths_from_lifetable(
   erf_c_upper = NULL,
   approach_exposure = "single_year",
   approach_newborns = "without_newborns",
+  deaths_male = NULL,
+  deaths_female = NULL,
   first_age_pop,
   last_age_pop,
   prob_natural_death_male,

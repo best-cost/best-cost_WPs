@@ -50,7 +50,9 @@ pop <- input_with_risk_and_pop_fraction %>%
             mutate(prob_survival_until_mid_year_natural = 1 - ((1 - prob_survival_natural) / 2), .after = deaths) %>%  # mutate(prob_survival_based_on_mid_year_pop = 1 - (deaths / !!sym(paste0("population_",year_of_analysis))), .after = prob_survival) %>% 
             mutate(deaths_total = population_2019 * prob_total_death, .before = deaths) %>% 
             mutate(prob_survival_total = 1 - (deaths_total / population_2019_entry), .after = deaths) %>% 
-            mutate(prob_survival_until_mid_year_total = 1 - ((1 - prob_survival_total) / 2), .after = deaths)
+            mutate(prob_survival_until_mid_year_total = 1 - ((1 - prob_survival_total) / 2), .after = deaths) %>% 
+            mutate(prob_survival_natural_from_hazard_rate = ( 2 - prob_natural_death ) / (2 + prob_natural_death ), .after = prob_survival_natural) %>% 
+            mutate(prob_survival_natural_from_death_rate = ( 2 - (deaths / !!sym(paste0("population_",year_of_analysis,"_entry" )))) / (2 + (deaths / !!sym(paste0("population_",year_of_analysis,"_entry" )))), .after = prob_survival_natural )
           }
       )
     , .before = 1)

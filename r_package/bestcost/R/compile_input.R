@@ -88,7 +88,7 @@ compile_input <-
           rr_lower =  rr_lower,
           rr_upper = rr_upper)
 
-    }else{ # If it is defined by the erf function
+    } else { # If it is defined by the erf function
       erf_data <-
         # tibble instead of data.frame because tibble converts NULL into NA
         dplyr::tibble(
@@ -234,6 +234,7 @@ compile_input <-
         lifetable_with_pop_template %>%
         dplyr::mutate(
           sex = "male",
+          deaths = rep(unlist(deaths_male), length.out = n()),
           prob_natural_death = rep(unlist(prob_natural_death_male), length.out = n()),
           prob_total_death = rep(unlist(prob_total_death_male), length.out = n()),
           population = rep(unlist(population_midyear_male), length.out = n()))
@@ -243,6 +244,7 @@ compile_input <-
         lifetable_with_pop_template %>%
         dplyr::mutate(
           sex = "female",
+          deaths = rep(unlist(deaths_female), length.out = n()),
           prob_natural_death = rep(unlist(prob_natural_death_female), length.out = n()),
           prob_total_death = rep(unlist(prob_total_death_female), length.out = n()),
           population = rep(unlist(population_midyear_female), length.out = n()))
@@ -263,14 +265,14 @@ compile_input <-
               population))
 
 
-      if(grepl("airqplus", health_metric)){
-        lifetable_with_pop_male <-
-          lifetable_with_pop_male %>%
-          dplyr::mutate(deaths = rep(unlist(deaths_male), length.out = n()))
-
-        lifetable_with_pop_female <-
-          lifetable_with_pop_female %>%
-          dplyr::mutate(deaths = rep(unlist(deaths_female), length.out = n()))
+      # if(grepl("airqplus", health_metric)){
+        # lifetable_with_pop_male <-
+        #   lifetable_with_pop_male %>%
+        #   dplyr::mutate(deaths = rep(unlist(deaths_male), length.out = n()))
+        #
+        # lifetable_with_pop_female <-
+        #   lifetable_with_pop_female %>%
+        #   dplyr::mutate(deaths = rep(unlist(deaths_female), length.out = n()))
 
         # The same for total
         lifetable_with_pop_total <-
@@ -293,7 +295,7 @@ compile_input <-
               c(age, age_end,
                 prob_natural_death, prob_total_death,
                 population, deaths))
-      }
+      # }
 
 
 
