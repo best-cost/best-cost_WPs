@@ -361,8 +361,7 @@ get_pop_impact <-
                    .x <- .x %>%
                      mutate(age = 0:99, .before = !!paste0("population_",year_of_analysis)) %>%
                      mutate(age_end = 1:100, .after = age)})
-             , .before = 1) %>%
-      select(-lifetable_with_pop_nest) # Remove from pop, as already present in input_with_risk_...
+             , .before = 1)
     }
 
     if ((outcome_metric == "yll") | (outcome_metric == "yld") | (outcome_metric == "daly")){
