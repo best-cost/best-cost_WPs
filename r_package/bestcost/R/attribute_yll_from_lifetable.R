@@ -70,4 +70,3 @@ attribute_yll_from_lifetable <-
     return(output)
 
   }
-
