@@ -42,12 +42,12 @@ get_pop_impact <-
 
     # ADD THE MODIFICATION FACTOR TO THE NESTED TIBBLE "LIFETABLE_WITH_POP_NEST" USING FCT PMAP()
     input_with_risk_and_pop_fraction <- input_with_risk_and_pop_fraction %>%
-      mutate(lifetable_with_pop_nest =
-               pmap(
+      dplyr::mutate(lifetable_with_pop_nest =
+               purrr::pmap(
                  list(lifetable_with_pop_nest, modification_factor),
                  function(lifetable_with_pop_nest, modification_factor){
                    lifetable_with_pop_nest <- lifetable_with_pop_nest %>%
-                     mutate(modification_factor = modification_factor)
+                     dplyr::mutate(modification_factor = modification_factor)
                  }
                )
       )
@@ -61,13 +61,13 @@ get_pop_impact <-
             .,
             function(.x){
               .x <- .x %>%
-                select(age, age_end, deaths, population) %>%
-                rename(!!paste0("population_",year_of_analysis) := population) %>%
+                dplyr::select(age, age_end, deaths, population, modification_factor) %>%
+                dplyr::rename(!!paste0("population_",year_of_analysis) := population) %>%
                 # CALCULATE ENTRY POPULATION OF YOA
-                mutate(!!paste0("population_",year_of_analysis,"_entry") := !!sym(paste0("population_",year_of_analysis)) + (deaths / 2), .before = !!paste0("population_",year_of_analysis)) %>%
+                dplyr::mutate(!!paste0("population_",year_of_analysis,"_entry") := !!sym(paste0("population_",year_of_analysis)) + (deaths / 2), .before = !!paste0("population_",year_of_analysis)) %>%
                 # CALCULATE PROBABILITY OF SURVIVAL FROM START YEAR TO END YEAR & START YEAR TO MID YEAR
-                mutate(prob_survival = ( !!sym(paste0("population_",year_of_analysis)) - ( deaths / 2 ) ) / (!!sym(paste0("population_",year_of_analysis)) + ( deaths / 2 ) ), .after = deaths) %>% # probability of survival from start of year i to start of year i+1 (entry to entry)
-                mutate(prob_survival_until_mid_year = 1 - ((1 - prob_survival) / 2), .after = deaths)
+                dplyr::mutate(prob_survival = ( !!sym(paste0("population_",year_of_analysis)) - ( deaths / 2 ) ) / (!!sym(paste0("population_",year_of_analysis)) + ( deaths / 2 ) ), .after = deaths) %>% # probability of survival from start of year i to start of year i+1 (entry to entry)
+                dplyr::mutate(prob_survival_until_mid_year = 1 - ((1 - prob_survival) / 2), .after = deaths)
             }
           )
       )
@@ -301,6 +301,9 @@ get_pop_impact <-
     }
 
     # DETERMINE POPULATION IMPACT #################################################################
+
+    # browser()
+
     pop <- pop %>%
       mutate(yll_nest = purrr::map2(
         pop_impacted_scenario, pop_baseline_scenario,
@@ -350,11 +353,11 @@ get_pop_impact <-
                      .x <- .x %>%
                        mutate(age = 0:99, .before = !!paste0("population_",year_of_analysis)) %>%
                        mutate(age_end = 1:100, .after = age)})
-               , .before = 1) %>%
-        select(-lifetable_with_pop_nest) # Remove from pop, as already present in input_with_risk_...
+               , .before = 1)
     }
 
-
+    pop <- pop %>%
+      select(-lifetable_with_pop_nest) # Remove from pop, as already present in input_with_risk_...
 
     joining_columns_pop_impact <-
       bestcost:::find_joining_columns(input_with_risk_and_pop_fraction,
@@ -363,7 +366,8 @@ get_pop_impact <-
 
     pop_impact <-
       input_with_risk_and_pop_fraction %>%
-      dplyr::right_join(., pop, by = joining_columns_pop_impact)
+      dplyr::right_join(., pop, by = joining_columns_pop_impact) %>%
+      relocate(contains("nest"), .before = 1)
 
     on.exit(options(user_options))
 

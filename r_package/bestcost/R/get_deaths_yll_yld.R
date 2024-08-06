@@ -45,6 +45,10 @@ get_deaths_yll_yld <-
           pop_impact_nest %>%
           purrr::map(.,
           function(.x){
+            .x <- .x %>%
+              mutate(across(contains("population"),
+                            ~ . %>%
+                              { `[<-`(., upper.tri(., diag = FALSE), NA) })) # Set values in upper triangle to NA
             # Filter keeping only the relevant age
             # use {{}} to refer to the argument and avoid warnings
             if(!is.null({{max_age}})){
@@ -67,19 +71,16 @@ get_deaths_yll_yld <-
                 .x %>%
                 dplyr::select(., contains("population_")) %>%
                 # Remove the year of analysis (we are only interested in the following ones)
-                {if(outcome_metric != "yll_airqplus") dplyr::select(., -contains(as.character(year_of_analysis))) else .} %>%
+                # {if(outcome_metric != "yll_airqplus") dplyr::select(., -contains(as.character(year_of_analysis))) else .} %>%
                 # Sum over ages (i.e. vertically) that fulfill inputted "max_age" and "min_age" criteria
-                as.matrix() %>%
-                { `[<-`(., upper.tri(., diag = TRUE), NA) } %>%
-                as_tibble() %>%
-                dplyr::summarize_all(sum, na.rm = TRUE) %>%
-                # Reshape to long format (output is data frame with 2 columns "year" & "impact")
-                tidyr::pivot_longer(cols = starts_with("population_"),
-                                    names_to = "year",
-                                    values_to = "impact",
-                                    names_prefix = "population_") %>%
-                # Convert year to numeric
-                dplyr::mutate(year = as.numeric(year))
+            dplyr::summarize_all(sum, na.rm = TRUE) %>%
+            # Reshape to long format (output is data frame with 2 columns "year" & "impact")
+            tidyr::pivot_longer(cols = starts_with("population_"),
+                                names_to = "year",
+                                values_to = "impact",
+                                names_prefix = "population_") %>%
+            # Convert year to numeric
+            dplyr::mutate(year = as.numeric(year))
             } else
               .x<-.x}))
 
