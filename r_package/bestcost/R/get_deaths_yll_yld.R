@@ -48,7 +48,7 @@ get_deaths_yll_yld <-
             .x <- .x %>%
               mutate(across(contains("population"),
                             ~ . %>%
-                              { `[<-`(., upper.tri(., diag = FALSE), NA) })) # Set values in upper triangle to NA
+                              { `[<-`(., upper.tri(., diag = FALSE), NA) })) # Set values in upper triangle to NA (also removes newborns values)
             # Filter keeping only the relevant age
             # use {{}} to refer to the argument and avoid warnings
             if(!is.null({{max_age}})){

@@ -167,11 +167,11 @@ get_pop_impact <-
     ## DETERMINE PREMATURE DEATHS IN YOA ###########################################################
     # Premature deaths = ( impacted scenario YOA end-of-year population ) - ( baseline scenario YOA end-of-year pop )
 
-    pop <- pop %>%
-      mutate(premature_deaths_nest = purrr::map2(
-        pop_impacted_scenario_nest, pop_baseline_scenario_nest,
-        ~ tibble(premature_deaths = .x$population_2019_end - .y$population_2019_end)),
-        .after = pop_impacted_scenario_nest)
+    # pop <- pop %>%
+    #   mutate(premature_deaths_nest = purrr::map2(
+    #     pop_impacted_scenario_nest, pop_baseline_scenario_nest,
+    #     ~ tibble(premature_deaths = .x$population_2019_end - .y$population_2019_end)),
+    #     .after = pop_impacted_scenario_nest)
 
     ## PROJECT POPULATIONS #########################################################################
 
@@ -393,19 +393,45 @@ get_pop_impact <-
       )
       , .before = 1)
 
-    # pop <- pop %>%
-    #   mutate(premature_deaths_nest = yll_nest %>%
-    #            purrr::map(
-    #              .,
-    #              function(.x){
-    #                # Determine premature deaths
-    #                # For every YLL, two people have died at mid year --> YLL * 2 = premature deaths
-    #                .x * 2
-    #              }
-    #            )
-    #   , .before = 1)
+    # NEWBORNS #################################################################
 
-    ## COMPILE OUTPUT ##############################################################################
+    if (unique(input_with_risk_and_pop_fraction$approach_newborns == "with_newborns")) {
+
+      fill_right_of_diag <- function(tbl) {
+        for (i in seq_len(nrow(tbl))) {
+          # Extract the diagonal value
+          diag_value <- tbl[i, i, drop = TRUE]
+          # Replace NAs to the right of the diagonal with the diagonal value
+          tbl[i, (i+1):ncol(tbl)] <- diag_value
+        }
+        tbl <- tbl %>%
+          select(-ncol(tbl))
+        return(tbl)
+      }
+
+      pop <- pop %>%
+        mutate(yll_nest = purrr::map(
+          .x = yll_nest,
+          function(.x){
+            .x <- fill_right_of_diag(.x)
+          }
+        )
+        , .before = 1) %>%
+        mutate()
+
+      pop <- pop %>%
+        mutate(premature_deaths_nest = purrr::map(
+          .x = premature_deaths_nest,
+          function(.x){
+            .x <- fill_right_of_diag(.x)
+          }
+        )
+        , .before = 1) %>%
+        mutate()
+
+    }
+
+    # COMPILE OUTPUT ##############################################################################
     # Data wrangling to get the results in the needed format
 
     if (outcome_metric == "deaths"){
