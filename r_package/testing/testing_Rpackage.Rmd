@@ -456,7 +456,7 @@ bestcost_pm_deaths_lifetable_expDistribution <-
 
 # No study to compare bestcost results
 # Check only if results stay the same overtime despite developments
-check_bestcost(result_list_bestcost = bestcost_pm_deaths_lifetable_geluft ,
+check_bestcost(result_list_bestcost = bestcost_pm_deaths_lifetable_expDistribution, # bestcost_pm_deaths_lifetable_geluft, 
                result_vector_alternative = c(2610, 1378, 3815)) # Result on 16 May 2024
 ```
 
@@ -577,21 +577,21 @@ if (yll_total_sum$diff_percent < 0.001) {
 # print("2020 absolute difference in YLLs:")
 # print(abs(airqplus_yll_difference$`2020`[2:100] - yll_total_rounded$population_2020[2:100]))
 # 
-# # 2021
-# print("2021 absolute difference in total YLLs:") 
+# 2021
+# print("2021 absolute difference in total YLLs:")
 # abs(6085 - round(sum(yll_total_rounded$population_2021, na.rm = TRUE), digits = 2)) # Value from AirQ+ output Excel
 # print("2021 absolute difference in YLLs:")
 # print(abs(airqplus_yll_difference$`2021` - yll_total_rounded$population_2021))
 # 
 # # 2050
-# print("2050 absolute difference in total YLLs:") 
+# print("2050 absolute difference in total YLLs:")
 # abs(41044 - round(sum(yll_total_rounded$population_2050, na.rm = TRUE), digits = 2)) # Value from AirQ+ output Excel
 # print("2050 absolute difference in age-specific YLLs")
 # print(abs(airqplus_yll_difference$`2050`[32:100] - yll_total_rounded$population_2050[32:100]))
 # # Max difference constant at 1 --> rounding error
 # 
 # # 2100
-# print("2100 absolute difference in total YLLs:") 
+# print("2100 absolute difference in total YLLs:")
 # abs(20535 - round(sum(yll_total_rounded$population_2100, na.rm = TRUE), digits = 2)) # Value from AirQ+ output Excel
 # print("2100 absolute difference in YLLs:")
 # print(abs(airqplus_yll_difference$`2100`[82:100] - yll_total_rounded$population_2100[82:100]))

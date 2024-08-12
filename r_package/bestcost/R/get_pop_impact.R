@@ -19,6 +19,7 @@
 #' }
 #' @import dplyr
 #' @import purrr
+#' @importFrom stringr str_replace
 #' @examples
 #' TBD
 #' @author Alberto Castro
@@ -53,6 +54,7 @@ get_pop_impact <-
                )
       )
 
+    # ADD ENTRY POP YOA & SURVIVAL PROBABILITIES
     input_with_risk_and_pop_fraction <- input_with_risk_and_pop_fraction %>%
       dplyr::relocate(lifetable_with_pop_nest, .before = 1) %>%
       dplyr::mutate(
@@ -85,15 +87,20 @@ get_pop_impact <-
                  .,
                  function(.x){
 
-                   # Entry population YOA+1 = ( Entry pop YOA ) * ( survival probability )
+
                    .x <- .x %>%
+                     # Entry population YOA+1 = ( Entry pop YOA ) * ( survival probability )
                      # Calculate end-of-year population in YOA to later determine premature deaths
                      mutate(!!paste0("population_",year_of_analysis,"_end") :=
                               !!sym(paste0("population_",year_of_analysis,"_entry")) * prob_survival) %>%
                      # Shift end-of-year population one row down to get the diagonal shift from year to year
                      # End-of-year population YOA = entry pop YOA+1
                      mutate(!!paste0("population_",year_of_analysis+1,"_entry") :=
-                              lag(!!sym(paste0("population_",year_of_analysis,"_end"))))
+                              lag(!!sym(paste0("population_",year_of_analysis,"_end")))) %>%
+                     # Deaths YOA = End pop YOA - Entry pop YOA
+                     mutate(!!paste0("deaths_",year_of_analysis) :=
+                              !!sym(paste0("population_",year_of_analysis,"_entry")) - !!sym(paste0("population_",year_of_analysis,"_end")),
+                            .after =  !!sym(paste0("population_",year_of_analysis)))
                  }
                )
              , .after = lifetable_with_pop_nest)
@@ -139,6 +146,7 @@ get_pop_impact <-
                  function(.x){
 
                    .x <- .x %>%
+
                      # Calculate end-of-year population in YOA to later determine premature deaths
                      mutate(!!paste0("population_",year_of_analysis,"_end") :=
                               !!sym(paste0("population_",year_of_analysis,"_entry")) * prob_survival_mod) %>%
@@ -146,13 +154,18 @@ get_pop_impact <-
                      # Shift end-of-year population one row down to get the diagonal shift from year to year
                      # End-of-year population YOA = entry pop YOA+1
                      mutate(!!paste0("population_",year_of_analysis+1,"_entry") :=
-                              lag(!!sym(paste0("population_",year_of_analysis,"_end"))))
+                              lag(!!sym(paste0("population_",year_of_analysis,"_end")))) %>%
+
+                     # Deaths YOA = End pop YOA - Entry pop YOA
+                     mutate(!!paste0("deaths_",year_of_analysis) :=
+                              !!sym(paste0("population_",year_of_analysis,"_entry")) - !!sym(paste0("population_",year_of_analysis,"_end")),
+                            .after =  !!sym(paste0("population_",year_of_analysis)))
                  }
                )
       )
 
     ## DETERMINE PREMATURE DEATHS IN YOA ###########################################################
-    # Premature deaths = impacted scenario YOA end-of-year population - baseline scenario YOA end-of-year pop
+    # Premature deaths = ( impacted scenario YOA end-of-year population ) - ( baseline scenario YOA end-of-year pop )
 
     pop <- pop %>%
       mutate(premature_deaths_nest = purrr::map2(
@@ -173,13 +186,18 @@ get_pop_impact <-
 
         # print(i)
 
-        # ENTRY POP YOA+1 <- ( ENTRY POP YOA ) * ( SURVIVAL PROBABILITY )
+        # ENTRY POP YOA+1 <- ( ENTRY POP YOA ) * ( SURVIVAL PROBABILITY YOA )
         df[(i + 1):length_period, paste0("population_", years[i] + 1, "_entry")] <-
           df[i:(length_period - 1), paste0("population_", years[i], "_entry")] * prob_survival[i:(length_period - 1)]
 
-        # MID-YEAR POP YOA+1 <- ( ENTRY POP YOA ) * ( SURVIVAL PROBABILITY FROM START OF YEAR TO MID YEAR)
+        # MID-YEAR POP YOA+1 <- ( ENTRY POP YOA+1) * ( SURVIVAL PROBABILITY FROM START OF YOA+1 TO MID YEAR YOA+1)
         df[(i + 1):length_period, paste0("population_", years[i] + 1)] <-
           df[(i + 1):length_period, paste0("population_", years[i] + 1, "_entry")] * prob_survival_until_mid_year[(i + 1):length_period]
+
+        # DEATHS IN YOA+1 <- ( ENTRY POP YOA+1 ) * (1 - SURVIVAL PROBABILITY YOA+1 )
+        df[(i + 1):length_period, paste0("deaths_", years[i] + 1)] <-
+          df[(i + 1):length_period, paste0("population_", years[i] + 1, "_entry")] * ( 1 - prob_survival[(i + 1):length_period] )
+
       }
 
       df <- df
@@ -206,7 +224,11 @@ get_pop_impact <-
                        # MID-YEAR POP YOA+1 <- ( ENTRY POP YOA ) * ( SURVIVAL PROBABILITY FROM START OF YEAR TO MID YEAR)
                        mutate(!!paste0("population_",year_of_analysis+1) :=
                                 !!sym(paste0("population_",year_of_analysis+1,"_entry")) * prob_survival_until_mid_year,
-                              .after = !!paste0("population_",year_of_analysis+1,"_entry"))
+                              .after = !!paste0("population_",year_of_analysis+1,"_entry")) %>%
+                       # DEATHS IN YOA+1 <- ( ENTRY POP YOA+1 ) * (1 - SURVIVAL PROBABILITY YOA+1 )
+                       mutate(!!paste0("deaths_",year_of_analysis+1) :=
+                                !!sym(paste0("population_", year_of_analysis+1, "_entry")) * (1 - prob_survival),
+                              .after = !!paste0("population_",year_of_analysis+1))
                    }
                  )
         )
@@ -221,7 +243,11 @@ get_pop_impact <-
                        # MID-YEAR POP YOA+1 <- ( ENTRY POP YOA ) * ( SURVIVAL PROBABILITY FROM START OF YEAR TO MID YEAR)
                        mutate(!!paste0("population_",year_of_analysis+1) :=
                                 !!sym(paste0("population_",year_of_analysis+1,"_entry")) * prob_survival_until_mid_year,
-                              .after = !!paste0("population_",year_of_analysis+1,"_entry"))
+                              .after = !!paste0("population_",year_of_analysis+1,"_entry")) %>%
+                       # DEATHS IN YOA+1 <- ( ENTRY POP YOA+1 ) * (1 - SURVIVAL PROBABILITY YOA+1 )
+                       mutate(!!paste0("deaths_",year_of_analysis+1) :=
+                                !!sym(paste0("population_", year_of_analysis+1, "_entry")) * (1 - prob_survival),
+                              .after = !!paste0("population_",year_of_analysis+1))
                    }
                  )
         )
@@ -270,7 +296,11 @@ get_pop_impact <-
                        # MID-YEAR POP YOA+1 <- ( ENTRY POP YOA ) * ( SURVIVAL PROBABILITY FROM START OF YEAR TO MID YEAR)
                        mutate(!!paste0("population_",year_of_analysis+1) :=
                                 !!sym(paste0("population_",year_of_analysis+1,"_entry")) * prob_survival_until_mid_year,
-                              .after = !!paste0("population_",year_of_analysis+1,"_entry"))
+                              .after = !!paste0("population_",year_of_analysis+1,"_entry")) %>%
+                       # DEATHS IN YOA+1 <- ( ENTRY POP YOA+1 ) * (1 - SURVIVAL PROBABILITY YOA+1 )
+                       mutate(!!paste0("deaths_",year_of_analysis+1) :=
+                                !!sym(paste0("population_", year_of_analysis+1, "_entry")) * (1 - prob_survival),
+                              .after = !!paste0("population_",year_of_analysis+1))
                    }
                  )
         )
@@ -285,7 +315,11 @@ get_pop_impact <-
                        # MID-YEAR POP YOA+1 <- ( ENTRY POP YOA ) * ( MODIFIED SURVIVAL PROBABILITY FROM START OF YEAR TO MID YEAR)
                        mutate(!!paste0("population_",year_of_analysis+1) :=
                                 !!sym(paste0("population_",year_of_analysis+1,"_entry")) * prob_survival_until_mid_year_mod,
-                              .after = !!paste0("population_",year_of_analysis+1,"_entry"))
+                              .after = !!paste0("population_",year_of_analysis+1,"_entry")) %>%
+                       # DEATHS IN YOA+1 <- ( ENTRY POP YOA+1 ) * (1 - SURVIVAL PROBABILITY YOA+1 )
+                       mutate(!!paste0("deaths_",year_of_analysis+1) :=
+                                !!sym(paste0("population_", year_of_analysis+1, "_entry")) * (1 - prob_survival_mod),
+                              .after = !!paste0("population_",year_of_analysis+1))
                    }
                  )
         )
@@ -326,10 +360,14 @@ get_pop_impact <-
         pop_impacted_scenario_nest, pop_baseline_scenario_nest,
         function(.x, .y){
         x <- .x %>%
-            select(-contains("entry"), -population_2019_end) %>%
+            select(-population_2019_end,
+                   -contains("entry"),
+                   -contains("deaths")) %>%
             select(contains("population"))
         y <- .y %>%
-            select(-contains("entry"), -population_2019_end) %>%
+            select(-population_2019_end,
+                   -contains("entry"),
+                   -contains("deaths")) %>%
             select(contains("population"))
         # Difference in mid-year populations of baseline and impacted scenario equals attributable YLL
         diff <- x - y
@@ -339,16 +377,33 @@ get_pop_impact <-
       , .before = 1)
 
     pop <- pop %>%
-      mutate(premature_deaths_nest = yll_nest %>%
-               purrr::map(
-                 .,
-                 function(.x){
-                   # Determine premature deaths
-                   # For every YLL, two people have died at mid year --> YLL * 2 = premature deaths
-                   .x * 2
-                 }
-               )
+      mutate(premature_deaths_nest = purrr::map2(
+         .x = pop_baseline_scenario_nest, .y = pop_impacted_scenario_nest,
+        function(.x, .y){
+          x <- .x %>%
+            select(-deaths) %>%
+            select(contains("deaths"))
+          y <- .y %>%
+            select(-deaths) %>%
+            select(contains("deaths"))
+          # Calculate difference in deaths
+          diff <- x - y # Baseline scenario minus impacted scenario
+          return(diff)
+        }
+      )
       , .before = 1)
+
+    # pop <- pop %>%
+    #   mutate(premature_deaths_nest = yll_nest %>%
+    #            purrr::map(
+    #              .,
+    #              function(.x){
+    #                # Determine premature deaths
+    #                # For every YLL, two people have died at mid year --> YLL * 2 = premature deaths
+    #                .x * 2
+    #              }
+    #            )
+    #   , .before = 1)
 
     ## COMPILE OUTPUT ##############################################################################
     # Data wrangling to get the results in the needed format
@@ -360,6 +415,7 @@ get_pop_impact <-
                  .,
                  function(.x){
                    .x <- .x %>%
+                     rename_with(~ stringr::str_replace(., "deaths", "population")) %>%
                      mutate(age = 0:99, .before = !!paste0("population_",year_of_analysis)) %>%
                      mutate(age_end = 1:100, .after = age)})
              , .before = 1)

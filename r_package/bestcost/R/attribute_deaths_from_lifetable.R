@@ -29,7 +29,7 @@ attribute_deaths_from_lifetable <-
            rr_central = NULL, rr_lower = NULL, rr_upper = NULL,
            erf_increment = NULL, erf_shape = NULL,
            erf_c_central = NULL, erf_c_lower = NULL, erf_c_upper = NULL,
-           approach_exposure = "single_year",
+           approach_exposure = "constant",
            approach_newborns = "without_newborns",
            deaths_male = NULL,
            deaths_female = NULL,

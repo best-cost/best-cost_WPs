@@ -65,7 +65,7 @@ get_deaths_yll_yld <-
 
             # If YLL or YLD
             # Further data preparation is needed than for deaths
-            if(outcome_metric %in% c("yll", "yld", "yll")){
+            if(outcome_metric %in% c("yll", "yld")){
               # Select relevant
               .x <-
                 .x %>%
