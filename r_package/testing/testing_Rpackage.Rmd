@@ -94,7 +94,7 @@ for(d in c("natural", "total")){
   }
 }
 
-# Load YLL data from AirQ+ output Excel
+# Load (summed) YLL data from AirQ+ output Excel
 airqplus_yll_total_per_year_no_newborns <- tibble(year = 2019:2118,
                                                   impact = unname(as_vector(read_excel("../testing/output/airqplus_deaths_yll_lifetable_adults.xlsx", 
                                                                                        range = "B109:CW109", 
@@ -106,6 +106,9 @@ airqplus_premature_deaths_2019 <- tibble(age = 0:99,
                                                                               range = "B1:B101", 
                                                                               sheet = "deaths_difference", 
                                                                               col_names = TRUE))))
+
+# Load YLL data 
+airqplus_yll_difference <- read.xlsx("../testing/output/airqplus_deaths_yll_lifetable_adults.xlsx", sheet = "yll_difference", startRow = 1, rows = c(1:101))
 ```
 
 
@@ -508,7 +511,7 @@ check_bestcost(result_list_bestcost = bestcost_pm_yll_exposure_single_year_lifet
 bestcost_pm_yll_lifetable_airqplus <-
   bestcost::attribute_yll_from_lifetable(
     approach_exposure = "constant",
-    approach_newborns = "with_newborns",
+    approach_newborns = "without_newborns",
     exp_central = airqplus_pm_deaths_yll[["input"]]$mean_concentration,
     cutoff = airqplus_pm_deaths_yll[["input"]]$cut_off_value,
     rr_central = airqplus_pm_deaths_yll[["input"]]$relative_risk,

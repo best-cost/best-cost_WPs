@@ -175,35 +175,82 @@ get_pop_impact <-
 
     ## PROJECT POPULATIONS #########################################################################
 
-    # DEFINE FUNCTION FOR POPULATION PROJECTION
-    project_pop <- function(df, prob_survival, prob_survival_until_mid_year){
+    ### DEFINE FUNCTION FOR POPULATION PROJECTION ##################################################
+    # NOTE: if this function shoul be used, comment out all lines marked by "# CHAT"
+    # project_pop <- function(df, prob_survival, prob_survival_until_mid_year){
+    #
+    # # Define loop variables (to be used in both modelled and cutoff population projection)
+    #   years <- c((year_of_analysis+1):(year_of_analysis + (nrow(pop[["lifetable_with_pop_nest"]][[1]]))))
+    #   length_period <- length(years)
+    #
+    #   for (i in 1:(length_period - 2)) { # starts with 1; ends with 98 (years 2020 - 2118)
+    #
+    #     # print(i)
+    #
+    #     # ENTRY POP YOA+1 <- ( ENTRY POP YOA ) * ( SURVIVAL PROBABILITY YOA )
+    #     df[(i + 1):length_period, paste0("population_", years[i] + 1, "_entry")] <-
+    #       df[i:(length_period - 1), paste0("population_", years[i], "_entry")] * prob_survival[i:(length_period - 1)]
+    #
+    #     # MID-YEAR POP YOA+1 <- ( ENTRY POP YOA+1) * ( SURVIVAL PROBABILITY FROM START OF YOA+1 TO MID YEAR YOA+1)
+    #     df[(i + 1):length_period, paste0("population_", years[i] + 1)] <-
+    #       df[(i + 1):length_period, paste0("population_", years[i] + 1, "_entry")] * prob_survival_until_mid_year[(i + 1):length_period]
+    #
+    #     # DEATHS IN YOA+1 <- ( ENTRY POP YOA+1 ) * (1 - SURVIVAL PROBABILITY YOA+1 )
+    #     df[(i + 1):length_period, paste0("deaths_", years[i] + 1)] <-
+    #       df[(i + 1):length_period, paste0("population_", years[i] + 1, "_entry")] * ( 1 - prob_survival[(i + 1):length_period] )
+    #
+    #   }
+    #
+    #   df <- df
+    #
+    #   return(df)
+    #
+    # }
 
-    # Define loop variables (to be used in both modelled and cutoff population projection)
-      years <- c((year_of_analysis+1):(year_of_analysis + (nrow(pop[["lifetable_with_pop_nest"]][[1]]))))
-      length_period <- length(years)
+    ### CHAT GPT SOLUTION ###########################################################################
+    # NOTE: comment in all lines marked marked with "# CHAT" to use this function
 
-      for (i in 1:(length_period - 2)) { # starts with 1; ends with 98 (years 2020 - 2118)
+    project_pop <- function(df, prob_survival, prob_survival_until_mid_year, number_years) {
+      # The number_years argument defines for how many years the population should be projected; might be easier to have two arguments "start year" and "end year"
+      # Define the years based on number_years
+      years <- seq(year_of_analysis + 1, length.out = number_years-1)
 
-        # print(i)
+      # Initialize matrices for entry population, mid-year population, and deaths
+      pop_entry <- matrix(NA, nrow = 100, ncol = number_years)
+      colnames(pop_entry) <- paste0("population_",2020:2118,"_entry")
+      pop_mid <- matrix(NA, nrow = 100, ncol = number_years)
+      colnames(pop_mid) <- paste0("population_",2020:2118)
+      deaths <- matrix(NA, nrow = 100, ncol = number_years)
+      colnames(deaths) <- paste0("deaths_",2020:2118)
 
-        # ENTRY POP YOA+1 <- ( ENTRY POP YOA ) * ( SURVIVAL PROBABILITY YOA )
-        df[(i + 1):length_period, paste0("population_", years[i] + 1, "_entry")] <-
-          df[i:(length_period - 1), paste0("population_", years[i], "_entry")] * prob_survival[i:(length_period - 1)]
+      # Set initial population for the first year
+      pop_entry[, 1] <- df[[paste0("population_", year_of_analysis + 1, "_entry")]]
+      pop_mid[, 1] <- pop_entry[, 1] * prob_survival_until_mid_year
 
-        # MID-YEAR POP YOA+1 <- ( ENTRY POP YOA+1) * ( SURVIVAL PROBABILITY FROM START OF YOA+1 TO MID YEAR YOA+1)
-        df[(i + 1):length_period, paste0("population_", years[i] + 1)] <-
-          df[(i + 1):length_period, paste0("population_", years[i] + 1, "_entry")] * prob_survival_until_mid_year[(i + 1):length_period]
+      for (i in 1:(number_years-1)) { # starts with 1; ends with 98 (to select years 2020 - 2117 from "year" vector)
 
-        # DEATHS IN YOA+1 <- ( ENTRY POP YOA+1 ) * (1 - SURVIVAL PROBABILITY YOA+1 )
-        df[(i + 1):length_period, paste0("deaths_", years[i] + 1)] <-
-          df[(i + 1):length_period, paste0("population_", years[i] + 1, "_entry")] * ( 1 - prob_survival[(i + 1):length_period] )
+            # print(i)
+
+            # ENTRY POP YOA+1 <- ( ENTRY POP YOA ) * ( SURVIVAL PROBABILITY YOA )
+        pop_entry[(i + 2):(number_years+1), i+1] <-
+              pop_entry[(i+1):(number_years), i] * prob_survival[(i+1):(number_years)]
+
+            # MID-YEAR POP YOA+1 <- ( ENTRY POP YOA+1) * ( SURVIVAL PROBABILITY FROM START OF YOA+1 TO MID YEAR YOA+1)
+        pop_mid[(i + 2):(number_years+1), i + 1] <-
+          pop_entry[(i + 2):(number_years + 1), i + 1] * prob_survival_until_mid_year[(i + 2):(number_years + 1)]
+
+            # DEATHS IN YOA+1 <- ( ENTRY POP YOA+1 ) * (1 - SURVIVAL PROBABILITY YOA+1 )
+        deaths[(i + 2):(number_years+1), i + 1] <-
+              pop_entry[(i + 2):(number_years + 1), i + 1] * ( 1 - prob_survival[(i + 2):(number_years + 1)] )
 
       }
 
-      df <- df
+      df <- df %>%
+        bind_cols(pop_entry[,-1]) %>% # Remove column for year 2020, because it exists in df already
+        bind_cols(pop_mid[,-1]) %>%
+        bind_cols(deaths[,-1])
 
       return(df)
-
     }
 
     ### SINGLE YEAR EXPOSURE #######################################################################
@@ -261,6 +308,7 @@ get_pop_impact <-
                    .,
                    function(.x){
                      project_pop(df = .x,
+                                 number_years = 99, # CHAT
                                  prob_survival = .x$prob_survival,
                                  prob_survival_until_mid_year = .x$prob_survival_until_mid_year)
                    }
@@ -273,6 +321,7 @@ get_pop_impact <-
                    .,
                    function(.x){
                      project_pop(df = .x,
+                                 number_years = 99, # CHAT
                                  prob_survival = .x$prob_survival,
                                  prob_survival_until_mid_year = .x$prob_survival_until_mid_year)
                    }
@@ -331,6 +380,7 @@ get_pop_impact <-
                    .,
                    function(.x){
                      project_pop(df = .x,
+                                 number_years = 99, # CHAT
                                  prob_survival = .x$prob_survival,
                                  prob_survival_until_mid_year = .x$prob_survival_until_mid_year)
                    }
@@ -345,6 +395,7 @@ get_pop_impact <-
               .,
               function(.x){
                 project_pop(df = .x,
+                            number_years = 99, # CHAT
                             prob_survival = .x$prob_survival_mod,
                             prob_survival_until_mid_year = .x$prob_survival_until_mid_year_mod)
               }
