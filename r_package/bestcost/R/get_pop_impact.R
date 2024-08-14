@@ -50,7 +50,7 @@ get_pop_impact <-
                       )
       )
 
-    # ADD ENTRY POP YOA & (MODIFIED) SURVIVAL PROBABILITIES
+    # ADD ENTRY POPULATION OF YOA & SURVIVAL PROBABILITIES
     input_with_risk_and_pop_fraction <- input_with_risk_and_pop_fraction %>%
       dplyr::relocate(lifetable_with_pop_nest, .before = 1) %>%
       dplyr::mutate(
@@ -59,11 +59,14 @@ get_pop_impact <-
           purrr::map(
             .,
             function(.x){
+
               .x <- .x %>%
                 dplyr::select(age, age_end, deaths, population, modification_factor) %>%
                 dplyr::rename(!!paste0("population_",year_of_analysis) := population) %>%
+
                 # CALCULATE ENTRY POPULATION OF YOA
                 dplyr::mutate(!!paste0("population_",year_of_analysis,"_entry") := !!sym(paste0("population_",year_of_analysis)) + (deaths / 2), .before = !!paste0("population_",year_of_analysis)) %>%
+
                 # CALCULATE PROBABILITY OF SURVIVAL FROM START YEAR TO END YEAR & START YEAR TO MID YEAR
                 dplyr::mutate(prob_survival = ( !!sym(paste0("population_",year_of_analysis)) - ( deaths / 2 ) ) / (!!sym(paste0("population_",year_of_analysis)) + ( deaths / 2 ) ), .after = deaths) %>% # probability of survival from start of year i to start of year i+1 (entry to entry)
                 dplyr::mutate(prob_survival_until_mid_year = 1 - ((1 - prob_survival) / 2), .after = deaths)
@@ -148,7 +151,7 @@ get_pop_impact <-
                )
       )
 
-    # PREMATURE DEATHS (SINGLE YEAR EXPOSURE) ####################################################
+    # PREMATURE DEATHS (SINGLE YEAR EXPOSURE) ######################################################
     # YOA = YEAR OF ANALYSIS
     if (unique(input_with_risk_and_pop_fraction$approach_exposure == "single_year") &
         outcome_metric == "deaths") {
@@ -162,7 +165,7 @@ get_pop_impact <-
           .after = pop_impacted_scenario_nest)
     }
 
-    # YLL & PREMATURE DEATHS (CONSTANT EXPOSURE) #########################################
+    # YLL & PREMATURE DEATHS (CONSTANT EXPOSURE) ####################################################
 
     if ((outcome_metric == "yll") |
         (outcome_metric == "yld") |
@@ -178,22 +181,22 @@ get_pop_impact <-
         # The number_years argument defines for how many years the population should be projected; might be easier to have two arguments "start year" and "end year"
 
         # Define the years based on number_years
-        years <- seq(year_of_analysis + 1, length.out = number_years-1)
+        years <- seq(year_of_analysis + 1, length.out = number_years-1) # 2020 to 2118
 
         # Initialize matrices for entry population, mid-year population, and deaths
         pop_entry <- matrix(NA, nrow = 100, ncol = number_years)
-        colnames(pop_entry) <- paste0("population_",2020:2118,"_entry")
+        colnames(pop_entry) <- paste0("population_",(year_of_analysis+1):(year_of_analysis+number_years),"_entry") # column names are 2020:2118
         pop_mid <- matrix(NA, nrow = 100, ncol = number_years)
-        colnames(pop_mid) <- paste0("population_",2020:2118)
+        colnames(pop_mid) <- paste0("population_",(year_of_analysis+1):(year_of_analysis+number_years))
         deaths <- matrix(NA, nrow = 100, ncol = number_years)
-        colnames(deaths) <- paste0("deaths_",2020:2118)
+        colnames(deaths) <- paste0("deaths_",(year_of_analysis+1):(year_of_analysis+number_years))
 
-        # Set initial population for the first year
+        # Set initial population for the first year (2020)
         pop_entry[, 1] <- df[[paste0("population_", year_of_analysis + 1, "_entry")]]
         pop_mid[, 1] <- pop_entry[, 1] * prob_survival_until_mid_year
         deaths[, 1] <- pop_entry[, 1] * (1 - prob_survival)
 
-        for (i in 1:(number_years-1)) { # starts with 1; ends with 98 (to select years 2020 - 2117 from "year" vector)
+        for (i in 1:(number_years-1)) { # starts with 1 and ends with 98; i is used to select both the rows and the columns
 
           # print(i)
 
@@ -211,9 +214,10 @@ get_pop_impact <-
 
         }
 
+        # Column bin matrices to input data frame
         df <- df %>%
           bind_cols(pop_mid) %>%
-          bind_cols(pop_entry[, -1]) %>% # Remove first column, because it exists already
+          bind_cols(pop_entry[, -1]) %>% # Remove first column, because it exists already in input data frame
           bind_cols(deaths)
 
         return(df)
@@ -222,7 +226,6 @@ get_pop_impact <-
       ### SINGLE YEAR EXPOSURE #######################################################################
       # # Determine YLLs for baseline and impacted scenario's in the single year exposure case
 
-      # This code is for the single year exposure case
       if (unique(input_with_risk_and_pop_fraction$approach_exposure == "single_year")){
 
         # PROJECT POPULATIONS IN BOTH IMPACTED AND BASELINE SCENARIO FROM YOA+1 UNTIL THE END
@@ -289,7 +292,7 @@ get_pop_impact <-
           )
       }
 
-      ###  DETERMINE IMPACT (YLL, PREMATURE DEATHS (CONSTANT EXPOSURE))  ##################################################################
+      ###  DETERMINE IMPACT (YLL, PREMATURE DEATHS (CONSTANT EXPOSURE))  ###########################
       # YLL and premature deaths attributable to exposure are calculated
 
       pop <- pop %>%

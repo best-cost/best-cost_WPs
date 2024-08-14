@@ -469,6 +469,10 @@ bestcost_pm_deaths_lifetable_expDistribution <-
 check_bestcost(result_list_bestcost = bestcost_pm_deaths_lifetable_expDistribution, # bestcost_pm_deaths_lifetable_geluft, 
                result_vector_alternative = c(2610, 1378, 3815)) # Result on 16 May 2024
 ```
+It is to be expected that the best-cost results are higher than the alternative
+source results: the exposure from the exposure distributions (best-cost) is a bit 
+higher than the single value exposure (alternative source).
+
 
 
 #### Years of life lost
@@ -507,7 +511,7 @@ check_bestcost(result_list_bestcost = bestcost_pm_yll_exposure_single_year_lifet
               
 # View(bestcost_pm_yll_exposure_single_year_lifetable_airqplus)
 ```
-
+Difference (between best-cost and GeLuft results) should be 3.86%.
 
 ```{r YLL from CONSTANT EXPOSURE and NO NEWBORNS}
 
@@ -607,6 +611,7 @@ if (yll_total_sum$diff_percent < 0.001) {
 # print("2100 absolute difference in YLLs:")
 # print(abs(airqplus_yll_difference$`2100`[82:100] - yll_total_rounded$population_2100[82:100]))
 ```
+AirQ+ value is from the large AirQ+ output excel.
 
 ```{r YLL from CONSTANT EXPOSURE and WITH NEWBORNS}
 
@@ -659,7 +664,7 @@ if (yll_total_sum$diff_percent < 0.001) {
              "AirQ+: ", yll_total_sum$airqplus_yll_sum,"\n"),
         crayon::red("Attention! Check! Bestcost and alternative with different results (> 0.001%)."))}
 ```
-
+AirQ+ value is from the large AirQ+ output excel.
 
 ```{r yll lifetable with single relative risk}
 # Only one relative risk estimate (central estimate)
@@ -692,7 +697,7 @@ bestcost_pm_yll_lifetable_1rr_geluft <-
 check_bestcost(result_list_bestcost = bestcost_pm_yll_lifetable_1rr_geluft,
                result_vector_alternative = c(27742)) # GeLuft result
 ```
-Difference to bestcost results should be 3.86%
+Difference to bestcost results should be 3.86% (difference bestcost and GeLuft results).
 
 ```{r yll lifetable with exposure distribution}
 
@@ -776,7 +781,7 @@ check_bestcost(result_list_bestcost = bestcost_pm_yld_lifetable_geluft,
                result_vector_alternative = c(27742, 14641, 40542)) # GeLuft results
 
 ```
-Difference to bestcost results should be 3.86%
+Difference GeLuft to bestcost results should be 3.86%
 
 
 
@@ -822,7 +827,7 @@ check_bestcost(result_list_bestcost = bestcost_pm_daly_lifetable_geluft,
                result_vector_alternative = c(27742*2, 14641*2, 40542*2))
 
 ```
-Difference to bestcost results should be 3.86%
+Difference GeLuft to bestcost results should be 3.86%
 
 ## Comparison
 
