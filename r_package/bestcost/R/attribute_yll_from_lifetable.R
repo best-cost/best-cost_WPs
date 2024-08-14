@@ -56,6 +56,7 @@ attribute_yll_from_lifetable <-
         disability_weight = NULL,
         duration = NULL,
         approach_exposure = approach_exposure,
+        approach_newborns = approach_newborns,
         first_age_pop = first_age_pop, last_age_pop = last_age_pop,
         prob_natural_death_male = prob_natural_death_male, prob_natural_death_female = prob_natural_death_female,
         prob_total_death_male = prob_total_death_male, prob_total_death_female = prob_total_death_female,

@@ -41,14 +41,11 @@ library(openxlsx)
 library(credentials)
 library(gitcreds)
 library(devtools)
-```
 
-
-```{r load bestcost package}
-# Load package (either current version or installed version)
+# Load bestcost package (either current version or installed version)
 devtools::load_all(export_all = FALSE)
-#library(bestcost)
 ```
+
 
 
 ```{r Alternative 1 to load bestcost: Install own package from github, eval=FALSE, include=FALSE}
@@ -94,18 +91,29 @@ for(d in c("natural", "total")){
   }
 }
 
-# Load YLL data from AirQ+ output Excel
+# Load (summed) YLL data from AirQ+ output Excel no newborns
 airqplus_yll_total_per_year_no_newborns <- tibble(year = 2019:2118,
                                                   impact = unname(as_vector(read_excel("../testing/output/airqplus_deaths_yll_lifetable_adults.xlsx", 
                                                                                        range = "B109:CW109", 
                                                                                        sheet = "yll_difference", 
                                                                                        col_names = FALSE))))
+
+# Load (summed) YLL data from AirQ+ output Excel with newborns
+airqplus_yll_total_per_year_with_newborns <- tibble(year = 2019:2118,
+                                                  impact = unname(as_vector(read_excel("../testing/output/airqplus_deaths_yll_lifetable_adults.xlsx", 
+                                                                                       range = "B103:CW103", 
+                                                                                       sheet = "yll_difference", 
+                                                                                       col_names = FALSE))))
+
 # Load premature death data 2019 from AirQ+ output Excel
 airqplus_premature_deaths_2019 <- tibble(age = 0:99,
                                          impact = unname(as_vector(read_excel("../testing/output/airqplus_deaths_yll_lifetable_adults.xlsx", 
                                                                               range = "B1:B101", 
                                                                               sheet = "deaths_difference", 
                                                                               col_names = TRUE))))
+
+# Load YLL data 
+airqplus_yll_difference <- read.xlsx("../testing/output/airqplus_deaths_yll_lifetable_adults.xlsx", sheet = "yll_difference", startRow = 1, rows = c(1:101))
 ```
 
 
@@ -391,6 +399,8 @@ if(all((bestcost_prob_dying$prob_dying -
 
 bestcost_pm_deaths_lifetable_airqplus <-
   bestcost::attribute_deaths_from_lifetable(
+    approach_exposure = "single_year",
+    approach_newborns = "with_newborns",
     exp_central = airqplus_pm_deaths_yll[["input"]]$mean_concentration, 
     cutoff = airqplus_pm_deaths_yll[["input"]]$cut_off_value,
     rr_central = airqplus_pm_deaths_yll[["input"]]$relative_risk,
@@ -456,14 +466,18 @@ bestcost_pm_deaths_lifetable_expDistribution <-
 
 # No study to compare bestcost results
 # Check only if results stay the same overtime despite developments
-check_bestcost(result_list_bestcost = bestcost_pm_deaths_lifetable_geluft ,
+check_bestcost(result_list_bestcost = bestcost_pm_deaths_lifetable_expDistribution, # bestcost_pm_deaths_lifetable_geluft, 
                result_vector_alternative = c(2610, 1378, 3815)) # Result on 16 May 2024
 ```
+It is to be expected that the best-cost results are higher than the alternative
+source results: the exposure from the exposure distributions (best-cost) is a bit 
+higher than the single value exposure (alternative source).
+
 
 
 #### Years of life lost
 
-```{r yll from SINGLE YEAR EXPOSURE from lifetable airqplus approach}
+```{r YLL from SINGLE YEAR EXPOSURE}
 
 # Now with input data from the Swiss project GeLuft
 bestcost_pm_yll_exposure_single_year_lifetable_airqplus <-
@@ -492,20 +506,21 @@ bestcost_pm_yll_exposure_single_year_lifetable_airqplus <-
     min_age = if(is.na(input_data_mortality$min_age[2])) NULL else input_data_mortality$min_age[2])
 
 check_bestcost(result_list_bestcost = bestcost_pm_yll_exposure_single_year_lifetable_airqplus,
-                result_vector_alternative = c(27742, 14641, 40542)) # GeLuft results
+                result_vector_alternative = c(27742, 14641, 40542)) # GeLuft results; difference to bestcost results should be 3.86%
                # result_vector_alternative = airqplus_pm_deaths_yll)
               
 # View(bestcost_pm_yll_exposure_single_year_lifetable_airqplus)
 ```
+Difference (between best-cost and GeLuft results) should be 3.86%.
 
-
-```{r yll FROM CONSTANT EXPOSURE from lifetable airqplus approach}
+```{r YLL from CONSTANT EXPOSURE and NO NEWBORNS}
 
 # Input data from an AirQ+ case
 
 bestcost_pm_yll_lifetable_airqplus <-
   bestcost::attribute_yll_from_lifetable(
     approach_exposure = "constant",
+    approach_newborns = "without_newborns",
     exp_central = airqplus_pm_deaths_yll[["input"]]$mean_concentration,
     cutoff = airqplus_pm_deaths_yll[["input"]]$cut_off_value,
     rr_central = airqplus_pm_deaths_yll[["input"]]$relative_risk,
@@ -577,26 +592,79 @@ if (yll_total_sum$diff_percent < 0.001) {
 # print("2020 absolute difference in YLLs:")
 # print(abs(airqplus_yll_difference$`2020`[2:100] - yll_total_rounded$population_2020[2:100]))
 # 
-# # 2021
-# print("2021 absolute difference in total YLLs:") 
+# 2021
+# print("2021 absolute difference in total YLLs:")
 # abs(6085 - round(sum(yll_total_rounded$population_2021, na.rm = TRUE), digits = 2)) # Value from AirQ+ output Excel
 # print("2021 absolute difference in YLLs:")
 # print(abs(airqplus_yll_difference$`2021` - yll_total_rounded$population_2021))
 # 
 # # 2050
-# print("2050 absolute difference in total YLLs:") 
+# print("2050 absolute difference in total YLLs:")
 # abs(41044 - round(sum(yll_total_rounded$population_2050, na.rm = TRUE), digits = 2)) # Value from AirQ+ output Excel
 # print("2050 absolute difference in age-specific YLLs")
 # print(abs(airqplus_yll_difference$`2050`[32:100] - yll_total_rounded$population_2050[32:100]))
 # # Max difference constant at 1 --> rounding error
 # 
 # # 2100
-# print("2100 absolute difference in total YLLs:") 
+# print("2100 absolute difference in total YLLs:")
 # abs(20535 - round(sum(yll_total_rounded$population_2100, na.rm = TRUE), digits = 2)) # Value from AirQ+ output Excel
 # print("2100 absolute difference in YLLs:")
 # print(abs(airqplus_yll_difference$`2100`[82:100] - yll_total_rounded$population_2100[82:100]))
 ```
+AirQ+ value is from the large AirQ+ output excel.
 
+```{r YLL from CONSTANT EXPOSURE and WITH NEWBORNS}
+
+# Input data from an AirQ+ case
+
+bestcost_pm_yll_lifetable_airqplus_with_newborns <-
+  bestcost::attribute_yll_from_lifetable(
+    approach_exposure = "constant",
+    approach_newborns = "with_newborns",
+    exp_central = airqplus_pm_deaths_yll[["input"]]$mean_concentration,
+    cutoff = airqplus_pm_deaths_yll[["input"]]$cut_off_value,
+    rr_central = airqplus_pm_deaths_yll[["input"]]$relative_risk,
+    rr_lower = airqplus_pm_deaths_yll[["input"]]$relative_risk_lower,
+    rr_upper = airqplus_pm_deaths_yll[["input"]]$relative_risk_upper,
+    erf_increment = 10, 
+    erf_shape = gsub("-", "_", airqplus_pm_deaths_yll[["input"]]$calculation_method),
+    first_age_pop = first(airqplus_pm_deaths_yll[["pop"]]$age_from...),
+    last_age_pop = last(airqplus_pm_deaths_yll[["pop"]]$age_from...),
+    prob_natural_death_male = prob_dying[["natural"]][["male"]]$prob_dying,
+    prob_natural_death_female = prob_dying[["natural"]][["female"]]$prob_dying,
+    prob_total_death_male = prob_dying[["total"]][["male"]]$prob_dying,
+    prob_total_death_female = prob_dying[["total"]][["female"]]$prob_dying,
+    population_midyear_male = airqplus_pm_deaths_yll[["pop"]]$midyear_population_male,
+    population_midyear_female = airqplus_pm_deaths_yll[["pop"]]$midyear_population_female,
+    deaths_male = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_male,
+    deaths_female = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_female,
+    year_of_analysis =  airqplus_pm_deaths_yll[["input"]]$start_year, 
+    min_age = airqplus_pm_deaths_yll[["input"]]$apply_rr_from_age)
+
+# Compare total (= both sexes) YLL
+yll_total_rounded <- round(bestcost_pm_yll_lifetable_airqplus_with_newborns[["detailed"]][["interim"]][["pop_impact_nest"]][[3]] %>% select(-age_end))
+yll_total_unrounded <- bestcost_pm_yll_lifetable_airqplus_with_newborns[["detailed"]][["interim"]][["pop_impact_nest"]][[3]] %>% select(-age_end)
+
+# Difference in total yearly YLLs
+yll_total_comp <- tibble(year = airqplus_yll_total_per_year_with_newborns$year,
+       airqplus_yll_total = airqplus_yll_total_per_year_with_newborns$impact,
+       bestcost_yll_total_rounded = round(bestcost_pm_yll_lifetable_airqplus_with_newborns[["detailed"]][["interim"]][["lifeyears_nest"]][[3]]$impact))
+
+yll_total_sum <- tibble(airqplus_yll_sum = sum(yll_total_comp$airqplus_yll_total),
+                             bestcost_yll_sum = sum(yll_total_comp$bestcost_yll_total_rounded),
+                             diff_abs = abs(airqplus_yll_sum - bestcost_yll_sum),
+                             diff_percent = diff_abs / airqplus_yll_sum * 100)
+
+if (yll_total_sum$diff_percent < 0.001) {
+  cat(paste0("best-cost: ", yll_total_sum$bestcost_yll_sum,"\n",
+             "AirQ+: ", yll_total_sum$airqplus_yll_sum,"\n"),
+      crayon::cyan("Right. Bestcost and alternative with almost identical results (< 0.001%)."))
+} else {
+    cat(paste0("best-cost: ", yll_total_sum$bestcost_yll_sum,"\n",
+             "AirQ+: ", yll_total_sum$airqplus_yll_sum,"\n"),
+        crayon::red("Attention! Check! Bestcost and alternative with different results (> 0.001%)."))}
+```
+AirQ+ value is from the large AirQ+ output excel.
 
 ```{r yll lifetable with single relative risk}
 # Only one relative risk estimate (central estimate)
@@ -629,7 +697,7 @@ bestcost_pm_yll_lifetable_1rr_geluft <-
 check_bestcost(result_list_bestcost = bestcost_pm_yll_lifetable_1rr_geluft,
                result_vector_alternative = c(27742)) # GeLuft result
 ```
-
+Difference to bestcost results should be 3.86% (difference bestcost and GeLuft results).
 
 ```{r yll lifetable with exposure distribution}
 
@@ -667,6 +735,7 @@ check_bestcost(result_list_bestcost = bestcost_pm_yll_lifetable_expDistribution_
                result_vector_alternative = c(30931, 16337, 45166)) # Result on 16 May 2024
 
 ```
+Difference should be 3.86%
 
 #### Years lived with disability
 
@@ -712,6 +781,10 @@ check_bestcost(result_list_bestcost = bestcost_pm_yld_lifetable_geluft,
                result_vector_alternative = c(27742, 14641, 40542)) # GeLuft results
 
 ```
+Difference GeLuft to bestcost results should be 3.86%
+
+
+
 #### Disability-adjusted lived years (DALY)
 
 ```{r morbidity daly lifetable}
@@ -754,7 +827,7 @@ check_bestcost(result_list_bestcost = bestcost_pm_daly_lifetable_geluft,
                result_vector_alternative = c(27742*2, 14641*2, 40542*2))
 
 ```
-
+Difference GeLuft to bestcost results should be 3.86%
 
 ## Comparison
 
