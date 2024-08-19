@@ -40,7 +40,7 @@ compile_input <-
            geo_id_raw = NULL,
            geo_id_aggregated = NULL,
            info = NULL,
-           dw_central = NULL,
+           dw_central = NULL, dw_lower = NULL, dw_upper = NULL,
            corrected_discount_rate = NULL,
            duration = NULL,
            # And lifetable-related data...
@@ -129,7 +129,7 @@ compile_input <-
         approach_newborns = rep(approach_newborns, each = length_exp_dist),
 
         # Second those variables that will have length = 1 (no problematic)
-        dw_central = dw_central,
+        dw_central = dw_central, dw_lower = dw_lower, dw_upper = dw_upper,
         duration = duration,
         corrected_discount_rate = corrected_discount_rate,
 

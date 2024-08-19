@@ -53,7 +53,7 @@ attribute_yll_from_lifetable <-
         erf_shape = erf_shape,
         erf_c_central = erf_c_central, erf_c_lower = erf_c_lower, erf_c_upper = erf_c_upper,
         bhd_central = NULL, bhd_lower = NULL, bhd_upper = NULL,
-        dw_central = NULL,
+        dw_central = NULL, dw_lower = NULL, dw_upper = NULL,
         duration = NULL,
         approach_exposure = approach_exposure,
         approach_newborns = approach_newborns,

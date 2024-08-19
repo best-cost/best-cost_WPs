@@ -24,7 +24,7 @@ get_impact <-
            min_age = NULL,
            max_age = NULL,
            corrected_discount_rate = NULL,
-           dw_central = NULL,
+           dw_central = NULL, dw_lower = NULL, dw_upper = NULL,
            duration = NULL,
            pop_fraction_type){
 
@@ -73,7 +73,7 @@ get_impact <-
               min_age = min_age,
               max_age = max_age,
               corrected_discount_rate = corrected_discount_rate,
-              dw_central = dw_central,
+              dw_central = dw_central, dw_lower = dw_lower, dw_upper = dw_upper,
               duration = duration,
               input_with_risk_and_pop_fraction = input_with_risk_and_pop_fraction)
 
@@ -95,7 +95,7 @@ get_impact <-
           min_age = min_age,
           max_age = max_age,
           corrected_discount_rate = corrected_discount_rate,
-          dw_central = dw_central,
+          dw_central = dw_central, dw_lower = dw_lower, dw_upper = dw_upper,
           duration = duration,
           input_with_risk_and_pop_fraction = input_with_risk_and_pop_fraction)
 
