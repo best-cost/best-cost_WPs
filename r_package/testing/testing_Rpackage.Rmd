@@ -324,7 +324,7 @@ bestcost_noise_ha_ar_geo <-
 ```
 
 
-```{r morbidity yld lifetable with single relative risk}
+```{r morbidity yld with single relative risk}
 
 bestcost_pm_yld_singlebhd  <- 
   bestcost::attribute_yld_from_prevalence(
@@ -336,7 +336,7 @@ bestcost_pm_yld_singlebhd  <-
     rr_upper = 1.179,
     erf_increment = 10, 
     erf_shape = "log_linear", 
-    disability_weight = 0.5)
+    dw_central = 1, dw_lower = 0.1, dw_upper = 10)
 
 # No study to compare bestcost results
 # Check only if results stay the same overtime despite developments
@@ -771,7 +771,7 @@ bestcost_pm_yld_lifetable_geluft  <-
     info = input_data_mortality$pollutant[2],
     min_age = input_data_mortality$min_age[2], # min_age = 20,
     duration = 100, 
-    disability_weight_central = 1 
+    dw_central = 1, dw_lower = 0.1, dw_upper = 10
   )
 
 # The Swiss project GeLuft did not calculated the YLD, only YLL. 

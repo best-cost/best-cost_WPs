@@ -84,6 +84,48 @@ get_deaths_yll_yld <-
             } else
               .x<-.x}), .before = 1)
 
+    # Add disability weights to "impact_detailed"
+    if(outcome_metric %in% "yld"){
+
+      impact_detailed <- bind_rows(
+        impact_detailed %>%
+          mutate(dw_ci = "central") %>%
+          mutate(dw = dw_central),
+        impact_detailed %>%
+          mutate(dw_ci = "lower") %>%
+          mutate(dw = dw_lower),
+        impact_detailed %>%
+          mutate(dw_ci = "upper") %>%
+          mutate(dw = dw_upper)
+      )
+
+      # Determine year- and age-specific YLD
+      impact_detailed <- impact_detailed %>%
+        dplyr::mutate(yll_nest =
+                        purrr::pmap(
+          list(yll_nest, dw),
+          function(yll_nest, dw){
+            # YLL * DW = YLD
+            yll_nest <- yll_nest * dw
+            return(yll_nest)
+          }
+        )
+        )
+
+      # Determine sum of YLD per year
+      impact_detailed <- impact_detailed %>%
+        dplyr::mutate(lifeyears_nest =
+                        purrr::pmap(
+                          list(lifeyears_nest, dw),
+                          function(lifeyears_nest, dw){
+                            lifeyears_nest <- lifeyears_nest %>%
+                              mutate(impact = impact * dw)
+                            return(lifeyears_nest)
+                          }
+                        ))
+
+    }
+
     impact_detailed <- impact_detailed %>%
         # Calculate total, not discounted YLL (single number) ####
         # Store in new column "impact_nest"
@@ -109,6 +151,7 @@ get_deaths_yll_yld <-
 
             # If yld
             if(outcome_metric %in% "yld"){
+
               .x <-
                 .x %>%
                 # Filter for the relevant years
@@ -116,8 +159,7 @@ get_deaths_yll_yld <-
                 # Sum among years to obtain the total impact (single value)
                 dplyr::summarise(
                   impact = sum(impact, na.rm = TRUE))%>%
-                dplyr::mutate(impact = impact * {{dw_central}},
-                              discounted = FALSE)
+                dplyr::mutate(discounted = FALSE)
             }
             return(.x)
           })
@@ -204,12 +246,10 @@ get_deaths_yll_yld <-
       impact_detailed %>%
       dplyr::select(., -contains("nest"))%>%
       dplyr::filter(., sex %in% "total") %>%
+      dplyr::filter(., dw_ci %in% "central") %>%
       {if(!is.null(corrected_discount_rate))
       # {if(corrected_discount_rate != 0)
         dplyr::filter(., discounted %in% TRUE) else .}
-
-
-
 
     # Classify results in main and detailed
     output <- list(main = impact_main,
