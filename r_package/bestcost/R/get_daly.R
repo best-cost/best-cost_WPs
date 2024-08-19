@@ -12,7 +12,7 @@
 #' @param last_age_pop \code{Numeric value} ending age of the oldest age group from population and life table data
 #' @param input_with_risk_and_pop_fraction \code{Data frame} with meta-information such as input data, additional information and intermediate results.
 #' @param corrected_discount_rate \code{Numeric value}  with the annual discount rate as proportion (i.e. 0.1 instead of 10\%). It can be calculated as (1+discount_rate_beforeCorrection/1+rate_of_increase)-1
-#' @param disability_weight_central \code{Numeric value} showing the disability weight associated with the morbidity health outcome
+#' @param dw_central \code{Numeric value} showing the disability weight associated with the morbidity health outcome
 #' @param duration \code{Numeric value} showing the duration (in years) of the morbidity health outcome
 #' @return
 #' This function returns a \code{List}
@@ -35,7 +35,7 @@ get_daly <-
            max_age = NULL,
            input_with_risk_and_pop_fraction,
            corrected_discount_rate = NULL,
-           disability_weight_central = NULL,
+           dw_central = NULL,
            duration = NULL){
 
 
@@ -55,7 +55,7 @@ get_daly <-
           min_age = min_age,
           max_age = max_age,
           corrected_discount_rate = corrected_discount_rate,
-          disability_weight_central = disability_weight_central,
+          dw_central = dw_central,
           duration = duration,
           input_with_risk_and_pop_fraction = input_with_risk_and_pop_fraction)
     }

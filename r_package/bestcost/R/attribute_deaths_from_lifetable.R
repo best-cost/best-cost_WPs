@@ -54,7 +54,7 @@ attribute_deaths_from_lifetable <-
         erf_shape = erf_shape,
         erf_c_central = erf_c_central, erf_c_lower = erf_c_lower, erf_c_upper = erf_c_upper,
         bhd_central = NULL, bhd_lower = NULL, bhd_upper = NULL,
-        disability_weight_central = NULL,
+        dw_central = NULL,
         duration = NULL,
         # Lifetable arguments
         approach_exposure = approach_exposure,

@@ -24,7 +24,7 @@ get_impact <-
            min_age = NULL,
            max_age = NULL,
            corrected_discount_rate = NULL,
-           disability_weight_central = NULL,
+           dw_central = NULL,
            duration = NULL,
            pop_fraction_type){
 
@@ -42,7 +42,7 @@ get_impact <-
           # Build the result table adding the impact to the input table
           dplyr::mutate(impact = pop_fraction * bhd) %>%
           {if(unique(input$health_metric) == "yld_from_prevalence")
-            dplyr::mutate(., impact = impact * disability_weight_central) else .} %>%
+            dplyr::mutate(., impact = impact * dw_central) else .} %>%
           # Order columns
           dplyr::select(exp_ci, bhd_ci, erf_ci,
                         pop_fraction, impact,
@@ -73,7 +73,7 @@ get_impact <-
               min_age = min_age,
               max_age = max_age,
               corrected_discount_rate = corrected_discount_rate,
-              disability_weight_central = disability_weight_central,
+              dw_central = dw_central,
               duration = duration,
               input_with_risk_and_pop_fraction = input_with_risk_and_pop_fraction)
 
@@ -95,7 +95,7 @@ get_impact <-
           min_age = min_age,
           max_age = max_age,
           corrected_discount_rate = corrected_discount_rate,
-          disability_weight_central = disability_weight_central,
+          dw_central = dw_central,
           duration = duration,
           input_with_risk_and_pop_fraction = input_with_risk_and_pop_fraction)
 

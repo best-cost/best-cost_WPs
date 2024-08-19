@@ -28,7 +28,7 @@ attribute_yld_from_lifetable <-
            year_of_analysis,
            corrected_discount_rate = NULL,
            min_age = NULL, max_age = NULL,
-           disability_weight_central,
+           dw_central,
            duration,
            info = NULL){
 
@@ -56,7 +56,7 @@ attribute_yld_from_lifetable <-
         year_of_analysis = year_of_analysis,
         min_age = min_age, max_age = max_age,
         corrected_discount_rate = corrected_discount_rate,
-        disability_weight_central = disability_weight_central,
+        dw_central = dw_central,
         duration = duration,
         geo_id_raw = NULL , geo_id_aggregated = NULL,
 

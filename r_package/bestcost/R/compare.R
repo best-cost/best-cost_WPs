@@ -39,7 +39,7 @@
 #' @param year_of_analysis_2 \code{Numeric value} of the year of analysis, which corresponds to the first year of the life table.
 #' @param min_age \code{Numberic value} of the minimal age to be considered for adults (by default 30, i.e. 30+).
 #' @param max_age \code{Numberic value} of the maximal age to be considered for infants/children (by default 0, i.e. below 1 year old).
-#' @param disability_weight_central \code{Numeric value} showing the disability weight associated with the morbidity health outcome
+#' @param dw_central \code{Numeric value} showing the disability weight associated with the morbidity health outcome
 #' @param duration \code{Numeric value} showing the disease duration
 #' @param corrected_discount_rate \code{Numeric value} showing the discount rate for future years including correction from inflation rate
 #' @param geo_id_raw \code{Vector} showing the id code of the each geographic area considered in the assessment. If a vector is entered here, the data for each geographical area have to be provided as list in the corresponding arguments.
@@ -97,7 +97,7 @@ compare <-
            population_midyear_male_2 = NULL, population_midyear_female_2 = NULL,
            year_of_analysis_2 = NULL,
            min_age = NULL, max_age = NULL,
-           disability_weight_central = NULL,
+           dw_central = NULL,
            duration = NULL,
            corrected_discount_rate = NULL,
            # Iteration
@@ -135,7 +135,7 @@ compare <-
         min_age = min_age,
         max_age = max_age,
         corrected_discount_rate = corrected_discount_rate,
-        disability_weight_central = disability_weight_central,
+        dw_central = dw_central,
         geo_id_raw = geo_id_raw,
         geo_id_aggregated = geo_id_aggregated,
         duration = duration,
@@ -171,7 +171,7 @@ compare <-
         min_age = min_age,
         max_age = max_age,
         corrected_discount_rate = corrected_discount_rate,
-        disability_weight_central = disability_weight_central,
+        dw_central = dw_central,
         duration = duration,
         geo_id_raw = geo_id_raw,
         geo_id_aggregated = geo_id_aggregated,
@@ -340,7 +340,7 @@ compare <-
           min_age = min_age,
           max_age = max_age,
           corrected_discount_rate = corrected_discount_rate,
-          disability_weight_central = disability_weight_central,
+          dw_central = dw_central,
           duration = duration,
           pop_fraction_type = "pif")
       }

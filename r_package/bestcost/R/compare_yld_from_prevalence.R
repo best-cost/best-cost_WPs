@@ -35,7 +35,7 @@ compare_yld_from_prevalence <-
            erf_c_central = NULL, erf_c_lower = NULL, erf_c_upper = NULL,
            bhd_central_1, bhd_lower_1 = NULL, bhd_upper_1 = NULL,
            bhd_central_2, bhd_lower_2 = NULL, bhd_upper_2 = NULL,
-           disability_weight_central,
+           dw_central,
            geo_id_raw = NULL,
            geo_id_aggregated = NULL,
            info_1 = NULL, info_2 = NULL){
@@ -58,7 +58,7 @@ compare_yld_from_prevalence <-
         erf_c_central = erf_c_central, erf_c_lower = erf_c_lower, erf_c_upper = erf_c_upper,
         bhd_central_1 = bhd_central_1, bhd_lower_1 = bhd_lower_1, bhd_upper_1 = bhd_upper_1,
         bhd_central_2 = bhd_central_2, bhd_lower_2 = bhd_lower_2, bhd_upper_2 = bhd_upper_2,
-        disability_weight_central = disability_weight_central,
+        dw_central = dw_central,
         duration = NULL,
         first_age_pop_1 = NULL, last_age_pop_1 = NULL,
         prob_natural_death_male_1 = NULL, prob_natural_death_female_1 = NULL,

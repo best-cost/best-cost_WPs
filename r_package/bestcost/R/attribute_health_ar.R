@@ -47,7 +47,7 @@ attribute_health_ar <-
         year_of_analysis = NULL,
         min_age = NULL, max_age = NULL,
         corrected_discount_rate = NULL,
-        disability_weight_central = NULL,
+        dw_central = NULL,
         duration = NULL,
         geo_id_raw = geo_id_raw , geo_id_aggregated = geo_id_aggregated,
         info = info)
