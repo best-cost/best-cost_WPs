@@ -469,7 +469,7 @@ bestcost_pm_deaths_lifetable_expDistribution <-
 check_bestcost(result_list_bestcost = bestcost_pm_deaths_lifetable_expDistribution, # bestcost_pm_deaths_lifetable_geluft, 
                result_vector_alternative = c(2610, 1378, 3815)) # Result on 16 May 2024
 ```
-It is to be expected that the best-cost results are higher than the alternative
+It is to be expected that the best-cost results are higher (11.11%) than the alternative
 source results: the exposure from the exposure distributions (best-cost) is a bit 
 higher than the single value exposure (alternative source).
 

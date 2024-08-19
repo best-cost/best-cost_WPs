@@ -86,6 +86,7 @@ get_deaths_yll_yld <-
 
     impact_detailed <- impact_detailed %>%
         # Calculate total, not discounted YLL (single number) ####
+        # Store in new column "impact_nest"
     dplyr::mutate(impact_nest = purrr::map(
           lifeyears_nest,
           function(.x){
@@ -177,6 +178,8 @@ get_deaths_yll_yld <-
         outcome_metric = outcome_metric)
 
     # Obtain total rows (sum across sex)
+    ## ONLY if not a lifetable calculation, which already have a "total" row
+    if (FALSE == grepl("from_lifetable", unique(impact_detailed$health_metric))){ # Is TRUE only for non-lifetable calculations
     impact_detailed_total <-
       impact_detailed %>%
       # Sum across sex adding total
@@ -194,7 +197,7 @@ get_deaths_yll_yld <-
     # Bind the rows of impact_detailed and the totals
     impact_detailed <-
       dplyr::bind_rows(impact_detailed, impact_detailed_total)
-
+    }
 
     # Get the main results starting from a detailed table of results
     impact_main <-
