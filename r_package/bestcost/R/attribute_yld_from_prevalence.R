@@ -29,7 +29,7 @@ attribute_yld_from_prevalence <-
            erf_shape,
            erf_c_central = NULL, erf_c_lower = NULL, erf_c_upper = NULL,
            bhd_central, bhd_lower = NULL, bhd_upper = NULL,
-           disability_weight,
+           disability_weight_central,
            info = NULL){
 
 
@@ -53,7 +53,7 @@ attribute_yld_from_prevalence <-
         year_of_analysis = NULL,
         min_age = NULL, max_age = NULL,
         corrected_discount_rate = NULL,
-        disability_weight = disability_weight,
+        disability_weight_central = disability_weight_central,
         duration = NULL,
         geo_id_raw = NULL , geo_id_aggregated = NULL,
         info = info)

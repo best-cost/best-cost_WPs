@@ -50,7 +50,7 @@ compare_health_ar <-
         erf_c_central = erf_c_central, erf_c_lower = erf_c_lower, erf_c_upper = erf_c_upper,
         bhd_central_1 = NULL, bhd_lower_1 = NULL, bhd_upper_1 = NULL,
         bhd_central_2 = NULL, bhd_lower_2 = NULL, bhd_upper_2 = NULL,
-        disability_weight = NULL,
+        disability_weight_central = NULL,
         duration = NULL,
         approach_exposure_1 = NULL,
         approach_newborns_1 = NULL,

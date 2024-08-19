@@ -12,7 +12,7 @@
 #' @param last_age_pop \code{Numeric value} ending age of the oldest age group from population and life table data
 #' @param input_with_risk_and_pop_fraction \code{Data frame} with meta-information such as input data, additional information and intermediate results.
 #' @param corrected_discount_rate \code{Numeric value}  with the annual discount rate as proportion (i.e. 0.1 instead of 10\%). It can be calculated as (1+discount_rate_beforeCorrection/1+rate_of_increase)-1
-#' @param disability_weight \code{Numeric value} showing the disability weight associated with the morbidity health outcome
+#' @param disability_weight_central \code{Numeric value} showing the disability weight associated with the morbidity health outcome
 #' @param duration \code{Numeric value} showing the duration (in years) of the morbidity health outcome
 #' @return
 #' This function returns a \code{List}
@@ -35,7 +35,7 @@ get_deaths_yll_yld <-
            max_age = NULL,
            input_with_risk_and_pop_fraction,
            corrected_discount_rate = NULL,
-           disability_weight = NULL,
+           disability_weight_central = NULL,
            duration = NULL){
 
     impact_detailed <-
@@ -116,7 +116,7 @@ get_deaths_yll_yld <-
                 # Sum among years to obtain the total impact (single value)
                 dplyr::summarise(
                   impact = sum(impact, na.rm = TRUE))%>%
-                dplyr::mutate(impact = impact * {{disability_weight}},
+                dplyr::mutate(impact = impact * {{disability_weight_central}},
                               discounted = FALSE)
             }
             return(.x)
@@ -154,7 +154,7 @@ get_deaths_yll_yld <-
                   # Filter for the relevant years
                   dplyr::filter(., year < (year_of_analysis + duration + 1)) %>%
                   # Sum among years to obtain the total impact (single value)
-                  dplyr::summarise(impact = sum(discounted_impact)* {{disability_weight}}, .groups = "drop") else .} %>%
+                  dplyr::summarise(impact = sum(discounted_impact)* {{disability_weight_central}}, .groups = "drop") else .} %>%
                 dplyr::mutate(discounted = TRUE)
 
 

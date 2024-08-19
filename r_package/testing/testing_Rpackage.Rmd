@@ -753,7 +753,7 @@ bestcost_pm_yld_lifetable_geluft  <-
     cutoff = input_data_mortality$cutoff[2],
     rr_central = input_data_mortality[2,"rr_central"], 
     rr_lower = input_data_mortality[2,"rr_lower"], 
-    rr_upper =input_data_mortality[2,"rr_upper"], 
+    rr_upper = input_data_mortality[2,"rr_upper"], 
     erf_increment = 10, 
     erf_shape = "log_linear",
     approach_exposure = "single_year",
@@ -771,7 +771,7 @@ bestcost_pm_yld_lifetable_geluft  <-
     info = input_data_mortality$pollutant[2],
     min_age = input_data_mortality$min_age[2], # min_age = 20,
     duration = 100, 
-    disability_weight = 1
+    disability_weight_central = 1 
   )
 
 # The Swiss project GeLuft did not calculated the YLD, only YLL. 
