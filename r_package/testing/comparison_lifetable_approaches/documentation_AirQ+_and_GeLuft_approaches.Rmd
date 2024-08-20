@@ -1,0 +1,86 @@
+---
+title: "documentation_AirQ+_and_GeLuft_approaches"
+author: "Axel Luyten"
+output: html_document
+---
+
+# Goal: 
+Document the AirQ+ and GeLuft life table approaches in parallel for future reference
+
+```{r Load data}
+knitr::opts_knit$set(root.dir = getwd())
+# load("../testing/comparison_lifetable_approaches/input_data_get_pop_impact.Rdata")
+load("../testing/comparison_lifetable_approaches/documentation_AirQ+_and_GeLuft_approaches.Rdata")
+options(digits = 10)
+pacman::p_load("dplyr", "purrr", "tidyr", "tibble")
+```
+
+# Setup
+
+Starting point is a basic life table containing:
+- mid-year population 
+- deaths (from natural cause)
+for each age from 0 - 99, 
+and the population attributable fraction (calculated beforehand.
+```{r}
+head(lifetable)
+```
+
+In a first step, the probability of survival from start to end of a 
+particular age, which is the same as from start of year i to start of year i+1,
+is calculated as:
+(mid-year pop - ( deaths / 2 ) ) / ( mid-year pop + (deaths / 2) )
+Source: Miller, 2003, https://doi.org/10.1136/jech.57.3.200
+```{r}
+lifetable <- lifetable %>% 
+  dplyr::mutate(prob_survival = ( population - ( deaths / 2 ) ) / ( population + ( deaths / 2 ) ), .after = deaths)
+```
+
+Next, probability of survival from start of age to mid-year is calculated as:
+1 - ( ( 1 - survival probability ) / 2 )
+which is equivalent to
+1 - ( death probability / 2)
+```{r}
+lifetable <- lifetable %>% 
+  dplyr::mutate(prob_survival_until_mid_year = 1 - ( ( 1 - prob_survival ) / 2 ), .before = prob_survival)
+```
+
+# Premature deaths
+
+For the calculation of premature deaths attributable to the exposure the two 
+approaches diverge:
+
+GeLuft approach: 
+Attributable deaths are calculated as:
+Mid-year population * survival probability * PAF
+
+AirQ approach:
+Attributable deaths are the difference of the end-of-year populations of two scenarios:
+Baseline scenario and impacted scenario.
+To calculate the end-of-year population, we multiply the entry population
+with
+- the observed survival probability in case of the baseline scenario
+- a modified survival probability in case of the impacted scenario
+
+Entry population = mid-year population + (deaths / 2)
+This implicitly assumes that deaths are distributed evenly throughout the year.
+
+Modified survival probability for the impacted scenario is calculated as:
+survival probability * (1 - PAF)
+which can be expressed at
+survival probability * population non-attributable fraction.
+
+```{r}
+
+# GeLuft
+geluft <- lifetable %>% 
+  mutate(premature_deaths_YOA = deaths * prob_survival * paf)
+
+# AirQ+
+airqplus_baseline <- lifetable %>% 
+  
+```
+
+
+
+

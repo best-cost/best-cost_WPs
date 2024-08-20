@@ -39,7 +39,7 @@
 #' @param year_of_analysis_2 \code{Numeric value} of the year of analysis, which corresponds to the first year of the life table.
 #' @param min_age \code{Numberic value} of the minimal age to be considered for adults (by default 30, i.e. 30+).
 #' @param max_age \code{Numberic value} of the maximal age to be considered for infants/children (by default 0, i.e. below 1 year old).
-#' @param disability_weight \code{Numeric value} showing the disability weight associated with the morbidity health outcome
+#' @param dw_central,dw_lower,dw_upper Three \code{Numeric value} showing the disability weights (central estimate, lower and upper 95% confidence intervals) associated with the morbidity health outcome
 #' @param duration \code{Numeric value} showing the disease duration
 #' @param corrected_discount_rate \code{Numeric value} showing the discount rate for future years including correction from inflation rate
 #' @param geo_id_raw \code{Vector} showing the id code of the each geographic area considered in the assessment. If a vector is entered here, the data for each geographical area have to be provided as list in the corresponding arguments.
@@ -81,6 +81,8 @@ compare <-
            approach_exposure_1 = NULL,
            approach_newborns_1 = NULL,
            first_age_pop_1 = NULL, last_age_pop_1 = NULL,
+           deaths_male_1 = NULL,
+           deaths_female_1 = NULL,
            prob_natural_death_male_1 = NULL, prob_natural_death_female_1 = NULL,
            prob_total_death_male_1 = NULL, prob_total_death_female_1 = NULL,
            population_midyear_male_1 = NULL, population_midyear_female_1 = NULL,
@@ -88,12 +90,14 @@ compare <-
            approach_exposure_2 = NULL,
            approach_newborns_2 = NULL,
            first_age_pop_2 = NULL, last_age_pop_2 = NULL,
+           deaths_male_2 = deaths_male_2,
+           deaths_female_2 = deaths_female_2,
            prob_natural_death_male_2 = NULL, prob_natural_death_female_2 = NULL,
            prob_total_death_male_2 = NULL, prob_total_death_female_2 = NULL,
            population_midyear_male_2 = NULL, population_midyear_female_2 = NULL,
            year_of_analysis_2 = NULL,
            min_age = NULL, max_age = NULL,
-           disability_weight = NULL,
+           dw_central = NULL, dw_lower = NULL, dw_upper = NULL,
            duration = NULL,
            corrected_discount_rate = NULL,
            # Iteration
@@ -119,6 +123,8 @@ compare <-
         approach_newborns = approach_newborns_1,
         first_age_pop = first_age_pop_1,
         last_age_pop = last_age_pop_1,
+        deaths_male = deaths_male_1,
+        deaths_female = deaths_female_1,
         prob_natural_death_male = prob_natural_death_male_1,
         prob_natural_death_female = prob_natural_death_female_1,
         prob_total_death_male = prob_total_death_male_1,
@@ -129,7 +135,7 @@ compare <-
         min_age = min_age,
         max_age = max_age,
         corrected_discount_rate = corrected_discount_rate,
-        disability_weight = disability_weight,
+        dw_central = dw_central, dw_lower = dw_lower, dw_upper = dw_upper,
         geo_id_raw = geo_id_raw,
         geo_id_aggregated = geo_id_aggregated,
         duration = duration,
@@ -153,6 +159,8 @@ compare <-
         approach_exposure = approach_exposure_2,
         first_age_pop = first_age_pop_2,
         last_age_pop = last_age_pop_2,
+        deaths_male = deaths_male_2,
+        deaths_female = deaths_female_2,
         prob_natural_death_male = prob_natural_death_male_2,
         prob_natural_death_female = prob_natural_death_female_2,
         prob_total_death_male = prob_total_death_male_2,
@@ -163,7 +171,7 @@ compare <-
         min_age = min_age,
         max_age = max_age,
         corrected_discount_rate = corrected_discount_rate,
-        disability_weight = disability_weight,
+        dw_central = dw_central, dw_lower = dw_lower, dw_upper = dw_upper,
         duration = duration,
         geo_id_raw = geo_id_raw,
         geo_id_aggregated = geo_id_aggregated,
@@ -250,10 +258,12 @@ compare <-
           geo_id_raw = geo_id_raw,
           geo_id_aggregated = geo_id_aggregated,
           # Lifetable data
-          approach_exposure_1 = approach_exposure_1,
-          approach_newborns_1 = approach_newborns_1,
+          approach_exposure = approach_exposure_1,
+          approach_newborns = approach_newborns_1,
           first_age_pop =  first_age_pop_1,
           last_age_pop = last_age_pop_1,
+          deaths_male = deaths_male_1,
+          deaths_female = deaths_female_1,
           prob_natural_death_male = prob_natural_death_male_1,
           prob_natural_death_female = prob_natural_death_female_1,
           prob_total_death_male = prob_total_death_male_1,
@@ -282,10 +292,12 @@ compare <-
           geo_id_raw = geo_id_raw,
           geo_id_aggregated = geo_id_aggregated,
           # Lifetable data
-          approach_exposure_2 = approach_exposure_2,
-          approach_newborns_2 = approach_newborns_2,
+          approach_exposure = approach_exposure_2,
+          approach_newborns = approach_newborns_2,
           first_age_pop =  first_age_pop_2,
           last_age_pop = last_age_pop_2,
+          deaths_male = deaths_male_2,
+          deaths_female = deaths_female_2,
           prob_natural_death_male = prob_natural_death_male_2,
           prob_natural_death_female = prob_natural_death_female_2,
           prob_total_death_male = prob_total_death_male_2,
@@ -328,7 +340,7 @@ compare <-
           min_age = min_age,
           max_age = max_age,
           corrected_discount_rate = corrected_discount_rate,
-          disability_weight = disability_weight,
+          dw_central = dw_central, dw_lower = dw_lower, dw_upper = dw_upper,
           duration = duration,
           pop_fraction_type = "pif")
       }

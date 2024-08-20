@@ -24,7 +24,7 @@ get_impact <-
            min_age = NULL,
            max_age = NULL,
            corrected_discount_rate = NULL,
-           disability_weight = NULL,
+           dw_central = NULL, dw_lower = NULL, dw_upper = NULL,
            duration = NULL,
            pop_fraction_type){
 
@@ -34,25 +34,50 @@ get_impact <-
         bestcost:::get_risk_and_pop_fraction(input = input,
                                              pop_fraction_type = pop_fraction_type)
 
-      if(unique(input$health_metric) %in%
-         c("same_input_output", "yld_from_prevalence")){
+      if(unique(input$health_metric) %in% "same_input_output") {
+
         # Get pop_fraction and add it to the input data frame
         impact_raw_main <-
           input_with_risk_and_pop_fraction %>%
           # Build the result table adding the impact to the input table
           dplyr::mutate(impact = pop_fraction * bhd) %>%
-          {if(unique(input$health_metric) == "yld_from_prevalence")
-            dplyr::mutate(., impact = impact * disability_weight) else .} %>%
           # Order columns
           dplyr::select(exp_ci, bhd_ci, erf_ci,
                         pop_fraction, impact,
                         everything())
+
+        impact_raw = list(main = impact_raw_main)
+
+      } else if (unique(input$health_metric) %in% "yld_from_prevalence") {
+
+        # Add disability weights to "input_with_risk_and_pop_fraction"
+        impact_raw_main <- bind_rows(
+          input_with_risk_and_pop_fraction %>%
+            mutate(dw_ci = "central") %>%
+            mutate(dw = dw_central),
+          input_with_risk_and_pop_fraction %>%
+            mutate(dw_ci = "lower") %>%
+            mutate(dw = dw_lower),
+          input_with_risk_and_pop_fraction %>%
+            mutate(dw_ci = "upper") %>%
+            mutate(dw = dw_upper)
+        )
+
+        # Add impact
+        impact_raw_main <-
+          impact_raw_main %>%
+          dplyr::mutate(impact = pop_fraction * bhd) %>%
+          dplyr::mutate(., impact = impact * dw)  %>%
+          # Order columns
+          dplyr::select(exp_ci, bhd_ci, erf_ci,
+                        pop_fraction, impact,
+                        everything())
+
         impact_raw = list(main = impact_raw_main)
 
         } else if (unique(input$health_metric) %in% c("deaths_from_lifetable",
                                                       "yll_from_lifetable",
-                                                      "yld_from_lifetable",
-                                                      "yll_from_lifetable_airqplus")) {
+                                                      "yld_from_lifetable")) {
           outcome_metric <-
             gsub("_from_lifetable", "", unique(input$health_metric))
 
@@ -74,7 +99,7 @@ get_impact <-
               min_age = min_age,
               max_age = max_age,
               corrected_discount_rate = corrected_discount_rate,
-              disability_weight = disability_weight,
+              dw_central = dw_central, dw_lower = dw_lower, dw_upper = dw_upper,
               duration = duration,
               input_with_risk_and_pop_fraction = input_with_risk_and_pop_fraction)
 
@@ -84,7 +109,8 @@ get_impact <-
         bestcost:::get_pop_impact(
           year_of_analysis = year_of_analysis,
           input_with_risk_and_pop_fraction = input_with_risk_and_pop_fraction,
-          outcome_metric = "daly")
+          outcome_metric = "daly",
+          min_age = min_age)
 
 
       impact_raw <-
@@ -95,7 +121,7 @@ get_impact <-
           min_age = min_age,
           max_age = max_age,
           corrected_discount_rate = corrected_discount_rate,
-          disability_weight = disability_weight,
+          dw_central = dw_central, dw_lower = dw_lower, dw_upper = dw_upper,
           duration = duration,
           input_with_risk_and_pop_fraction = input_with_risk_and_pop_fraction)
 

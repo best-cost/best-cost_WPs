@@ -42,15 +42,10 @@ library(credentials)
 library(gitcreds)
 library(devtools)
 
-
-```
-
-
-```{r load bestcost package}
-# Load package (either current version or installed version)
+# Load bestcost package (either current version or installed version)
 devtools::load_all(export_all = FALSE)
-#library(bestcost)
 ```
+
 
 
 ```{r Alternative 1 to load bestcost: Install own package from github, eval=FALSE, include=FALSE}
@@ -78,8 +73,47 @@ library(bestcost)
 
 
 Load the Rdata file that contains all variables needed to run this script.
-```{r load data }
+```{r load data, include=FALSE}
 load("../testing/input/data/input_data_for_testing_Rpackage.RData")
+
+prob_dying <- list()
+for(d in c("natural", "total")){
+  for(s in c("male", "female")){
+   prob_dying[[d]][[s]] <-
+     bestcost::get_prob_dying_by_single_age(
+      first_age_pop = first(airqplus_pm_deaths_yll[["pop"]]$age_from...),
+      last_age_pop = last(airqplus_pm_deaths_yll[["pop"]]$age_from...),
+      interval_age_pop = 
+        unique(airqplus_pm_deaths_yll[["pop"]]$age_from... - 
+                 airqplus_pm_deaths_yll[["pop"]]$age_from...) + 1,
+      population_midyear = unlist(airqplus_pm_deaths_yll[["pop"]][, paste0("midyear_population_", s)]),
+      deaths = unlist(airqplus_pm_deaths_yll[["pop"]][, paste0("number_of_deaths_", s)]))
+  }
+}
+
+# Load (summed) YLL data from AirQ+ output Excel no newborns
+airqplus_yll_total_per_year_no_newborns <- tibble(year = 2019:2118,
+                                                  impact = unname(as_vector(read_excel("../testing/output/airqplus_deaths_yll_lifetable_adults.xlsx", 
+                                                                                       range = "B109:CW109", 
+                                                                                       sheet = "yll_difference", 
+                                                                                       col_names = FALSE))))
+
+# Load (summed) YLL data from AirQ+ output Excel with newborns
+airqplus_yll_total_per_year_with_newborns <- tibble(year = 2019:2118,
+                                                  impact = unname(as_vector(read_excel("../testing/output/airqplus_deaths_yll_lifetable_adults.xlsx", 
+                                                                                       range = "B103:CW103", 
+                                                                                       sheet = "yll_difference", 
+                                                                                       col_names = FALSE))))
+
+# Load premature death data 2019 from AirQ+ output Excel
+airqplus_premature_deaths_2019 <- tibble(age = 0:99,
+                                         impact = unname(as_vector(read_excel("../testing/output/airqplus_deaths_yll_lifetable_adults.xlsx", 
+                                                                              range = "B1:B101", 
+                                                                              sheet = "deaths_difference", 
+                                                                              col_names = TRUE))))
+
+# Load YLL data 
+airqplus_yll_difference <- read.xlsx("../testing/output/airqplus_deaths_yll_lifetable_adults.xlsx", sheet = "yll_difference", startRow = 1, rows = c(1:101))
 ```
 
 
@@ -290,7 +324,7 @@ bestcost_noise_ha_ar_geo <-
 ```
 
 
-```{r morbidity yld lifetable with single relative risk}
+```{r morbidity yld with single relative risk}
 
 bestcost_pm_yld_singlebhd  <- 
   bestcost::attribute_yld_from_prevalence(
@@ -302,7 +336,7 @@ bestcost_pm_yld_singlebhd  <-
     rr_upper = 1.179,
     erf_increment = 10, 
     erf_shape = "log_linear", 
-    disability_weight = 0.5)
+    dw_central = 0.5, dw_lower = 0.1, dw_upper = 10)
 
 # No study to compare bestcost results
 # Check only if results stay the same overtime despite developments
@@ -358,33 +392,15 @@ if(all((bestcost_prob_dying$prob_dying -
 
 #### Premature deaths
 
-```{r premature deaths with lifetable}
-# First obtain probability of dying 
-# for total and natural deaths and for male and female separately
-# (AirQ+ does not use probability of dying as input data but bestcost does)
-# (AirQ+ only uses natural mortality --> different methodological approach)
-
-prob_dying <- list()
-
-for(d in c("natural", "total")){
-  for(s in c("male", "female")){
-   prob_dying[[d]][[s]] <-
-     bestcost::get_prob_dying_by_single_age(
-      first_age_pop = first(airqplus_pm_deaths_yll[["pop"]]$age_from...),
-      last_age_pop = last(airqplus_pm_deaths_yll[["pop"]]$age_from...),
-      interval_age_pop = 
-        unique(airqplus_pm_deaths_yll[["pop"]]$age_from... - 
-                 airqplus_pm_deaths_yll[["pop"]]$age_from...) + 1,
-      population_midyear = unlist(airqplus_pm_deaths_yll[["pop"]][, paste0("midyear_population_", s)]),
-      deaths = unlist(airqplus_pm_deaths_yll[["pop"]][, paste0("number_of_deaths_", s)]))
-  }
-}
+```{r premature deaths with lifetable airqplus input}
 
 # Calculate premature deaths using bestcost function
 # and input data from an AirQ+ case
 
 bestcost_pm_deaths_lifetable_airqplus <-
   bestcost::attribute_deaths_from_lifetable(
+    approach_exposure = "single_year",
+    approach_newborns = "with_newborns",
     exp_central = airqplus_pm_deaths_yll[["input"]]$mean_concentration, 
     cutoff = airqplus_pm_deaths_yll[["input"]]$cut_off_value,
     rr_central = airqplus_pm_deaths_yll[["input"]]$relative_risk,
@@ -394,6 +410,8 @@ bestcost_pm_deaths_lifetable_airqplus <-
     erf_shape = gsub("-", "_", airqplus_pm_deaths_yll[["input"]]$calculation_method),
     first_age_pop = first(airqplus_pm_deaths_yll[["pop"]]$age_from...),
     last_age_pop = last(airqplus_pm_deaths_yll[["pop"]]$age_from...),
+    deaths_male = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_male,
+    deaths_female = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_female,
     prob_natural_death_male = prob_dying[["natural"]][["male"]]$prob_dying,
     prob_natural_death_female = prob_dying[["natural"]][["female"]]$prob_dying,
     prob_total_death_male = prob_dying[["total"]][["male"]]$prob_dying,
@@ -404,42 +422,17 @@ bestcost_pm_deaths_lifetable_airqplus <-
     min_age = airqplus_pm_deaths_yll[["input"]]$apply_rr_from_age)
 
 
-check_bestcost(result_list_bestcost = bestcost_pm_deaths_lifetable_airqplus,
-               result_vector_alternative = c(2600.9, 1371, 3804))
-```
+# check_bestcost(result_list_bestcost = bestcost_pm_deaths_lifetable_airqplus,
+#                result_vector_alternative = c(2600.9, 1371, 3804))
 
-
-
-```{r premature deaths with lifetable}
-# Now with input data from the Swiss project GeLuft
-
-
-bestcost_pm_deaths_lifetable_geluft <- 
-    bestcost::attribute_deaths_from_lifetable(
-    exp_central = input_data_mortality$exp[2], # PM2.5=8.85 exp in CH in 2019
-    cutoff = input_data_mortality$cutoff[2],   # PM2.5=5,i.e. WHO AQG 2021 
-    rr_central = input_data_mortality[2,"rr_central"], 
-    rr_lower = input_data_mortality[2,"rr_lower"], 
-    rr_upper = input_data_mortality[2,"rr_upper"],
-    erf_increment = 10, 
-    erf_shape = "log_linear",
-    first_age_pop = 0,
-    last_age_pop = 99,
-    prob_natural_death_male = lifetable_withPopulation[["male"]]$death_probability_natural,
-    prob_natural_death_female = lifetable_withPopulation[["female"]]$death_probability_natural,
-    prob_total_death_male = lifetable_withPopulation[["male"]]$death_probability_total,
-    prob_total_death_female = lifetable_withPopulation[["female"]]$death_probability_total,
-    population_midyear_male = lifetable_withPopulation[["male"]]$population, 
-    population_midyear_female = lifetable_withPopulation[["female"]]$population, 
-    year_of_analysis = 2019, 
-    info = input_data_mortality$pollutant[2], 
-    min_age = input_data_mortality$min_age[2])
-
-check_bestcost(result_list_bestcost = bestcost_pm_deaths_lifetable_geluft ,
-               result_vector_alternative = c(2610, 1378, 3815))
-
-
-
+if ( abs(bestcost_pm_deaths_lifetable_airqplus[["main"]][["impact_rounded"]][[1]] - 2601 ) / 2601 * 100 < 0.001  ) {
+  cat(paste0("best-cost: ", round(bestcost_pm_deaths_lifetable_airqplus[["main"]][["impact_rounded"]][[1]]),"\n",
+             "AirQ+: ", 2601,"\n"),
+      crayon::cyan("Right. Bestcost and alternative with almost identical results (< 0.001%)."))
+} else {
+    cat(paste0("best-cost: ", round(bestcost_pm_deaths_lifetable_airqplus[["main"]][["impact_rounded"]][[1]]),"\n",
+             "AirQ+: ", 2601,"\n"),
+        crayon::red("Attention! Check! Bestcost and alternative with different results (> 0.001%)."))}
 ```
 
 
@@ -459,6 +452,8 @@ bestcost_pm_deaths_lifetable_expDistribution <-
       erf_shape = "log_linear",
       first_age_pop = 0,
       last_age_pop = 99,
+      deaths_male = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_male,
+      deaths_female = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_female,
       prob_natural_death_male = lifetable_withPopulation[["male"]]$death_probability_natural,
       prob_natural_death_female = lifetable_withPopulation[["female"]]$death_probability_natural,
       prob_total_death_male = lifetable_withPopulation[["male"]]$death_probability_total,
@@ -471,109 +466,18 @@ bestcost_pm_deaths_lifetable_expDistribution <-
 
 # No study to compare bestcost results
 # Check only if results stay the same overtime despite developments
-check_bestcost(result_list_bestcost = bestcost_pm_deaths_lifetable_geluft ,
+check_bestcost(result_list_bestcost = bestcost_pm_deaths_lifetable_expDistribution, # bestcost_pm_deaths_lifetable_geluft, 
                result_vector_alternative = c(2610, 1378, 3815)) # Result on 16 May 2024
-
-
-
 ```
+It is to be expected that the best-cost results are higher (11.11%) than the alternative
+source results: the exposure from the exposure distributions (best-cost) is a bit 
+higher than the single value exposure (alternative source).
+
 
 
 #### Years of life lost
 
-```{r yll with lifetable GeLuft approach}
-
-# Calculate years of life lost using bestcost function
-# and input data from an AirQ+ case
-
-bestcost_pm_yll_lifetable_airqplus_org <-
-  bestcost::attribute_yll_from_lifetable(
-    exp_central = airqplus_pm_deaths_yll[["input"]]$mean_concentration,
-    cutoff = airqplus_pm_deaths_yll[["input"]]$cut_off_value,
-    rr_central = airqplus_pm_deaths_yll[["input"]]$relative_risk,
-    rr_lower = airqplus_pm_deaths_yll[["input"]]$relative_risk_lower,
-    rr_upper = airqplus_pm_deaths_yll[["input"]]$relative_risk_upper,
-    erf_increment = 10,
-    erf_shape = gsub("-", "_", airqplus_pm_deaths_yll[["input"]]$calculation_method),
-    first_age_pop = first(airqplus_pm_deaths_yll[["pop"]]$age_from...),
-    last_age_pop = last(airqplus_pm_deaths_yll[["pop"]]$age_from...),
-    prob_natural_death_male = prob_dying[["natural"]][["male"]]$prob_dying,
-    prob_natural_death_female = prob_dying[["natural"]][["female"]]$prob_dying,
-    prob_total_death_male = prob_dying[["total"]][["male"]]$prob_dying,
-    prob_total_death_female = prob_dying[["total"]][["female"]]$prob_dying,
-    population_midyear_male = airqplus_pm_deaths_yll[["pop"]]$midyear_population_male,
-    population_midyear_female = airqplus_pm_deaths_yll[["pop"]]$midyear_population_female,
-    year_of_analysis =  airqplus_pm_deaths_yll[["input"]]$start_year,
-    min_age = airqplus_pm_deaths_yll[["input"]]$apply_rr_from_age)
-
-# Check results
-# They are extremely different. The methodology of airq+ is very different to other studies
-# AirQ+ considers that the increase/decrease of exposure happens 100 years,
-# while other studies (e.g. GeLuft) look at the impact over 100 years of a one-year exposure.
-
-check_bestcost(result_list_bestcost = bestcost_pm_yll_lifetable_airqplus_org,
-               result_vector_alternative =
-                 c(airqplus_pm_deaths_yll[["output"]]$value_central_allgenders_yll_over_100_years_age_20_99,
-                   airqplus_pm_deaths_yll[["output"]]$value_lower_allgenders_yll_over_100_years_age_20_99,
-                   airqplus_pm_deaths_yll[["output"]]$value_upper_allgenders_yll_over_100_years_age_20_99))
-
-# Calculate years of life lost using new bestcost function
-# and input data from an AirQ+ case
-
-# Now with input data from the Swiss project GeLuft
-bestcost_pm_yll_lifetable_geluft <- 
-  bestcost::attribute_yll_from_lifetable(
-    exp_central = input_data_mortality$exp[2], #exp CH 2019
-    prop_pop_exp = 1,
-    cutoff = input_data_mortality$cutoff[2], # WHO AQG 2021 
-    rr_central = input_data_mortality[2,"rr_central"], 
-    rr_lower = input_data_mortality[2,"rr_lower"], 
-    rr_upper =input_data_mortality[2,"rr_upper"], 
-    erf_increment = 10, 
-    erf_shape = "log_linear",
-    first_age_pop = 0,
-    last_age_pop = 99,
-    prob_natural_death_male = lifetable_withPopulation[["male"]]$death_probability_natural,
-    prob_natural_death_female = lifetable_withPopulation[["female"]]$death_probability_natural,
-    prob_total_death_male = lifetable_withPopulation[["male"]]$death_probability_total,
-    prob_total_death_female = lifetable_withPopulation[["female"]]$death_probability_total,
-    population_midyear_male = lifetable_withPopulation[["male"]]$population, 
-    population_midyear_female = lifetable_withPopulation[["female"]]$population, 
-    year_of_analysis = 2019, 
-    corrected_discount_rate = 0,
-    info = input_data_mortality$pollutant[2], 
-    min_age = if(is.na(input_data_mortality$min_age[2])) NULL else input_data_mortality$min_age[2])
-
-check_bestcost(result_list_bestcost = bestcost_pm_yll_lifetable_geluft,
-               result_vector_alternative = c(27742, 14641, 40542))
-
-```
-
-```{r probability of dying}
-prob_dying <- list()
-
-for(d in c("natural", "total")){
-  for(s in c("male", "female")){
-   prob_dying[[d]][[s]] <-
-     bestcost::get_prob_dying_by_single_age(
-      first_age_pop = first(airqplus_pm_deaths_yll[["pop"]]$age_from...),
-      last_age_pop = last(airqplus_pm_deaths_yll[["pop"]]$age_from...),
-      interval_age_pop = 
-        unique(airqplus_pm_deaths_yll[["pop"]]$age_from... - 
-                 airqplus_pm_deaths_yll[["pop"]]$age_from...) + 1,
-      population_midyear = unlist(airqplus_pm_deaths_yll[["pop"]][, paste0("midyear_population_", s)]),
-      deaths = unlist(airqplus_pm_deaths_yll[["pop"]][, paste0("number_of_deaths_", s)]))
-  }
-}
-
-# Compare natural survival probability (note: first run chunk below): 
-# - computed by function bestcost::get_prob_dying_by_single_age()
-# - computed during call to attribute_yll_from_lifetable (airqplus approach)
-# table(prob_dying[["natural"]][["male"]]$prob_surviving == bestcost_pm_yll_lifetable_airqplus[["detailed"]][["interim"]][["lifetable_with_pop_nest"]][[1]]$prob_survival)
-# Exactly the same
-```
-
-```{r yll from SINGLE YEAR EXPOSURE from lifetable airqplus approach}
+```{r YLL from SINGLE YEAR EXPOSURE}
 
 # Now with input data from the Swiss project GeLuft
 bestcost_pm_yll_exposure_single_year_lifetable_airqplus <-
@@ -598,44 +502,25 @@ bestcost_pm_yll_exposure_single_year_lifetable_airqplus <-
     deaths_male = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_male,
     deaths_female = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_female,
     year_of_analysis = 2019, 
-    corrected_discount_rate = 0,
     info = input_data_mortality$pollutant[2], 
     min_age = if(is.na(input_data_mortality$min_age[2])) NULL else input_data_mortality$min_age[2])
 
-# check_bestcost(result_list_bestcost = bestcost_pm_yll_exposure_single_year_lifetable_airqplus,
-#                result_vector_alternative = c(27742, 14641, 40542))
-
+check_bestcost(result_list_bestcost = bestcost_pm_yll_exposure_single_year_lifetable_airqplus,
+                result_vector_alternative = c(27742, 14641, 40542)) # GeLuft results; difference to bestcost results should be 3.86%
+               # result_vector_alternative = airqplus_pm_deaths_yll)
+              
 # View(bestcost_pm_yll_exposure_single_year_lifetable_airqplus)
-# View(bestcost_pm_yll_lifetable_geluft)
-
-# Comparison premature-deaths in year of analysis
-deaths_yoa <- tibble(
-  deaths_yoa_airqplus = bestcost_pm_yll_exposure_single_year_lifetable_airqplus[["detailed"]][["interim"]][["premature_deaths_nest"]][[3]]$population_2019,
-  deaths_yoa_geluft = bestcost_pm_yll_lifetable_geluft[["detailed"]][["interim"]][["pop_impact_nest"]][[3]]$population_2020
-  )
-sum(deaths_yoa$deaths_yoa_airqplus[21:100])
-sum(deaths_yoa$deaths_yoa_geluft[21:100])
-# airqplus ca. 6.5 % lower than geluft
-
-
-# Comparison total YLL GeLuft & AirQ+
-yll_yoa <- tibble(
-  yll_yoa_airqplus = bestcost_pm_yll_exposure_single_year_lifetable_airqplus[["detailed"]][["interim"]][["lifeyears_nest"]][[3]]$impact[2:100],
-  yll_yoa_geluft = bestcost_pm_yll_lifetable_geluft[["detailed"]][["interim"]][["lifeyears_nest"]][[3]]$impact
-)
-sum(yll_yoa$yll_yoa_airqplus)
-sum(yll_yoa$yll_yoa_geluft)
-# airqplus ca. 10% higher than geluft
 ```
+Difference (between best-cost and GeLuft results) should be 3.86%.
 
-
-```{r yll FROM CONSTANT EXPOSURE from lifetable airqplus approach}
+```{r YLL from CONSTANT EXPOSURE and NO NEWBORNS}
 
 # Input data from an AirQ+ case
 
 bestcost_pm_yll_lifetable_airqplus <-
   bestcost::attribute_yll_from_lifetable(
     approach_exposure = "constant",
+    approach_newborns = "without_newborns",
     exp_central = airqplus_pm_deaths_yll[["input"]]$mean_concentration,
     cutoff = airqplus_pm_deaths_yll[["input"]]$cut_off_value,
     rr_central = airqplus_pm_deaths_yll[["input"]]$relative_risk,
@@ -657,40 +542,129 @@ bestcost_pm_yll_lifetable_airqplus <-
     min_age = airqplus_pm_deaths_yll[["input"]]$apply_rr_from_age)
 
 # check_bestcost(result_list_bestcost = bestcost_pm_yll_lifetable_airqplus,
-#                result_vector_alternative = c(27742, 14641, 40542))
+#                 result_vector_alternative = c(27742, 14641, 40542))
 
 # Compare sex-specific results
-yll_male <- bestcost_pm_yll_lifetable_airqplus[["detailed"]][["interim"]][["lifeyears_nest"]][[1]] %>% 
-  filter(year == 2019) %>%  select(impact) %>%  as_vector() %>%  unname(.)
-yll_female <- bestcost_pm_yll_lifetable_airqplus[["detailed"]][["interim"]][["lifeyears_nest"]][[2]] %>% 
-  filter(year == 2019) %>% select(impact) %>% as_vector() %>%  unname(.)
-print("YLL male 2019 identical:") ; round(yll_male) == round(624.43) # Value from AirQ+ output Excel
-print("YLL female 2019 identical:") ; round(yll_female) == round(675.25) # Value from AirQ+ output Excel
+# yll_male <- bestcost_pm_yll_lifetable_airqplus[["detailed"]][["interim"]][["lifeyears_nest"]][[1]] %>%
+#   filter(year == 2019) %>%  select(impact) %>%  as_vector() %>%  unname(.)
+# yll_female <- bestcost_pm_yll_lifetable_airqplus[["detailed"]][["interim"]][["lifeyears_nest"]][[2]] %>%
+#   filter(year == 2019) %>% select(impact) %>% as_vector() %>%  unname(.)
+# print("YLL male 2019 identical:") ; round(yll_male) == round(624.43) # Value from AirQ+ output Excel
+# print("YLL female 2019 identical:") ; round(yll_female) == round(675.25) # Value from AirQ+ output Excel
 
-# Compare total YLL (YLL males + YLL females)
-airqplus_yll_difference <- read.xlsx("../testing/output/airqplus_deaths_yll_lifetable_adults.xlsx", sheet = "yll_difference", startRow = 1, rows = c(1:101))
+# Compare total (= both sexes) YLL
 yll_total_rounded <- round(bestcost_pm_yll_lifetable_airqplus[["detailed"]][["interim"]][["pop_impact_nest"]][[3]] %>% select(-age_end))
+yll_total_unrounded <- bestcost_pm_yll_lifetable_airqplus[["detailed"]][["interim"]][["pop_impact_nest"]][[3]] %>% select(-age_end)
 
-print("2019 sum total YLLs (unrouded) identical:") # Value from AirQ+ output Excel
-1300.43 == round(sum(bestcost_pm_yll_lifetable_airqplus[["detailed"]][["interim"]][["pop_impact_nest"]][[3]]$population_2019), digits = 2)
-print("2019 total YLLs identical:")
-table(airqplus_yll_difference$`2019` == yll_total_rounded$population_2019)
+# Difference in total yearly YLLs
+yll_total_comp <- tibble(year = airqplus_yll_total_per_year_no_newborns$year,
+       airqplus_yll_total = airqplus_yll_total_per_year_no_newborns$impact,
+       bestcost_yll_total_rounded = round(bestcost_pm_yll_lifetable_airqplus[["detailed"]][["interim"]][["lifeyears_nest"]][[3]]$impact))
 
-print("2020 sum total YLLs (unrouded) identical:") # Value from AirQ+ output Excel
-3741.43 == round(sum(bestcost_pm_yll_lifetable_airqplus[["detailed"]][["interim"]][["pop_impact_nest"]][[3]]$population_2020, na.rm = TRUE), digits = 2)
-print("2020 total YLLs identical:")
-table(airqplus_yll_difference$`2020` == yll_total_rounded$population_2020)
-print("2020 absolute difference in YLLs:")
-print(abs(airqplus_yll_difference$`2020` - yll_total_rounded$population_2020))
+yll_total_sum <- tibble(airqplus_yll_sum = sum(yll_total_comp$airqplus_yll_total),
+                             bestcost_yll_sum = sum(yll_total_comp$bestcost_yll_total_rounded),
+                             diff_abs = abs(airqplus_yll_sum - bestcost_yll_sum),
+                             diff_percent = diff_abs / airqplus_yll_sum * 100)
 
-print("2021 absolute difference in YLLs:")
-print(abs(airqplus_yll_difference$`2021` - yll_total_rounded$population_2021))
+if (yll_total_sum$diff_percent < 0.001) {
+  cat(paste0("best-cost: ", yll_total_sum$bestcost_yll_sum,"\n",
+             "AirQ+: ", yll_total_sum$airqplus_yll_sum,"\n"),
+      crayon::cyan("Right. Bestcost and alternative with almost identical results (< 0.001%)."))
+} else {
+    cat(paste0("best-cost: ", yll_total_sum$bestcost_yll_sum,"\n",
+             "AirQ+: ", yll_total_sum$airqplus_yll_sum,"\n"),
+        crayon::red("Attention! Check! Bestcost and alternative with different results (> 0.001%)."))}
 
-print("2050 absolute difference in YLLs")
-print(abs(airqplus_yll_difference$`2050` - yll_total_rounded$population_2050))
-# Max difference constant at 1 --> rounding error
+# # 2019
+# print("2019 sum total YLLs (unrouded) identical:") # Value from AirQ+ output Excel
+# 1300.43 == round(sum(bestcost_pm_yll_lifetable_airqplus[["detailed"]][["interim"]][["pop_impact_nest"]][[3]]$population_2019), digits = 2)
+# print("2019 total YLLs identical:")
+# table(airqplus_yll_difference$`2019` == yll_total_rounded$population_2019)
+# table(airqplus_yll_difference$`2019` == yll_total_rounded$population_2019)
+# print("2019 absolute difference in YLLs:")
+# print(abs(airqplus_yll_difference$`2019`[1:100] - yll_total_rounded$population_2019[1:100]))
+# 
+# # 2020
+# print("2020 sum total YLLs (unrouded) identical:") # Value from AirQ+ output Excel
+# 3741.43 == round(sum(bestcost_pm_yll_lifetable_airqplus[["detailed"]][["interim"]][["pop_impact_nest"]][[3]]$population_2020, na.rm = TRUE), digits = 2)
+# print("2020 total YLLs identical:")
+# table(airqplus_yll_difference$`2020` == yll_total_rounded$population_2020)
+# print("2020 absolute difference in YLLs:")
+# print(abs(airqplus_yll_difference$`2020`[2:100] - yll_total_rounded$population_2020[2:100]))
+# 
+# 2021
+# print("2021 absolute difference in total YLLs:")
+# abs(6085 - round(sum(yll_total_rounded$population_2021, na.rm = TRUE), digits = 2)) # Value from AirQ+ output Excel
+# print("2021 absolute difference in YLLs:")
+# print(abs(airqplus_yll_difference$`2021` - yll_total_rounded$population_2021))
+# 
+# # 2050
+# print("2050 absolute difference in total YLLs:")
+# abs(41044 - round(sum(yll_total_rounded$population_2050, na.rm = TRUE), digits = 2)) # Value from AirQ+ output Excel
+# print("2050 absolute difference in age-specific YLLs")
+# print(abs(airqplus_yll_difference$`2050`[32:100] - yll_total_rounded$population_2050[32:100]))
+# # Max difference constant at 1 --> rounding error
+# 
+# # 2100
+# print("2100 absolute difference in total YLLs:")
+# abs(20535 - round(sum(yll_total_rounded$population_2100, na.rm = TRUE), digits = 2)) # Value from AirQ+ output Excel
+# print("2100 absolute difference in YLLs:")
+# print(abs(airqplus_yll_difference$`2100`[82:100] - yll_total_rounded$population_2100[82:100]))
 ```
+AirQ+ value is from the large AirQ+ output excel.
 
+```{r YLL from CONSTANT EXPOSURE and WITH NEWBORNS}
+
+# Input data from an AirQ+ case
+
+bestcost_pm_yll_lifetable_airqplus_with_newborns <-
+  bestcost::attribute_yll_from_lifetable(
+    approach_exposure = "constant",
+    approach_newborns = "with_newborns",
+    exp_central = airqplus_pm_deaths_yll[["input"]]$mean_concentration,
+    cutoff = airqplus_pm_deaths_yll[["input"]]$cut_off_value,
+    rr_central = airqplus_pm_deaths_yll[["input"]]$relative_risk,
+    rr_lower = airqplus_pm_deaths_yll[["input"]]$relative_risk_lower,
+    rr_upper = airqplus_pm_deaths_yll[["input"]]$relative_risk_upper,
+    erf_increment = 10, 
+    erf_shape = gsub("-", "_", airqplus_pm_deaths_yll[["input"]]$calculation_method),
+    first_age_pop = first(airqplus_pm_deaths_yll[["pop"]]$age_from...),
+    last_age_pop = last(airqplus_pm_deaths_yll[["pop"]]$age_from...),
+    prob_natural_death_male = prob_dying[["natural"]][["male"]]$prob_dying,
+    prob_natural_death_female = prob_dying[["natural"]][["female"]]$prob_dying,
+    prob_total_death_male = prob_dying[["total"]][["male"]]$prob_dying,
+    prob_total_death_female = prob_dying[["total"]][["female"]]$prob_dying,
+    population_midyear_male = airqplus_pm_deaths_yll[["pop"]]$midyear_population_male,
+    population_midyear_female = airqplus_pm_deaths_yll[["pop"]]$midyear_population_female,
+    deaths_male = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_male,
+    deaths_female = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_female,
+    year_of_analysis =  airqplus_pm_deaths_yll[["input"]]$start_year, 
+    min_age = airqplus_pm_deaths_yll[["input"]]$apply_rr_from_age)
+
+# Compare total (= both sexes) YLL
+yll_total_rounded <- round(bestcost_pm_yll_lifetable_airqplus_with_newborns[["detailed"]][["interim"]][["pop_impact_nest"]][[3]] %>% select(-age_end))
+yll_total_unrounded <- bestcost_pm_yll_lifetable_airqplus_with_newborns[["detailed"]][["interim"]][["pop_impact_nest"]][[3]] %>% select(-age_end)
+
+# Difference in total yearly YLLs
+yll_total_comp <- tibble(year = airqplus_yll_total_per_year_with_newborns$year,
+       airqplus_yll_total = airqplus_yll_total_per_year_with_newborns$impact,
+       bestcost_yll_total_rounded = round(bestcost_pm_yll_lifetable_airqplus_with_newborns[["detailed"]][["interim"]][["lifeyears_nest"]][[3]]$impact))
+
+yll_total_sum <- tibble(airqplus_yll_sum = sum(yll_total_comp$airqplus_yll_total),
+                             bestcost_yll_sum = sum(yll_total_comp$bestcost_yll_total_rounded),
+                             diff_abs = abs(airqplus_yll_sum - bestcost_yll_sum),
+                             diff_percent = diff_abs / airqplus_yll_sum * 100)
+
+if (yll_total_sum$diff_percent < 0.001) {
+  cat(paste0("best-cost: ", yll_total_sum$bestcost_yll_sum,"\n",
+             "AirQ+: ", yll_total_sum$airqplus_yll_sum,"\n"),
+      crayon::cyan("Right. Bestcost and alternative with almost identical results (< 0.001%)."))
+} else {
+    cat(paste0("best-cost: ", yll_total_sum$bestcost_yll_sum,"\n",
+             "AirQ+: ", yll_total_sum$airqplus_yll_sum,"\n"),
+        crayon::red("Attention! Check! Bestcost and alternative with different results (> 0.001%)."))}
+```
+AirQ+ value is from the large AirQ+ output excel.
 
 ```{r yll lifetable with single relative risk}
 # Only one relative risk estimate (central estimate)
@@ -708,6 +682,8 @@ bestcost_pm_yll_lifetable_1rr_geluft <-
       erf_shape = "log_linear",
       first_age_pop = 0,
       last_age_pop = 99,
+      deaths_male = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_male,
+      deaths_female = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_female,
       prob_natural_death_male = lifetable_withPopulation[["male"]]$death_probability_natural,
       prob_natural_death_female = lifetable_withPopulation[["female"]]$death_probability_natural,
       prob_total_death_male = lifetable_withPopulation[["male"]]$death_probability_total,
@@ -719,9 +695,9 @@ bestcost_pm_yll_lifetable_1rr_geluft <-
       min_age = if(is.na(input_data_mortality$min_age[2])) NULL else input_data_mortality$min_age[2])
 
 check_bestcost(result_list_bestcost = bestcost_pm_yll_lifetable_1rr_geluft,
-               result_vector_alternative = c(27742))
+               result_vector_alternative = c(27742)) # GeLuft result
 ```
-
+Difference to bestcost results should be 3.86% (difference bestcost and GeLuft results).
 
 ```{r yll lifetable with exposure distribution}
 
@@ -740,6 +716,8 @@ bestcost_pm_yll_lifetable_expDistribution_geluft <-
       erf_shape = "log_linear",
       first_age_pop = 0,
       last_age_pop = 99,
+      deaths_male = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_male,
+      deaths_female = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_female,
       prob_natural_death_male = lifetable_withPopulation[["male"]]$death_probability_natural,
       prob_natural_death_female = lifetable_withPopulation[["female"]]$death_probability_natural,
       prob_total_death_male = lifetable_withPopulation[["male"]]$death_probability_total,
@@ -757,6 +735,7 @@ check_bestcost(result_list_bestcost = bestcost_pm_yll_lifetable_expDistribution_
                result_vector_alternative = c(30931, 16337, 45166)) # Result on 16 May 2024
 
 ```
+Difference should be 3.86%
 
 #### Years lived with disability
 
@@ -774,12 +753,14 @@ bestcost_pm_yld_lifetable_geluft  <-
     cutoff = input_data_mortality$cutoff[2],
     rr_central = input_data_mortality[2,"rr_central"], 
     rr_lower = input_data_mortality[2,"rr_lower"], 
-    rr_upper =input_data_mortality[2,"rr_upper"], 
+    rr_upper = input_data_mortality[2,"rr_upper"], 
     erf_increment = 10, 
     erf_shape = "log_linear",
     approach_exposure = "single_year",
     first_age_pop = 0,
     last_age_pop = 99,
+    deaths_male = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_male,
+    deaths_female = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_female,
     prob_natural_death_male = lifetable_withPopulation[["male"]]$death_probability_natural,
     prob_natural_death_female = lifetable_withPopulation[["female"]]$death_probability_natural,
     prob_total_death_male = lifetable_withPopulation[["male"]]$death_probability_total,
@@ -789,18 +770,21 @@ bestcost_pm_yld_lifetable_geluft  <-
     year_of_analysis = 2019, 
     info = input_data_mortality$pollutant[2],
     min_age = input_data_mortality$min_age[2], # min_age = 20,
-    corrected_discount_rate = 0,
     duration = 100, 
-    disability_weight = 1
+    dw_central = 1, dw_lower = 0.1, dw_upper = 10
   )
 
 # The Swiss project GeLuft did not calculated the YLD, only YLL. 
 # But disability weight = 1 in the function above, then YLD = YLL 
 # and the result should be identical.
 check_bestcost(result_list_bestcost = bestcost_pm_yld_lifetable_geluft,
-               result_vector_alternative = c(27742, 14641, 40542))
+               result_vector_alternative = c(27742, 14641, 40542)) # GeLuft results
 
 ```
+Difference GeLuft to bestcost results should be 3.86%
+
+
+
 #### Disability-adjusted lived years (DALY)
 
 ```{r morbidity daly lifetable}
@@ -820,6 +804,8 @@ bestcost_pm_daly_lifetable_geluft  <-
     erf_shape = "log_linear",
     first_age_pop = 0,
     last_age_pop = 99,
+    deaths_male = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_male,
+    deaths_female = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_female,
     prob_natural_death_male = lifetable_withPopulation[["male"]]$death_probability_natural,
     prob_natural_death_female = lifetable_withPopulation[["female"]]$death_probability_natural,
     prob_total_death_male = lifetable_withPopulation[["male"]]$death_probability_total,
@@ -829,9 +815,8 @@ bestcost_pm_daly_lifetable_geluft  <-
     year_of_analysis = 2019, 
     info = input_data_mortality$pollutant[2],
     min_age = input_data_mortality$min_age[2], # min_age = 20,
-    corrected_discount_rate = 0,
     duration = 100, 
-    disability_weight = 1
+    dw_central = 1
   )
 
 # The Swiss project GeLuft did not calculated the YLD, only YLL. 
@@ -842,7 +827,7 @@ check_bestcost(result_list_bestcost = bestcost_pm_daly_lifetable_geluft,
                result_vector_alternative = c(27742*2, 14641*2, 40542*2))
 
 ```
-
+Difference GeLuft to bestcost results should be 3.86%
 
 ## Comparison
 
@@ -1031,7 +1016,7 @@ comparison_yld_singlebhd_rr_delta <-
     rr_upper = 1.179,
     erf_increment = 10, 
     erf_shape = "log_linear", 
-    disability_weight = 0.5,
+    dw_central = 0.5,
     info_1 = "PM2.5_yld_before",
     info_2 = "PM2.5_yld_after")
 
@@ -1059,7 +1044,7 @@ comparison_yld_singlebhd_rr_delta_geo <-
     rr_upper = 1.179,
     erf_increment = 10, 
     erf_shape = "log_linear", 
-    disability_weight = 0.5,
+    dw_central = 0.5,
     info_1 = "PM2.5_yld_before",
     info_2 = "PM2.5_yld_after",
     geo_id_raw = c("a", "b"),
@@ -1086,7 +1071,7 @@ comparison_yld_singlebhd_rr_pif <-
     rr_upper = 1.179,
     erf_increment = 10, 
     erf_shape = "log_linear", 
-    disability_weight = 0.5,
+    dw_central = 0.5,
     info_1 = "PM2.5_yld_before",
     info_2 = "PM2.5_yld_after")
 
@@ -1116,7 +1101,7 @@ comparison_yld_singlebhd_rr_pif_geo <-
     rr_upper = 1.179,
     erf_increment = 10, 
     erf_shape = "log_linear", 
-    disability_weight = 0.5,
+    dw_central = 0.5,
     info_1 = "PM2.5_yld_before",
     info_2 = "PM2.5_yld_after",
     geo_id_raw = c("a", "b"),
@@ -1150,6 +1135,8 @@ comparison_deaths_lifetable_delta <-
     erf_shape = "log_linear",
     first_age_pop_1 = 0,
     last_age_pop_1 = 99,
+    deaths_male_1 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_male,
+    deaths_female_1 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_female,
     prob_natural_death_male_1 = lifetable_withPopulation[["male"]]$death_probability_natural,
     prob_natural_death_female_1 = lifetable_withPopulation[["female"]]$death_probability_natural,
     prob_total_death_male_1 = lifetable_withPopulation[["male"]]$death_probability_total,
@@ -1159,6 +1146,8 @@ comparison_deaths_lifetable_delta <-
     year_of_analysis_1 = 2019, 
     first_age_pop_2 = 0,
     last_age_pop_2 = 99,
+    deaths_male_2 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_male,
+    deaths_female_2 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_female,
     prob_natural_death_male_2 = lifetable_withPopulation[["male"]]$death_probability_natural,
     prob_natural_death_female_2 = lifetable_withPopulation[["female"]]$death_probability_natural,
     prob_total_death_male_2 = lifetable_withPopulation[["male"]]$death_probability_total,
@@ -1177,7 +1166,8 @@ check_bestcost(result_list_bestcost = comparison_deaths_lifetable_delta ,
 
 # Additionally check that it produces the first scenario produce the same results as above
 check_bestcost(result_list_bestcost = comparison_deaths_lifetable_delta[["detailed"]][["scenario_1"]] ,
-               result_vector_alternative = bestcost_pm_deaths_lifetable_geluft[["main"]]$impact_rounded) 
+               # result_vector_alternative = bestcost_pm_deaths_lifetable_geluft[["main"]]$impact_rounded) # old GeLuft vector
+               result_vector_alternative = bestcost_pm_deaths_lifetable_airqplus[["main"]]$impact_rounded)  
 
 # Iteration
 comparison_deaths_lifetable_delta_geo <-
@@ -1193,6 +1183,8 @@ comparison_deaths_lifetable_delta_geo <-
     erf_shape = "log_linear",
     first_age_pop_1 = 0,
     last_age_pop_1 = 99,
+    deaths_male_1 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_male,
+    deaths_female_1 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_female,
     prob_natural_death_male_1 = lifetable_withPopulation[["male"]]$death_probability_natural,
     prob_natural_death_female_1 = lifetable_withPopulation[["female"]]$death_probability_natural,
     prob_total_death_male_1 = lifetable_withPopulation[["male"]]$death_probability_total,
@@ -1202,6 +1194,8 @@ comparison_deaths_lifetable_delta_geo <-
     year_of_analysis_1 = 2019, 
     first_age_pop_2 = 0,
     last_age_pop_2 = 99,
+    deaths_male_2 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_male,
+    deaths_female_2= airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_female,
     prob_natural_death_male_2 = lifetable_withPopulation[["male"]]$death_probability_natural,
     prob_natural_death_female_2 = lifetable_withPopulation[["female"]]$death_probability_natural,
     prob_total_death_male_2 = lifetable_withPopulation[["male"]]$death_probability_total,
@@ -1221,8 +1215,13 @@ check_bestcost(result_list_bestcost = comparison_deaths_lifetable_delta_geo ,
                result_vector_alternative = c(2935, 1553, 4279)) # Result on 09 July 2024
 
 # Additionally check that it produces the first scenario produce the same results as above
-comparison_deaths_lifetable_delta_geo[["detailed"]][["scenario_1"]][["detailed"]][["raw"]] %>%  dplyr::filter(., geo_id_raw %in% "a") %>% select(., impact)  %>% pull(.) == bestcost_pm_deaths_lifetable_geluft[["main"]]$impact 
-
+# comparison_deaths_lifetable_delta_geo[["detailed"]][["scenario_1"]][["detailed"]][["raw"]] %>%  dplyr::filter(., geo_id_raw %in% "a") %>% select(., impact)  %>% pull(.) == bestcost_pm_deaths_lifetable_geluft[["main"]]$impact 
+comparison_deaths_lifetable_delta_geo[["detailed"]][["scenario_1"]][["detailed"]][["raw"]] %>%  dplyr::filter(., geo_id_raw %in% "a") %>% select(., impact)  %>% pull(.) == bestcost_pm_deaths_lifetable_airqplus[["main"]]$impact
+# Absolute differences
+abs(comparison_deaths_lifetable_delta_geo[["detailed"]][["scenario_1"]][["detailed"]][["raw"]] %>%  dplyr::filter(., geo_id_raw %in% "a") %>% select(., impact)  %>% pull(.) 
+    - bestcost_pm_deaths_lifetable_airqplus[["main"]]$impact)
+# Absolute differences are negligeable (< 0.01, or < 0.0001%)
+      
 
 # PIF
 
@@ -1241,6 +1240,9 @@ comparison_deaths_lifetable_pif  <-
     erf_shape = "log_linear",
     first_age_pop_1 = 0,
     last_age_pop_1 = 99,
+    approach_exposure_1 = "single_year",
+    deaths_male_1 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_male,
+    deaths_female_1 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_female,
     prob_natural_death_male_1 = lifetable_withPopulation[["male"]]$death_probability_natural,
     prob_natural_death_female_1 = lifetable_withPopulation[["female"]]$death_probability_natural,
     prob_total_death_male_1 = lifetable_withPopulation[["male"]]$death_probability_total,
@@ -1250,6 +1252,9 @@ comparison_deaths_lifetable_pif  <-
     year_of_analysis_1 = 2019, 
     first_age_pop_2 = 0,
     last_age_pop_2 = 99,
+    approach_exposure_2 = "single_year",
+    deaths_male_2 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_male,
+    deaths_female_2 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_female,
     prob_natural_death_male_2 = lifetable_withPopulation[["male"]]$death_probability_natural,
     prob_natural_death_female_2 = lifetable_withPopulation[["female"]]$death_probability_natural,
     prob_total_death_male_2 = lifetable_withPopulation[["male"]]$death_probability_total,
@@ -1268,7 +1273,8 @@ check_bestcost(result_list_bestcost = comparison_deaths_lifetable_pif ,
 
 # Additionally check that scenario produce the same results as above
 check_bestcost(result_list_bestcost = comparison_deaths_lifetable_pif[["detailed"]][["scenario_1"]],
-               result_vector_alternative = bestcost_pm_deaths_lifetable_geluft[["main"]]$impact_rounded) 
+               # result_vector_alternative = bestcost_pm_deaths_lifetable_geluft[["main"]]$impact_rounded) # OLD GeLuft variable
+               result_vector_alternative = bestcost_pm_deaths_lifetable_airqplus[["main"]]$impact_rounded) 
 
 
 # Iteration
@@ -1285,6 +1291,8 @@ comparison_deaths_lifetable_pif_geo <-
     erf_shape = "log_linear",
     first_age_pop_1 = 0,
     last_age_pop_1 = 99,
+    deaths_male_1 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_male,
+    deaths_female_1 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_female,
     prob_natural_death_male_1 = lifetable_withPopulation[["male"]]$death_probability_natural,
     prob_natural_death_female_1 = lifetable_withPopulation[["female"]]$death_probability_natural,
     prob_total_death_male_1 = lifetable_withPopulation[["male"]]$death_probability_total,
@@ -1294,6 +1302,8 @@ comparison_deaths_lifetable_pif_geo <-
     year_of_analysis_1 = 2019, 
     first_age_pop_2 = 0,
     last_age_pop_2 = 99,
+    deaths_male_2 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_male,
+    deaths_female_2 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_female,
     prob_natural_death_male_2 = lifetable_withPopulation[["male"]]$death_probability_natural,
     prob_natural_death_female_2 = lifetable_withPopulation[["female"]]$death_probability_natural,
     prob_total_death_male_2 = lifetable_withPopulation[["male"]]$death_probability_total,
@@ -1344,17 +1354,23 @@ comparison_yll_lifetable_delta  <-
     rr_upper = 1.179,
     erf_increment = 10, 
     erf_shape = "log_linear",
+    approach_exposure_1 = "constant",
     first_age_pop_1 = 0,
     last_age_pop_1 = 99,
+    deaths_male_1 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_male,
+    deaths_female_1 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_female,
     prob_natural_death_male_1 = lifetable_withPopulation[["male"]]$death_probability_natural,
     prob_natural_death_female_1 = lifetable_withPopulation[["female"]]$death_probability_natural,
     prob_total_death_male_1 = lifetable_withPopulation[["male"]]$death_probability_total,
     prob_total_death_female_1 = lifetable_withPopulation[["female"]]$death_probability_total,
     population_midyear_male_1 = lifetable_withPopulation[["male"]]$population, 
     population_midyear_female_1 = lifetable_withPopulation[["female"]]$population, 
-    year_of_analysis_1 = 2019, 
+    year_of_analysis_1 = 2019,
+    approach_exposure_2 = "constant",
     first_age_pop_2 = 0,
     last_age_pop_2 = 99,
+    deaths_male_2 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_male,
+    deaths_female_2 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_female,
     prob_natural_death_male_2 = lifetable_withPopulation[["male"]]$death_probability_natural,
     prob_natural_death_female_2 = lifetable_withPopulation[["female"]]$death_probability_natural,
     prob_total_death_male_2 = lifetable_withPopulation[["male"]]$death_probability_total,
@@ -1374,7 +1390,8 @@ check_bestcost(result_list_bestcost = comparison_yll_lifetable_delta ,
 
 # Additionally check that it producesthe first scenario produce the same results as above
 check_bestcost(result_list_bestcost = comparison_yll_lifetable_delta[["detailed"]][["scenario_1"]] ,
-               result_vector_alternative = bestcost_pm_yll_lifetable_geluft[["main"]]$impact_rounded) 
+               # result_vector_alternative = bestcost_pm_yll_lifetable_geluft[["main"]]$impact_rounded) # OLD GeLuft variable
+               result_vector_alternative = bestcost_pm_yll_lifetable_airqplus[["main"]]$impact_rounded)
 
 
 # Iteration
@@ -1389,8 +1406,11 @@ comparison_yll_lifetable_delta_geo <-
     rr_upper = 1.179,
     erf_increment = 10, 
     erf_shape = "log_linear",
+    approach_exposure_1 = "single_year",
     first_age_pop_1 = 0,
     last_age_pop_1 = 99,
+    deaths_male_1 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_male,
+    deaths_female_1 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_female,
     prob_natural_death_male_1 = lifetable_withPopulation[["male"]]$death_probability_natural,
     prob_natural_death_female_1 = lifetable_withPopulation[["female"]]$death_probability_natural,
     prob_total_death_male_1 = lifetable_withPopulation[["male"]]$death_probability_total,
@@ -1398,8 +1418,11 @@ comparison_yll_lifetable_delta_geo <-
     population_midyear_male_1 = lifetable_withPopulation[["male"]]$population, 
     population_midyear_female_1 = lifetable_withPopulation[["female"]]$population, 
     year_of_analysis_1 = 2019, 
+    approach_exposure_2 = "single_year",
     first_age_pop_2 = 0,
     last_age_pop_2 = 99,
+    deaths_male_2 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_male,
+    deaths_female_2 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_female,
     prob_natural_death_male_2 = lifetable_withPopulation[["male"]]$death_probability_natural,
     prob_natural_death_female_2 = lifetable_withPopulation[["female"]]$death_probability_natural,
     prob_total_death_male_2 = lifetable_withPopulation[["male"]]$death_probability_total,
@@ -1432,8 +1455,11 @@ comparison_yll_lifetable_pif <-
     rr_upper = 1.179,
     erf_increment = 10, 
     erf_shape = "log_linear",
+    approach_exposure_1 = "constant",
     first_age_pop_1 = 0,
     last_age_pop_1 = 99,
+    deaths_male_1 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_male,
+    deaths_female_1 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_female,
     prob_natural_death_male_1 = lifetable_withPopulation[["male"]]$death_probability_natural,
     prob_natural_death_female_1 = lifetable_withPopulation[["female"]]$death_probability_natural,
     prob_total_death_male_1 = lifetable_withPopulation[["male"]]$death_probability_total,
@@ -1441,8 +1467,11 @@ comparison_yll_lifetable_pif <-
     population_midyear_male_1 = lifetable_withPopulation[["male"]]$population, 
     population_midyear_female_1 = lifetable_withPopulation[["female"]]$population, 
     year_of_analysis_1 = 2019, 
+    approach_exposure_2 = "constant",
     first_age_pop_2 = 0,
     last_age_pop_2 = 99,
+    deaths_male_2 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_male,
+    deaths_female_2 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_female,
     prob_natural_death_male_2 = lifetable_withPopulation[["male"]]$death_probability_natural,
     prob_natural_death_female_2 = lifetable_withPopulation[["female"]]$death_probability_natural,
     prob_total_death_male_2 = lifetable_withPopulation[["male"]]$death_probability_total,
@@ -1462,7 +1491,8 @@ check_bestcost(result_list_bestcost = comparison_yll_lifetable_pif ,
 
 # Additionally check that it producesthe first scenario produce the same results as above
 check_bestcost(result_list_bestcost = comparison_yll_lifetable_pif[["detailed"]][["scenario_1"]],
-               result_vector_alternative = bestcost_pm_yll_lifetable_geluft[["main"]]$impact_rounded)
+               # result_vector_alternative = bestcost_pm_yll_lifetable_geluft[["main"]]$impact_rounded) # OLD GeLuft variable
+               result_vector_alternative = bestcost_pm_yll_lifetable_airqplus[["main"]]$impact_rounded)
 
 
 # Iteration
@@ -1479,6 +1509,8 @@ comparison_yll_lifetable_pif_geo <-
     erf_shape = "log_linear",
     first_age_pop_1 = 0,
     last_age_pop_1 = 99,
+    deaths_male_1 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_male,
+    deaths_female_1 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_female,
     prob_natural_death_male_1 = lifetable_withPopulation[["male"]]$death_probability_natural,
     prob_natural_death_female_1 = lifetable_withPopulation[["female"]]$death_probability_natural,
     prob_total_death_male_1 = lifetable_withPopulation[["male"]]$death_probability_total,
@@ -1488,6 +1520,8 @@ comparison_yll_lifetable_pif_geo <-
     year_of_analysis_1 = 2019, 
     first_age_pop_2 = 0,
     last_age_pop_2 = 99,
+    deaths_male_2 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_male,
+    deaths_female_2 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_female,
     prob_natural_death_male_2 = lifetable_withPopulation[["male"]]$death_probability_natural,
     prob_natural_death_female_2 = lifetable_withPopulation[["female"]]$death_probability_natural,
     prob_total_death_male_2 = lifetable_withPopulation[["male"]]$death_probability_total,
@@ -1531,6 +1565,8 @@ comparison_yld_lifetable_delta  <-
     erf_shape = "log_linear",
     first_age_pop_1 = 0,
     last_age_pop_1 = 99,
+    deaths_male_1 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_male,
+    deaths_female_1 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_female,
     prob_natural_death_male_1 = lifetable_withPopulation[["male"]]$death_probability_natural,
     prob_natural_death_female_1 = lifetable_withPopulation[["female"]]$death_probability_natural,
     prob_total_death_male_1 = lifetable_withPopulation[["male"]]$death_probability_total,
@@ -1540,6 +1576,8 @@ comparison_yld_lifetable_delta  <-
     year_of_analysis_1 = 2019, 
     first_age_pop_2 = 0,
     last_age_pop_2 = 99,
+    deaths_male_2 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_male,
+    deaths_female_2 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_female,
     prob_natural_death_male_2 = lifetable_withPopulation[["male"]]$death_probability_natural,
     prob_natural_death_female_2 = lifetable_withPopulation[["female"]]$death_probability_natural,
     prob_total_death_male_2 = lifetable_withPopulation[["male"]]$death_probability_total,
@@ -1551,7 +1589,7 @@ comparison_yld_lifetable_delta  <-
     info_2 = input_data_mortality$pollutant[2], 
     min_age = 20,
     duration = 100,
-    disability_weight = 1)
+    dw_central = 1)
 
 # No study to compare bestcost results
 # Check only if results stay the same overtime despite developments
@@ -1578,6 +1616,8 @@ comparison_yld_lifetable_delta_geo <-
     erf_shape = "log_linear",
     first_age_pop_1 = 0,
     last_age_pop_1 = 99,
+    deaths_male_1 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_male,
+    deaths_female_1 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_female,
     prob_natural_death_male_1 = lifetable_withPopulation[["male"]]$death_probability_natural,
     prob_natural_death_female_1 = lifetable_withPopulation[["female"]]$death_probability_natural,
     prob_total_death_male_1 = lifetable_withPopulation[["male"]]$death_probability_total,
@@ -1587,6 +1627,8 @@ comparison_yld_lifetable_delta_geo <-
     year_of_analysis_1 = 2019, 
     first_age_pop_2 = 0,
     last_age_pop_2 = 99,
+    deaths_male_2 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_male,
+    deaths_female_2 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_female,
     prob_natural_death_male_2 = lifetable_withPopulation[["male"]]$death_probability_natural,
     prob_natural_death_female_2 = lifetable_withPopulation[["female"]]$death_probability_natural,
     prob_total_death_male_2 = lifetable_withPopulation[["male"]]$death_probability_total,
@@ -1600,7 +1642,7 @@ comparison_yld_lifetable_delta_geo <-
     geo_id_raw = c("a", "b"),
     geo_id_aggregated = rep("ch", 2),
     duration = 100,
-    disability_weight = 1)
+    dw_central = 1)
 
 # No study to compare bestcost results
 # Check only if results stay the same overtime despite developments
@@ -1624,6 +1666,8 @@ comparison_yld_lifetable_pif <-
     erf_shape = "log_linear",
     first_age_pop_1 = 0,
     last_age_pop_1 = 99,
+    deaths_male_1 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_male,
+    deaths_female_1 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_female,
     prob_natural_death_male_1 = lifetable_withPopulation[["male"]]$death_probability_natural,
     prob_natural_death_female_1 = lifetable_withPopulation[["female"]]$death_probability_natural,
     prob_total_death_male_1 = lifetable_withPopulation[["male"]]$death_probability_total,
@@ -1633,6 +1677,8 @@ comparison_yld_lifetable_pif <-
     year_of_analysis_1 = 2019, 
     first_age_pop_2 = 0,
     last_age_pop_2 = 99,
+    deaths_male_2 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_male,
+    deaths_female_2 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_female,
     prob_natural_death_male_2 = lifetable_withPopulation[["male"]]$death_probability_natural,
     prob_natural_death_female_2 = lifetable_withPopulation[["female"]]$death_probability_natural,
     prob_total_death_male_2 = lifetable_withPopulation[["male"]]$death_probability_total,
@@ -1644,7 +1690,7 @@ comparison_yld_lifetable_pif <-
     info_2 = NULL, 
     min_age = 20,
     duration = 100,
-    disability_weight = 1)
+    dw_central = 1)
 
 # No study to compare bestcost results
 # Check only if results stay the same overtime despite developments
@@ -1672,6 +1718,8 @@ comparison_yld_lifetable_pif_geo <-
     erf_shape = "log_linear",
     first_age_pop_1 = 0,
     last_age_pop_1 = 99,
+    deaths_male_1 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_male,
+    deaths_female_1 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_female,
     prob_natural_death_male_1 = lifetable_withPopulation[["male"]]$death_probability_natural,
     prob_natural_death_female_1 = lifetable_withPopulation[["female"]]$death_probability_natural,
     prob_total_death_male_1 = lifetable_withPopulation[["male"]]$death_probability_total,
@@ -1681,6 +1729,8 @@ comparison_yld_lifetable_pif_geo <-
     year_of_analysis_1 = 2019, 
     first_age_pop_2 = 0,
     last_age_pop_2 = 99,
+    deaths_male_2 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_male,
+    deaths_female_2 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_female,
     prob_natural_death_male_2 = lifetable_withPopulation[["male"]]$death_probability_natural,
     prob_natural_death_female_2 = lifetable_withPopulation[["female"]]$death_probability_natural,
     prob_total_death_male_2 = lifetable_withPopulation[["male"]]$death_probability_total,
@@ -1694,7 +1744,7 @@ comparison_yld_lifetable_pif_geo <-
     geo_id_raw = c("a", "b"),
     geo_id_aggregated = rep("ch", 2),
     duration = 100,
-    disability_weight = 1)
+    dw_central = 1)
 
 # No study to compare bestcost results
 # Check only if results stay the same overtime despite developments
@@ -1723,6 +1773,8 @@ comparison_daly_lifetable_delta  <-
     erf_shape = "log_linear",
     first_age_pop_1 = 0,
     last_age_pop_1 = 99,
+    deaths_male_1 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_male,
+    deaths_female_1 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_female,
     prob_natural_death_male_1 = lifetable_withPopulation[["male"]]$death_probability_natural,
     prob_natural_death_female_1 = lifetable_withPopulation[["female"]]$death_probability_natural,
     prob_total_death_male_1 = lifetable_withPopulation[["male"]]$death_probability_total,
@@ -1732,6 +1784,8 @@ comparison_daly_lifetable_delta  <-
     year_of_analysis_1 = 2019, 
     first_age_pop_2 = 0,
     last_age_pop_2 = 99,
+    deaths_male_2 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_male,
+    deaths_female_2 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_female,
     prob_natural_death_male_2 = lifetable_withPopulation[["male"]]$death_probability_natural,
     prob_natural_death_female_2 = lifetable_withPopulation[["female"]]$death_probability_natural,
     prob_total_death_male_2 = lifetable_withPopulation[["male"]]$death_probability_total,
@@ -1743,7 +1797,7 @@ comparison_daly_lifetable_delta  <-
     info_2 = input_data_mortality$pollutant[2], 
     min_age = 20,
     duration = 100,
-    disability_weight = 1)
+    dw_central = 1)
 
 # No study to compare bestcost results
 # Check only if results stay the same overtime despite developments
@@ -1770,6 +1824,8 @@ comparison_daly_lifetable_delta_geo <-
     erf_shape = "log_linear",
     first_age_pop_1 = 0,
     last_age_pop_1 = 99,
+    deaths_male_1 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_male,
+    deaths_female_1 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_female,
     prob_natural_death_male_1 = lifetable_withPopulation[["male"]]$death_probability_natural,
     prob_natural_death_female_1 = lifetable_withPopulation[["female"]]$death_probability_natural,
     prob_total_death_male_1 = lifetable_withPopulation[["male"]]$death_probability_total,
@@ -1779,6 +1835,8 @@ comparison_daly_lifetable_delta_geo <-
     year_of_analysis_1 = 2019, 
     first_age_pop_2 = 0,
     last_age_pop_2 = 99,
+    deaths_male_2 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_male,
+    deaths_female_2 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_female,
     prob_natural_death_male_2 = lifetable_withPopulation[["male"]]$death_probability_natural,
     prob_natural_death_female_2 = lifetable_withPopulation[["female"]]$death_probability_natural,
     prob_total_death_male_2 = lifetable_withPopulation[["male"]]$death_probability_total,
@@ -1792,7 +1850,7 @@ comparison_daly_lifetable_delta_geo <-
     geo_id_raw = c("a", "b"),
     geo_id_aggregated = rep("ch", 2),
     duration = 100,
-    disability_weight = 1)
+    dw_central = 1)
 
 # No study to compare bestcost results
 # Check only if results stay the same overtime despite developments
@@ -1816,6 +1874,8 @@ comparison_daly_lifetable_pif <-
     erf_shape = "log_linear",
     first_age_pop_1 = 0,
     last_age_pop_1 = 99,
+    deaths_male_1 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_male,
+    deaths_female_1 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_female,
     prob_natural_death_male_1 = lifetable_withPopulation[["male"]]$death_probability_natural,
     prob_natural_death_female_1 = lifetable_withPopulation[["female"]]$death_probability_natural,
     prob_total_death_male_1 = lifetable_withPopulation[["male"]]$death_probability_total,
@@ -1825,6 +1885,8 @@ comparison_daly_lifetable_pif <-
     year_of_analysis_1 = 2019, 
     first_age_pop_2 = 0,
     last_age_pop_2 = 99,
+    deaths_male_2 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_male,
+    deaths_female_2 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_female,
     prob_natural_death_male_2 = lifetable_withPopulation[["male"]]$death_probability_natural,
     prob_natural_death_female_2 = lifetable_withPopulation[["female"]]$death_probability_natural,
     prob_total_death_male_2 = lifetable_withPopulation[["male"]]$death_probability_total,
@@ -1836,7 +1898,7 @@ comparison_daly_lifetable_pif <-
     info_2 = NULL, 
     min_age = 20,
     duration = 100,
-    disability_weight = 1)
+    dw_central = 1)
 
 # No study to compare bestcost results
 # Check only if results stay the same overtime despite developments
@@ -1864,6 +1926,8 @@ comparison_daly_lifetable_pif_geo <-
     erf_shape = "log_linear",
     first_age_pop_1 = 0,
     last_age_pop_1 = 99,
+    deaths_male_1 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_male,
+    deaths_female_1 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_female,
     prob_natural_death_male_1 = lifetable_withPopulation[["male"]]$death_probability_natural,
     prob_natural_death_female_1 = lifetable_withPopulation[["female"]]$death_probability_natural,
     prob_total_death_male_1 = lifetable_withPopulation[["male"]]$death_probability_total,
@@ -1873,6 +1937,8 @@ comparison_daly_lifetable_pif_geo <-
     year_of_analysis_1 = 2019, 
     first_age_pop_2 = 0,
     last_age_pop_2 = 99,
+    deaths_male_2 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_male,
+    deaths_female_2 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_female,
     prob_natural_death_male_2 = lifetable_withPopulation[["male"]]$death_probability_natural,
     prob_natural_death_female_2 = lifetable_withPopulation[["female"]]$death_probability_natural,
     prob_total_death_male_2 = lifetable_withPopulation[["male"]]$death_probability_total,
@@ -1886,7 +1952,7 @@ comparison_daly_lifetable_pif_geo <-
     geo_id_raw = c("a", "b"),
     geo_id_aggregated = rep("ch", 2),
     duration = 100,
-    disability_weight = 1)
+    dw_central = 1)
 
 # No study to compare bestcost results
 # Check only if results stay the same overtime despite developments

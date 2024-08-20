@@ -23,6 +23,8 @@ attribute_yld_from_lifetable(
   approach_newborns = "without_newborns",
   first_age_pop,
   last_age_pop,
+  deaths_male = NULL,
+  deaths_female = NULL,
   prob_natural_death_male,
   prob_natural_death_female,
   prob_total_death_male,
