@@ -74,6 +74,24 @@ get_pop_impact <-
           )
       )
 
+    # CALCULATE MODIFIED SURVIVAL PROBABILITIES
+    input_with_risk_and_pop_fraction <- input_with_risk_and_pop_fraction %>%
+      mutate(lifetable_with_pop_nest = lifetable_with_pop_nest %>%
+               purrr::map(
+                 .,
+                 function(.x){
+                   .x <- .x %>%
+                     # For all ages min_age and higher calculate modified survival probabilities
+                     # Calculate modified hazard rate = modification factor * hazard rate = mod factor * (deaths / mid-year pop)
+                     mutate(hazard_rate = if_else(row_number() > min_age, modification_factor * deaths / !!sym(paste0("population_",year_of_analysis)), deaths / !!sym(paste0("population_",year_of_analysis))), .after = deaths) %>% # Hazard rate for calculating survival probabilities
+
+                     # Calculate modified survival probability = ( 2 - modified hazard rate ) / ( 2 + modified hazard rate )
+                     mutate(prob_survival_mod = if_else(row_number() > min_age, (2 - hazard_rate) / (2 + hazard_rate), prob_survival), .after = deaths) %>%
+                     mutate(prob_survival_until_mid_year_mod = if_else(row_number() > min_age, 1 - ((1 - prob_survival_mod) / 2), prob_survival_until_mid_year), .after = deaths)
+                 }
+               )
+      )
+
     ## BASELINE SCENARIO ###########################################################################
 
     # DETERMINE ENTRY POPULATION OF YOA+1 IN BASELINE SCENARIO
@@ -104,27 +122,9 @@ get_pop_impact <-
 
     ## IMPACTED SCENARIO ###########################################################################
 
-    # CALCULATE MODIFIED SURVIVAL PROBABILITIES
-    pop <- pop %>%
-      mutate(pop_impacted_scenario_nest = lifetable_with_pop_nest %>%
-               purrr::map(
-                 .,
-                 function(.x){
-                   .x <- .x %>%
-                     # For all ages min_age and higher calculate modified survival probabilities
-                     # Calculate modified hazard rate = modification factor * hazard rate = mod factor * (deaths / mid-year pop)
-                     mutate(hazard_rate = if_else(row_number() > min_age, modification_factor * deaths / !!sym(paste0("population_",year_of_analysis)), deaths / !!sym(paste0("population_",year_of_analysis))), .after = deaths) %>% # Hazard rate for calculating survival probabilities
-
-                     # Calculate modified survival probability = ( 2 - modified hazard rate ) / ( 2 + modified hazard rate )
-                     mutate(prob_survival_mod = if_else(row_number() > min_age, (2 - hazard_rate) / (2 + hazard_rate), prob_survival), .after = deaths) %>%
-                     mutate(prob_survival_until_mid_year_mod = if_else(row_number() > min_age, 1 - ((1 - prob_survival_mod) / 2), prob_survival_until_mid_year), .after = deaths)
-                 }
-               )
-             , .after = pop_baseline_scenario_nest)
-
     # CALCULATE YOA MID-YEAR POPOULATION, YOA END-OF-YEAR POPULATION, YOA DEATHS AND YOA+1 ENTRY POPULATION USING MODIFIED SURVIVAL PROBABILITIES
     pop <- pop %>%
-      mutate(pop_impacted_scenario_nest = pop_impacted_scenario_nest %>%
+      mutate(pop_impacted_scenario_nest = lifetable_with_pop_nest %>%
                purrr::map(
                  .,
                  function(.x){
@@ -149,6 +149,7 @@ get_pop_impact <-
 
                  }
                )
+             , .after = pop_baseline_scenario_nest
       )
 
     # PREMATURE DEATHS (SINGLE YEAR EXPOSURE) ######################################################
@@ -229,7 +230,7 @@ get_pop_impact <-
       if (unique(input_with_risk_and_pop_fraction %>% select(contains("approach_exposure")) == "single_year")[1]){
 
         # PROJECT POPULATIONS IN BOTH IMPACTED AND BASELINE SCENARIO FROM YOA+1 UNTIL THE END
-        # USING UNMODIFIED SURVIVAL PROBABILITIES (BECAUSE AFTER YOA THERE IS NO MORE AIR POLLUTION)
+        # USING MODIFIED SURVIVAL PROBABILITIES (BECAUSE AFTER YOA THERE IS NO MORE AIR POLLUTION)
 
         pop <- pop %>%
           mutate(pop_baseline_scenario_nest = pop_baseline_scenario_nest %>%
@@ -238,8 +239,8 @@ get_pop_impact <-
                      function(.x){
                        project_pop(df = .x,
                                    number_years = 99,
-                                   prob_survival = .x$prob_survival,
-                                   prob_survival_until_mid_year = .x$prob_survival_until_mid_year)
+                                   prob_survival = .x$prob_survival_mod,
+                                   prob_survival_until_mid_year = .x$prob_survival_until_mid_year_mod)
                      }
                    )
           )
@@ -251,8 +252,8 @@ get_pop_impact <-
                      function(.x){
                        project_pop(df = .x,
                                    number_years = 99,
-                                   prob_survival = .x$prob_survival,
-                                   prob_survival_until_mid_year = .x$prob_survival_until_mid_year)
+                                   prob_survival = .x$prob_survival_mod,
+                                   prob_survival_until_mid_year = .x$prob_survival_until_mid_year_mod)
                      }
                    )
           )
