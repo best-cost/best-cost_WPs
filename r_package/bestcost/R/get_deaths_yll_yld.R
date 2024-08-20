@@ -246,7 +246,9 @@ get_deaths_yll_yld <-
       impact_detailed %>%
       dplyr::select(., -contains("nest"))%>%
       dplyr::filter(., sex %in% "total") %>%
-      dplyr::filter(., dw_ci %in% "central") %>%
+      {if(unique(impact_detailed$health_metric) == "yld_from_prevalence")
+        dplyr::filter(., dw_ci %in% "central") else .} %>%
+      # dplyr::filter(., dw_ci %in% "central") %>%
       {if(!is.null(corrected_discount_rate))
       # {if(corrected_discount_rate != 0)
         dplyr::filter(., discounted %in% TRUE) else .}

@@ -104,7 +104,6 @@ attribute <-
         geo_id_aggregated = geo_id_aggregated,
         info = info,
         health_metric = health_metric,
-        dw_central = dw_central, dw_lower = dw_lower, dw_upper = dw_upper,
         approach_risk = approach_risk,
         # Lifetable arguments if needed
         approach_exposure = approach_exposure,

@@ -153,7 +153,7 @@ get_pop_impact <-
 
     # PREMATURE DEATHS (SINGLE YEAR EXPOSURE) ######################################################
     # YOA = YEAR OF ANALYSIS
-    if (unique(input_with_risk_and_pop_fraction$approach_exposure == "single_year") &
+    if (unique(input_with_risk_and_pop_fraction %>% select(contains("approach_exposure")) == "single_year")[1] &
         outcome_metric == "deaths") {
 
       pop <- pop %>%
@@ -170,7 +170,7 @@ get_pop_impact <-
     if ((outcome_metric == "yll") |
         (outcome_metric == "yld") |
         (outcome_metric == "daly") |
-        ( (unique(input_with_risk_and_pop_fraction$approach_exposure == "constant") & outcome_metric == "deaths") )
+        ( (unique(input_with_risk_and_pop_fraction %>% select(contains("approach_exposure")) == "constant")[1] & outcome_metric == "deaths") )
     ) {
 
       ## PROJECT POPULATIONS #########################################################################
@@ -226,7 +226,7 @@ get_pop_impact <-
       ### SINGLE YEAR EXPOSURE #######################################################################
       # # Determine YLLs for baseline and impacted scenario's in the single year exposure case
 
-      if (unique(input_with_risk_and_pop_fraction$approach_exposure == "single_year")){
+      if (unique(input_with_risk_and_pop_fraction %>% select(contains("approach_exposure")) == "single_year")[1]){
 
         # PROJECT POPULATIONS IN BOTH IMPACTED AND BASELINE SCENARIO FROM YOA+1 UNTIL THE END
         # USING UNMODIFIED SURVIVAL PROBABILITIES (BECAUSE AFTER YOA THERE IS NO MORE AIR POLLUTION)
@@ -335,7 +335,7 @@ get_pop_impact <-
 
       ## NEWBORNS #################################################################
 
-      if (unique(input_with_risk_and_pop_fraction$approach_newborns == "with_newborns")) {
+      if (unique(input_with_risk_and_pop_fraction %>% select(contains("approach_newborns")) == "with_newborns")[1]) {
 
         fill_right_of_diag <- function(tbl) {
           for (i in seq_len(nrow(tbl))) {
