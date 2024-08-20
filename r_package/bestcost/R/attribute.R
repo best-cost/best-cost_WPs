@@ -28,7 +28,7 @@
 #' @param min_age \code{Numberic value} of the minimal age to be considered for adults (by default 30, i.e. 30+).
 #' @param max_age \code{Numberic value} of the maximal age to be considered for infants/children (by default 0, i.e. below 1 year old).
 #' @param bhd_central,bhd_lower,bhd_upper \code{Numeric value} showing the central
-#' @param disability_weight \code{Numeric value} showing the disability weight associated with the morbidity health outcome
+#' @param dw_central,dw_lower,dw_upper Three \code{Numeric value} showing the disability weights (central estimate, lower and upper 95% confidence intervals) associated with the morbidity health outcome
 #' @param duration \code{Numeric value} showing the disease duration
 #' @param corrected_discount_rate \code{Numeric value} showing the discount rate for future years including correction from inflation rate
 #' estimate and (optionally) the lower bound and the upper bound of the confidence
@@ -72,7 +72,7 @@ attribute <-
            deaths_male = NULL, deaths_female = NULL, # For AirQ+ method for lifetable
            year_of_analysis = NULL,
            min_age = NULL, max_age = NULL,
-           disability_weight = NULL,
+           dw_central = NULL, dw_lower = NULL, dw_upper = NULL,
            duration = NULL,
            corrected_discount_rate = NULL,
            # Iteration arguments
@@ -104,7 +104,6 @@ attribute <-
         geo_id_aggregated = geo_id_aggregated,
         info = info,
         health_metric = health_metric,
-        disability_weight = disability_weight,
         approach_risk = approach_risk,
         # Lifetable arguments if needed
         approach_exposure = approach_exposure,
@@ -128,7 +127,7 @@ attribute <-
                             min_age = min_age,
                             max_age = max_age,
                             corrected_discount_rate = corrected_discount_rate,
-                            disability_weight = disability_weight,
+                            dw_central = dw_central, dw_lower = dw_lower, dw_upper = dw_upper,
                             duration = duration,
                             pop_fraction_type = "paf")
 
@@ -183,7 +182,7 @@ attribute <-
 #     info_1 = input_data_mortality$pollutant[2],
 #     info_2 = input_data_mortality$pollutant[2],
 #     min_age = 20,
-#     disability_weight = disability_weight,
+#     dw_central = dw_central, dw_lower = dw_lower, dw_upper = dw_upper,
 #     duration = duration)
 #
 #     return(output)

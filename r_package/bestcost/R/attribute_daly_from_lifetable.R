@@ -28,7 +28,7 @@ attribute_daly_from_lifetable <-
            year_of_analysis,
            corrected_discount_rate = NULL,
            min_age = NULL, max_age = NULL,
-           disability_weight,
+           dw_central, dw_lower = NULL, dw_upper = NULL,
            duration,
            info = NULL){
 
@@ -56,7 +56,7 @@ attribute_daly_from_lifetable <-
         year_of_analysis = year_of_analysis,
         min_age = min_age, max_age = max_age,
         corrected_discount_rate = corrected_discount_rate,
-        disability_weight = disability_weight,
+        dw_central = dw_central, dw_lower = dw_lower, dw_upper = dw_upper,
         duration = duration,
         geo_id_raw = NULL , geo_id_aggregated = NULL,
 

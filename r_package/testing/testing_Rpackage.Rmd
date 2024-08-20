@@ -324,7 +324,7 @@ bestcost_noise_ha_ar_geo <-
 ```
 
 
-```{r morbidity yld lifetable with single relative risk}
+```{r morbidity yld with single relative risk}
 
 bestcost_pm_yld_singlebhd  <- 
   bestcost::attribute_yld_from_prevalence(
@@ -336,7 +336,7 @@ bestcost_pm_yld_singlebhd  <-
     rr_upper = 1.179,
     erf_increment = 10, 
     erf_shape = "log_linear", 
-    disability_weight = 0.5)
+    dw_central = 0.5, dw_lower = 0.1, dw_upper = 10)
 
 # No study to compare bestcost results
 # Check only if results stay the same overtime despite developments
@@ -469,7 +469,7 @@ bestcost_pm_deaths_lifetable_expDistribution <-
 check_bestcost(result_list_bestcost = bestcost_pm_deaths_lifetable_expDistribution, # bestcost_pm_deaths_lifetable_geluft, 
                result_vector_alternative = c(2610, 1378, 3815)) # Result on 16 May 2024
 ```
-It is to be expected that the best-cost results are higher than the alternative
+It is to be expected that the best-cost results are higher (11.11%) than the alternative
 source results: the exposure from the exposure distributions (best-cost) is a bit 
 higher than the single value exposure (alternative source).
 
@@ -753,7 +753,7 @@ bestcost_pm_yld_lifetable_geluft  <-
     cutoff = input_data_mortality$cutoff[2],
     rr_central = input_data_mortality[2,"rr_central"], 
     rr_lower = input_data_mortality[2,"rr_lower"], 
-    rr_upper =input_data_mortality[2,"rr_upper"], 
+    rr_upper = input_data_mortality[2,"rr_upper"], 
     erf_increment = 10, 
     erf_shape = "log_linear",
     approach_exposure = "single_year",
@@ -771,7 +771,7 @@ bestcost_pm_yld_lifetable_geluft  <-
     info = input_data_mortality$pollutant[2],
     min_age = input_data_mortality$min_age[2], # min_age = 20,
     duration = 100, 
-    disability_weight = 1
+    dw_central = 1, dw_lower = 0.1, dw_upper = 10
   )
 
 # The Swiss project GeLuft did not calculated the YLD, only YLL. 
@@ -816,7 +816,7 @@ bestcost_pm_daly_lifetable_geluft  <-
     info = input_data_mortality$pollutant[2],
     min_age = input_data_mortality$min_age[2], # min_age = 20,
     duration = 100, 
-    disability_weight = 1
+    dw_central = 1
   )
 
 # The Swiss project GeLuft did not calculated the YLD, only YLL. 
@@ -1016,7 +1016,7 @@ comparison_yld_singlebhd_rr_delta <-
     rr_upper = 1.179,
     erf_increment = 10, 
     erf_shape = "log_linear", 
-    disability_weight = 0.5,
+    dw_central = 0.5,
     info_1 = "PM2.5_yld_before",
     info_2 = "PM2.5_yld_after")
 
@@ -1044,7 +1044,7 @@ comparison_yld_singlebhd_rr_delta_geo <-
     rr_upper = 1.179,
     erf_increment = 10, 
     erf_shape = "log_linear", 
-    disability_weight = 0.5,
+    dw_central = 0.5,
     info_1 = "PM2.5_yld_before",
     info_2 = "PM2.5_yld_after",
     geo_id_raw = c("a", "b"),
@@ -1071,7 +1071,7 @@ comparison_yld_singlebhd_rr_pif <-
     rr_upper = 1.179,
     erf_increment = 10, 
     erf_shape = "log_linear", 
-    disability_weight = 0.5,
+    dw_central = 0.5,
     info_1 = "PM2.5_yld_before",
     info_2 = "PM2.5_yld_after")
 
@@ -1101,7 +1101,7 @@ comparison_yld_singlebhd_rr_pif_geo <-
     rr_upper = 1.179,
     erf_increment = 10, 
     erf_shape = "log_linear", 
-    disability_weight = 0.5,
+    dw_central = 0.5,
     info_1 = "PM2.5_yld_before",
     info_2 = "PM2.5_yld_after",
     geo_id_raw = c("a", "b"),
@@ -1166,7 +1166,8 @@ check_bestcost(result_list_bestcost = comparison_deaths_lifetable_delta ,
 
 # Additionally check that it produces the first scenario produce the same results as above
 check_bestcost(result_list_bestcost = comparison_deaths_lifetable_delta[["detailed"]][["scenario_1"]] ,
-               result_vector_alternative = bestcost_pm_deaths_lifetable_geluft[["main"]]$impact_rounded) 
+               # result_vector_alternative = bestcost_pm_deaths_lifetable_geluft[["main"]]$impact_rounded) # old GeLuft vector
+               result_vector_alternative = bestcost_pm_deaths_lifetable_airqplus[["main"]]$impact_rounded)  
 
 # Iteration
 comparison_deaths_lifetable_delta_geo <-
@@ -1214,8 +1215,13 @@ check_bestcost(result_list_bestcost = comparison_deaths_lifetable_delta_geo ,
                result_vector_alternative = c(2935, 1553, 4279)) # Result on 09 July 2024
 
 # Additionally check that it produces the first scenario produce the same results as above
-comparison_deaths_lifetable_delta_geo[["detailed"]][["scenario_1"]][["detailed"]][["raw"]] %>%  dplyr::filter(., geo_id_raw %in% "a") %>% select(., impact)  %>% pull(.) == bestcost_pm_deaths_lifetable_geluft[["main"]]$impact 
-
+# comparison_deaths_lifetable_delta_geo[["detailed"]][["scenario_1"]][["detailed"]][["raw"]] %>%  dplyr::filter(., geo_id_raw %in% "a") %>% select(., impact)  %>% pull(.) == bestcost_pm_deaths_lifetable_geluft[["main"]]$impact 
+comparison_deaths_lifetable_delta_geo[["detailed"]][["scenario_1"]][["detailed"]][["raw"]] %>%  dplyr::filter(., geo_id_raw %in% "a") %>% select(., impact)  %>% pull(.) == bestcost_pm_deaths_lifetable_airqplus[["main"]]$impact
+# Absolute differences
+abs(comparison_deaths_lifetable_delta_geo[["detailed"]][["scenario_1"]][["detailed"]][["raw"]] %>%  dplyr::filter(., geo_id_raw %in% "a") %>% select(., impact)  %>% pull(.) 
+    - bestcost_pm_deaths_lifetable_airqplus[["main"]]$impact)
+# Absolute differences are negligeable (< 0.01, or < 0.0001%)
+      
 
 # PIF
 
@@ -1234,6 +1240,7 @@ comparison_deaths_lifetable_pif  <-
     erf_shape = "log_linear",
     first_age_pop_1 = 0,
     last_age_pop_1 = 99,
+    approach_exposure_1 = "single_year",
     deaths_male_1 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_male,
     deaths_female_1 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_female,
     prob_natural_death_male_1 = lifetable_withPopulation[["male"]]$death_probability_natural,
@@ -1245,6 +1252,7 @@ comparison_deaths_lifetable_pif  <-
     year_of_analysis_1 = 2019, 
     first_age_pop_2 = 0,
     last_age_pop_2 = 99,
+    approach_exposure_2 = "single_year",
     deaths_male_2 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_male,
     deaths_female_2 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_female,
     prob_natural_death_male_2 = lifetable_withPopulation[["male"]]$death_probability_natural,
@@ -1265,7 +1273,8 @@ check_bestcost(result_list_bestcost = comparison_deaths_lifetable_pif ,
 
 # Additionally check that scenario produce the same results as above
 check_bestcost(result_list_bestcost = comparison_deaths_lifetable_pif[["detailed"]][["scenario_1"]],
-               result_vector_alternative = bestcost_pm_deaths_lifetable_geluft[["main"]]$impact_rounded) 
+               # result_vector_alternative = bestcost_pm_deaths_lifetable_geluft[["main"]]$impact_rounded) # OLD GeLuft variable
+               result_vector_alternative = bestcost_pm_deaths_lifetable_airqplus[["main"]]$impact_rounded) 
 
 
 # Iteration
@@ -1345,6 +1354,7 @@ comparison_yll_lifetable_delta  <-
     rr_upper = 1.179,
     erf_increment = 10, 
     erf_shape = "log_linear",
+    approach_exposure_1 = "constant",
     first_age_pop_1 = 0,
     last_age_pop_1 = 99,
     deaths_male_1 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_male,
@@ -1355,7 +1365,8 @@ comparison_yll_lifetable_delta  <-
     prob_total_death_female_1 = lifetable_withPopulation[["female"]]$death_probability_total,
     population_midyear_male_1 = lifetable_withPopulation[["male"]]$population, 
     population_midyear_female_1 = lifetable_withPopulation[["female"]]$population, 
-    year_of_analysis_1 = 2019, 
+    year_of_analysis_1 = 2019,
+    approach_exposure_2 = "constant",
     first_age_pop_2 = 0,
     last_age_pop_2 = 99,
     deaths_male_2 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_male,
@@ -1379,7 +1390,8 @@ check_bestcost(result_list_bestcost = comparison_yll_lifetable_delta ,
 
 # Additionally check that it producesthe first scenario produce the same results as above
 check_bestcost(result_list_bestcost = comparison_yll_lifetable_delta[["detailed"]][["scenario_1"]] ,
-               result_vector_alternative = bestcost_pm_yll_lifetable_geluft[["main"]]$impact_rounded) 
+               # result_vector_alternative = bestcost_pm_yll_lifetable_geluft[["main"]]$impact_rounded) # OLD GeLuft variable
+               result_vector_alternative = bestcost_pm_yll_lifetable_airqplus[["main"]]$impact_rounded)
 
 
 # Iteration
@@ -1394,6 +1406,7 @@ comparison_yll_lifetable_delta_geo <-
     rr_upper = 1.179,
     erf_increment = 10, 
     erf_shape = "log_linear",
+    approach_exposure_1 = "single_year",
     first_age_pop_1 = 0,
     last_age_pop_1 = 99,
     deaths_male_1 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_male,
@@ -1405,6 +1418,7 @@ comparison_yll_lifetable_delta_geo <-
     population_midyear_male_1 = lifetable_withPopulation[["male"]]$population, 
     population_midyear_female_1 = lifetable_withPopulation[["female"]]$population, 
     year_of_analysis_1 = 2019, 
+    approach_exposure_2 = "single_year",
     first_age_pop_2 = 0,
     last_age_pop_2 = 99,
     deaths_male_2 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_male,
@@ -1428,8 +1442,6 @@ check_bestcost(result_list_bestcost = comparison_yll_lifetable_delta_geo ,
                result_vector_alternative = c(31190, 16500, 45472)) # Result on 08 July 2024
 
 # PIF
-# GIVES ERROR: "object 'rr_conc' not found", ALTHOUGH IT IS THERE ####
-## THE SAME FUNCTION IS CALLED ABOVE AND RUNS WITHOUT ERROR
 comparison_yll_lifetable_pif <-
   bestcost::compare_yll_from_lifetable(
     approach_comparison = "pif",
@@ -1443,6 +1455,7 @@ comparison_yll_lifetable_pif <-
     rr_upper = 1.179,
     erf_increment = 10, 
     erf_shape = "log_linear",
+    approach_exposure_1 = "constant",
     first_age_pop_1 = 0,
     last_age_pop_1 = 99,
     deaths_male_1 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_male,
@@ -1454,6 +1467,7 @@ comparison_yll_lifetable_pif <-
     population_midyear_male_1 = lifetable_withPopulation[["male"]]$population, 
     population_midyear_female_1 = lifetable_withPopulation[["female"]]$population, 
     year_of_analysis_1 = 2019, 
+    approach_exposure_2 = "constant",
     first_age_pop_2 = 0,
     last_age_pop_2 = 99,
     deaths_male_2 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_male,
@@ -1477,7 +1491,8 @@ check_bestcost(result_list_bestcost = comparison_yll_lifetable_pif ,
 
 # Additionally check that it producesthe first scenario produce the same results as above
 check_bestcost(result_list_bestcost = comparison_yll_lifetable_pif[["detailed"]][["scenario_1"]],
-               result_vector_alternative = bestcost_pm_yll_lifetable_geluft[["main"]]$impact_rounded)
+               # result_vector_alternative = bestcost_pm_yll_lifetable_geluft[["main"]]$impact_rounded) # OLD GeLuft variable
+               result_vector_alternative = bestcost_pm_yll_lifetable_airqplus[["main"]]$impact_rounded)
 
 
 # Iteration
@@ -1574,7 +1589,7 @@ comparison_yld_lifetable_delta  <-
     info_2 = input_data_mortality$pollutant[2], 
     min_age = 20,
     duration = 100,
-    disability_weight = 1)
+    dw_central = 1)
 
 # No study to compare bestcost results
 # Check only if results stay the same overtime despite developments
@@ -1627,7 +1642,7 @@ comparison_yld_lifetable_delta_geo <-
     geo_id_raw = c("a", "b"),
     geo_id_aggregated = rep("ch", 2),
     duration = 100,
-    disability_weight = 1)
+    dw_central = 1)
 
 # No study to compare bestcost results
 # Check only if results stay the same overtime despite developments
@@ -1675,7 +1690,7 @@ comparison_yld_lifetable_pif <-
     info_2 = NULL, 
     min_age = 20,
     duration = 100,
-    disability_weight = 1)
+    dw_central = 1)
 
 # No study to compare bestcost results
 # Check only if results stay the same overtime despite developments
@@ -1729,7 +1744,7 @@ comparison_yld_lifetable_pif_geo <-
     geo_id_raw = c("a", "b"),
     geo_id_aggregated = rep("ch", 2),
     duration = 100,
-    disability_weight = 1)
+    dw_central = 1)
 
 # No study to compare bestcost results
 # Check only if results stay the same overtime despite developments
@@ -1782,7 +1797,7 @@ comparison_daly_lifetable_delta  <-
     info_2 = input_data_mortality$pollutant[2], 
     min_age = 20,
     duration = 100,
-    disability_weight = 1)
+    dw_central = 1)
 
 # No study to compare bestcost results
 # Check only if results stay the same overtime despite developments
@@ -1835,7 +1850,7 @@ comparison_daly_lifetable_delta_geo <-
     geo_id_raw = c("a", "b"),
     geo_id_aggregated = rep("ch", 2),
     duration = 100,
-    disability_weight = 1)
+    dw_central = 1)
 
 # No study to compare bestcost results
 # Check only if results stay the same overtime despite developments
@@ -1883,7 +1898,7 @@ comparison_daly_lifetable_pif <-
     info_2 = NULL, 
     min_age = 20,
     duration = 100,
-    disability_weight = 1)
+    dw_central = 1)
 
 # No study to compare bestcost results
 # Check only if results stay the same overtime despite developments
@@ -1937,7 +1952,7 @@ comparison_daly_lifetable_pif_geo <-
     geo_id_raw = c("a", "b"),
     geo_id_aggregated = rep("ch", 2),
     duration = 100,
-    disability_weight = 1)
+    dw_central = 1)
 
 # No study to compare bestcost results
 # Check only if results stay the same overtime despite developments

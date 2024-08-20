@@ -26,7 +26,10 @@ get_output <-
                                    interim = impact_raw[["detailed"]]))
 
 
-    output_last <- impact_raw[["main"]]
+    output_last <- impact_raw[["main"]] %>%
+      {if(unique(impact_raw[["main"]]$health_metric) == "yld_from_prevalence" |
+          unique(impact_raw[["main"]]$health_metric) == "yld_from_lifetable")
+        dplyr::filter(., dw_ci %in% "central") else .}
 
     if(unique(impact_raw[["main"]]$approach_risk) == "absolute_risk") {
 
@@ -76,7 +79,7 @@ get_output <-
         output_last %>%
         # Group by higher geo level
         dplyr::group_by(., across(all_of(intersect(c("geo_id_aggregated", "exp_ci",
-                                                  "bhd_ci", "erf_ci"),
+                                                  "bhd_ci", "erf_ci","dw_ci"),
                                                 names(.)))))%>%
         dplyr::summarise(impact = sum(impact),
                          impact_rounded = round(impact),
@@ -95,9 +98,6 @@ get_output <-
       dplyr::filter(!exp_ci %in% c("lower", "upper"))%>%
       {if("bhd_ci" %in% names(.))
         dplyr::filter(., !bhd_ci %in% c("lower", "upper")) else .}
-
-
-
 
 
     return(output)
