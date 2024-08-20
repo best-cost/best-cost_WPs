@@ -94,7 +94,9 @@ get_output <-
       output_last %>%
       dplyr::filter(!exp_ci %in% c("lower", "upper"))%>%
       {if("bhd_ci" %in% names(.))
-        dplyr::filter(., !bhd_ci %in% c("lower", "upper")) else .}
+        dplyr::filter(., !bhd_ci %in% c("lower", "upper")) else .} %>%
+      {if(unique(output_last$health_metric) == "yld_from_prevalence")
+        dplyr::filter(., dw_ci %in% "central") else .}
 
 
 

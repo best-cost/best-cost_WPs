@@ -336,7 +336,7 @@ bestcost_pm_yld_singlebhd  <-
     rr_upper = 1.179,
     erf_increment = 10, 
     erf_shape = "log_linear", 
-    dw_central = 1, dw_lower = 0.1, dw_upper = 10)
+    dw_central = 0.5, dw_lower = 0.1, dw_upper = 10)
 
 # No study to compare bestcost results
 # Check only if results stay the same overtime despite developments
