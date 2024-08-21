@@ -124,7 +124,7 @@ get_pop_impact <-
 
     # CALCULATE YOA MID-YEAR POPOULATION, YOA END-OF-YEAR POPULATION, YOA DEATHS AND YOA+1 ENTRY POPULATION USING MODIFIED SURVIVAL PROBABILITIES
     pop <- pop %>%
-      mutate(pop_impacted_scenario_nest = lifetable_with_pop_nest %>%
+      mutate(pop_impacted_scenario_nest = lifetable_with_pop_nest %>%   
                purrr::map(
                  .,
                  function(.x){
@@ -231,7 +231,6 @@ get_pop_impact <-
 
         # PROJECT POPULATIONS IN BOTH IMPACTED AND BASELINE SCENARIO FROM YOA+1 UNTIL THE END
         # USING MODIFIED SURVIVAL PROBABILITIES (BECAUSE AFTER YOA THERE IS NO MORE AIR POLLUTION)
-
         pop <- pop %>%
           mutate(pop_baseline_scenario_nest = pop_baseline_scenario_nest %>%
                    purrr::map(
@@ -254,6 +253,7 @@ get_pop_impact <-
                                    number_years = 99,
                                    prob_survival = .x$prob_survival_mod,
                                    prob_survival_until_mid_year = .x$prob_survival_until_mid_year_mod)
+
                      }
                    )
           )

@@ -91,29 +91,6 @@ for(d in c("natural", "total")){
   }
 }
 
-# Load (summed) YLL data from AirQ+ output Excel no newborns
-airqplus_yll_total_per_year_no_newborns <- tibble(year = 2019:2118,
-                                                  impact = unname(as_vector(read_excel("../testing/output/airqplus_deaths_yll_lifetable_adults.xlsx", 
-                                                                                       range = "B109:CW109", 
-                                                                                       sheet = "yll_difference", 
-                                                                                       col_names = FALSE))))
-
-# Load (summed) YLL data from AirQ+ output Excel with newborns
-airqplus_yll_total_per_year_with_newborns <- tibble(year = 2019:2118,
-                                                  impact = unname(as_vector(read_excel("../testing/output/airqplus_deaths_yll_lifetable_adults.xlsx", 
-                                                                                       range = "B103:CW103", 
-                                                                                       sheet = "yll_difference", 
-                                                                                       col_names = FALSE))))
-
-# Load premature death data 2019 from AirQ+ output Excel
-airqplus_premature_deaths_2019 <- tibble(age = 0:99,
-                                         impact = unname(as_vector(read_excel("../testing/output/airqplus_deaths_yll_lifetable_adults.xlsx", 
-                                                                              range = "B1:B101", 
-                                                                              sheet = "deaths_difference", 
-                                                                              col_names = TRUE))))
-
-# Load YLL data 
-airqplus_yll_difference <- read.xlsx("../testing/output/airqplus_deaths_yll_lifetable_adults.xlsx", sheet = "yll_difference", startRow = 1, rows = c(1:101))
 ```
 
 
@@ -392,7 +369,7 @@ if(all((bestcost_prob_dying$prob_dying -
 
 #### Premature deaths
 
-```{r premature deaths with lifetable airqplus input}
+```{r premature deaths lifetable airqplus input}
 
 # Calculate premature deaths using bestcost function
 # and input data from an AirQ+ case
@@ -422,22 +399,13 @@ bestcost_pm_deaths_lifetable_airqplus <-
     min_age = airqplus_pm_deaths_yll[["input"]]$apply_rr_from_age)
 
 
-# check_bestcost(result_list_bestcost = bestcost_pm_deaths_lifetable_airqplus,
-#                result_vector_alternative = c(2600.9, 1371, 3804))
-
-if ( abs(bestcost_pm_deaths_lifetable_airqplus[["main"]][["impact_rounded"]][[1]] - 2601 ) / 2601 * 100 < 0.001  ) {
-  cat(paste0("best-cost: ", round(bestcost_pm_deaths_lifetable_airqplus[["main"]][["impact_rounded"]][[1]]),"\n",
-             "AirQ+: ", 2601,"\n"),
-      crayon::cyan("Right. Bestcost and alternative with almost identical results (< 0.001%)."))
-} else {
-    cat(paste0("best-cost: ", round(bestcost_pm_deaths_lifetable_airqplus[["main"]][["impact_rounded"]][[1]]),"\n",
-             "AirQ+: ", 2601,"\n"),
-        crayon::red("Attention! Check! Bestcost and alternative with different results (> 0.001%)."))}
+check_bestcost(result_list_bestcost = bestcost_pm_deaths_lifetable_airqplus,
+                result_vector_alternative = c(2600.9, 1371, 3804))
 ```
 
 
 
-```{r premature deaths with lifetable and exposure distribution}
+```{r premature deaths lifetable and exposure distribution}
 
 # Calculate premature deaths using bestcost function
 bestcost_pm_deaths_lifetable_expDistribution <- 
@@ -466,21 +434,18 @@ bestcost_pm_deaths_lifetable_expDistribution <-
 
 # No study to compare bestcost results
 # Check only if results stay the same overtime despite developments
-check_bestcost(result_list_bestcost = bestcost_pm_deaths_lifetable_expDistribution, # bestcost_pm_deaths_lifetable_geluft, 
-               result_vector_alternative = c(2610, 1378, 3815)) # Result on 16 May 2024
+check_bestcost(result_list_bestcost = bestcost_pm_deaths_lifetable_expDistribution,
+               result_vector_alternative = c(2900, 1531, 4239)) # Result on 20 August 2024
 ```
-It is to be expected that the best-cost results are higher (11.11%) than the alternative
-source results: the exposure from the exposure distributions (best-cost) is a bit 
-higher than the single value exposure (alternative source).
 
 
 
-#### Years of life lost
+#### Years of life lost (YLL)
 
-```{r YLL from SINGLE YEAR EXPOSURE}
+```{r YLL lifetable from SINGLE YEAR exposure}
 
 # Now with input data from the Swiss project GeLuft
-bestcost_pm_yll_exposure_single_year_lifetable_airqplus <-
+bestcost_pm_yll_exposure_single_year_lifetable_geluft <-
   bestcost::attribute_yll_from_lifetable(
     approach_exposure = "single_year",
     exp_central = input_data_mortality$exp[2], #exp CH 2019
@@ -505,28 +470,16 @@ bestcost_pm_yll_exposure_single_year_lifetable_airqplus <-
     info = input_data_mortality$pollutant[2], 
     min_age = if(is.na(input_data_mortality$min_age[2])) NULL else input_data_mortality$min_age[2])
 
-check_bestcost(result_list_bestcost = bestcost_pm_yll_exposure_single_year_lifetable_airqplus,
-                result_vector_alternative = c(27742, 14641, 40542)) # GeLuft results; difference to bestcost results should be 3.86%
-               # result_vector_alternative = airqplus_pm_deaths_yll)
+check_bestcost(result_list_bestcost = bestcost_pm_yll_exposure_single_year_lifetable_geluft,
+               result_vector_alternative = c(29274.89,	15328.16,	43118.30)) # AirQ+ approach result
+               # result_vector_alternative = c(27742, 14641, 40542)) # GeLuft approach result
               
-# View(bestcost_pm_yll_exposure_single_year_lifetable_airqplus)
-
-
-test_baseline <- bestcost_pm_yll_exposure_single_year_lifetable_airqplus[["detailed"]][["interim"]][["pop_baseline_scenario_nest"]][[3]] %>% 
-  select(age, contains("population_")) %>% 
-  select(-contains("entry"), -population_2019_end)
-
-test_baseline_entry <- bestcost_pm_yll_exposure_single_year_lifetable_airqplus[["detailed"]][["interim"]][["pop_baseline_scenario_nest"]][[3]] %>% 
-  select(age, contains("_entry"))
-
-test_impacted <- bestcost_pm_yll_exposure_single_year_lifetable_airqplus[["detailed"]][["interim"]][["pop_impacted_scenario_nest"]][[3]] %>% 
-  select(age, contains("population_")) %>% 
-  select(-contains("entry"), -population_2019_end)
-
+# View(bestcost_pm_yll_exposure_single_year_lifetable_geluft)
 ```
-Difference (between best-cost and GeLuft results) should be 3.86%.
 
-```{r YLL from CONSTANT EXPOSURE and NO NEWBORNS}
+
+
+```{r YLL lifetable from CONSTANT exposure and NO NEWBORNS}
 
 # Input data from an AirQ+ case
 
@@ -554,79 +507,15 @@ bestcost_pm_yll_lifetable_airqplus <-
     year_of_analysis =  airqplus_pm_deaths_yll[["input"]]$start_year, 
     min_age = airqplus_pm_deaths_yll[["input"]]$apply_rr_from_age)
 
-# check_bestcost(result_list_bestcost = bestcost_pm_yll_lifetable_airqplus,
-#                 result_vector_alternative = c(27742, 14641, 40542))
+# View(bestcost_pm_yll_lifetable_airqplus)
 
-# Compare sex-specific results
-# yll_male <- bestcost_pm_yll_lifetable_airqplus[["detailed"]][["interim"]][["lifeyears_nest"]][[1]] %>%
-#   filter(year == 2019) %>%  select(impact) %>%  as_vector() %>%  unname(.)
-# yll_female <- bestcost_pm_yll_lifetable_airqplus[["detailed"]][["interim"]][["lifeyears_nest"]][[2]] %>%
-#   filter(year == 2019) %>% select(impact) %>% as_vector() %>%  unname(.)
-# print("YLL male 2019 identical:") ; round(yll_male) == round(624.43) # Value from AirQ+ output Excel
-# print("YLL female 2019 identical:") ; round(yll_female) == round(675.25) # Value from AirQ+ output Excel
-
-# Compare total (= both sexes) YLL
-yll_total_rounded <- round(bestcost_pm_yll_lifetable_airqplus[["detailed"]][["interim"]][["pop_impact_nest"]][[3]] %>% select(-age_end))
-yll_total_unrounded <- bestcost_pm_yll_lifetable_airqplus[["detailed"]][["interim"]][["pop_impact_nest"]][[3]] %>% select(-age_end)
-
-# Difference in total yearly YLLs
-yll_total_comp <- tibble(year = airqplus_yll_total_per_year_no_newborns$year,
-       airqplus_yll_total = airqplus_yll_total_per_year_no_newborns$impact,
-       bestcost_yll_total_rounded = round(bestcost_pm_yll_lifetable_airqplus[["detailed"]][["interim"]][["lifeyears_nest"]][[3]]$impact))
-
-yll_total_sum <- tibble(airqplus_yll_sum = sum(yll_total_comp$airqplus_yll_total),
-                             bestcost_yll_sum = sum(yll_total_comp$bestcost_yll_total_rounded),
-                             diff_abs = abs(airqplus_yll_sum - bestcost_yll_sum),
-                             diff_percent = diff_abs / airqplus_yll_sum * 100)
-
-if (yll_total_sum$diff_percent < 0.001) {
-  cat(paste0("best-cost: ", yll_total_sum$bestcost_yll_sum,"\n",
-             "AirQ+: ", yll_total_sum$airqplus_yll_sum,"\n"),
-      crayon::cyan("Right. Bestcost and alternative with almost identical results (< 0.001%)."))
-} else {
-    cat(paste0("best-cost: ", yll_total_sum$bestcost_yll_sum,"\n",
-             "AirQ+: ", yll_total_sum$airqplus_yll_sum,"\n"),
-        crayon::red("Attention! Check! Bestcost and alternative with different results (> 0.001%)."))}
-
-# # 2019
-# print("2019 sum total YLLs (unrouded) identical:") # Value from AirQ+ output Excel
-# 1300.43 == round(sum(bestcost_pm_yll_lifetable_airqplus[["detailed"]][["interim"]][["pop_impact_nest"]][[3]]$population_2019), digits = 2)
-# print("2019 total YLLs identical:")
-# table(airqplus_yll_difference$`2019` == yll_total_rounded$population_2019)
-# table(airqplus_yll_difference$`2019` == yll_total_rounded$population_2019)
-# print("2019 absolute difference in YLLs:")
-# print(abs(airqplus_yll_difference$`2019`[1:100] - yll_total_rounded$population_2019[1:100]))
-# 
-# # 2020
-# print("2020 sum total YLLs (unrouded) identical:") # Value from AirQ+ output Excel
-# 3741.43 == round(sum(bestcost_pm_yll_lifetable_airqplus[["detailed"]][["interim"]][["pop_impact_nest"]][[3]]$population_2020, na.rm = TRUE), digits = 2)
-# print("2020 total YLLs identical:")
-# table(airqplus_yll_difference$`2020` == yll_total_rounded$population_2020)
-# print("2020 absolute difference in YLLs:")
-# print(abs(airqplus_yll_difference$`2020`[2:100] - yll_total_rounded$population_2020[2:100]))
-# 
-# 2021
-# print("2021 absolute difference in total YLLs:")
-# abs(6085 - round(sum(yll_total_rounded$population_2021, na.rm = TRUE), digits = 2)) # Value from AirQ+ output Excel
-# print("2021 absolute difference in YLLs:")
-# print(abs(airqplus_yll_difference$`2021` - yll_total_rounded$population_2021))
-# 
-# # 2050
-# print("2050 absolute difference in total YLLs:")
-# abs(41044 - round(sum(yll_total_rounded$population_2050, na.rm = TRUE), digits = 2)) # Value from AirQ+ output Excel
-# print("2050 absolute difference in age-specific YLLs")
-# print(abs(airqplus_yll_difference$`2050`[32:100] - yll_total_rounded$population_2050[32:100]))
-# # Max difference constant at 1 --> rounding error
-# 
-# # 2100
-# print("2100 absolute difference in total YLLs:")
-# abs(20535 - round(sum(yll_total_rounded$population_2100, na.rm = TRUE), digits = 2)) # Value from AirQ+ output Excel
-# print("2100 absolute difference in YLLs:")
-# print(abs(airqplus_yll_difference$`2100`[82:100] - yll_total_rounded$population_2100[82:100]))
+check_bestcost(result_list_bestcost = bestcost_pm_yll_lifetable_airqplus,
+               result_vector_alternative = c(2776839.17,	1452410.83,	4094163.08)) # AirQ+ result
 ```
-AirQ+ value is from the large AirQ+ output excel.
 
-```{r YLL from CONSTANT EXPOSURE and WITH NEWBORNS}
+
+
+```{r YLL lifetable from CONSTANT exposre and WITH NEWBORNS}
 
 # Input data from an AirQ+ case
 
@@ -654,32 +543,15 @@ bestcost_pm_yll_lifetable_airqplus_with_newborns <-
     year_of_analysis =  airqplus_pm_deaths_yll[["input"]]$start_year, 
     min_age = airqplus_pm_deaths_yll[["input"]]$apply_rr_from_age)
 
-# Compare total (= both sexes) YLL
-yll_total_rounded <- round(bestcost_pm_yll_lifetable_airqplus_with_newborns[["detailed"]][["interim"]][["pop_impact_nest"]][[3]] %>% select(-age_end))
-yll_total_unrounded <- bestcost_pm_yll_lifetable_airqplus_with_newborns[["detailed"]][["interim"]][["pop_impact_nest"]][[3]] %>% select(-age_end)
+# View(bestcost_pm_yll_lifetable_airqplus_with_newborns)
 
-# Difference in total yearly YLLs
-yll_total_comp <- tibble(year = airqplus_yll_total_per_year_with_newborns$year,
-       airqplus_yll_total = airqplus_yll_total_per_year_with_newborns$impact,
-       bestcost_yll_total_rounded = round(bestcost_pm_yll_lifetable_airqplus_with_newborns[["detailed"]][["interim"]][["lifeyears_nest"]][[3]]$impact))
-
-yll_total_sum <- tibble(airqplus_yll_sum = sum(yll_total_comp$airqplus_yll_total),
-                             bestcost_yll_sum = sum(yll_total_comp$bestcost_yll_total_rounded),
-                             diff_abs = abs(airqplus_yll_sum - bestcost_yll_sum),
-                             diff_percent = diff_abs / airqplus_yll_sum * 100)
-
-if (yll_total_sum$diff_percent < 0.001) {
-  cat(paste0("best-cost: ", yll_total_sum$bestcost_yll_sum,"\n",
-             "AirQ+: ", yll_total_sum$airqplus_yll_sum,"\n"),
-      crayon::cyan("Right. Bestcost and alternative with almost identical results (< 0.001%)."))
-} else {
-    cat(paste0("best-cost: ", yll_total_sum$bestcost_yll_sum,"\n",
-             "AirQ+: ", yll_total_sum$airqplus_yll_sum,"\n"),
-        crayon::red("Attention! Check! Bestcost and alternative with different results (> 0.001%)."))}
+check_bestcost(result_list_bestcost = bestcost_pm_yll_lifetable_airqplus_with_newborns,
+               result_vector_alternative = c(3248408.53,	1700230.04,	4786195.41)) # AirQ+ result
 ```
-AirQ+ value is from the large AirQ+ output excel.
 
-```{r yll lifetable with single relative risk}
+
+
+```{r YLL lifetable with single relative risk}
 # Only one relative risk estimate (central estimate)
 
 # Calculate years of life lost using bestcost function
@@ -707,12 +579,16 @@ bestcost_pm_yll_lifetable_1rr_geluft <-
       info = input_data_mortality$pollutant[2], 
       min_age = if(is.na(input_data_mortality$min_age[2])) NULL else input_data_mortality$min_age[2])
 
-check_bestcost(result_list_bestcost = bestcost_pm_yll_lifetable_1rr_geluft,
-               result_vector_alternative = c(27742)) # GeLuft result
-```
-Difference to bestcost results should be 3.86% (difference bestcost and GeLuft results).
+# View(bestcost_pm_yll_lifetable_1rr_geluft)
 
-```{r yll lifetable with exposure distribution}
+check_bestcost(result_list_bestcost = bestcost_pm_yll_lifetable_1rr_geluft,
+               # result_vector_alternative = c(27742)) # GeLuft approach result 
+               result_vector_alternative = c(29274.89)) # AirQ+ approach result 
+```
+
+
+
+```{r YLL lifetable with exposure distribution}
 
 # Calculate years of life lost using bestcost function
 # with exposure distribution (instead of population-weighted mean)
@@ -741,18 +617,21 @@ bestcost_pm_yll_lifetable_expDistribution_geluft <-
       info = input_data_mortality$pollutant[2], 
       min_age = if(is.na(input_data_mortality$min_age[2])) NULL else input_data_mortality$min_age[2])
 
+# View(bestcost_pm_yll_lifetable_expDistribution_geluft)
 
 # No study to compare bestcost results
 # Check only if results stay the same overtime despite developments
 check_bestcost(result_list_bestcost = bestcost_pm_yll_lifetable_expDistribution_geluft ,
-               result_vector_alternative = c(30931, 16337, 45166)) # Result on 16 May 2024
+               # result_vector_alternative = c(30931, 16337, 45166)) # Result on 16 May 2024 (GeLuft approach)
+               result_vector_alternative = c(32704, 17122, 48173)) # Result on 20 August 2024 (AirQ+ approach)
 
 ```
-Difference should be 3.86%
 
-#### Years lived with disability
 
-```{r morbidity yld lifetable}
+
+#### Years lived with disability (YLD)
+
+```{r YLD lifetable}
 
 # Calculate years lived with disability using bestcost function
 # with input data from the Swiss project GeLuft
@@ -787,20 +666,22 @@ bestcost_pm_yld_lifetable_geluft  <-
     dw_central = 1, dw_lower = 0.1, dw_upper = 10
   )
 
+View(bestcost_pm_yld_lifetable_geluft)
+
 # The Swiss project GeLuft did not calculated the YLD, only YLL. 
 # But disability weight = 1 in the function above, then YLD = YLL 
 # and the result should be identical.
 check_bestcost(result_list_bestcost = bestcost_pm_yld_lifetable_geluft,
-               result_vector_alternative = c(27742, 14641, 40542)) # GeLuft results
+               # result_vector_alternative = c(27742, 14641, 40542)) # GeLuft approach result
+               result_vector_alternative = c(29274.89,	15328.16,	43118.30)) # AirQ+ approach result
 
 ```
-Difference GeLuft to bestcost results should be 3.86%
 
 
 
 #### Disability-adjusted lived years (DALY)
 
-```{r morbidity daly lifetable}
+```{r DALY lifetable}
 
 # Calculate years lived with disability using bestcost function
 # with input data from the Swiss project GeLuft
@@ -837,10 +718,13 @@ bestcost_pm_daly_lifetable_geluft  <-
 # and the result should be identical.
 # Since DALY = YLL + YLD and in this case YLL=YLD --> DALY = 2*YLL
 check_bestcost(result_list_bestcost = bestcost_pm_daly_lifetable_geluft,
-               result_vector_alternative = c(27742*2, 14641*2, 40542*2))
+               # result_vector_alternative = c(27742*2, 14641*2, 40542*2)) # GeLuft approach result
+               result_vector_alternative = c(29274.89*2,	15328.16*2,	43118.30*2)) # AirQ+ approach result
+
 
 ```
-Difference GeLuft to bestcost results should be 3.86%
+
+
 
 ## Comparison
 
@@ -1038,7 +922,7 @@ comparison_yld_singlebhd_rr_delta <-
 check_bestcost(result_list_bestcost = comparison_yld_singlebhd_rr_delta ,
                result_vector_alternative = c(387, 205, 564)) # Result on 16 May 2024
 
-# Additionally check that it producesthe first scenario produce the same results as above
+# Additionally check that the first scenario produces the same results as above
 check_bestcost(result_list_bestcost = comparison_yld_singlebhd_rr_delta[["detailed"]][["scenario_1"]] ,
                result_vector_alternative = bestcost_pm_yld_singlebhd[["main"]]$impact_rounded) 
 
@@ -1088,17 +972,14 @@ comparison_yld_singlebhd_rr_pif <-
     info_1 = "PM2.5_yld_before",
     info_2 = "PM2.5_yld_after")
 
-
-
 # No study to compare bestcost results
 # Check only if results stay the same overtime despite developments
 check_bestcost(result_list_bestcost = comparison_yld_singlebhd_rr_pif ,
                result_vector_alternative = c(391,206,573)) # Result on 16 May 2024
 
-# Additionally check that it produces the first scenario produce the same results as above
+# Additionally check that the first scenario produces the same results as above
 check_bestcost(result_list_bestcost = comparison_yld_singlebhd_rr_pif[["detailed"]][["scenario_1"]] ,
                result_vector_alternative = bestcost_pm_yld_singlebhd[["main"]]$impact_rounded) 
-
 
 # Iteration
 comparison_yld_singlebhd_rr_pif_geo <-
@@ -1124,12 +1005,13 @@ comparison_yld_singlebhd_rr_pif_geo <-
 # Check only if results stay the same overtime despite developments
 check_bestcost(result_list_bestcost = comparison_yld_singlebhd_rr_pif_geo ,
                result_vector_alternative = c(599, 315, 878)) # Result on 20 June 2024
-
-
 ```
 
+
+
 ### Lifetable
-```{r comparison deaths lifetable}
+
+```{r comparison deaths lifetable, warning=FALSE}
 
 # DELTA
 
@@ -1174,12 +1056,12 @@ comparison_deaths_lifetable_delta <-
 
 # No study to compare bestcost results
 # Check only if results stay the same overtime despite developments
-check_bestcost(result_list_bestcost = comparison_deaths_lifetable_delta ,
-               result_vector_alternative = c(1922,1017,2801)) # Result on 16 May 2024
+check_bestcost(result_list_bestcost = comparison_deaths_lifetable_delta,
+               # result_vector_alternative = c(1922,1017,2801)) # Result on 16 May 2024
+               result_vector_alternative = c(1915, 1013, 2795 )) # Result on 20 August 2024
 
 # Additionally check that it produces the first scenario produce the same results as above
 check_bestcost(result_list_bestcost = comparison_deaths_lifetable_delta[["detailed"]][["scenario_1"]] ,
-               # result_vector_alternative = bestcost_pm_deaths_lifetable_geluft[["main"]]$impact_rounded) # old GeLuft vector
                result_vector_alternative = bestcost_pm_deaths_lifetable_airqplus[["main"]]$impact_rounded)  
 
 # Iteration
@@ -1225,11 +1107,13 @@ comparison_deaths_lifetable_delta_geo <-
 # No study to compare bestcost results
 # Check only if results stay the same overtime despite developments
 check_bestcost(result_list_bestcost = comparison_deaths_lifetable_delta_geo ,
-               result_vector_alternative = c(2935, 1553, 4279)) # Result on 09 July 2024
+               # result_vector_alternative = c(2935, 1553, 4279)) # Result on 09 July 2024
+               result_vector_alternative = c(2925, 1546, 4269)) # Result on 20 August 2024
+
 
 # Additionally check that it produces the first scenario produce the same results as above
 # comparison_deaths_lifetable_delta_geo[["detailed"]][["scenario_1"]][["detailed"]][["raw"]] %>%  dplyr::filter(., geo_id_raw %in% "a") %>% select(., impact)  %>% pull(.) == bestcost_pm_deaths_lifetable_geluft[["main"]]$impact 
-comparison_deaths_lifetable_delta_geo[["detailed"]][["scenario_1"]][["detailed"]][["raw"]] %>%  dplyr::filter(., geo_id_raw %in% "a") %>% select(., impact)  %>% pull(.) == bestcost_pm_deaths_lifetable_airqplus[["main"]]$impact
+round(comparison_deaths_lifetable_delta_geo[["detailed"]][["scenario_1"]][["detailed"]][["raw"]] %>%  dplyr::filter(., geo_id_raw %in% "a") %>% select(., impact)  %>% pull(.), digits = 0) == round(bestcost_pm_deaths_lifetable_airqplus[["main"]]$impact)
 # Absolute differences
 abs(comparison_deaths_lifetable_delta_geo[["detailed"]][["scenario_1"]][["detailed"]][["raw"]] %>%  dplyr::filter(., geo_id_raw %in% "a") %>% select(., impact)  %>% pull(.) 
     - bestcost_pm_deaths_lifetable_airqplus[["main"]]$impact)
@@ -1277,17 +1161,15 @@ comparison_deaths_lifetable_pif  <-
     year_of_analysis_2 = 2019,
     min_age = 20)
 
-
-
 # No study to compare bestcost results
 # Check only if results stay the same overtime despite developments
 check_bestcost(result_list_bestcost = comparison_deaths_lifetable_pif ,
-               result_vector_alternative = c(1943,1023,2847)) # Result on 16 May 2024
+               # result_vector_alternative = c(1943,1023,2847)) # Result on 16 May 2024
+               result_vector_alternative = c(1935, 1018, 2837 )) # Result on 20 August 2024
 
 # Additionally check that scenario produce the same results as above
 check_bestcost(result_list_bestcost = comparison_deaths_lifetable_pif[["detailed"]][["scenario_1"]],
-               # result_vector_alternative = bestcost_pm_deaths_lifetable_geluft[["main"]]$impact_rounded) # OLD GeLuft variable
-               result_vector_alternative = bestcost_pm_deaths_lifetable_airqplus[["main"]]$impact_rounded) 
+               result_vector_alternative = bestcost_pm_deaths_lifetable_airqplus[["main"]]$impact_rounded)  # AirQ+ result
 
 
 # Iteration
@@ -1333,25 +1215,13 @@ comparison_deaths_lifetable_pif_geo <-
 # No study to compare bestcost results
 # Check only if results stay the same overtime despite developments
 check_bestcost(result_list_bestcost = comparison_deaths_lifetable_pif_geo ,
-               result_vector_alternative = c(2974, 1563, 4362)) # Result on 09 July 2024
-
-
-```
-
-```{r Illustration integrate compare() in attribute()}
-
-# Benefit of this: compare the two conceptionally different approaches
- 
-# case1 <- attribute(approach= cutoff in exposure)
-
-# case2 <- attribute(approach = delta approach/cutoff in ERF)
-
-# difference impact <- case1[[impact]] - case2[[impact]]
+               # result_vector_alternative = c(2974, 1563, 4362)) # Result on 09 July 2024
+               result_vector_alternative = c(2961, 1556, 4346)) # Result on 20 AUgust 2024
 ```
 
 
 
-```{r comparison yll lifetable}
+```{r comparison YLL lifetable}
 
 # DELTA 
 comparison_yll_lifetable_delta  <-
@@ -1367,7 +1237,8 @@ comparison_yll_lifetable_delta  <-
     rr_upper = 1.179,
     erf_increment = 10, 
     erf_shape = "log_linear",
-    approach_exposure_1 = "constant",
+    approach_exposure_1 = "single_year",
+    approach_newborns_1 = "without_newborns",
     first_age_pop_1 = 0,
     last_age_pop_1 = 99,
     deaths_male_1 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_male,
@@ -1379,7 +1250,8 @@ comparison_yll_lifetable_delta  <-
     population_midyear_male_1 = lifetable_withPopulation[["male"]]$population, 
     population_midyear_female_1 = lifetable_withPopulation[["female"]]$population, 
     year_of_analysis_1 = 2019,
-    approach_exposure_2 = "constant",
+    approach_exposure_2 = "single_year",
+    approach_newborns_2 = "without_newborns",
     first_age_pop_2 = 0,
     last_age_pop_2 = 99,
     deaths_male_2 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_male,
@@ -1398,14 +1270,15 @@ comparison_yll_lifetable_delta  <-
 
 # No study to compare bestcost results
 # Check only if results stay the same overtime despite developments
-check_bestcost(result_list_bestcost = comparison_yll_lifetable_delta ,
-               result_vector_alternative = c(20421,10806,29763)) # Result on 16 May 2024
+check_bestcost(result_list_bestcost = comparison_yll_lifetable_delta,
+               # result_vector_alternative = c(20421,10806,29763)) # Results on 16 May 2024
+               result_vector_alternative = c(21644, 11340, 31860)) # Results on 20 August 2024
+
 
 # Additionally check that it producesthe first scenario produce the same results as above
 check_bestcost(result_list_bestcost = comparison_yll_lifetable_delta[["detailed"]][["scenario_1"]] ,
                # result_vector_alternative = bestcost_pm_yll_lifetable_geluft[["main"]]$impact_rounded) # OLD GeLuft variable
-               result_vector_alternative = bestcost_pm_yll_lifetable_airqplus[["main"]]$impact_rounded)
-
+               result_vector_alternative = bestcost_pm_yll_exposure_single_year_lifetable_geluft[["main"]]$impact_rounded) # AirQ+ results
 
 # Iteration
 comparison_yll_lifetable_delta_geo <-
@@ -1452,7 +1325,9 @@ comparison_yll_lifetable_delta_geo <-
 # No study to compare bestcost results
 # Check only if results stay the same overtime despite developments
 check_bestcost(result_list_bestcost = comparison_yll_lifetable_delta_geo ,
-               result_vector_alternative = c(31190, 16500, 45472)) # Result on 08 July 2024
+               # result_vector_alternative = c(31190, 16500, 45472)) # Results on 08 July 2024
+               result_vector_alternative = c(33041, 17309, 48639)) # Results on 20 August 2024
+
 
 # PIF
 comparison_yll_lifetable_pif <-
@@ -1468,7 +1343,7 @@ comparison_yll_lifetable_pif <-
     rr_upper = 1.179,
     erf_increment = 10, 
     erf_shape = "log_linear",
-    approach_exposure_1 = "constant",
+    approach_exposure_1 = "single_year",
     first_age_pop_1 = 0,
     last_age_pop_1 = 99,
     deaths_male_1 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_male,
@@ -1480,7 +1355,7 @@ comparison_yll_lifetable_pif <-
     population_midyear_male_1 = lifetable_withPopulation[["male"]]$population, 
     population_midyear_female_1 = lifetable_withPopulation[["female"]]$population, 
     year_of_analysis_1 = 2019, 
-    approach_exposure_2 = "constant",
+    approach_exposure_2 = "single_year",
     first_age_pop_2 = 0,
     last_age_pop_2 = 99,
     deaths_male_2 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_male,
@@ -1500,13 +1375,13 @@ comparison_yll_lifetable_pif <-
 # No study to compare bestcost results
 # Check only if results stay the same overtime despite developments
 check_bestcost(result_list_bestcost = comparison_yll_lifetable_pif ,
-               result_vector_alternative = c(20650,10870,30257)) # Result on 16 May 2024
+               # result_vector_alternative = c(20650, 10870, 30257)) # Result on 16 May 2024
+               result_vector_alternative = c(21698, 11354, 31978 )) # Result on 20 August 2024
 
 # Additionally check that it producesthe first scenario produce the same results as above
 check_bestcost(result_list_bestcost = comparison_yll_lifetable_pif[["detailed"]][["scenario_1"]],
                # result_vector_alternative = bestcost_pm_yll_lifetable_geluft[["main"]]$impact_rounded) # OLD GeLuft variable
-               result_vector_alternative = bestcost_pm_yll_lifetable_airqplus[["main"]]$impact_rounded)
-
+               result_vector_alternative = bestcost_pm_yll_exposure_single_year_lifetable_geluft[["main"]]$impact_rounded)
 
 # Iteration
 comparison_yll_lifetable_pif_geo <-
@@ -1551,15 +1426,13 @@ comparison_yll_lifetable_pif_geo <-
 # No study to compare bestcost results
 # Check only if results stay the same overtime despite developments
 check_bestcost(result_list_bestcost = comparison_yll_lifetable_pif_geo ,
-               result_vector_alternative = c(31601, 16613, 46359)) # Result on 08 July 2024
-
+               # result_vector_alternative = c(31601, 16613, 46359)) # Result on 08 July 2024
+               result_vector_alternative = c(33137, 17335, 48851)) # Result on 20 August 2024
 ```
 
 
 
-
-
-```{r comparison yld lifetable}
+```{r comparison YLD lifetable}
 
 # DELTA
  
@@ -1607,13 +1480,12 @@ comparison_yld_lifetable_delta  <-
 # No study to compare bestcost results
 # Check only if results stay the same overtime despite developments
 check_bestcost(result_list_bestcost = comparison_yld_lifetable_delta ,
-               result_vector_alternative = c(20421,10806,29763)) # Result on 16 May 2024
+               # result_vector_alternative = c(20421, 10806, 29763)) # Result on 16 May 2024
+               result_vector_alternative = c(21644, 11340, 31860)) # Result on 20 August 2024
 
 # Additionally check that it producesthe first scenario produce the same results as above
 check_bestcost(result_list_bestcost = comparison_yld_lifetable_delta[["detailed"]][["scenario_1"]] ,
                result_vector_alternative = bestcost_pm_yld_lifetable_geluft[["main"]]$impact_rounded) 
-
-
 
 # Iteration
 comparison_yld_lifetable_delta_geo <-
@@ -1660,8 +1532,8 @@ comparison_yld_lifetable_delta_geo <-
 # No study to compare bestcost results
 # Check only if results stay the same overtime despite developments
 check_bestcost(result_list_bestcost = comparison_yld_lifetable_delta_geo ,
-               result_vector_alternative = c(31190, 16500, 45472)) # Result on 08 July 2024
-
+               # result_vector_alternative = c(31190, 16500, 45472)) # Result on 08 July 2024
+               result_vector_alternative = c(33041, 17309, 48639)) # Result on 20 August 2024
 
 # PIF
 comparison_yld_lifetable_pif <-
@@ -1708,14 +1580,12 @@ comparison_yld_lifetable_pif <-
 # No study to compare bestcost results
 # Check only if results stay the same overtime despite developments
 check_bestcost(result_list_bestcost = comparison_yld_lifetable_pif ,
-               result_vector_alternative = c(20650, 10870, 30257)) # Result on 16 May 2024
+               # result_vector_alternative = c(20650, 10870, 30257)) # Result on 16 May 2024
+               result_vector_alternative = c(21698, 11354, 31978)) # Result on 20 August 2024
 
 # Additionally check that the first scenario produce the same results as above
 check_bestcost(result_list_bestcost = comparison_yld_lifetable_pif[["detailed"]][["scenario_1"]],
                result_vector_alternative = bestcost_pm_yld_lifetable_geluft[["main"]]$impact_rounded)
-
-
-
 
 # Iteration
 comparison_yld_lifetable_pif_geo <-
@@ -1762,12 +1632,13 @@ comparison_yld_lifetable_pif_geo <-
 # No study to compare bestcost results
 # Check only if results stay the same overtime despite developments
 check_bestcost(result_list_bestcost = comparison_yld_lifetable_pif_geo ,
-               result_vector_alternative = c(31601, 16613, 46359)) # Result on 26 June 2024
+               # result_vector_alternative = c(31601, 16613, 46359)) # Result on 26 June 2024
+               result_vector_alternative = c(33137, 17335, 48851)) # Result on 20 August 2024
 
 ```
 
 
-```{r comparison daly lifetable}
+```{r comparison DALY lifetable}
 
 # DELTA
  
@@ -1815,13 +1686,12 @@ comparison_daly_lifetable_delta  <-
 # No study to compare bestcost results
 # Check only if results stay the same overtime despite developments
 check_bestcost(result_list_bestcost = comparison_daly_lifetable_delta ,
-               result_vector_alternative = c(20421*2,10806*2,29763*2)) # Result on 16 May 2024
+               # result_vector_alternative = c(20421*2,10806*2,29763*2)) # Result on 16 May 2024
+               result_vector_alternative = c(43288, 22679, 63720)) # Result on 20 August 2024
 
 # Additionally check that it producesthe first scenario produce the same results as above
 check_bestcost(result_list_bestcost = comparison_daly_lifetable_delta[["detailed"]][["scenario_1"]] ,
                result_vector_alternative = bestcost_pm_daly_lifetable_geluft[["main"]]$impact_rounded) 
-
-
 
 # Iteration
 comparison_daly_lifetable_delta_geo <-
@@ -1868,8 +1738,8 @@ comparison_daly_lifetable_delta_geo <-
 # No study to compare bestcost results
 # Check only if results stay the same overtime despite developments
 check_bestcost(result_list_bestcost = comparison_daly_lifetable_delta_geo ,
-               result_vector_alternative = c(31190*2, 16500*2, 45472*2)) # Result on 08 July 2024
-
+               # result_vector_alternative = c(31190*2, 16500*2, 45472*2)) # Result on 08 July 2024
+               result_vector_alternative = c(66082, 34618, 97279)) # Result on 20 August 2024
 
 # PIF
 comparison_daly_lifetable_pif <-
@@ -1916,14 +1786,12 @@ comparison_daly_lifetable_pif <-
 # No study to compare bestcost results
 # Check only if results stay the same overtime despite developments
 check_bestcost(result_list_bestcost = comparison_daly_lifetable_pif ,
-               result_vector_alternative = c(20650*2, 10870*2, 30257*2)) # Result on 16 May 2024
+               # result_vector_alternative = c(20650*2, 10870*2, 30257*2)) # Result on 16 May 2024
+               result_vector_alternative = c(43396, 22708, 63957 )) # Result on 20 August 2024
 
 # Additionally check that the first scenario produce the same results as above
 check_bestcost(result_list_bestcost = comparison_daly_lifetable_pif[["detailed"]][["scenario_1"]],
                result_vector_alternative = bestcost_pm_daly_lifetable_geluft[["main"]]$impact_rounded)
-
-
-
 
 # Iteration
 comparison_daly_lifetable_pif_geo <-
@@ -1970,7 +1838,8 @@ comparison_daly_lifetable_pif_geo <-
 # No study to compare bestcost results
 # Check only if results stay the same overtime despite developments
 check_bestcost(result_list_bestcost = comparison_daly_lifetable_pif_geo ,
-               result_vector_alternative = c(31601*2, 16613*2, 46359*2)) # Result on 26 June 2024
+               # result_vector_alternative = c(31601*2, 16613*2, 46359*2)) # Result on 26 June 2024
+               result_vector_alternative = c(66275, 34671, 97702)) # Result on 20 August 2024
 
 ```
 
@@ -1980,4 +1849,17 @@ check_bestcost(result_list_bestcost = comparison_daly_lifetable_pif_geo ,
 # write.csv2(lifetable_airqplus,
 #             "../testing/output/lifetable_airqplus_2019_ch.csv", 
 #             row.names = FALSE)
+```
+
+# Other
+
+```{r Illustration integrate compare() in attribute()}
+
+# Benefit of this: compare the two conceptionally different approaches
+ 
+# case1 <- attribute(approach= cutoff in exposure)
+
+# case2 <- attribute(approach = delta approach/cutoff in ERF)
+
+# difference impact <- case1[[impact]] - case2[[impact]]
 ```
