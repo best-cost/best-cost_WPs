@@ -30,17 +30,12 @@ compile_input(
   geo_id_raw = NULL,
   geo_id_aggregated = NULL,
   info = NULL,
-  disability_weight = NULL,
   corrected_discount_rate = NULL,
   duration = NULL,
   approach_exposure = NULL,
   approach_newborns = NULL,
   first_age_pop = NULL,
   last_age_pop = NULL,
-  prob_natural_death_male = NULL,
-  prob_natural_death_female = NULL,
-  prob_total_death_male = NULL,
-  prob_total_death_female = NULL,
   population_midyear_male = NULL,
   population_midyear_female = NULL,
   deaths_male = NULL,
@@ -84,8 +79,6 @@ If a {vector} is provided, it will be assumed that it refers to the exposure cat
 
 \item{info}{\code{String} or {data frame} showing additional information or id. The suffix "info" will be added to the column name. Default value = NULL.}
 
-\item{disability_weight}{\code{Numeric value} showing the disability weight associated with the morbidity health outcome}
-
 \item{corrected_discount_rate}{\code{Numeric value} showing the discount rate for future years including correction from inflation rate
 estimate and (optionally) the lower bound and the upper bound of the confidence
 interval of the baseline health data (e.g. incidence of the health outcome in the population).}
@@ -99,10 +92,6 @@ interval of the baseline health data (e.g. incidence of the health outcome in th
 \item{first_age_pop}{\code{Numeric value} starting age of the youngest age group from population and life table data (age interval = 1 year)}
 
 \item{last_age_pop}{\code{Numeric value} ending age of the oldest age group from population and life table data (age interval = 1 year)}
-
-\item{prob_natural_death_male, prob_natural_death_female}{\code{Numeric vector} containing the probability of dying due to natural cause (excluding non-natural deaths due to violence or accidents) by age or age group for male and female respectively.}
-
-\item{prob_total_death_male, prob_total_death_female}{\code{Numeric vector} containing the probability of dying due to all causes (including non-natural deaths due to violence or accidents) by age or age group for male and female respectively.}
 
 \item{population_midyear_male, population_midyear_female}{\code{Numeric vector} containing the mid-year male population for the year of analysis for male and female respectively.}
 }

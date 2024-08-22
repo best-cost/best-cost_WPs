@@ -19,10 +19,6 @@
 #' @param approach_newborns_1 \code{String} showing whether newborns are considered in the years after the year of analysis. Options: "without_newborns" (default), "with_newborns"
 #' @param first_age_pop_1 \code{Numeric value} starting age of the youngest age group from population and life table data in the scenario 1.
 #' @param last_age_pop_1 \code{Numeric value} ending age of the oldest age group from population and life table data in the scenario 1.
-#' @param prob_natural_death_male-1 \code{Numeric vector} containing the probability of dying due to natural cause (excluding non-natural deaths due to violence or accidents) by age or age group for males in the scenario 1.
-#' @param prob_natural_death_female_1 \code{Numeric vector} containing the probability of dying due to natural cause (excluding non-natural deaths due to violence or accidents) by age or age group for females in the scenario 1.
-#' @param prob_total_death_male_1 \code{Numeric vector} containing the probability of dying due to all causes (including non-natural deaths due to violence or accidents) by age or age group for males in the scenario 1.
-#' @param prob_total_death_female_1 \code{Numeric vector} containing the probability of dying due to all causes (including non-natural deaths due to violence or accidents) by age or age group for females in the scenario 1.
 #' @param population_midyear_male_1 \code{Numeric vector} containing the mid-year male population for the year of analysis of the scenario 1.
 #' @param population_midyear_female_1 \code{Vector} containing the mid-year female population for the year of analysis.
 #' @param year_of_analysis_1 \code{Numeric value} of the year of analysis, which corresponds to the first year of the life table in the scenario 2.
@@ -30,10 +26,6 @@
 #' @param approach_newborns_2 \code{String} showing whether newborns are considered in the years after the year of analysis. Options: "without_newborns" (default), "with_newborns"
 #' @param first_age_pop_2 \code{Numeric value} starting age of the youngest age group from population and life table data in the scenario 2.
 #' @param last_age_pop_2 \code{Numeric value} ending age of the oldest age group from population and life table data in the scenario 2.
-#' @param prob_natural_death_male_2 \code{Numeric vector} containing the probability of dying due to natural cause (excluding non-natural deaths due to violence or accidents) by age or age group for males in the scenario 2.
-#' @param prob_natural_death_female_2 \code{Numeric vector} containing the probability of dying due to natural cause (excluding non-natural deaths due to violence or accidents) by age or age group for females in the scenario 2.
-#' @param prob_total_death_male_2 \code{Numeric vector} containing the probability of dying due to all causes (including non-natural deaths due to violence or accidents) by age or age group for males in the scenario 2.
-#' @param prob_total_death_female_2 \code{Numeric vector} containing the probability of dying due to all causes (including non-natural deaths due to violence or accidents) by age or age group for females in the scenario 2.
 #' @param population_midyear_male_2 \code{Numeric vector} containing the mid-year male population for the year of analysis of the scenario 2.
 #' @param population_midyear_female_2 \code{Vector} containing the mid-year female population for the year of analysis.
 #' @param year_of_analysis_2 \code{Numeric value} of the year of analysis, which corresponds to the first year of the life table.
@@ -83,8 +75,6 @@ compare <-
            first_age_pop_1 = NULL, last_age_pop_1 = NULL,
            deaths_male_1 = NULL,
            deaths_female_1 = NULL,
-           prob_natural_death_male_1 = NULL, prob_natural_death_female_1 = NULL,
-           prob_total_death_male_1 = NULL, prob_total_death_female_1 = NULL,
            population_midyear_male_1 = NULL, population_midyear_female_1 = NULL,
            year_of_analysis_1 = NULL,
            approach_exposure_2 = NULL,
@@ -92,8 +82,6 @@ compare <-
            first_age_pop_2 = NULL, last_age_pop_2 = NULL,
            deaths_male_2 = deaths_male_2,
            deaths_female_2 = deaths_female_2,
-           prob_natural_death_male_2 = NULL, prob_natural_death_female_2 = NULL,
-           prob_total_death_male_2 = NULL, prob_total_death_female_2 = NULL,
            population_midyear_male_2 = NULL, population_midyear_female_2 = NULL,
            year_of_analysis_2 = NULL,
            min_age = NULL, max_age = NULL,
@@ -125,10 +113,6 @@ compare <-
         last_age_pop = last_age_pop_1,
         deaths_male = deaths_male_1,
         deaths_female = deaths_female_1,
-        prob_natural_death_male = prob_natural_death_male_1,
-        prob_natural_death_female = prob_natural_death_female_1,
-        prob_total_death_male = prob_total_death_male_1,
-        prob_total_death_female = prob_total_death_female_1,
         population_midyear_male = population_midyear_male_1,
         population_midyear_female = population_midyear_female_1,
         year_of_analysis = year_of_analysis_1,
@@ -161,10 +145,6 @@ compare <-
         last_age_pop = last_age_pop_2,
         deaths_male = deaths_male_2,
         deaths_female = deaths_female_2,
-        prob_natural_death_male = prob_natural_death_male_2,
-        prob_natural_death_female = prob_natural_death_female_2,
-        prob_total_death_male = prob_total_death_male_2,
-        prob_total_death_female = prob_total_death_female_2,
         population_midyear_male = population_midyear_male_2,
         population_midyear_female = population_midyear_female_2,
         year_of_analysis = year_of_analysis_2,
@@ -226,10 +206,6 @@ compare <-
       # Error if length of fraction_of_year_lived > 1
       if (!identical(first_age_pop_1, first_age_pop_2) &
           !identical(last_age_pop_1, last_age_pop_2) &
-          !identical(prob_natural_death_male_1, prob_natural_death_male_2) &
-          !identical(prob_natural_death_female_1, prob_natural_death_female_2) &
-          !identical(prob_total_death_male_1, prob_total_death_male_2) &
-          !identical(prob_total_death_female_1, prob_total_death_female_2) &
           !identical(population_midyear_male_1, population_midyear_male_2) &
           !identical(population_midyear_female_1, population_midyear_female_2) &
           !identical(year_of_analysis_1, year_of_analysis_2)){
@@ -264,10 +240,6 @@ compare <-
           last_age_pop = last_age_pop_1,
           deaths_male = deaths_male_1,
           deaths_female = deaths_female_1,
-          prob_natural_death_male = prob_natural_death_male_1,
-          prob_natural_death_female = prob_natural_death_female_1,
-          prob_total_death_male = prob_total_death_male_1,
-          prob_total_death_female = prob_total_death_female_1,
           population_midyear_male = population_midyear_male_1,
           population_midyear_female =  population_midyear_female_1)
 
@@ -298,10 +270,6 @@ compare <-
           last_age_pop = last_age_pop_2,
           deaths_male = deaths_male_2,
           deaths_female = deaths_female_2,
-          prob_natural_death_male = prob_natural_death_male_2,
-          prob_natural_death_female = prob_natural_death_female_2,
-          prob_total_death_male = prob_total_death_male_2,
-          prob_total_death_female = prob_total_death_female_2,
           population_midyear_male = population_midyear_male_2,
           population_midyear_female =  population_midyear_female_2)
 

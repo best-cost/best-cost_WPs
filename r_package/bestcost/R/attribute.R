@@ -21,8 +21,6 @@
 #' @param approach_newborns \code{String} showing whether newborns are considered in the years after the year of analysis. Options: "without_newborns" (default), "with_newborns"
 #' @param first_age_pop \code{Numeric value} starting age of the youngest age group from population and life table data (age interval = 1 year)
 #' @param last_age_pop \code{Numeric value} ending age of the oldest age group from population and life table data (age interval = 1 year)
-#' @param prob_natural_death_male,prob_natural_death_female \code{Numeric vector} containing the probability of dying due to natural cause (excluding non-natural deaths due to violence or accidents) by age or age group for male and female respectively.
-#' @param prob_total_death_male,prob_total_death_female  \code{Numeric vector} containing the probability of dying due to all causes (including non-natural deaths due to violence or accidents) by age or age group for male and female respectively.
 #' @param population_midyear_male,population_midyear_female \code{Numeric vector} containing the mid-year male population for the year of analysis for male and female respectively.
 #' @param year_of_analysis \code{Numeric value} of the year of analysis, which corresponds to the first year of the life table.
 #' @param min_age \code{Numberic value} of the minimal age to be considered for adults (by default 30, i.e. 30+).
@@ -66,8 +64,6 @@ attribute <-
            approach_exposure = NULL,
            approach_newborns = NULL,
            first_age_pop = NULL, last_age_pop = NULL,
-           prob_natural_death_male = NULL, prob_natural_death_female = NULL,
-           prob_total_death_male, prob_total_death_female = NULL,
            population_midyear_male = NULL, population_midyear_female = NULL,
            deaths_male = NULL, deaths_female = NULL, # For AirQ+ method for lifetable
            year_of_analysis = NULL,
@@ -110,10 +106,6 @@ attribute <-
         approach_newborns = approach_newborns,
         first_age_pop =  first_age_pop,
         last_age_pop = last_age_pop,
-        prob_natural_death_male = prob_natural_death_male,
-        prob_natural_death_female = prob_natural_death_female,
-        prob_total_death_male = prob_total_death_male,
-        prob_total_death_female = prob_total_death_female,
         population_midyear_male = population_midyear_male,
         population_midyear_female =  population_midyear_female,
         deaths_male = deaths_male,
@@ -163,19 +155,11 @@ attribute <-
 #     erf_shape = erf_shape,
 #     first_age_pop_1 = first_age_pop, #
 #     last_age_pop_1 = 99,
-#     prob_natural_death_male_1 = lifetable_withPopulation[["male"]]$death_probability_natural,
-#     prob_natural_death_female_1 = lifetable_withPopulation[["female"]]$death_probability_natural,
-#     prob_total_death_male_1 = lifetable_withPopulation[["male"]]$death_probability_total,
-#     prob_total_death_female_1 = lifetable_withPopulation[["female"]]$death_probability_total,
 #     population_midyear_male_1 = lifetable_withPopulation[["male"]]$population,
 #     population_midyear_female_1 = lifetable_withPopulation[["female"]]$population,
 #     year_of_analysis_1 = 2019,
 #     first_age_pop_2 = first_age_pop, #
 #     last_age_pop_2 = 99,
-#     prob_natural_death_male_2 = lifetable_withPopulation[["male"]]$death_probability_natural,
-#     prob_natural_death_female_2 = lifetable_withPopulation[["female"]]$death_probability_natural,
-#     prob_total_death_male_2 = lifetable_withPopulation[["male"]]$death_probability_total,
-#     prob_total_death_female_2 = lifetable_withPopulation[["female"]]$death_probability_total,
 #     population_midyear_male_2 = lifetable_withPopulation[["male"]]$population,
 #     population_midyear_female_2 = lifetable_withPopulation[["female"]]$population,
 #     year_of_analysis_2 = 2019,

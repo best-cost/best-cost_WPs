@@ -30,10 +30,6 @@ compare_yll_from_lifetable(
   last_age_pop_1,
   deaths_male_1 = NULL,
   deaths_female_1 = NULL,
-  prob_natural_death_male_1,
-  prob_natural_death_female_1,
-  prob_total_death_male_1,
-  prob_total_death_female_1,
   population_midyear_male_1,
   population_midyear_female_1,
   year_of_analysis_1,
@@ -43,14 +39,12 @@ compare_yll_from_lifetable(
   last_age_pop_2,
   deaths_male_2 = NULL,
   deaths_female_2 = NULL,
-  prob_natural_death_male_2,
-  prob_natural_death_female_2,
-  prob_total_death_male_2,
-  prob_total_death_female_2,
   population_midyear_male_2,
   population_midyear_female_2,
   year_of_analysis_2,
-  disability_weight = disability_weight,
+  dw_central = NULL,
+  dw_lower = NULL,
+  dw_upper = NULL,
   corrected_discount_rate = NULL,
   min_age = NULL,
   max_age = NULL,
@@ -85,12 +79,6 @@ compare_yll_from_lifetable(
 
 \item{last_age_pop_1}{\code{Numeric value} ending age of the oldest age group from population and life table data in the scenario 1.}
 
-\item{prob_natural_death_female_1}{\code{Numeric vector} containing the probability of dying due to natural cause (excluding non-natural deaths due to violence or accidents) by age or age group for females in the scenario 1.}
-
-\item{prob_total_death_male_1}{\code{Numeric vector} containing the probability of dying due to all causes (including non-natural deaths due to violence or accidents) by age or age group for males in the scenario 1.}
-
-\item{prob_total_death_female_1}{\code{Numeric vector} containing the probability of dying due to all causes (including non-natural deaths due to violence or accidents) by age or age group for females in the scenario 1.}
-
 \item{population_midyear_male_1}{\code{Numeric vector} containing the mid-year male population for the year of analysis of the scenario 1.}
 
 \item{population_midyear_female_1}{\code{Vector} containing the mid-year female population for the year of analysis.}
@@ -105,21 +93,13 @@ compare_yll_from_lifetable(
 
 \item{last_age_pop_2}{\code{Numeric value} ending age of the oldest age group from population and life table data in the scenario 2.}
 
-\item{prob_natural_death_male_2}{\code{Numeric vector} containing the probability of dying due to natural cause (excluding non-natural deaths due to violence or accidents) by age or age group for males in the scenario 2.}
-
-\item{prob_natural_death_female_2}{\code{Numeric vector} containing the probability of dying due to natural cause (excluding non-natural deaths due to violence or accidents) by age or age group for females in the scenario 2.}
-
-\item{prob_total_death_male_2}{\code{Numeric vector} containing the probability of dying due to all causes (including non-natural deaths due to violence or accidents) by age or age group for males in the scenario 2.}
-
-\item{prob_total_death_female_2}{\code{Numeric vector} containing the probability of dying due to all causes (including non-natural deaths due to violence or accidents) by age or age group for females in the scenario 2.}
-
 \item{population_midyear_male_2}{\code{Numeric vector} containing the mid-year male population for the year of analysis of the scenario 2.}
 
 \item{population_midyear_female_2}{\code{Vector} containing the mid-year female population for the year of analysis.}
 
 \item{year_of_analysis_2}{\code{Numeric value} of the year of analysis, which corresponds to the first year of the life table.}
 
-\item{disability_weight}{\code{Numeric value} showing the disability weight associated with the morbidity health outcome}
+\item{dw_central, dw_lower, dw_upper}{Three \code{Numeric value} showing the disability weights (central estimate, lower and upper 95% confidence intervals) associated with the morbidity health outcome}
 
 \item{corrected_discount_rate}{\code{Numeric value} showing the discount rate for future years including correction from inflation rate}
 
