@@ -91,6 +91,8 @@ compare <-
            # Iteration
            geo_id_raw = NULL,
            geo_id_aggregated = NULL,
+           # Monetization
+           valuation = NULL,
            info_1 = NULL, info_2 = NULL){
 
     # Calculate attributable health impacts in the scenario 1
@@ -123,6 +125,7 @@ compare <-
         geo_id_raw = geo_id_raw,
         geo_id_aggregated = geo_id_aggregated,
         duration = duration,
+        valuation = valuation,
         info = info_1)
 
     # Calculate attributable health impacts in the scenario 2
@@ -155,6 +158,7 @@ compare <-
         duration = duration,
         geo_id_raw = geo_id_raw,
         geo_id_aggregated = geo_id_aggregated,
+        valuation = valuation,
         info = info_2)
 
 
@@ -241,7 +245,8 @@ compare <-
           deaths_male = deaths_male_1,
           deaths_female = deaths_female_1,
           population_midyear_male = population_midyear_male_1,
-          population_midyear_female =  population_midyear_female_1)
+          population_midyear_female =  population_midyear_female_1,
+          valuation = valuation)
 
       # Compile input data of scenario 2
       input_2 <-
@@ -271,7 +276,8 @@ compare <-
           deaths_male = deaths_male_2,
           deaths_female = deaths_female_2,
           population_midyear_male = population_midyear_male_2,
-          population_midyear_female =  population_midyear_female_2)
+          population_midyear_female =  population_midyear_female_2,
+          valuation = valuation)
 
       # Identify the arguments scenario specific arguments excluding bhd
       # This will be used for the exceptions in the joining columns

@@ -34,6 +34,7 @@ attribute_health <-
       erf_c_central = NULL, erf_c_lower = NULL, erf_c_upper = NULL,
       bhd_central, bhd_lower = NULL, bhd_upper = NULL,
       geo_id_raw = NULL, geo_id_aggregated = NULL,
+      valuation = NULL,
       info = NULL){
 
     output <-
@@ -59,6 +60,7 @@ attribute_health <-
         dw_central = NULL, dw_lower = NULL, dw_upper = NULL,
         duration = NULL,
         geo_id_raw = geo_id_raw , geo_id_aggregated = geo_id_aggregated,
+        valuation = valuation,
         info = info)
 
     return(output)

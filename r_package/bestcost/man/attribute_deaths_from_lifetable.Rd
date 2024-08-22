@@ -29,17 +29,12 @@ attribute_deaths_from_lifetable(
   year_of_analysis,
   min_age = NULL,
   max_age = NULL,
+  valuation = NULL,
   info = NULL
 )
 }
 \arguments{
-\item{exp_central, exp_lower, exp_upper}{\code{Numeric values} of the exposure
-to the environmental stressor referring to the central estimate and (optionally)
-to lower and upper bound of the confidence interval. If only one value is provided,
-it will be assumed that it refers to population-weighted mean exposure in ug/m3.
-If a {vector} is provided, it will be assumed that it refers to the exposure categories
-(average exposure in the category) in a exposure distribution
-(this information is linked to the proportion of population exposed).}
+\item{exp_central, exp_lower, exp_upper}{\code{Numeric values} of the exposure to the environmental stressor referring to the central estimate and (optionally) to lower and upper bound of the confidence interval. If only one value is provided, it will be assumed that it refers to population-weighted mean exposure in ug/m3. If a {vector} is provided, it will be assumed that it refers to the exposure categories (average exposure in the category) in a exposure distribution (this information is linked to the proportion of population exposed).}
 
 \item{prop_pop_exp}{\code{Numeric value} or {Numeric vector} Fraction (values between 0 & 1) of the total population exposed to (one or more) exposure categories, i.e., a exposure distribution, respectively. If a exposure distribution is used, the dimension of this input variable should be the same as "exp". By default, 1 for single exposure value will be assigned to this input variable assuming a single exposure value, but users can change this value.}
 
@@ -66,6 +61,8 @@ If a {vector} is provided, it will be assumed that it refers to the exposure cat
 \item{min_age}{\code{Numberic value} of the minimal age to be considered for adults (by default 30, i.e. 30+).}
 
 \item{max_age}{\code{Numberic value} of the maximal age to be considered for infants/children (by default 0, i.e. below 1 year old).}
+
+\item{valuation}{\code{Numeric value} showing the value of statistical life which will be used in the health impact monetization}
 
 \item{info}{\code{String} or {data frame} showing additional information or id. The suffix "info" will be added to the column name. Default value = NULL.}
 }

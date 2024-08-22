@@ -45,6 +45,9 @@ library(devtools)
 
 # Load bestcost package (either current version or installed version)
 devtools::load_all(export_all = FALSE)
+
+# Load data
+load("../testing/input/data/input_data_for_testing_Rpackage.RData")
 ```
 
 
@@ -72,14 +75,6 @@ install.packages("../testing/input/bestcost_0.0.0.1.zip", repos=NULL, type='sour
 library(bestcost)
 ```
 
-
-Load the Rdata file that contains all variables needed to run this script.
-```{r load data, include=FALSE}
-load("../testing/input/data/input_data_for_testing_Rpackage.RData")
-```
-
-
-
 # Calculate health impacts
 
 ## Attributable health impact
@@ -98,6 +93,7 @@ bestcost_pm_copd <-
     rr_upper = airqplus_pm_copd$relative_risk_upper,
     erf_increment = 10, 
     erf_shape = "log_linear", 
+    valuation = 1000,
     info = paste0(airqplus_pm_copd$pollutant,"_", airqplus_pm_copd$evaluation_name))
 
 # Store the central, lower and upper estimate of the AirQ+ assessment
@@ -108,10 +104,12 @@ airqplus_pm_copd_result <-
                 estimated_number_of_attributable_cases_upper)%>%
   unlist()
 
+# View(bestcost_pm_copd)
 
 check_bestcost(result_list_bestcost = bestcost_pm_copd,
                result_vector_alternative = airqplus_pm_copd_result)
 ```
+
 
 
 ```{r multiple single exposure value, eval=FALSE, include=FALSE}
@@ -131,6 +129,7 @@ bestcost_pm_copd_multiple <-
     rr_upper = airqplus_pm_copd$relative_risk_upper,
     erf_increment = 10, 
     erf_shape = "log_linear", 
+    valuation = 1000,
     info = paste0(airqplus_pm_copd$pollutant,"_", airqplus_pm_copd$evaluation_name))
 
 
@@ -167,6 +166,7 @@ bestcost_pm_copd_1rr <-
     rr_central = airqplus_pm_copd$relative_risk,
     erf_increment = 10, 
     erf_shape = "log_linear", 
+    valuation = 1000,
     info = paste0(airqplus_pm_copd$pollutant,"_", airqplus_pm_copd$evaluation_name))
 
 # Store the central, lower and upper estimate of the AirQ+ assessment
@@ -175,11 +175,10 @@ airqplus_pm_copd_1rr_result <-
   dplyr::select(estimated_number_of_attributable_cases_central)%>%
   unlist()
 
+# View(bestcost_pm_copd_1rr)
 
 check_bestcost(result_list_bestcost = bestcost_pm_copd,
                result_vector_alternative = airqplus_pm_copd_result)
-
-
 ```
 
 
@@ -211,8 +210,10 @@ bestcost_noise_ihd_expDist <-
     rr_central = 1.08,
     erf_increment = 10, 
     erf_shape = "log_linear",
+    valuation = 1000,
     info = data.frame(pollutant = "road_noise", outcome = "YLD"))
 
+# View(bestcost_noise_ihd_expDist)
 
 check_bestcost(result_list_bestcost = bestcost_noise_ihd_expDist,
                result_vector_alternative = niph_noise_ihd_result)
@@ -234,6 +235,7 @@ bestcost_noise_ihd_expDist_geo <-
     erf_shape = "log_linear",
     geo_id_raw = 1:3,
     geo_id_aggregated = rep("ch", 3),
+    valuation = 1000,
     info = data.frame(pollutant = "road_noise", outcome = "highly_annoyance"))
 
 ```
@@ -263,7 +265,10 @@ bestcost_noise_ha_ar <-
     exp_central = niph_noise_ha_input$exposure_mean,
     pop_exp = niph_noise_ha_input$population_exposed_total, 
     erf_c_central = "78.9270-3.1162*c+0.0342*c^2",
+    # valuation = 1000, # Results change with valuation ####
     info = data.frame(pollutant = "road_noise", outcome = "highly_annoyance"))
+
+# View(bestcost_noise_ha_ar)
 
 check_bestcost(result_list_bestcost = bestcost_noise_ha_ar,
                result_vector_alternative = niph_noise_ha_result)
@@ -281,6 +286,7 @@ bestcost_noise_ha_ar_geo <-
                    runif_with_seed(5,5E3,1E4,3)), 
     erf_c_central = "78.9270-3.1162*c+0.0342*c^2",
     geo_id_raw = 1:3,
+    valuation = 1000,
     info = data.frame(pollutant = "road_noise", outcome = "highly_annoyance"))
 
 ```
@@ -298,13 +304,15 @@ bestcost_pm_yld_singlebhd  <-
     rr_upper = 1.179,
     erf_increment = 10, 
     erf_shape = "log_linear", 
+    valuation = 1000,
     dw_central = 0.5, dw_lower = 0.1, dw_upper = 10)
+
+View(bestcost_pm_yld_singlebhd)
 
 # No study to compare bestcost results
 # Check only if results stay the same overtime despite developments
 check_bestcost(result_list_bestcost = bestcost_pm_yld_singlebhd ,
                result_vector_alternative = c(525, 277, 768)) # Result on 16 May 2024
-
 
 ```
 
@@ -336,8 +344,10 @@ bestcost_pm_deaths_lifetable_airqplus <-
     population_midyear_male = airqplus_pm_deaths_yll[["pop"]]$midyear_population_male,
     population_midyear_female = airqplus_pm_deaths_yll[["pop"]]$midyear_population_female, 
     year_of_analysis =  airqplus_pm_deaths_yll[["input"]]$start_year, 
-    min_age = airqplus_pm_deaths_yll[["input"]]$apply_rr_from_age)
+    min_age = airqplus_pm_deaths_yll[["input"]]$apply_rr_from_age,
+    valuation = 1000)
 
+View(bestcost_pm_deaths_lifetable_airqplus)
 
 check_bestcost(result_list_bestcost = bestcost_pm_deaths_lifetable_airqplus,
                 result_vector_alternative = c(2600.9, 1371, 3804))
@@ -366,7 +376,10 @@ bestcost_pm_deaths_lifetable_expDistribution <-
       population_midyear_female = lifetable_withPopulation[["female"]]$population, 
       year_of_analysis = 2019, 
       info = input_data_mortality$pollutant[2], 
-      min_age = 20)
+      min_age = 20,
+      valuation = 1000)
+
+# View(bestcost_pm_deaths_lifetable_expDistribution)
 
 # No study to compare bestcost results
 # Check only if results stay the same overtime despite developments
@@ -400,13 +413,13 @@ bestcost_pm_yll_exposure_single_year_lifetable_geluft <-
     deaths_female = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_female,
     year_of_analysis = 2019, 
     info = input_data_mortality$pollutant[2], 
-    min_age = if(is.na(input_data_mortality$min_age[2])) NULL else input_data_mortality$min_age[2])
+    min_age = if(is.na(input_data_mortality$min_age[2])) NULL else input_data_mortality$min_age[2],
+    valuation = 1000)
 
 check_bestcost(result_list_bestcost = bestcost_pm_yll_exposure_single_year_lifetable_geluft,
                result_vector_alternative = c(29274.89,	15328.16,	43118.30)) # AirQ+ approach result
                # result_vector_alternative = c(27742, 14641, 40542)) # GeLuft approach result
-              
-# View(bestcost_pm_yll_exposure_single_year_lifetable_geluft)
+
 ```
 
 
@@ -433,7 +446,8 @@ bestcost_pm_yll_lifetable_airqplus <-
     deaths_male = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_male,
     deaths_female = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_female,
     year_of_analysis =  airqplus_pm_deaths_yll[["input"]]$start_year, 
-    min_age = airqplus_pm_deaths_yll[["input"]]$apply_rr_from_age)
+    min_age = airqplus_pm_deaths_yll[["input"]]$apply_rr_from_age,
+    valuation = 1000)
 
 # View(bestcost_pm_yll_lifetable_airqplus)
 
@@ -465,7 +479,8 @@ bestcost_pm_yll_lifetable_airqplus_with_newborns <-
     deaths_male = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_male,
     deaths_female = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_female,
     year_of_analysis =  airqplus_pm_deaths_yll[["input"]]$start_year, 
-    min_age = airqplus_pm_deaths_yll[["input"]]$apply_rr_from_age)
+    min_age = airqplus_pm_deaths_yll[["input"]]$apply_rr_from_age,
+    valuation = 1000)
 
 # View(bestcost_pm_yll_lifetable_airqplus_with_newborns)
 
@@ -497,7 +512,8 @@ bestcost_pm_yll_lifetable_1rr_geluft <-
       population_midyear_female = lifetable_withPopulation[["female"]]$population, 
       year_of_analysis = 2019, 
       info = input_data_mortality$pollutant[2], 
-      min_age = if(is.na(input_data_mortality$min_age[2])) NULL else input_data_mortality$min_age[2])
+      min_age = if(is.na(input_data_mortality$min_age[2])) NULL else input_data_mortality$min_age[2],
+      valuation = 1000)
 
 # View(bestcost_pm_yll_lifetable_1rr_geluft)
 
@@ -531,7 +547,8 @@ bestcost_pm_yll_lifetable_expDistribution_geluft <-
       population_midyear_female = lifetable_withPopulation[["female"]]$population, 
       year_of_analysis = 2019, 
       info = input_data_mortality$pollutant[2], 
-      min_age = if(is.na(input_data_mortality$min_age[2])) NULL else input_data_mortality$min_age[2])
+      min_age = if(is.na(input_data_mortality$min_age[2])) NULL else input_data_mortality$min_age[2],
+      valuation = 1000)
 
 # View(bestcost_pm_yll_lifetable_expDistribution_geluft)
 
@@ -575,7 +592,8 @@ bestcost_pm_yld_lifetable_geluft  <-
     info = input_data_mortality$pollutant[2],
     min_age = input_data_mortality$min_age[2], # min_age = 20,
     duration = 100, 
-    dw_central = 1, dw_lower = 0.1, dw_upper = 10
+    dw_central = 1, dw_lower = 0.1, dw_upper = 10,
+    valuation = 1000
   )
 
 # View(bestcost_pm_yld_lifetable_geluft)
@@ -618,7 +636,8 @@ bestcost_pm_daly_lifetable_geluft  <-
     info = input_data_mortality$pollutant[2],
     min_age = input_data_mortality$min_age[2], # min_age = 20,
     duration = 100, 
-    dw_central = 1
+    dw_central = 1,
+    valuation = 1000
   )
 
 # The Swiss project GeLuft did not calculated the YLD, only YLL. 
@@ -656,7 +675,10 @@ comparison_singlebhd_rr_delta <-
     erf_increment = 10, 
     erf_shape = "log_linear", 
     info_1 = "PM2.5_mortality_2010",
-    info_2 = "PM2.5_mortality_2020")
+    info_2 = "PM2.5_mortality_2020",
+    valuation = 1000)
+
+# View(comparison_singlebhd_rr_delta)
 
 # No study to compare bestcost results
 # Check only if results stay the same overtime despite developments
@@ -680,7 +702,10 @@ comparison_singlebhd_rr_delta_geo <-
     info_1 = "PM2.5_mortality_2010",
     info_2 = "PM2.5_mortality_2020",
     geo_id_raw = c("a", "b"),
-    geo_id_aggregated = rep("ch", 2))
+    geo_id_aggregated = rep("ch", 2),
+    valuation = 1000)
+
+# View(comparison_singlebhd_rr_delta_geo)
 
 # No study to compare bestcost results
 # Check only if results stay the same overtime despite developments
@@ -703,7 +728,10 @@ comparison_singlebhd_rr_pif <-
     erf_increment = 10, 
     erf_shape = "log_linear", 
     info_1 = "PM2.5_mortality_2010",
-    info_2 = "PM2.5_mortality_2020")
+    info_2 = "PM2.5_mortality_2020",
+    valuation = 1000)
+
+# View(comparison_singlebhd_rr_pif)
 
 # No study to compare bestcost results
 # Check only if results stay the same overtime despite developments
@@ -727,7 +755,10 @@ comparison_singlebhd_rr_pif_geo <-
     info_1 = "PM2.5_mortality_2010",
     info_2 = "PM2.5_mortality_2020",
     geo_id_raw = c("a", "b"),
-    geo_id_aggregated = rep("ch", 2))
+    geo_id_aggregated = rep("ch", 2),
+    valuation = 1000)
+
+# View(comparison_singlebhd_rr_pif_geo)
 
 # No study to compare bestcost results
 # Check only if results stay the same overtime despite developments
@@ -762,7 +793,10 @@ comparison_singlebhd_rr_geo <-
     geo_id_raw = 1:1E4, 
     geo_id_aggregated = rep("CH", 1E4),
     info_1 = "PM2.5_mortality_2010",
-    info_2 = "PM2.5_mortality_2020")
+    info_2 = "PM2.5_mortality_2020",
+    valuation = 1000)
+
+# View(comparison_singlebhd_rr_geo)
 ```
 
 
@@ -778,8 +812,12 @@ comparison_singlebhd_ar_delta <-
     pop_exp_1 = c(387500, 286000, 191800, 72200, 7700), # Values as example provided by NIPH
     pop_exp_2 = c(387500, 286000, 191800, 72200, 7700), # Fake values
     erf_c_central = "78.9270-3.1162*c+0.0342*c^2",
+    # valuation = 1000, # Results change with valuation ####
     info_1 = data.frame(pollutant = "road_noise", outcome = "highly_annoyance", year = 2020),
-    info_2 = data.frame(pollutant = "road_noise", outcome = "highly_annoyance", year = 2022))
+    info_2 = data.frame(pollutant = "road_noise", outcome = "highly_annoyance", year = 2022)
+    )
+
+View(comparison_singlebhd_ar_delta)
 
 # No study to compare bestcost results
 # Check only if results stay the same overtime despite developments
@@ -797,8 +835,10 @@ comparison_singlebhd_ar_delta_geo <-
     info_1 = data.frame(pollutant = "road_noise", outcome = "highly_annoyance", year = 2020),
     info_2 = data.frame(pollutant = "road_noise", outcome = "highly_annoyance", year = 2022),
     geo_id_raw = c("a", "b"),
-    geo_id_aggregated = rep("ch", 2))
+    geo_id_aggregated = rep("ch", 2),
+    valuation = 1000)
 
+# View(comparison_singlebhd_ar_delta_geo)
 
 check_bestcost(result_list_bestcost = comparison_singlebhd_ar_delta_geo ,
                result_vector_alternative = 115869) # Result on 19 June 2024
@@ -822,8 +862,11 @@ comparison_yld_singlebhd_rr_delta <-
     erf_increment = 10, 
     erf_shape = "log_linear", 
     dw_central = 0.5,
+    valuation = 1000,
     info_1 = "PM2.5_yld_before",
     info_2 = "PM2.5_yld_after")
+
+# View(comparison_yld_singlebhd_rr_delta)
 
 # No study to compare bestcost results
 # Check only if results stay the same overtime despite developments
@@ -833,7 +876,6 @@ check_bestcost(result_list_bestcost = comparison_yld_singlebhd_rr_delta ,
 # Additionally check that the first scenario produces the same results as above
 check_bestcost(result_list_bestcost = comparison_yld_singlebhd_rr_delta[["detailed"]][["scenario_1"]] ,
                result_vector_alternative = bestcost_pm_yld_singlebhd[["main"]]$impact_rounded) 
-
 
 # Iteration
 comparison_yld_singlebhd_rr_delta_geo <-
@@ -853,7 +895,10 @@ comparison_yld_singlebhd_rr_delta_geo <-
     info_1 = "PM2.5_yld_before",
     info_2 = "PM2.5_yld_after",
     geo_id_raw = c("a", "b"),
-    geo_id_aggregated = rep("ch", 2))
+    geo_id_aggregated = rep("ch", 2),
+    valuation = 1000,)
+
+# View(comparison_yld_singlebhd_rr_delta_geo)
 
 # No study to compare bestcost results
 # Check only if results stay the same overtime despite developments
@@ -878,7 +923,10 @@ comparison_yld_singlebhd_rr_pif <-
     erf_shape = "log_linear", 
     dw_central = 0.5,
     info_1 = "PM2.5_yld_before",
-    info_2 = "PM2.5_yld_after")
+    info_2 = "PM2.5_yld_after",
+    valuation = 1000)
+
+# View(comparison_yld_singlebhd_rr_pif)
 
 # No study to compare bestcost results
 # Check only if results stay the same overtime despite developments
@@ -907,7 +955,10 @@ comparison_yld_singlebhd_rr_pif_geo <-
     info_1 = "PM2.5_yld_before",
     info_2 = "PM2.5_yld_after",
     geo_id_raw = c("a", "b"),
-    geo_id_aggregated = rep("ch", 2))
+    geo_id_aggregated = rep("ch", 2),
+    valuation = 1000)
+
+# View(comparison_yld_singlebhd_rr_pif_geo)
 
 # No study to compare bestcost results
 # Check only if results stay the same overtime despite developments
@@ -952,7 +1003,10 @@ comparison_deaths_lifetable_delta <-
     year_of_analysis_2 = 2019,
     info_1 = input_data_mortality$pollutant[2],
     info_2 = input_data_mortality$pollutant[2], 
-    min_age = 20)
+    min_age = 20,
+    valuation = 1000)
+
+# View(comparison_deaths_lifetable_delta)
 
 # No study to compare bestcost results
 # Check only if results stay the same overtime despite developments
@@ -994,7 +1048,10 @@ comparison_deaths_lifetable_delta_geo <-
     info_2 = input_data_mortality$pollutant[2], 
     min_age = 20,
     geo_id_raw = c("a", "b"),
-    geo_id_aggregated = rep("ch", 2))
+    geo_id_aggregated = rep("ch", 2),
+    valuation = 1000)
+
+# View(comparison_deaths_lifetable_delta_geo)
 
 # No study to compare bestcost results
 # Check only if results stay the same overtime despite developments
@@ -1013,7 +1070,6 @@ abs(comparison_deaths_lifetable_delta_geo[["detailed"]][["scenario_1"]][["detail
       
 
 # PIF
-
 comparison_deaths_lifetable_pif  <-
   bestcost::compare_deaths_from_lifetable(
     approach_comparison = "pif",
@@ -1043,7 +1099,10 @@ comparison_deaths_lifetable_pif  <-
     population_midyear_male_2 = lifetable_withPopulation[["male"]]$population, 
     population_midyear_female_2 = lifetable_withPopulation[["female"]]$population, 
     year_of_analysis_2 = 2019,
-    min_age = 20)
+    min_age = 20,
+    valuation = 1000)
+
+# View(comparison_deaths_lifetable_pif)
 
 # No study to compare bestcost results
 # Check only if results stay the same overtime despite developments
@@ -1086,7 +1145,10 @@ comparison_deaths_lifetable_pif_geo <-
     info_2 = input_data_mortality$pollutant[2], 
     min_age = 20,
     geo_id_raw = c("a", "b"),
-    geo_id_aggregated = rep("ch", 2))
+    geo_id_aggregated = rep("ch", 2),
+    valuation = 1000)
+
+# View(comparison_deaths_lifetable_pif_geo)
 
 # No study to compare bestcost results
 # Check only if results stay the same overtime despite developments
@@ -1133,8 +1195,10 @@ comparison_yll_lifetable_delta  <-
     year_of_analysis_2 = 2019, 
     info_1 = input_data_mortality$pollutant[2],
     info_2 = input_data_mortality$pollutant[2], 
-    min_age = 20)
+    min_age = 20,
+    valuation = 1000)
 
+View(comparison_yll_lifetable_delta)
 
 # No study to compare bestcost results
 # Check only if results stay the same overtime despite developments
@@ -1180,14 +1244,16 @@ comparison_yll_lifetable_delta_geo <-
     info_2 = input_data_mortality$pollutant[2], 
     min_age = 20,
     geo_id_raw = c("a", "b"),
-    geo_id_aggregated = rep("ch", 2))
+    geo_id_aggregated = rep("ch", 2),
+    valuation = 1000)
+
+# View(comparison_yll_lifetable_delta_geo)
 
 # No study to compare bestcost results
 # Check only if results stay the same overtime despite developments
 check_bestcost(result_list_bestcost = comparison_yll_lifetable_delta_geo ,
                # result_vector_alternative = c(31190, 16500, 45472)) # Results on 08 July 2024
                result_vector_alternative = c(33041, 17309, 48639)) # Results on 20 August 2024
-
 
 # PIF
 comparison_yll_lifetable_pif <-
@@ -1221,8 +1287,10 @@ comparison_yll_lifetable_pif <-
     year_of_analysis_2 = 2019, 
     info_1 = NULL,
     info_2 = NULL, 
-    min_age = 20)
+    min_age = 20,
+    valuation = 1000)
 
+# View(comparison_yll_lifetable_pif)
 
 # No study to compare bestcost results
 # Check only if results stay the same overtime despite developments
@@ -1265,7 +1333,10 @@ comparison_yll_lifetable_pif_geo <-
     info_2 = input_data_mortality$pollutant[2], 
     min_age = 20,
     geo_id_raw = c("a", "b"),
-    geo_id_aggregated = rep("ch", 2))
+    geo_id_aggregated = rep("ch", 2),
+    valuation = 1000)
+
+# View(comparison_yll_lifetable_pif_geo)
 
 # No study to compare bestcost results
 # Check only if results stay the same overtime despite developments
@@ -1279,7 +1350,6 @@ check_bestcost(result_list_bestcost = comparison_yll_lifetable_pif_geo ,
 ```{r comparison YLD lifetable}
 
 # DELTA
- 
 comparison_yld_lifetable_delta  <-
   bestcost::compare_yld_from_lifetable(
     approach_comparison = "delta",
@@ -1311,7 +1381,10 @@ comparison_yld_lifetable_delta  <-
     info_2 = input_data_mortality$pollutant[2], 
     min_age = 20,
     duration = 100,
-    dw_central = 1)
+    dw_central = 1,
+    valuation = 1000)
+
+# View(comparison_yld_lifetable_delta)
 
 # No study to compare bestcost results
 # Check only if results stay the same overtime despite developments
@@ -1355,7 +1428,10 @@ comparison_yld_lifetable_delta_geo <-
     geo_id_raw = c("a", "b"),
     geo_id_aggregated = rep("ch", 2),
     duration = 100,
-    dw_central = 1)
+    dw_central = 1,
+    valuation = 1000)
+
+# View(comparison_yld_lifetable_delta_geo)
 
 # No study to compare bestcost results
 # Check only if results stay the same overtime despite developments
@@ -1395,7 +1471,10 @@ comparison_yld_lifetable_pif <-
     info_2 = NULL, 
     min_age = 20,
     duration = 100,
-    dw_central = 1)
+    dw_central = 1,
+    valuation = 1000)
+
+# View(comparison_yld_lifetable_pif)
 
 # No study to compare bestcost results
 # Check only if results stay the same overtime despite developments
@@ -1439,7 +1518,10 @@ comparison_yld_lifetable_pif_geo <-
     geo_id_raw = c("a", "b"),
     geo_id_aggregated = rep("ch", 2),
     duration = 100,
-    dw_central = 1)
+    dw_central = 1,
+    valuation = 1000)
+
+# View(comparison_yld_lifetable_pif_geo)
 
 # No study to compare bestcost results
 # Check only if results stay the same overtime despite developments
@@ -1453,7 +1535,6 @@ check_bestcost(result_list_bestcost = comparison_yld_lifetable_pif_geo ,
 ```{r comparison DALY lifetable}
 
 # DELTA
- 
 comparison_daly_lifetable_delta  <-
   bestcost::compare_daly_from_lifetable(
     approach_comparison = "delta",
@@ -1485,7 +1566,10 @@ comparison_daly_lifetable_delta  <-
     info_2 = input_data_mortality$pollutant[2], 
     min_age = 20,
     duration = 100,
-    dw_central = 1)
+    dw_central = 1,
+    valuation = 1000)
+
+# View(comparison_daly_lifetable_delta)
 
 # No study to compare bestcost results
 # Check only if results stay the same overtime despite developments
@@ -1529,7 +1613,10 @@ comparison_daly_lifetable_delta_geo <-
     geo_id_raw = c("a", "b"),
     geo_id_aggregated = rep("ch", 2),
     duration = 100,
-    dw_central = 1)
+    dw_central = 1,
+    valuation = 1000)
+
+# View(comparison_daly_lifetable_delta_geo)
 
 # No study to compare bestcost results
 # Check only if results stay the same overtime despite developments
@@ -1569,7 +1656,10 @@ comparison_daly_lifetable_pif <-
     info_2 = NULL, 
     min_age = 20,
     duration = 100,
-    dw_central = 1)
+    dw_central = 1,
+    valuation = 1000)
+
+# View(comparison_daly_lifetable_pif)
 
 # No study to compare bestcost results
 # Check only if results stay the same overtime despite developments
@@ -1613,7 +1703,10 @@ comparison_daly_lifetable_pif_geo <-
     geo_id_raw = c("a", "b"),
     geo_id_aggregated = rep("ch", 2),
     duration = 100,
-    dw_central = 1)
+    dw_central = 1,
+    valuation = 1000)
+
+# View(comparison_daly_lifetable_pif_geo)
 
 # No study to compare bestcost results
 # Check only if results stay the same overtime despite developments
