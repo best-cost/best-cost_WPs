@@ -61,7 +61,6 @@ get_pop_impact <-
             function(.x){
 
               .x <- .x %>%
-                dplyr::select(age, age_end, deaths, population, modification_factor) %>%
                 dplyr::rename(!!paste0("population_",year_of_analysis) := population) %>%
 
                 # CALCULATE ENTRY POPULATION OF YOA
@@ -124,7 +123,7 @@ get_pop_impact <-
 
     # CALCULATE YOA MID-YEAR POPOULATION, YOA END-OF-YEAR POPULATION, YOA DEATHS AND YOA+1 ENTRY POPULATION USING MODIFIED SURVIVAL PROBABILITIES
     pop <- pop %>%
-      mutate(pop_impacted_scenario_nest = lifetable_with_pop_nest %>%   
+      mutate(pop_impacted_scenario_nest = lifetable_with_pop_nest %>%
                purrr::map(
                  .,
                  function(.x){

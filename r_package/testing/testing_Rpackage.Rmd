@@ -11,7 +11,7 @@ Test the functions of the bestcost package comparing the results with results fr
 
 
 The R script required the loading of certain R packages. 
-```{r Load packages, include=FALSE}
+```{r Load packages and data, include=FALSE}
 
 # Load required packages
 
@@ -347,7 +347,7 @@ bestcost_pm_deaths_lifetable_airqplus <-
     min_age = airqplus_pm_deaths_yll[["input"]]$apply_rr_from_age,
     valuation = 1000)
 
-View(bestcost_pm_deaths_lifetable_airqplus)
+# View(bestcost_pm_deaths_lifetable_airqplus)
 
 check_bestcost(result_list_bestcost = bestcost_pm_deaths_lifetable_airqplus,
                 result_vector_alternative = c(2600.9, 1371, 3804))
