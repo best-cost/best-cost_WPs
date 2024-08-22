@@ -53,6 +53,7 @@ compare_daly_from_lifetable <-
            corrected_discount_rate = NULL,
            geo_id_raw = NULL,
            geo_id_aggregated = NULL,
+           valuation = NULL,
            info_1 = NULL, info_2 = NULL){
 
 
@@ -95,6 +96,7 @@ compare_daly_from_lifetable <-
         corrected_discount_rate = corrected_discount_rate,
         geo_id_raw = geo_id_raw,
         geo_id_aggregated = geo_id_aggregated,
+        valuation = valuation,
         info_1 = info_1 , info_2 = info_2)
 
 

@@ -39,7 +39,8 @@ compile_input(
   population_midyear_male = NULL,
   population_midyear_female = NULL,
   deaths_male = NULL,
-  deaths_female = NULL
+  deaths_female = NULL,
+  valuation = NULL
 )
 }
 \arguments{
@@ -47,13 +48,7 @@ compile_input(
 
 \item{health_metric}{\code{String} showing the change in outcome metric to assess attributable health impacts. To choose between "same_input_output" (default), "yld_from_prevalence", "deaths_from_lifetable", "yll_from_lifetable", "yld_from_lifetable" and "daly_from_lifetable".}
 
-\item{exp_central, exp_lower, exp_upper}{\code{Numeric values} of the exposure
-to the environmental stressor referring to the central estimate and (optionally)
-to lower and upper bound of the confidence interval. If only one value is provided,
-it will be assumed that it refers to population-weighted mean exposure in ug/m3.
-If a {vector} is provided, it will be assumed that it refers to the exposure categories
-(average exposure in the category) in a exposure distribution
-(this information is linked to the proportion of population exposed).}
+\item{exp_central, exp_lower, exp_upper}{\code{Numeric values} of the exposure to the environmental stressor referring to the central estimate and (optionally) to lower and upper bound of the confidence interval. If only one value is provided, it will be assumed that it refers to population-weighted mean exposure in ug/m3. If a {vector} is provided, it will be assumed that it refers to the exposure categories (average exposure in the category) in a exposure distribution (this information is linked to the proportion of population exposed).}
 
 \item{prop_pop_exp}{\code{Numeric value} or {Numeric vector} Fraction (values between 0 & 1) of the total population exposed to (one or more) exposure categories, i.e., a exposure distribution, respectively. If a exposure distribution is used, the dimension of this input variable should be the same as "exp". By default, 1 for single exposure value will be assigned to this input variable assuming a single exposure value, but users can change this value.}
 
@@ -67,7 +62,7 @@ If a {vector} is provided, it will be assumed that it refers to the exposure cat
 
 \item{erf_shape}{\code{String} showing the shape of the exposure-response function to be assumed using the relative risk from the literature as support point. Options: "linear", log_linear", "linear_log", "log_log".}
 
-\item{bhd_central, bhd_lower, bhd_upper}{\code{Numeric value} showing the central}
+\item{bhd_central, bhd_lower, bhd_upper}{\code{Numeric value} showing the central estimate and (optionally) the lower bound and the upper bound of the confidence interval of the baseline health data (e.g. incidence of the health outcome in the population).}
 
 \item{min_age}{\code{Numberic value} of the minimal age to be considered for adults (by default 30, i.e. 30+).}
 
@@ -79,9 +74,7 @@ If a {vector} is provided, it will be assumed that it refers to the exposure cat
 
 \item{info}{\code{String} or {data frame} showing additional information or id. The suffix "info" will be added to the column name. Default value = NULL.}
 
-\item{corrected_discount_rate}{\code{Numeric value} showing the discount rate for future years including correction from inflation rate
-estimate and (optionally) the lower bound and the upper bound of the confidence
-interval of the baseline health data (e.g. incidence of the health outcome in the population).}
+\item{corrected_discount_rate}{\code{Numeric value} showing the discount rate for future years including correction from inflation rate}
 
 \item{duration}{\code{Numeric value} showing the disease duration}
 
@@ -94,6 +87,8 @@ interval of the baseline health data (e.g. incidence of the health outcome in th
 \item{last_age_pop}{\code{Numeric value} ending age of the oldest age group from population and life table data (age interval = 1 year)}
 
 \item{population_midyear_male, population_midyear_female}{\code{Numeric vector} containing the mid-year male population for the year of analysis for male and female respectively.}
+
+\item{valuation}{\code{Numeric value} showing the value of statistical life which will be used in the health impact monetization}
 }
 \value{
 This function returns a \code{data.frame} with all input data together

@@ -42,13 +42,14 @@ compile_input <-
            info = NULL,
            corrected_discount_rate = NULL,
            duration = NULL,
-           # And lifetable-related data...
+           # Lifetable data
            approach_exposure = NULL,
            approach_newborns = NULL,
            first_age_pop = NULL, last_age_pop = NULL,
            population_midyear_male = NULL, population_midyear_female = NULL,
-           # For AirQ+ approach for lifetables
-           deaths_male = NULL, deaths_female = NULL){
+           deaths_male = NULL, deaths_female = NULL,
+           # Monetization
+           valuation = NULL){
 
     # Check input data
     # stopifnot(exprs = {
@@ -64,9 +65,6 @@ compile_input <-
       geo_id_raw <-
         as.character(ifelse(is.list({{exp_central}}), 1:length({{exp_central}}), 1))
     }
-
-
-
 
     # Input data in data frame
 
@@ -128,6 +126,7 @@ compile_input <-
         # Second those variables that will have length = 1 (no problematic)
         duration = duration,
         corrected_discount_rate = corrected_discount_rate,
+        valuation = valuation,
 
         # Finally, those variables that are multi-dimensional (exposure distribution)
         exp_central = unlist(exp_central),
