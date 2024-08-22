@@ -18,16 +18,12 @@ attribute_deaths_from_lifetable(
   erf_c_central = NULL,
   erf_c_lower = NULL,
   erf_c_upper = NULL,
-  approach_exposure = "single_year",
+  approach_exposure = "constant",
   approach_newborns = "without_newborns",
   deaths_male = NULL,
   deaths_female = NULL,
   first_age_pop,
   last_age_pop,
-  prob_natural_death_male,
-  prob_natural_death_female,
-  prob_total_death_male,
-  prob_total_death_female,
   population_midyear_male,
   population_midyear_female,
   year_of_analysis,
@@ -62,10 +58,6 @@ If a {vector} is provided, it will be assumed that it refers to the exposure cat
 \item{first_age_pop}{\code{Numeric value} starting age of the youngest age group from population and life table data (age interval = 1 year)}
 
 \item{last_age_pop}{\code{Numeric value} ending age of the oldest age group from population and life table data (age interval = 1 year)}
-
-\item{prob_natural_death_male, prob_natural_death_female}{\code{Numeric vector} containing the probability of dying due to natural cause (excluding non-natural deaths due to violence or accidents) by age or age group for male and female respectively.}
-
-\item{prob_total_death_male, prob_total_death_female}{\code{Numeric vector} containing the probability of dying due to all causes (including non-natural deaths due to violence or accidents) by age or age group for male and female respectively.}
 
 \item{population_midyear_male, population_midyear_female}{\code{Numeric vector} containing the mid-year male population for the year of analysis for male and female respectively.}
 

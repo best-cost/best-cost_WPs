@@ -25,17 +25,15 @@ attribute_daly_from_lifetable(
   last_age_pop,
   deaths_male = NULL,
   deaths_female = NULL,
-  prob_natural_death_male,
-  prob_natural_death_female,
-  prob_total_death_male,
-  prob_total_death_female,
   population_midyear_male,
   population_midyear_female,
   year_of_analysis,
   corrected_discount_rate = NULL,
   min_age = NULL,
   max_age = NULL,
-  disability_weight,
+  dw_central,
+  dw_lower = NULL,
+  dw_upper = NULL,
   duration,
   info = NULL
 )
@@ -67,10 +65,6 @@ If a {vector} is provided, it will be assumed that it refers to the exposure cat
 
 \item{last_age_pop}{\code{Numeric value} ending age of the oldest age group from population and life table data (age interval = 1 year)}
 
-\item{prob_natural_death_male, prob_natural_death_female}{\code{Numeric vector} containing the probability of dying due to natural cause (excluding non-natural deaths due to violence or accidents) by age or age group for male and female respectively.}
-
-\item{prob_total_death_male, prob_total_death_female}{\code{Numeric vector} containing the probability of dying due to all causes (including non-natural deaths due to violence or accidents) by age or age group for male and female respectively.}
-
 \item{population_midyear_male, population_midyear_female}{\code{Numeric vector} containing the mid-year male population for the year of analysis for male and female respectively.}
 
 \item{year_of_analysis}{\code{Numeric value} of the year of analysis, which corresponds to the first year of the life table.}
@@ -83,7 +77,7 @@ interval of the baseline health data (e.g. incidence of the health outcome in th
 
 \item{max_age}{\code{Numberic value} of the maximal age to be considered for infants/children (by default 0, i.e. below 1 year old).}
 
-\item{disability_weight}{\code{Numeric value} showing the disability weight associated with the morbidity health outcome}
+\item{dw_central, dw_lower, dw_upper}{Three \code{Numeric value} showing the disability weights (central estimate, lower and upper 95% confidence intervals) associated with the morbidity health outcome}
 
 \item{duration}{\code{Numeric value} showing the disease duration}
 

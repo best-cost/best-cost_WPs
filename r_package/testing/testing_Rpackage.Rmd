@@ -12,6 +12,7 @@ Test the functions of the bestcost package comparing the results with results fr
 
 The R script required the loading of certain R packages. 
 ```{r Load packages, include=FALSE}
+
 # Load required packages
 
 # to assess performance
@@ -75,22 +76,6 @@ library(bestcost)
 Load the Rdata file that contains all variables needed to run this script.
 ```{r load data, include=FALSE}
 load("../testing/input/data/input_data_for_testing_Rpackage.RData")
-
-prob_dying <- list()
-for(d in c("natural", "total")){
-  for(s in c("male", "female")){
-   prob_dying[[d]][[s]] <-
-     bestcost::get_prob_dying_by_single_age(
-      first_age_pop = first(airqplus_pm_deaths_yll[["pop"]]$age_from...),
-      last_age_pop = last(airqplus_pm_deaths_yll[["pop"]]$age_from...),
-      interval_age_pop = 
-        unique(airqplus_pm_deaths_yll[["pop"]]$age_from... - 
-                 airqplus_pm_deaths_yll[["pop"]]$age_from...) + 1,
-      population_midyear = unlist(airqplus_pm_deaths_yll[["pop"]][, paste0("midyear_population_", s)]),
-      deaths = unlist(airqplus_pm_deaths_yll[["pop"]][, paste0("number_of_deaths_", s)]))
-  }
-}
-
 ```
 
 
@@ -326,47 +311,6 @@ check_bestcost(result_list_bestcost = bestcost_pm_yld_singlebhd ,
 
 ### Life table
 
-#### Probability of dying
-
-```{r Probability of dying}
-
-# Remove years over 40 
-# because we are going to compare with results up to 39 years old
-airqplus_prob_dying_age0to39_multipleYear <- 
-  airqplus_deaths_pop_multipleYear%>%
-  dplyr::filter(To<40)
-
-# Results from the AirQ+ manual (to be compared with bestcost results)
-airqplus_prob_dying_age0to39_singleYear <-
-  airqplus_deaths_pop_singleYear%>%
-  dplyr::filter(To<40)%>%
-  dplyr::mutate(qx = as.numeric(qx))
-
-# Use bestcost function
-bestcost_prob_dying <- 
-  bestcost::get_prob_dying_by_single_age(
-    first_age_pop = first(airqplus_prob_dying_age0to39_multipleYear$From),
-    last_age_pop = last(airqplus_prob_dying_age0to39_multipleYear$To),
-    interval_age_pop = first(airqplus_prob_dying_age0to39_multipleYear$To) - first(airqplus_prob_dying_age0to39_multipleYear$From)+1,
-    population_midyear = airqplus_prob_dying_age0to39_multipleYear$mi,
-    deaths = airqplus_prob_dying_age0to39_multipleYear$di,
-    fraction_of_year_lived = 0.5
-  )
-
-
-# Compare and show message with colors
-
-if(all((bestcost_prob_dying$prob_dying - 
-        airqplus_prob_dying_age0to39_singleYear$qx) < 0.002)){
-  cat(paste(crayon::yellow("Bestcost and alternative source with similar results.")))
-} else{
-    cat(paste(crayon::red("Attention! Check! Bestcost and alternative source with very different results.")))}
-# There is a very small deviation 
-# due to different rounding 
-# (bestcost does not round, while airqplus does)
-```
-
-
 #### Premature deaths
 
 ```{r premature deaths lifetable airqplus input}
@@ -389,10 +333,6 @@ bestcost_pm_deaths_lifetable_airqplus <-
     last_age_pop = last(airqplus_pm_deaths_yll[["pop"]]$age_from...),
     deaths_male = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_male,
     deaths_female = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_female,
-    prob_natural_death_male = prob_dying[["natural"]][["male"]]$prob_dying,
-    prob_natural_death_female = prob_dying[["natural"]][["female"]]$prob_dying,
-    prob_total_death_male = prob_dying[["total"]][["male"]]$prob_dying,
-    prob_total_death_female = prob_dying[["total"]][["female"]]$prob_dying,
     population_midyear_male = airqplus_pm_deaths_yll[["pop"]]$midyear_population_male,
     population_midyear_female = airqplus_pm_deaths_yll[["pop"]]$midyear_population_female, 
     year_of_analysis =  airqplus_pm_deaths_yll[["input"]]$start_year, 
@@ -422,10 +362,6 @@ bestcost_pm_deaths_lifetable_expDistribution <-
       last_age_pop = 99,
       deaths_male = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_male,
       deaths_female = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_female,
-      prob_natural_death_male = lifetable_withPopulation[["male"]]$death_probability_natural,
-      prob_natural_death_female = lifetable_withPopulation[["female"]]$death_probability_natural,
-      prob_total_death_male = lifetable_withPopulation[["male"]]$death_probability_total,
-      prob_total_death_female = lifetable_withPopulation[["female"]]$death_probability_total,
       population_midyear_male = lifetable_withPopulation[["male"]]$population, 
       population_midyear_female = lifetable_withPopulation[["female"]]$population, 
       year_of_analysis = 2019, 
@@ -458,10 +394,6 @@ bestcost_pm_yll_exposure_single_year_lifetable_geluft <-
     erf_shape = "log_linear",
     first_age_pop = 0,
     last_age_pop = 99,
-    prob_natural_death_male = lifetable_withPopulation[["male"]]$death_probability_natural,
-    prob_natural_death_female = lifetable_withPopulation[["female"]]$death_probability_natural,
-    prob_total_death_male = lifetable_withPopulation[["male"]]$death_probability_total,
-    prob_total_death_female = lifetable_withPopulation[["female"]]$death_probability_total,
     population_midyear_male = lifetable_withPopulation[["male"]]$population, 
     population_midyear_female = lifetable_withPopulation[["female"]]$population, 
     deaths_male = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_male,
@@ -496,10 +428,6 @@ bestcost_pm_yll_lifetable_airqplus <-
     erf_shape = gsub("-", "_", airqplus_pm_deaths_yll[["input"]]$calculation_method),
     first_age_pop = first(airqplus_pm_deaths_yll[["pop"]]$age_from...),
     last_age_pop = last(airqplus_pm_deaths_yll[["pop"]]$age_from...),
-    prob_natural_death_male = prob_dying[["natural"]][["male"]]$prob_dying,
-    prob_natural_death_female = prob_dying[["natural"]][["female"]]$prob_dying,
-    prob_total_death_male = prob_dying[["total"]][["male"]]$prob_dying,
-    prob_total_death_female = prob_dying[["total"]][["female"]]$prob_dying,
     population_midyear_male = airqplus_pm_deaths_yll[["pop"]]$midyear_population_male,
     population_midyear_female = airqplus_pm_deaths_yll[["pop"]]$midyear_population_female,
     deaths_male = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_male,
@@ -532,10 +460,6 @@ bestcost_pm_yll_lifetable_airqplus_with_newborns <-
     erf_shape = gsub("-", "_", airqplus_pm_deaths_yll[["input"]]$calculation_method),
     first_age_pop = first(airqplus_pm_deaths_yll[["pop"]]$age_from...),
     last_age_pop = last(airqplus_pm_deaths_yll[["pop"]]$age_from...),
-    prob_natural_death_male = prob_dying[["natural"]][["male"]]$prob_dying,
-    prob_natural_death_female = prob_dying[["natural"]][["female"]]$prob_dying,
-    prob_total_death_male = prob_dying[["total"]][["male"]]$prob_dying,
-    prob_total_death_female = prob_dying[["total"]][["female"]]$prob_dying,
     population_midyear_male = airqplus_pm_deaths_yll[["pop"]]$midyear_population_male,
     population_midyear_female = airqplus_pm_deaths_yll[["pop"]]$midyear_population_female,
     deaths_male = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_male,
@@ -569,10 +493,6 @@ bestcost_pm_yll_lifetable_1rr_geluft <-
       last_age_pop = 99,
       deaths_male = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_male,
       deaths_female = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_female,
-      prob_natural_death_male = lifetable_withPopulation[["male"]]$death_probability_natural,
-      prob_natural_death_female = lifetable_withPopulation[["female"]]$death_probability_natural,
-      prob_total_death_male = lifetable_withPopulation[["male"]]$death_probability_total,
-      prob_total_death_female = lifetable_withPopulation[["female"]]$death_probability_total,
       population_midyear_male = lifetable_withPopulation[["male"]]$population, 
       population_midyear_female = lifetable_withPopulation[["female"]]$population, 
       year_of_analysis = 2019, 
@@ -607,10 +527,6 @@ bestcost_pm_yll_lifetable_expDistribution_geluft <-
       last_age_pop = 99,
       deaths_male = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_male,
       deaths_female = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_female,
-      prob_natural_death_male = lifetable_withPopulation[["male"]]$death_probability_natural,
-      prob_natural_death_female = lifetable_withPopulation[["female"]]$death_probability_natural,
-      prob_total_death_male = lifetable_withPopulation[["male"]]$death_probability_total,
-      prob_total_death_female = lifetable_withPopulation[["female"]]$death_probability_total,
       population_midyear_male = lifetable_withPopulation[["male"]]$population, 
       population_midyear_female = lifetable_withPopulation[["female"]]$population, 
       year_of_analysis = 2019, 
@@ -653,10 +569,6 @@ bestcost_pm_yld_lifetable_geluft  <-
     last_age_pop = 99,
     deaths_male = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_male,
     deaths_female = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_female,
-    prob_natural_death_male = lifetable_withPopulation[["male"]]$death_probability_natural,
-    prob_natural_death_female = lifetable_withPopulation[["female"]]$death_probability_natural,
-    prob_total_death_male = lifetable_withPopulation[["male"]]$death_probability_total,
-    prob_total_death_female = lifetable_withPopulation[["female"]]$death_probability_total,
     population_midyear_male = lifetable_withPopulation[["male"]]$population, 
     population_midyear_female = lifetable_withPopulation[["female"]]$population,
     year_of_analysis = 2019, 
@@ -666,7 +578,7 @@ bestcost_pm_yld_lifetable_geluft  <-
     dw_central = 1, dw_lower = 0.1, dw_upper = 10
   )
 
-View(bestcost_pm_yld_lifetable_geluft)
+# View(bestcost_pm_yld_lifetable_geluft)
 
 # The Swiss project GeLuft did not calculated the YLD, only YLL. 
 # But disability weight = 1 in the function above, then YLD = YLL 
@@ -700,10 +612,6 @@ bestcost_pm_daly_lifetable_geluft  <-
     last_age_pop = 99,
     deaths_male = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_male,
     deaths_female = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_female,
-    prob_natural_death_male = lifetable_withPopulation[["male"]]$death_probability_natural,
-    prob_natural_death_female = lifetable_withPopulation[["female"]]$death_probability_natural,
-    prob_total_death_male = lifetable_withPopulation[["male"]]$death_probability_total,
-    prob_total_death_female = lifetable_withPopulation[["female"]]$death_probability_total,
     population_midyear_male = lifetable_withPopulation[["male"]]$population, 
     population_midyear_female = lifetable_withPopulation[["female"]]$population,
     year_of_analysis = 2019, 
@@ -1032,10 +940,6 @@ comparison_deaths_lifetable_delta <-
     last_age_pop_1 = 99,
     deaths_male_1 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_male,
     deaths_female_1 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_female,
-    prob_natural_death_male_1 = lifetable_withPopulation[["male"]]$death_probability_natural,
-    prob_natural_death_female_1 = lifetable_withPopulation[["female"]]$death_probability_natural,
-    prob_total_death_male_1 = lifetable_withPopulation[["male"]]$death_probability_total,
-    prob_total_death_female_1 = lifetable_withPopulation[["female"]]$death_probability_total,
     population_midyear_male_1 = lifetable_withPopulation[["male"]]$population, 
     population_midyear_female_1 = lifetable_withPopulation[["female"]]$population, 
     year_of_analysis_1 = 2019, 
@@ -1043,10 +947,6 @@ comparison_deaths_lifetable_delta <-
     last_age_pop_2 = 99,
     deaths_male_2 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_male,
     deaths_female_2 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_female,
-    prob_natural_death_male_2 = lifetable_withPopulation[["male"]]$death_probability_natural,
-    prob_natural_death_female_2 = lifetable_withPopulation[["female"]]$death_probability_natural,
-    prob_total_death_male_2 = lifetable_withPopulation[["male"]]$death_probability_total,
-    prob_total_death_female_2 = lifetable_withPopulation[["female"]]$death_probability_total,
     population_midyear_male_2 = lifetable_withPopulation[["male"]]$population, 
     population_midyear_female_2 = lifetable_withPopulation[["female"]]$population, 
     year_of_analysis_2 = 2019,
@@ -1080,10 +980,6 @@ comparison_deaths_lifetable_delta_geo <-
     last_age_pop_1 = 99,
     deaths_male_1 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_male,
     deaths_female_1 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_female,
-    prob_natural_death_male_1 = lifetable_withPopulation[["male"]]$death_probability_natural,
-    prob_natural_death_female_1 = lifetable_withPopulation[["female"]]$death_probability_natural,
-    prob_total_death_male_1 = lifetable_withPopulation[["male"]]$death_probability_total,
-    prob_total_death_female_1 = lifetable_withPopulation[["female"]]$death_probability_total,
     population_midyear_male_1 = lifetable_withPopulation[["male"]]$population, 
     population_midyear_female_1 = lifetable_withPopulation[["female"]]$population, 
     year_of_analysis_1 = 2019, 
@@ -1091,10 +987,6 @@ comparison_deaths_lifetable_delta_geo <-
     last_age_pop_2 = 99,
     deaths_male_2 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_male,
     deaths_female_2= airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_female,
-    prob_natural_death_male_2 = lifetable_withPopulation[["male"]]$death_probability_natural,
-    prob_natural_death_female_2 = lifetable_withPopulation[["female"]]$death_probability_natural,
-    prob_total_death_male_2 = lifetable_withPopulation[["male"]]$death_probability_total,
-    prob_total_death_female_2 = lifetable_withPopulation[["female"]]$death_probability_total,
     population_midyear_male_2 = lifetable_withPopulation[["male"]]$population, 
     population_midyear_female_2 = lifetable_withPopulation[["female"]]$population, 
     year_of_analysis_2 = 2019,
@@ -1140,10 +1032,6 @@ comparison_deaths_lifetable_pif  <-
     approach_exposure_1 = "single_year",
     deaths_male_1 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_male,
     deaths_female_1 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_female,
-    prob_natural_death_male_1 = lifetable_withPopulation[["male"]]$death_probability_natural,
-    prob_natural_death_female_1 = lifetable_withPopulation[["female"]]$death_probability_natural,
-    prob_total_death_male_1 = lifetable_withPopulation[["male"]]$death_probability_total,
-    prob_total_death_female_1 = lifetable_withPopulation[["female"]]$death_probability_total,
     population_midyear_male_1 = lifetable_withPopulation[["male"]]$population, 
     population_midyear_female_1 = lifetable_withPopulation[["female"]]$population, 
     year_of_analysis_1 = 2019, 
@@ -1152,10 +1040,6 @@ comparison_deaths_lifetable_pif  <-
     approach_exposure_2 = "single_year",
     deaths_male_2 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_male,
     deaths_female_2 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_female,
-    prob_natural_death_male_2 = lifetable_withPopulation[["male"]]$death_probability_natural,
-    prob_natural_death_female_2 = lifetable_withPopulation[["female"]]$death_probability_natural,
-    prob_total_death_male_2 = lifetable_withPopulation[["male"]]$death_probability_total,
-    prob_total_death_female_2 = lifetable_withPopulation[["female"]]$death_probability_total,
     population_midyear_male_2 = lifetable_withPopulation[["male"]]$population, 
     population_midyear_female_2 = lifetable_withPopulation[["female"]]$population, 
     year_of_analysis_2 = 2019,
@@ -1188,10 +1072,6 @@ comparison_deaths_lifetable_pif_geo <-
     last_age_pop_1 = 99,
     deaths_male_1 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_male,
     deaths_female_1 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_female,
-    prob_natural_death_male_1 = lifetable_withPopulation[["male"]]$death_probability_natural,
-    prob_natural_death_female_1 = lifetable_withPopulation[["female"]]$death_probability_natural,
-    prob_total_death_male_1 = lifetable_withPopulation[["male"]]$death_probability_total,
-    prob_total_death_female_1 = lifetable_withPopulation[["female"]]$death_probability_total,
     population_midyear_male_1 = lifetable_withPopulation[["male"]]$population, 
     population_midyear_female_1 = lifetable_withPopulation[["female"]]$population, 
     year_of_analysis_1 = 2019, 
@@ -1199,10 +1079,6 @@ comparison_deaths_lifetable_pif_geo <-
     last_age_pop_2 = 99,
     deaths_male_2 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_male,
     deaths_female_2 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_female,
-    prob_natural_death_male_2 = lifetable_withPopulation[["male"]]$death_probability_natural,
-    prob_natural_death_female_2 = lifetable_withPopulation[["female"]]$death_probability_natural,
-    prob_total_death_male_2 = lifetable_withPopulation[["male"]]$death_probability_total,
-    prob_total_death_female_2 = lifetable_withPopulation[["female"]]$death_probability_total,
     population_midyear_male_2 = lifetable_withPopulation[["male"]]$population, 
     population_midyear_female_2 = lifetable_withPopulation[["female"]]$population, 
     year_of_analysis_2 = 2019,
@@ -1243,10 +1119,6 @@ comparison_yll_lifetable_delta  <-
     last_age_pop_1 = 99,
     deaths_male_1 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_male,
     deaths_female_1 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_female,
-    prob_natural_death_male_1 = lifetable_withPopulation[["male"]]$death_probability_natural,
-    prob_natural_death_female_1 = lifetable_withPopulation[["female"]]$death_probability_natural,
-    prob_total_death_male_1 = lifetable_withPopulation[["male"]]$death_probability_total,
-    prob_total_death_female_1 = lifetable_withPopulation[["female"]]$death_probability_total,
     population_midyear_male_1 = lifetable_withPopulation[["male"]]$population, 
     population_midyear_female_1 = lifetable_withPopulation[["female"]]$population, 
     year_of_analysis_1 = 2019,
@@ -1256,10 +1128,6 @@ comparison_yll_lifetable_delta  <-
     last_age_pop_2 = 99,
     deaths_male_2 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_male,
     deaths_female_2 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_female,
-    prob_natural_death_male_2 = lifetable_withPopulation[["male"]]$death_probability_natural,
-    prob_natural_death_female_2 = lifetable_withPopulation[["female"]]$death_probability_natural,
-    prob_total_death_male_2 = lifetable_withPopulation[["male"]]$death_probability_total,
-    prob_total_death_female_2 = lifetable_withPopulation[["female"]]$death_probability_total,
     population_midyear_male_2 = lifetable_withPopulation[["male"]]$population, 
     population_midyear_female_2 = lifetable_withPopulation[["female"]]$population, 
     year_of_analysis_2 = 2019, 
@@ -1297,10 +1165,6 @@ comparison_yll_lifetable_delta_geo <-
     last_age_pop_1 = 99,
     deaths_male_1 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_male,
     deaths_female_1 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_female,
-    prob_natural_death_male_1 = lifetable_withPopulation[["male"]]$death_probability_natural,
-    prob_natural_death_female_1 = lifetable_withPopulation[["female"]]$death_probability_natural,
-    prob_total_death_male_1 = lifetable_withPopulation[["male"]]$death_probability_total,
-    prob_total_death_female_1 = lifetable_withPopulation[["female"]]$death_probability_total,
     population_midyear_male_1 = lifetable_withPopulation[["male"]]$population, 
     population_midyear_female_1 = lifetable_withPopulation[["female"]]$population, 
     year_of_analysis_1 = 2019, 
@@ -1309,10 +1173,6 @@ comparison_yll_lifetable_delta_geo <-
     last_age_pop_2 = 99,
     deaths_male_2 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_male,
     deaths_female_2 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_female,
-    prob_natural_death_male_2 = lifetable_withPopulation[["male"]]$death_probability_natural,
-    prob_natural_death_female_2 = lifetable_withPopulation[["female"]]$death_probability_natural,
-    prob_total_death_male_2 = lifetable_withPopulation[["male"]]$death_probability_total,
-    prob_total_death_female_2 = lifetable_withPopulation[["female"]]$death_probability_total,
     population_midyear_male_2 = lifetable_withPopulation[["male"]]$population, 
     population_midyear_female_2 = lifetable_withPopulation[["female"]]$population, 
     year_of_analysis_2 = 2019,
@@ -1348,10 +1208,6 @@ comparison_yll_lifetable_pif <-
     last_age_pop_1 = 99,
     deaths_male_1 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_male,
     deaths_female_1 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_female,
-    prob_natural_death_male_1 = lifetable_withPopulation[["male"]]$death_probability_natural,
-    prob_natural_death_female_1 = lifetable_withPopulation[["female"]]$death_probability_natural,
-    prob_total_death_male_1 = lifetable_withPopulation[["male"]]$death_probability_total,
-    prob_total_death_female_1 = lifetable_withPopulation[["female"]]$death_probability_total,
     population_midyear_male_1 = lifetable_withPopulation[["male"]]$population, 
     population_midyear_female_1 = lifetable_withPopulation[["female"]]$population, 
     year_of_analysis_1 = 2019, 
@@ -1360,10 +1216,6 @@ comparison_yll_lifetable_pif <-
     last_age_pop_2 = 99,
     deaths_male_2 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_male,
     deaths_female_2 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_female,
-    prob_natural_death_male_2 = lifetable_withPopulation[["male"]]$death_probability_natural,
-    prob_natural_death_female_2 = lifetable_withPopulation[["female"]]$death_probability_natural,
-    prob_total_death_male_2 = lifetable_withPopulation[["male"]]$death_probability_total,
-    prob_total_death_female_2 = lifetable_withPopulation[["female"]]$death_probability_total,
     population_midyear_male_2 = lifetable_withPopulation[["male"]]$population, 
     population_midyear_female_2 = lifetable_withPopulation[["female"]]$population, 
     year_of_analysis_2 = 2019, 
@@ -1399,10 +1251,6 @@ comparison_yll_lifetable_pif_geo <-
     last_age_pop_1 = 99,
     deaths_male_1 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_male,
     deaths_female_1 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_female,
-    prob_natural_death_male_1 = lifetable_withPopulation[["male"]]$death_probability_natural,
-    prob_natural_death_female_1 = lifetable_withPopulation[["female"]]$death_probability_natural,
-    prob_total_death_male_1 = lifetable_withPopulation[["male"]]$death_probability_total,
-    prob_total_death_female_1 = lifetable_withPopulation[["female"]]$death_probability_total,
     population_midyear_male_1 = lifetable_withPopulation[["male"]]$population, 
     population_midyear_female_1 = lifetable_withPopulation[["female"]]$population, 
     year_of_analysis_1 = 2019, 
@@ -1410,10 +1258,6 @@ comparison_yll_lifetable_pif_geo <-
     last_age_pop_2 = 99,
     deaths_male_2 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_male,
     deaths_female_2 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_female,
-    prob_natural_death_male_2 = lifetable_withPopulation[["male"]]$death_probability_natural,
-    prob_natural_death_female_2 = lifetable_withPopulation[["female"]]$death_probability_natural,
-    prob_total_death_male_2 = lifetable_withPopulation[["male"]]$death_probability_total,
-    prob_total_death_female_2 = lifetable_withPopulation[["female"]]$death_probability_total,
     population_midyear_male_2 = lifetable_withPopulation[["male"]]$population, 
     population_midyear_female_2 = lifetable_withPopulation[["female"]]$population, 
     year_of_analysis_2 = 2019,
@@ -1453,10 +1297,6 @@ comparison_yld_lifetable_delta  <-
     last_age_pop_1 = 99,
     deaths_male_1 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_male,
     deaths_female_1 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_female,
-    prob_natural_death_male_1 = lifetable_withPopulation[["male"]]$death_probability_natural,
-    prob_natural_death_female_1 = lifetable_withPopulation[["female"]]$death_probability_natural,
-    prob_total_death_male_1 = lifetable_withPopulation[["male"]]$death_probability_total,
-    prob_total_death_female_1 = lifetable_withPopulation[["female"]]$death_probability_total,
     population_midyear_male_1 = lifetable_withPopulation[["male"]]$population, 
     population_midyear_female_1 = lifetable_withPopulation[["female"]]$population, 
     year_of_analysis_1 = 2019, 
@@ -1464,10 +1304,6 @@ comparison_yld_lifetable_delta  <-
     last_age_pop_2 = 99,
     deaths_male_2 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_male,
     deaths_female_2 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_female,
-    prob_natural_death_male_2 = lifetable_withPopulation[["male"]]$death_probability_natural,
-    prob_natural_death_female_2 = lifetable_withPopulation[["female"]]$death_probability_natural,
-    prob_total_death_male_2 = lifetable_withPopulation[["male"]]$death_probability_total,
-    prob_total_death_female_2 = lifetable_withPopulation[["female"]]$death_probability_total,
     population_midyear_male_2 = lifetable_withPopulation[["male"]]$population, 
     population_midyear_female_2 = lifetable_withPopulation[["female"]]$population, 
     year_of_analysis_2 = 2019, 
@@ -1503,10 +1339,6 @@ comparison_yld_lifetable_delta_geo <-
     last_age_pop_1 = 99,
     deaths_male_1 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_male,
     deaths_female_1 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_female,
-    prob_natural_death_male_1 = lifetable_withPopulation[["male"]]$death_probability_natural,
-    prob_natural_death_female_1 = lifetable_withPopulation[["female"]]$death_probability_natural,
-    prob_total_death_male_1 = lifetable_withPopulation[["male"]]$death_probability_total,
-    prob_total_death_female_1 = lifetable_withPopulation[["female"]]$death_probability_total,
     population_midyear_male_1 = lifetable_withPopulation[["male"]]$population, 
     population_midyear_female_1 = lifetable_withPopulation[["female"]]$population, 
     year_of_analysis_1 = 2019, 
@@ -1514,10 +1346,6 @@ comparison_yld_lifetable_delta_geo <-
     last_age_pop_2 = 99,
     deaths_male_2 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_male,
     deaths_female_2 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_female,
-    prob_natural_death_male_2 = lifetable_withPopulation[["male"]]$death_probability_natural,
-    prob_natural_death_female_2 = lifetable_withPopulation[["female"]]$death_probability_natural,
-    prob_total_death_male_2 = lifetable_withPopulation[["male"]]$death_probability_total,
-    prob_total_death_female_2 = lifetable_withPopulation[["female"]]$death_probability_total,
     population_midyear_male_2 = lifetable_withPopulation[["male"]]$population, 
     population_midyear_female_2 = lifetable_withPopulation[["female"]]$population, 
     year_of_analysis_2 = 2019,
@@ -1553,10 +1381,6 @@ comparison_yld_lifetable_pif <-
     last_age_pop_1 = 99,
     deaths_male_1 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_male,
     deaths_female_1 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_female,
-    prob_natural_death_male_1 = lifetable_withPopulation[["male"]]$death_probability_natural,
-    prob_natural_death_female_1 = lifetable_withPopulation[["female"]]$death_probability_natural,
-    prob_total_death_male_1 = lifetable_withPopulation[["male"]]$death_probability_total,
-    prob_total_death_female_1 = lifetable_withPopulation[["female"]]$death_probability_total,
     population_midyear_male_1 = lifetable_withPopulation[["male"]]$population, 
     population_midyear_female_1 = lifetable_withPopulation[["female"]]$population, 
     year_of_analysis_1 = 2019, 
@@ -1564,10 +1388,6 @@ comparison_yld_lifetable_pif <-
     last_age_pop_2 = 99,
     deaths_male_2 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_male,
     deaths_female_2 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_female,
-    prob_natural_death_male_2 = lifetable_withPopulation[["male"]]$death_probability_natural,
-    prob_natural_death_female_2 = lifetable_withPopulation[["female"]]$death_probability_natural,
-    prob_total_death_male_2 = lifetable_withPopulation[["male"]]$death_probability_total,
-    prob_total_death_female_2 = lifetable_withPopulation[["female"]]$death_probability_total,
     population_midyear_male_2 = lifetable_withPopulation[["male"]]$population, 
     population_midyear_female_2 = lifetable_withPopulation[["female"]]$population, 
     year_of_analysis_2 = 2019, 
@@ -1603,10 +1423,6 @@ comparison_yld_lifetable_pif_geo <-
     last_age_pop_1 = 99,
     deaths_male_1 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_male,
     deaths_female_1 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_female,
-    prob_natural_death_male_1 = lifetable_withPopulation[["male"]]$death_probability_natural,
-    prob_natural_death_female_1 = lifetable_withPopulation[["female"]]$death_probability_natural,
-    prob_total_death_male_1 = lifetable_withPopulation[["male"]]$death_probability_total,
-    prob_total_death_female_1 = lifetable_withPopulation[["female"]]$death_probability_total,
     population_midyear_male_1 = lifetable_withPopulation[["male"]]$population, 
     population_midyear_female_1 = lifetable_withPopulation[["female"]]$population, 
     year_of_analysis_1 = 2019, 
@@ -1614,10 +1430,6 @@ comparison_yld_lifetable_pif_geo <-
     last_age_pop_2 = 99,
     deaths_male_2 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_male,
     deaths_female_2 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_female,
-    prob_natural_death_male_2 = lifetable_withPopulation[["male"]]$death_probability_natural,
-    prob_natural_death_female_2 = lifetable_withPopulation[["female"]]$death_probability_natural,
-    prob_total_death_male_2 = lifetable_withPopulation[["male"]]$death_probability_total,
-    prob_total_death_female_2 = lifetable_withPopulation[["female"]]$death_probability_total,
     population_midyear_male_2 = lifetable_withPopulation[["male"]]$population, 
     population_midyear_female_2 = lifetable_withPopulation[["female"]]$population, 
     year_of_analysis_2 = 2019,
@@ -1659,10 +1471,6 @@ comparison_daly_lifetable_delta  <-
     last_age_pop_1 = 99,
     deaths_male_1 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_male,
     deaths_female_1 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_female,
-    prob_natural_death_male_1 = lifetable_withPopulation[["male"]]$death_probability_natural,
-    prob_natural_death_female_1 = lifetable_withPopulation[["female"]]$death_probability_natural,
-    prob_total_death_male_1 = lifetable_withPopulation[["male"]]$death_probability_total,
-    prob_total_death_female_1 = lifetable_withPopulation[["female"]]$death_probability_total,
     population_midyear_male_1 = lifetable_withPopulation[["male"]]$population, 
     population_midyear_female_1 = lifetable_withPopulation[["female"]]$population, 
     year_of_analysis_1 = 2019, 
@@ -1670,10 +1478,6 @@ comparison_daly_lifetable_delta  <-
     last_age_pop_2 = 99,
     deaths_male_2 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_male,
     deaths_female_2 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_female,
-    prob_natural_death_male_2 = lifetable_withPopulation[["male"]]$death_probability_natural,
-    prob_natural_death_female_2 = lifetable_withPopulation[["female"]]$death_probability_natural,
-    prob_total_death_male_2 = lifetable_withPopulation[["male"]]$death_probability_total,
-    prob_total_death_female_2 = lifetable_withPopulation[["female"]]$death_probability_total,
     population_midyear_male_2 = lifetable_withPopulation[["male"]]$population, 
     population_midyear_female_2 = lifetable_withPopulation[["female"]]$population, 
     year_of_analysis_2 = 2019, 
@@ -1709,10 +1513,6 @@ comparison_daly_lifetable_delta_geo <-
     last_age_pop_1 = 99,
     deaths_male_1 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_male,
     deaths_female_1 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_female,
-    prob_natural_death_male_1 = lifetable_withPopulation[["male"]]$death_probability_natural,
-    prob_natural_death_female_1 = lifetable_withPopulation[["female"]]$death_probability_natural,
-    prob_total_death_male_1 = lifetable_withPopulation[["male"]]$death_probability_total,
-    prob_total_death_female_1 = lifetable_withPopulation[["female"]]$death_probability_total,
     population_midyear_male_1 = lifetable_withPopulation[["male"]]$population, 
     population_midyear_female_1 = lifetable_withPopulation[["female"]]$population, 
     year_of_analysis_1 = 2019, 
@@ -1720,10 +1520,6 @@ comparison_daly_lifetable_delta_geo <-
     last_age_pop_2 = 99,
     deaths_male_2 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_male,
     deaths_female_2 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_female,
-    prob_natural_death_male_2 = lifetable_withPopulation[["male"]]$death_probability_natural,
-    prob_natural_death_female_2 = lifetable_withPopulation[["female"]]$death_probability_natural,
-    prob_total_death_male_2 = lifetable_withPopulation[["male"]]$death_probability_total,
-    prob_total_death_female_2 = lifetable_withPopulation[["female"]]$death_probability_total,
     population_midyear_male_2 = lifetable_withPopulation[["male"]]$population, 
     population_midyear_female_2 = lifetable_withPopulation[["female"]]$population, 
     year_of_analysis_2 = 2019,
@@ -1759,10 +1555,6 @@ comparison_daly_lifetable_pif <-
     last_age_pop_1 = 99,
     deaths_male_1 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_male,
     deaths_female_1 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_female,
-    prob_natural_death_male_1 = lifetable_withPopulation[["male"]]$death_probability_natural,
-    prob_natural_death_female_1 = lifetable_withPopulation[["female"]]$death_probability_natural,
-    prob_total_death_male_1 = lifetable_withPopulation[["male"]]$death_probability_total,
-    prob_total_death_female_1 = lifetable_withPopulation[["female"]]$death_probability_total,
     population_midyear_male_1 = lifetable_withPopulation[["male"]]$population, 
     population_midyear_female_1 = lifetable_withPopulation[["female"]]$population, 
     year_of_analysis_1 = 2019, 
@@ -1770,10 +1562,6 @@ comparison_daly_lifetable_pif <-
     last_age_pop_2 = 99,
     deaths_male_2 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_male,
     deaths_female_2 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_female,
-    prob_natural_death_male_2 = lifetable_withPopulation[["male"]]$death_probability_natural,
-    prob_natural_death_female_2 = lifetable_withPopulation[["female"]]$death_probability_natural,
-    prob_total_death_male_2 = lifetable_withPopulation[["male"]]$death_probability_total,
-    prob_total_death_female_2 = lifetable_withPopulation[["female"]]$death_probability_total,
     population_midyear_male_2 = lifetable_withPopulation[["male"]]$population, 
     population_midyear_female_2 = lifetable_withPopulation[["female"]]$population, 
     year_of_analysis_2 = 2019, 
@@ -1809,10 +1597,6 @@ comparison_daly_lifetable_pif_geo <-
     last_age_pop_1 = 99,
     deaths_male_1 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_male,
     deaths_female_1 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_female,
-    prob_natural_death_male_1 = lifetable_withPopulation[["male"]]$death_probability_natural,
-    prob_natural_death_female_1 = lifetable_withPopulation[["female"]]$death_probability_natural,
-    prob_total_death_male_1 = lifetable_withPopulation[["male"]]$death_probability_total,
-    prob_total_death_female_1 = lifetable_withPopulation[["female"]]$death_probability_total,
     population_midyear_male_1 = lifetable_withPopulation[["male"]]$population, 
     population_midyear_female_1 = lifetable_withPopulation[["female"]]$population, 
     year_of_analysis_1 = 2019, 
@@ -1820,10 +1604,6 @@ comparison_daly_lifetable_pif_geo <-
     last_age_pop_2 = 99,
     deaths_male_2 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_male,
     deaths_female_2 = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_female,
-    prob_natural_death_male_2 = lifetable_withPopulation[["male"]]$death_probability_natural,
-    prob_natural_death_female_2 = lifetable_withPopulation[["female"]]$death_probability_natural,
-    prob_total_death_male_2 = lifetable_withPopulation[["male"]]$death_probability_total,
-    prob_total_death_female_2 = lifetable_withPopulation[["female"]]$death_probability_total,
     population_midyear_male_2 = lifetable_withPopulation[["male"]]$population, 
     population_midyear_female_2 = lifetable_withPopulation[["female"]]$population, 
     year_of_analysis_2 = 2019,

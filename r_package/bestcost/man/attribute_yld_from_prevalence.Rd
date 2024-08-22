@@ -22,7 +22,9 @@ attribute_yld_from_prevalence(
   bhd_central,
   bhd_lower = NULL,
   bhd_upper = NULL,
-  disability_weight,
+  dw_central,
+  dw_lower = NULL,
+  dw_upper = NULL,
   info = NULL
 )
 }
@@ -47,7 +49,7 @@ If a {vector} is provided, it will be assumed that it refers to the exposure cat
 
 \item{bhd_central, bhd_lower, bhd_upper}{\code{Numeric value} showing the central}
 
-\item{disability_weight}{\code{Numeric value} showing the disability weight associated with the morbidity health outcome}
+\item{dw_central, dw_lower, dw_upper}{Three \code{Numeric value} showing the disability weights (central estimate, lower and upper 95% confidence intervals) associated with the morbidity health outcome}
 
 \item{info}{\code{String} or {data frame} showing additional information or id. The suffix "info" will be added to the column name. Default value = NULL.}
 }
