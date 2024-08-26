@@ -24,7 +24,6 @@ get_impact <-
            min_age = NULL,
            max_age = NULL,
            corrected_discount_rate = NULL,
-           # dw_central = NULL, dw_lower = NULL, dw_upper = NULL,
            duration = NULL,
            pop_fraction_type){
 
@@ -49,19 +48,6 @@ get_impact <-
         impact_raw = list(main = impact_raw_main)
 
       } else if (unique(input$health_metric) %in% "yld_from_prevalence") {
-
-        # Add disability weights to "input_with_risk_and_pop_fraction"
-      #   impact_raw_main <- bind_rows(
-      #     input_with_risk_and_pop_fraction %>%
-      #       mutate(dw_ci = "central") %>%
-      #       mutate(dw = dw_central),
-      #     input_with_risk_and_pop_fraction %>%
-      #       mutate(dw_ci = "lower") %>%
-      #       mutate(dw = dw_lower),
-      #     input_with_risk_and_pop_fraction %>%
-      #       mutate(dw_ci = "upper") %>%
-      #       mutate(dw = dw_upper)
-      #   )
 
         # Add impact
         impact_raw_main <-
@@ -100,7 +86,6 @@ get_impact <-
               min_age = min_age,
               max_age = max_age,
               corrected_discount_rate = corrected_discount_rate,
-              # dw_central = dw_central, dw_lower = dw_lower, dw_upper = dw_upper,
               duration = duration,
               input_with_risk_and_pop_fraction = input_with_risk_and_pop_fraction)
 
@@ -122,7 +107,6 @@ get_impact <-
           min_age = min_age,
           max_age = max_age,
           corrected_discount_rate = corrected_discount_rate,
-          dw_central = dw_central, dw_lower = dw_lower, dw_upper = dw_upper,
           duration = duration,
           input_with_risk_and_pop_fraction = input_with_risk_and_pop_fraction)
 

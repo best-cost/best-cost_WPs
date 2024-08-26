@@ -320,7 +320,6 @@ compare <-
           min_age = min_age,
           max_age = max_age,
           corrected_discount_rate = corrected_discount_rate,
-          # dw_central = dw_central, dw_lower = dw_lower, dw_upper = dw_upper,
           duration = duration,
           pop_fraction_type = "pif")
       }
