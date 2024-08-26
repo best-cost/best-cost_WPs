@@ -102,8 +102,8 @@ get_deaths_yll_yld <-
       # Determine year- and age-specific YLD
       impact_detailed <- impact_detailed %>%
         dplyr::mutate(yll_nest =
-                        purrr::pmap(
-          list(yll_nest, dw),
+                        purrr::map2(
+          .x = yll_nest, .y = dw,
           function(yll_nest, dw){
             # YLL * DW = YLD
             yll_nest <- yll_nest * dw
@@ -115,8 +115,8 @@ get_deaths_yll_yld <-
       # Determine sum of YLD per year
       impact_detailed <- impact_detailed %>%
         dplyr::mutate(lifeyears_nest =
-                        purrr::pmap(
-                          list(lifeyears_nest, dw),
+                        purrr::map2(
+                          .x = lifeyears_nest, .y = dw,
                           function(lifeyears_nest, dw){
                             lifeyears_nest <- lifeyears_nest %>%
                               mutate(impact = impact * dw)
@@ -196,7 +196,7 @@ get_deaths_yll_yld <-
                   # Filter for the relevant years
                   dplyr::filter(., year < (year_of_analysis + duration + 1)) %>%
                   # Sum among years to obtain the total impact (single value)
-                  dplyr::summarise(impact = sum(discounted_impact)* {{dw_central}}, .groups = "drop") else .} %>%
+                  dplyr::summarise(impact = sum(discounted_impact), .groups = "drop") else .} %>%
                 dplyr::mutate(discounted = TRUE)
 
 

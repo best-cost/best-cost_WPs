@@ -416,10 +416,10 @@ get_pop_impact <-
     pop <- pop %>%
       select(-lifetable_with_pop_nest) # Remove from pop, as already present in input_with_risk_...
 
-    if (outcome_metric != "yld" & outcome_metric != "daly"){
+    if (outcome_metric != "yld" & outcome_metric != "daly"){ # YLL & premature deaths case
 
       joining_columns_pop_impact <-
-        bestcost:::find_joining_columns(input_backup,
+        bestcost:::find_joining_columns(input_with_risk_and_pop_fraction,
                                         pop,
                                         except = "lifetable_with_pop_nest")
 
@@ -431,15 +431,20 @@ get_pop_impact <-
     } else { # YLD case
 
       pop <- pop %>%
-        select(geo_id_raw, exp, prop_pop_exp, rr, erf_ci, sex, # Variables to merge by
-               contains("_nest"))
+        select(geo_id_raw, contains("exp"), contains("prop_pop_exp"), rr, erf_ci, sex, # Variables to merge by
+               -contains("_2"), # Remove all "..._2" variables (e.g. "exp_2"); relevant in "compare_..." function calls
+               contains("_nest"),
+               -contains("approach_exposure"),
+               -contains("exposure_dimension"),
+               -contains("exposure_type"),
+               -contains("exp_ci"))
 
       pop_impact <-
         input_backup %>%
-        dplyr::left_join(., pop, by = c("geo_id_raw", "exp", "prop_pop_exp", "rr", "erf_ci", "sex"))
+        {if( is_empty( (grep("_1", names(pop))) ) )
+          dplyr::left_join(., pop, by = c("geo_id_raw", "exp", "prop_pop_exp", "rr", "erf_ci", "sex"))           # attribute_... cases
+          else dplyr::left_join(., pop, by = c("geo_id_raw", "exp_1", "prop_pop_exp_1", "rr", "erf_ci", "sex"))} # compare_... cases
     }
-
-
 
     on.exit(options(user_options))
 
