@@ -48,20 +48,20 @@ get_impact <-
 
         impact_raw = list(main = impact_raw_main)
 
-      } else if (unique(input$health_metric) %in% "yld_from_prevalence") {
-
-        # Add disability weights to "input_with_risk_and_pop_fraction"
-        impact_raw_main <- bind_rows(
-          input_with_risk_and_pop_fraction %>%
-            mutate(dw_ci = "central") %>%
-            mutate(dw = dw_central),
-          input_with_risk_and_pop_fraction %>%
-            mutate(dw_ci = "lower") %>%
-            mutate(dw = dw_lower),
-          input_with_risk_and_pop_fraction %>%
-            mutate(dw_ci = "upper") %>%
-            mutate(dw = dw_upper)
-        )
+      } # else if (unique(input$health_metric) %in% "yld_from_prevalence") {
+      #
+      #   # Add disability weights to "input_with_risk_and_pop_fraction"
+      #   impact_raw_main <- bind_rows(
+      #     input_with_risk_and_pop_fraction %>%
+      #       mutate(dw_ci = "central") %>%
+      #       mutate(dw = dw_central),
+      #     input_with_risk_and_pop_fraction %>%
+      #       mutate(dw_ci = "lower") %>%
+      #       mutate(dw = dw_lower),
+      #     input_with_risk_and_pop_fraction %>%
+      #       mutate(dw_ci = "upper") %>%
+      #       mutate(dw = dw_upper)
+      #   )
 
         # Add impact
         impact_raw_main <-

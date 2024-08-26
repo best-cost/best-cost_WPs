@@ -84,20 +84,20 @@ get_deaths_yll_yld <-
             } else
               .x<-.x}), .before = 1)
 
-    # Add disability weights to "impact_detailed"
-    if(outcome_metric %in% "yld"){
-
-      impact_detailed <- bind_rows(
-        impact_detailed %>%
-          mutate(dw_ci = "central") %>%
-          mutate(dw = dw_central),
-        impact_detailed %>%
-          mutate(dw_ci = "lower") %>%
-          mutate(dw = dw_lower),
-        impact_detailed %>%
-          mutate(dw_ci = "upper") %>%
-          mutate(dw = dw_upper)
-      )
+    # # Add disability weights to "impact_detailed"
+    # if(outcome_metric %in% "yld"){
+    #
+    #   impact_detailed <- bind_rows(
+    #     impact_detailed %>%
+    #       mutate(dw_ci = "central") %>%
+    #       mutate(dw = dw_central),
+    #     impact_detailed %>%
+    #       mutate(dw_ci = "lower") %>%
+    #       mutate(dw = dw_lower),
+    #     impact_detailed %>%
+    #       mutate(dw_ci = "upper") %>%
+    #       mutate(dw = dw_upper)
+    #   )
 
       # Determine year- and age-specific YLD
       impact_detailed <- impact_detailed %>%
