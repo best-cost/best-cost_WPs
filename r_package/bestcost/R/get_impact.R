@@ -24,7 +24,7 @@ get_impact <-
            min_age = NULL,
            max_age = NULL,
            corrected_discount_rate = NULL,
-           dw_central = NULL, dw_lower = NULL, dw_upper = NULL,
+           # dw_central = NULL, dw_lower = NULL, dw_upper = NULL,
            duration = NULL,
            pop_fraction_type){
 

@@ -121,6 +121,9 @@ compile_input <-
 
         # Second those variables with length = 1 (non-problematic)
         duration = duration,
+        dw_central = dw_central,
+        dw_lower = dw_lower,
+        dw_upper = dw_upper,
         corrected_discount_rate = corrected_discount_rate,
         valuation = valuation,
 

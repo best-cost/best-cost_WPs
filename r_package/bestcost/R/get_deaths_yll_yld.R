@@ -35,7 +35,7 @@ get_deaths_yll_yld <-
            max_age = NULL,
            input_with_risk_and_pop_fraction,
            corrected_discount_rate = NULL,
-           dw_central = NULL, dw_lower = NULL, dw_upper = NULL,
+           # dw_central = NULL, dw_lower = NULL, dw_upper = NULL,
            duration = NULL){
 
     impact_detailed <-
