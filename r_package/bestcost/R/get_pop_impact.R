@@ -35,6 +35,17 @@ get_pop_impact <-
     user_options <- options()
     options(digits = 15)
 
+    if ((outcome_metric == "yld") | (outcome_metric == "daly")){
+      # If there are disability weights in the input (i.e. if it's a YLD calculation),
+      # the lifetable calculations will only be done for the rows where the
+      # column "dw_ci" has the value "dw_central" (to improve performance).
+      # The resulting (nested) lifetable tibbles will be left_join()'ed with "input_backup"
+      # at the end of the script.
+      input_backup <- input_with_risk_and_pop_fraction
+      input_with_risk_and_pop_fraction <- input_with_risk_and_pop_fraction %>%
+        filter(dw_ci == "central")
+    }
+
     # LIFETABLE SETUP ##############################################################################
 
     input_with_risk_and_pop_fraction <- input_with_risk_and_pop_fraction %>%
@@ -405,15 +416,30 @@ get_pop_impact <-
     pop <- pop %>%
       select(-lifetable_with_pop_nest) # Remove from pop, as already present in input_with_risk_...
 
-    joining_columns_pop_impact <-
-      bestcost:::find_joining_columns(input_with_risk_and_pop_fraction,
-                                      pop,
-                                      except = "lifetable_with_pop_nest")
+    if (outcome_metric != "yld" & outcome_metric != "daly"){
 
-    pop_impact <-
-      input_with_risk_and_pop_fraction %>%
-      dplyr::right_join(., pop, by = joining_columns_pop_impact) %>%
-      relocate(contains("nest"), .before = 1)
+      joining_columns_pop_impact <-
+        bestcost:::find_joining_columns(input_backup,
+                                        pop,
+                                        except = "lifetable_with_pop_nest")
+
+      pop_impact <-
+        input_with_risk_and_pop_fraction %>%
+        dplyr::right_join(., pop, by = joining_columns_pop_impact) %>%
+        relocate(contains("nest"), .before = 1)
+
+    } else { # YLD case
+
+      pop <- pop %>%
+        select(geo_id_raw, exp, prop_pop_exp, rr, erf_ci, sex, # Variables to merge by
+               contains("_nest"))
+
+      pop_impact <-
+        input_backup %>%
+        dplyr::left_join(., pop, by = c("geo_id_raw", "exp", "prop_pop_exp", "rr", "erf_ci", "sex"))
+    }
+
+
 
     on.exit(options(user_options))
 
