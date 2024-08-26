@@ -84,9 +84,9 @@ get_deaths_yll_yld <-
             } else
               .x<-.x}), .before = 1)
 
-    # # Add disability weights to "impact_detailed"
-    # if(outcome_metric %in% "yld"){
-    #
+    # Add disability weights to "impact_detailed"
+    if(outcome_metric %in% "yld"){
+
     #   impact_detailed <- bind_rows(
     #     impact_detailed %>%
     #       mutate(dw_ci = "central") %>%

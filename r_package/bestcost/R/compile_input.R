@@ -182,7 +182,7 @@ compile_input <-
                               cols = starts_with("erf_c_"),
                               names_to = "erf_ci",
                               names_prefix = "erf_c_",
-                              values_to = "erf_c")} #%>%
+                              values_to = "erf_c")} %>%
       ## Baseline health data,
       {if(!is.null(bhd_central))
         tidyr::pivot_longer(.,

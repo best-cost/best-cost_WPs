@@ -292,7 +292,7 @@ bestcost_noise_ha_ar_geo <-
 ```
 
 
-```{r morbidity yld with single relative risk}
+```{r YLD with single relative risk}
 
 bestcost_pm_yld_singlebhd  <- 
   bestcost::attribute_yld_from_prevalence(
