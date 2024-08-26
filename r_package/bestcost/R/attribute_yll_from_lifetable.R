@@ -31,13 +31,12 @@ attribute_yll_from_lifetable <-
            approach_exposure = "single_year",
            approach_newborns = "without_newborns",
            first_age_pop, last_age_pop,
-           prob_natural_death_male, prob_natural_death_female,
-           prob_total_death_male, prob_total_death_female,
            population_midyear_male, population_midyear_female,
            deaths_male = NULL, deaths_female = NULL,
            year_of_analysis,
            corrected_discount_rate = NULL,
            min_age = NULL, max_age = NULL,
+           valuation = NULL,
            info = NULL){
 
     output <-
@@ -58,14 +57,13 @@ attribute_yll_from_lifetable <-
         approach_exposure = approach_exposure,
         approach_newborns = approach_newborns,
         first_age_pop = first_age_pop, last_age_pop = last_age_pop,
-        prob_natural_death_male = prob_natural_death_male, prob_natural_death_female = prob_natural_death_female,
-        prob_total_death_male = prob_total_death_male, prob_total_death_female = prob_total_death_female,
         population_midyear_male = population_midyear_male, population_midyear_female = population_midyear_female,
         deaths_male = deaths_male, deaths_female = deaths_female,
         year_of_analysis = year_of_analysis,
         min_age = min_age, max_age = max_age,
         corrected_discount_rate = corrected_discount_rate,
         geo_id_raw = NULL, geo_id_aggregated = NULL,
+        valuation = valuation,
         info = info)
 
     return(output)

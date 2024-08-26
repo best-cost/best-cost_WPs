@@ -37,8 +37,6 @@ compare_yll_from_lifetable <-
            first_age_pop_1, last_age_pop_1,
            deaths_male_1 = NULL,
            deaths_female_1 = NULL,
-           prob_natural_death_male_1, prob_natural_death_female_1,
-           prob_total_death_male_1, prob_total_death_female_1,
            population_midyear_male_1, population_midyear_female_1,
            year_of_analysis_1,
            approach_exposure_2 = "single_year",
@@ -46,8 +44,6 @@ compare_yll_from_lifetable <-
            first_age_pop_2, last_age_pop_2,
            deaths_male_2 = NULL,
            deaths_female_2 = NULL,
-           prob_natural_death_male_2, prob_natural_death_female_2,
-           prob_total_death_male_2, prob_total_death_female_2,
            population_midyear_male_2, population_midyear_female_2,
            year_of_analysis_2,
            dw_central = NULL, dw_lower = NULL, dw_upper = NULL,
@@ -55,6 +51,7 @@ compare_yll_from_lifetable <-
            min_age = NULL, max_age = NULL,
            geo_id_raw = NULL,
            geo_id_aggregated = NULL,
+           valuation = NULL,
            info_1 = NULL, info_2 = NULL){
 
 
@@ -81,8 +78,6 @@ compare_yll_from_lifetable <-
         first_age_pop_1 = first_age_pop_1, last_age_pop_1 = last_age_pop_1,
         deaths_male_1 = deaths_male_1,
         deaths_female_1 = deaths_female_1,
-        prob_natural_death_male_1 = prob_natural_death_male_1, prob_natural_death_female_1 = prob_natural_death_female_1,
-        prob_total_death_male_1 = prob_total_death_male_1, prob_total_death_female_1 = prob_total_death_female_1,
         population_midyear_male_1 = population_midyear_male_1, population_midyear_female_1 = population_midyear_female_1,
         year_of_analysis_1 = year_of_analysis_1,
         approach_exposure_2 = approach_exposure_2,
@@ -90,8 +85,6 @@ compare_yll_from_lifetable <-
         first_age_pop_2 = first_age_pop_2, last_age_pop_2 = last_age_pop_2 ,
         deaths_male_2 = deaths_male_2,
         deaths_female_2 = deaths_female_2,
-        prob_natural_death_male_2 = prob_natural_death_male_2, prob_natural_death_female_2 = prob_natural_death_female_2,
-        prob_total_death_male_2 = prob_total_death_male_2, prob_total_death_female_2 = prob_total_death_female_2,
         population_midyear_male_2 = population_midyear_male_2, population_midyear_female_2 = population_midyear_female_2,
         year_of_analysis_2 = year_of_analysis_2,
         min_age = min_age, max_age = max_age,
@@ -100,6 +93,7 @@ compare_yll_from_lifetable <-
         corrected_discount_rate = corrected_discount_rate,
         geo_id_raw = geo_id_raw,
         geo_id_aggregated = geo_id_aggregated,
+        valuation = valuation,
         info_1 = info_1 , info_2 = info_2)
 
 

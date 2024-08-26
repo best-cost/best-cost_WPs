@@ -23,17 +23,12 @@ attribute_health(
   bhd_upper = NULL,
   geo_id_raw = NULL,
   geo_id_aggregated = NULL,
+  valuation = NULL,
   info = NULL
 )
 }
 \arguments{
-\item{exp_central, exp_lower, exp_upper}{\code{Numeric values} of the exposure
-to the environmental stressor referring to the central estimate and (optionally)
-to lower and upper bound of the confidence interval. If only one value is provided,
-it will be assumed that it refers to population-weighted mean exposure in ug/m3.
-If a {vector} is provided, it will be assumed that it refers to the exposure categories
-(average exposure in the category) in a exposure distribution
-(this information is linked to the proportion of population exposed).}
+\item{exp_central, exp_lower, exp_upper}{\code{Numeric values} of the exposure to the environmental stressor referring to the central estimate and (optionally) to lower and upper bound of the confidence interval. If only one value is provided, it will be assumed that it refers to population-weighted mean exposure in ug/m3. If a {vector} is provided, it will be assumed that it refers to the exposure categories (average exposure in the category) in a exposure distribution (this information is linked to the proportion of population exposed).}
 
 \item{prop_pop_exp}{\code{Numeric value} or {Numeric vector} Fraction (values between 0 & 1) of the total population exposed to (one or more) exposure categories, i.e., a exposure distribution, respectively. If a exposure distribution is used, the dimension of this input variable should be the same as "exp". By default, 1 for single exposure value will be assigned to this input variable assuming a single exposure value, but users can change this value.}
 
@@ -45,11 +40,13 @@ If a {vector} is provided, it will be assumed that it refers to the exposure cat
 
 \item{erf_shape}{\code{String} showing the shape of the exposure-response function to be assumed using the relative risk from the literature as support point. Options: "linear", log_linear", "linear_log", "log_log".}
 
-\item{bhd_central, bhd_lower, bhd_upper}{\code{Numeric value} showing the central}
+\item{bhd_central, bhd_lower, bhd_upper}{\code{Numeric value} showing the central estimate and (optionally) the lower bound and the upper bound of the confidence interval of the baseline health data (e.g. incidence of the health outcome in the population).}
 
 \item{geo_id_raw}{\code{Vector} showing the id code of the each geographic area considered in the assessment. If a vector is entered here, the data for each geographical area have to be provided as list in the corresponding arguments.}
 
 \item{geo_id_aggregated}{\code{Vector} showing the id code of the geographic area for which raw geo ids have to be aggregated. The vector has to have the same length as geo_id_raw. Therefore, geo_id_aggregated should have duplicated values for those geo_id_r}
+
+\item{valuation}{\code{Numeric value} showing the value of statistical life which will be used in the health impact monetization}
 
 \item{info}{\code{String} or {data frame} showing additional information or id. The suffix "info" will be added to the column name. Default value = NULL.}
 }

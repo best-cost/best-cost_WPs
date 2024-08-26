@@ -22,14 +22,13 @@ attribute_yld_from_lifetable <-
            first_age_pop, last_age_pop,
            deaths_male = NULL,
            deaths_female = NULL,
-           prob_natural_death_male, prob_natural_death_female,
-           prob_total_death_male, prob_total_death_female,
            population_midyear_male, population_midyear_female,
            year_of_analysis,
            corrected_discount_rate = NULL,
            min_age = NULL, max_age = NULL,
            dw_central, dw_lower = NULL, dw_upper = NULL,
            duration,
+           valuation = NULL,
            info = NULL){
 
     output<-
@@ -50,8 +49,6 @@ attribute_yld_from_lifetable <-
         first_age_pop = first_age_pop, last_age_pop = last_age_pop,
         deaths_male = deaths_male,
         deaths_female = deaths_female,
-        prob_natural_death_male = prob_natural_death_male, prob_natural_death_female = prob_natural_death_female,
-        prob_total_death_male = prob_total_death_male, prob_total_death_female = prob_total_death_female,
         population_midyear_male = population_midyear_male, population_midyear_female = population_midyear_female,
         year_of_analysis = year_of_analysis,
         min_age = min_age, max_age = max_age,
@@ -59,7 +56,7 @@ attribute_yld_from_lifetable <-
         dw_central = dw_central, dw_lower = dw_lower, dw_upper = dw_upper,
         duration = duration,
         geo_id_raw = NULL , geo_id_aggregated = NULL,
-
+        valuation = valuation,
         info = info)
 
     return(output)

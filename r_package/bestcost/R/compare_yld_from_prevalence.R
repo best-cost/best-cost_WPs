@@ -38,6 +38,7 @@ compare_yld_from_prevalence <-
            dw_central, dw_lower = NULL, dw_upper = NULL,
            geo_id_raw = NULL,
            geo_id_aggregated = NULL,
+           valuation = NULL,
            info_1 = NULL, info_2 = NULL){
 
     output <-
@@ -61,18 +62,15 @@ compare_yld_from_prevalence <-
         dw_central = dw_central, dw_lower = dw_lower, dw_upper = dw_upper,
         duration = NULL,
         first_age_pop_1 = NULL, last_age_pop_1 = NULL,
-        prob_natural_death_male_1 = NULL, prob_natural_death_female_1 = NULL,
-        prob_total_death_male_1 = NULL, prob_total_death_female_1 = NULL,
         population_midyear_male_1 = NULL, population_midyear_female_1 = NULL,
         year_of_analysis_1 = NULL,
         first_age_pop_2 = NULL, last_age_pop_2 = NULL,
-        prob_natural_death_male_2 = NULL, prob_natural_death_female_2 = NULL,
-        prob_total_death_male_2 = NULL, prob_total_death_female_2 = NULL,
         population_midyear_male_2 = NULL, population_midyear_female_2 = NULL,
         year_of_analysis_2 = NULL,
         min_age = NULL, max_age = NULL,
         geo_id_raw = geo_id_raw,
         geo_id_aggregated = geo_id_aggregated,
+        valuation = valuation,
         info_1 = info_1, info_2 = info_2)
 
 

@@ -23,6 +23,7 @@ attribute_health_ar <-
            pop_exp,
            erf_c_central, erf_c_lower = NULL, erf_c_upper = NULL,
            geo_id_raw = NULL, geo_id_aggregated = NULL,
+           valuation = NULL,
            info = NULL){
 
     output <-
@@ -41,8 +42,6 @@ attribute_health_ar <-
         approach_exposure = NULL,
         approach_newborns = NULL,
         first_age_pop = NULL, last_age_pop = NULL,
-        prob_natural_death_male = NULL, prob_natural_death_female = NULL,
-        prob_total_death_male = NULL, prob_total_death_female = NULL,
         population_midyear_male = NULL, population_midyear_female = NULL,
         year_of_analysis = NULL,
         min_age = NULL, max_age = NULL,
@@ -50,6 +49,7 @@ attribute_health_ar <-
         dw_central = NULL, dw_lower = NULL, dw_upper = NULL,
         duration = NULL,
         geo_id_raw = geo_id_raw , geo_id_aggregated = geo_id_aggregated,
+        valuation = valuation,
         info = info)
 
     return(output)

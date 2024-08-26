@@ -30,6 +30,7 @@ attribute_yld_from_prevalence <-
            erf_c_central = NULL, erf_c_lower = NULL, erf_c_upper = NULL,
            bhd_central, bhd_lower = NULL, bhd_upper = NULL,
            dw_central, dw_lower = NULL, dw_upper = NULL,
+           valuation = NULL,
            info = NULL){
 
 
@@ -47,8 +48,6 @@ attribute_yld_from_prevalence <-
         erf_c_central = erf_c_central, erf_c_lower = erf_c_lower, erf_c_upper = erf_c_upper,
         bhd_central = bhd_central, bhd_lower = bhd_lower, bhd_upper = bhd_lower,
         first_age_pop = NULL, last_age_pop = NULL,
-        prob_natural_death_male = NULL, prob_natural_death_female = NULL,
-        prob_total_death_male = NULL, prob_total_death_female = NULL,
         population_midyear_male = NULL, population_midyear_female = NULL,
         year_of_analysis = NULL,
         min_age = NULL, max_age = NULL,
@@ -56,6 +55,7 @@ attribute_yld_from_prevalence <-
         dw_central = dw_central, dw_lower = dw_lower, dw_upper = dw_upper,
         duration = NULL,
         geo_id_raw = NULL , geo_id_aggregated = NULL,
+        valuation = valuation,
         info = info)
 
 
