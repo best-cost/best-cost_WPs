@@ -218,8 +218,22 @@ get_pop_impact <-
             purrr::map2(
               .x = pop_impacted_scenario_nest,
               .y = pop_baseline_scenario_nest,
-              ~ dplyr::tibble(deaths_2019 = .x$population_2019_end - .y$population_2019_end)),
+              ~ dplyr::tibble(
+                age = .x$age,
+                age_end = .x$age_end,
+                deaths_2019 = .x$population_2019_end - .y$population_2019_end)),
           .after = pop_impacted_scenario_nest)
+
+      # Rename column names
+      pop <- pop %>%
+        dplyr::mutate(
+          premature_deaths_nest =
+            purrr::map(
+              .x = premature_deaths_nest,
+              ~.x %>%
+                # replace "deaths" with "population"
+                dplyr::rename_with(~ stringr::str_replace(., "deaths", "population"))
+            ))
     }
 
     # YLL & PREMATURE DEATHS (CONSTANT EXPOSURE) ####################################################
@@ -265,13 +279,15 @@ get_pop_impact <-
         pop_mid[, 1] <- pop_entry[, 1] * prob_survival_until_mid_year
         deaths[, 1] <- pop_entry[, 1] * (1 - prob_survival)
 
-        for (i in 1:(number_years-1)) { # starts with 1 and ends with 98; i is used to select both the rows and the columns
+        # Loop across years
+        # E.g. starts with 1 and ends with 98;
+        # i (index in the number of years) is used to select both the rows and the columns
 
-          # print(i)
+        for (i in 1:(number_years-1)) {
 
           # ENTRY POP YOA+1 <- ( ENTRY POP YOA ) * ( SURVIVAL PROBABILITY YOA )
-          pop_entry[(i + 2):(number_years+1), i+1] <-
-            pop_entry[(i+1):(number_years), i] * prob_survival[(i+1):(number_years)]
+          pop_entry[(i + 2):(number_years + 1), i + 1] <-
+            pop_entry[(i + 1):(number_years), i] * prob_survival[(i + 1):(number_years)]
 
           # MID-YEAR POP YOA+1 <- ( ENTRY POP YOA+1) * ( SURVIVAL PROBABILITY FROM START OF YOA+1 TO MID YEAR YOA+1)
           pop_mid[(i + 2):(number_years+1), i + 1] <-
@@ -284,10 +300,11 @@ get_pop_impact <-
         }
 
         # Column bin matrices to input data frame
+        # Remove first column of pop_entry, because it exists already in input data frame
         df <- df %>%
-          bind_cols(pop_mid) %>%
-          bind_cols(pop_entry[, -1]) %>% # Remove first column, because it exists already in input data frame
-          bind_cols(deaths)
+          dplyr::bind_cols(pop_mid) %>%
+          dplyr::bind_cols(pop_entry[, -1]) %>%
+          dplyr::bind_cols(deaths)
 
         return(df)
       }
@@ -295,34 +312,35 @@ get_pop_impact <-
       ### SINGLE YEAR EXPOSURE #######################################################################
       # # Determine YLLs for baseline and impacted scenario's in the single year exposure case
 
-      if (unique(input_with_risk_and_pop_fraction %>% select(contains("approach_exposure")) == "single_year")[1]){
+      if (unique(input_with_risk_and_pop_fraction$approach_exposure) == "single_year"){
 
         # PROJECT POPULATIONS IN BOTH IMPACTED AND BASELINE SCENARIO FROM YOA+1 UNTIL THE END
         # USING MODIFIED SURVIVAL PROBABILITIES (BECAUSE AFTER YOA THERE IS NO MORE AIR POLLUTION)
         pop <- pop %>%
-          mutate(pop_baseline_scenario_nest = pop_baseline_scenario_nest %>%
-                   purrr::map(
-                     .,
-                     function(.x){
-                       project_pop(df = .x,
-                                   prob_survival = .x$prob_survival_mod,
-                                   prob_survival_until_mid_year = .x$prob_survival_until_mid_year_mod)
-                     }
-                   )
-          )
+          dplyr::mutate(
+            pop_baseline_scenario_nest = pop_baseline_scenario_nest %>%
+              purrr::map(
+                .,
+                function(.x){
+                  project_pop(df = .x,
+                              prob_survival = .x$prob_survival_mod,
+                              prob_survival_until_mid_year = .x$prob_survival_until_mid_year_mod)
+                  }
+                )
+            )
 
         pop <- pop %>%
-          mutate(pop_impacted_scenario_nest = pop_impacted_scenario_nest %>%
-                   purrr::map(
-                     .,
-                     function(.x){
-                       project_pop(df = .x,
-                                   prob_survival = .x$prob_survival_mod,
-                                   prob_survival_until_mid_year = .x$prob_survival_until_mid_year_mod)
-
-                     }
-                   )
-          )
+          dplyr::mutate(
+            pop_impacted_scenario_nest = pop_impacted_scenario_nest %>%
+              purrr::map(
+                .,
+                function(.x){
+                  project_pop(df = .x,
+                              prob_survival = .x$prob_survival_mod,
+                              prob_survival_until_mid_year = .x$prob_survival_until_mid_year_mod)
+                  }
+                )
+            )
 
         ### CONSTANT EXPOSURE ########################################################################
         # Determine YLLs for baseline and impacted scenario's in the constant exposure case
@@ -331,20 +349,21 @@ get_pop_impact <-
 
         # PROJECT POPULATION IN BASELINE SCENARIO
         pop <- pop %>%
-          mutate(pop_baseline_scenario_nest = pop_baseline_scenario_nest %>%
-                   purrr::map(
-                     .,
-                     function(.x){
-                       project_pop(df = .x,
-                                   prob_survival = .x$prob_survival,
-                                   prob_survival_until_mid_year = .x$prob_survival_until_mid_year)
-                     }
-                   )
-          )
+          dplyr::mutate(
+            pop_baseline_scenario_nest = pop_baseline_scenario_nest %>%
+              purrr::map(
+                .,
+                function(.x){
+                  project_pop(df = .x,
+                              prob_survival = .x$prob_survival,
+                              prob_survival_until_mid_year = .x$prob_survival_until_mid_year)
+                  }
+                )
+            )
 
         # PROJECT POPULATION IN IMPACTED SCENARIO
         pop <- pop %>%
-          mutate(
+          dplyr::mutate(
             pop_impacted_scenario_nest = pop_impacted_scenario_nest %>%
               purrr::map(
                 .,
@@ -361,42 +380,87 @@ get_pop_impact <-
       # YLL and premature deaths attributable to exposure are calculated
 
       pop <- pop %>%
-        mutate(yll_nest = purrr::map2(
-          pop_impacted_scenario_nest, pop_baseline_scenario_nest,
-          function(.x, .y){
-            x <- .x %>%
-              select(-population_2019_end,
-                     -contains("entry"),
-                     -contains("deaths")) %>%
-              select(contains("population"))
-            y <- .y %>%
-              select(-population_2019_end,
-                     -contains("entry"),
-                     -contains("deaths")) %>%
-              select(contains("population"))
-            # Difference in mid-year populations of baseline and impacted scenario equals attributable YLL
-            diff <- x - y
-            return(diff)
+        dplyr::mutate(
+          yll_nest = purrr::map2(
+            .x = pop_impacted_scenario_nest,
+            .y = pop_baseline_scenario_nest,
+
+            function(.x, .y){
+
+              ages <- .x %>%
+                dplyr::select(age, age_end)
+
+              pop_impacted <- .x %>%
+                dplyr::select(contains("population"),
+                              -population_2019_end,
+                              -contains("entry"))
+              pop_baseline <- .y %>%
+                dplyr::select(contains("population"),
+                              -population_2019_end,
+                              -contains("entry"))
+
+              # Difference in mid-year populations of baseline and impacted scenario equals attributable YLL
+              pop_diff <-
+                pop_impacted - pop_baseline
+
+              # Add ages (in other pipeline because it does not work in one)
+              pop_diff <-
+                pop_diff %>%
+                dplyr::bind_cols(ages, .)
+
+                return(pop_diff)
+            }
+
+          ),
+          .before = 1)
+
+
+
+
+      pop <- pop %>%
+       dplyr::mutate(
+         premature_deaths_nest = purrr::map2(
+            .x = pop_baseline_scenario_nest,
+            .y = pop_impacted_scenario_nest,
+            function(.x, .y){
+
+              pop_baseline <- .x %>%
+                dplyr::select(contains("deaths"),
+                              -deaths)
+              pop_impacted <- .y %>%
+                dplyr::select(contains("deaths"),
+                              -deaths)
+
+              ages <- .x %>%
+                dplyr::select(age, age_end)
+
+              # Calculate difference in deaths
+              # Baseline scenario minus impacted scenario
+              pop_diff <- pop_baseline - pop_impacted
+
+              # Add ages (in other pipeline because it does not work in one)
+              pop_diff <-
+                pop_diff %>%
+                dplyr::bind_cols(ages, .)
+
+
+
+            return(pop_diff)
           }
         )
         , .before = 1)
 
+
+      # Rename column names
       pop <- pop %>%
-        mutate(premature_deaths_nest = purrr::map2(
-          .x = pop_baseline_scenario_nest, .y = pop_impacted_scenario_nest,
-          function(.x, .y){
-            x <- .x %>%
-              select(-deaths) %>%
-              select(contains("deaths"))
-            y <- .y %>%
-              select(-deaths) %>%
-              select(contains("deaths"))
-            # Calculate difference in deaths
-            diff <- x - y # Baseline scenario minus impacted scenario
-            return(diff)
-          }
-        )
-        , .before = 1)
+        dplyr::mutate(
+          premature_deaths_nest =
+            purrr::map(
+              .x = premature_deaths_nest,
+              ~.x %>%
+                # replace "deaths" with "population"
+                dplyr::rename_with(~ stringr::str_replace(., "deaths", "population"))
+            ))
 
       ## NEWBORNS #################################################################
 
@@ -410,29 +474,28 @@ get_pop_impact <-
             tbl[i, (i+1):ncol(tbl)] <- diag_value
           }
           tbl <- tbl %>%
-            select(-ncol(tbl))
+            dplyr::select(-ncol(tbl))
           return(tbl)
         }
 
         pop <- pop %>%
-          mutate(yll_nest = purrr::map(
-            .x = yll_nest,
-            function(.x){
-              .x <- fill_right_of_diag(.x)
-            }
-          )
-          , .before = 1) %>%
-          mutate()
+          dplyr::mutate(
+            yll_nest = purrr::map(
+              .x = yll_nest,
+              function(.x){
+                .x <- fill_right_of_diag(.x)
+              }
+              )
+            , .before = 1)
 
         pop <- pop %>%
-          mutate(premature_deaths_nest = purrr::map(
+          dplyr::mutate(premature_deaths_nest = purrr::map(
             .x = premature_deaths_nest,
             function(.x){
               .x <- fill_right_of_diag(.x)
             }
           )
-          , .before = 1) %>%
-          mutate()
+          , .before = 1)
 
       }
 
@@ -440,35 +503,16 @@ get_pop_impact <-
 
     # COMPILE OUTPUT ##############################################################################
     # Data wrangling to get the results in the needed format
-
-    if (outcome_metric == "deaths"){
-      pop <- pop %>%
-        mutate(pop_impact_nest = premature_deaths_nest %>%
-                 purrr::map(
-                   .,
-                   function(.x){
-                     .x <- .x %>%
-                       rename_with(~ stringr::str_replace(., "deaths", "population")) %>% # replace "deaths" with "population"
-                       mutate(age = 0:(nrow(.)-1), .before = 1) %>%
-                       mutate(age_end = 1:nrow(.), .after = age)})
-               , .before = 1)
-    }
-
-    if ((outcome_metric == "yll") | (outcome_metric == "yld") | (outcome_metric == "daly")){
-      pop <- pop %>%
-        mutate(pop_impact_nest = yll_nest %>%
-                 purrr::map(
-                   .,
-                   function(.x){
-                     .x <- .x %>%
-                       mutate(age = 0:(nrow(.)-1), .before = 1) %>%
-                       mutate(age_end = 1:nrow(.), .after = age)})
-               , .before = 1)
-    }
-
-
     pop <- pop %>%
-      select(-lifetable_with_pop_nest) # Remove from pop, as already present in input_with_risk_...
+      dplyr::mutate(
+        pop_impact_nest =
+          if(outcome_metric == "deaths") premature_deaths_nest else yll_nest)
+
+
+
+    # Remove from pop, as already present in input_with_risk_...
+    pop <- pop %>%
+      dplyr::select(-lifetable_with_pop_nest)
 
     joining_columns_pop_impact <-
       bestcost:::find_joining_columns(input_with_risk_and_pop_fraction,
@@ -478,7 +522,7 @@ get_pop_impact <-
     pop_impact <-
       input_with_risk_and_pop_fraction %>%
       dplyr::right_join(., pop, by = joining_columns_pop_impact) %>%
-      relocate(contains("nest"), .before = 1)
+      dplyr::relocate(contains("nest"), .before = 1)
 
     on.exit(options(user_options))
 

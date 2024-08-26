@@ -46,9 +46,11 @@ get_deaths_yll_yld <-
           purrr::map(.,
           function(.x){
             .x <- .x %>%
-              mutate(across(contains("population"),
-                            ~ . %>%
-                              { `[<-`(., upper.tri(., diag = FALSE), NA) })) # Set values in upper triangle to NA (also removes newborns values)
+              # Set values in upper triangle to NA (also removes newborns values)
+              dplyr::mutate(
+                across(contains("population"),
+                       ~ . %>%
+                         { `[<-`(., upper.tri(., diag = FALSE), NA) }))
             # Filter keeping only the relevant age
             # use {{}} to refer to the argument and avoid warnings
             if(!is.null({{max_age}})){
