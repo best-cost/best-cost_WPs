@@ -231,33 +231,34 @@ get_pop_impact <-
 
       ### DEFINE FUNCTION FOR POPULATION PROJECTION ##################################################
 
-      project_pop <- function(df, prob_survival, prob_survival_until_mid_year, number_years) {
-        # The number_years argument defines for how many years the population should be projected; might be easier to have two arguments "start year" and "end year"
+      project_pop <- function(df, prob_survival, prob_survival_until_mid_year) {
+        # Store useful variables such number_years
+        # The number_years argument defines for how many years the population should be projected;
+        # might be easier to have two arguments "start year" and "end year"
+        number_years <-
+          nrow(df) - 1
 
         # Define the years based on number_years
         # e.g. 2020 to 2118
-        years <- seq(start = year_of_analysis + 1,
-                     length.out = number_years - 1)
+        years_projection <-
+          (year_of_analysis + 1) : (year_of_analysis + number_years)
 
         # Initialize matrices for entry population, mid-year population, and deaths
         pop_entry <- matrix(NA, nrow = 100, ncol = number_years)
         # Provide column names (population_year)
         # e.g. population_2020 to population_2118
         colnames(pop_entry) <-
-          paste0("population_",
-                 (year_of_analysis + 1) : (year_of_analysis + number_years), "_entry")
+          paste0("population_", years_projection , "_entry")
 
         # Same for mid-year population
         pop_mid <- matrix(NA, nrow = 100, ncol = number_years)
         colnames(pop_mid) <-
-          paste0("population_",
-                 (year_of_analysis + 1) : (year_of_analysis + number_years))
+          paste0("population_", years_projection)
 
         # Same for deaths
         deaths <- matrix(NA, nrow = 100, ncol = number_years)
         colnames(deaths) <-
-          paste0("deaths_",
-                 (year_of_analysis + 1) : (year_of_analysis + number_years))
+          paste0("deaths_", years_projection)
 
         # Set initial population for the first year (2020)
         pop_entry[, 1] <- df[[paste0("population_", year_of_analysis + 1, "_entry")]]
@@ -304,7 +305,6 @@ get_pop_impact <-
                      .,
                      function(.x){
                        project_pop(df = .x,
-                                   number_years = 99,
                                    prob_survival = .x$prob_survival_mod,
                                    prob_survival_until_mid_year = .x$prob_survival_until_mid_year_mod)
                      }
@@ -317,7 +317,6 @@ get_pop_impact <-
                      .,
                      function(.x){
                        project_pop(df = .x,
-                                   number_years = 99,
                                    prob_survival = .x$prob_survival_mod,
                                    prob_survival_until_mid_year = .x$prob_survival_until_mid_year_mod)
 
@@ -337,7 +336,6 @@ get_pop_impact <-
                      .,
                      function(.x){
                        project_pop(df = .x,
-                                   number_years = 99,
                                    prob_survival = .x$prob_survival,
                                    prob_survival_until_mid_year = .x$prob_survival_until_mid_year)
                      }
@@ -352,7 +350,6 @@ get_pop_impact <-
                 .,
                 function(.x){
                   project_pop(df = .x,
-                              number_years = 99,
                               prob_survival = .x$prob_survival_mod,
                               prob_survival_until_mid_year = .x$prob_survival_until_mid_year_mod)
                 }
@@ -452,8 +449,8 @@ get_pop_impact <-
                    function(.x){
                      .x <- .x %>%
                        rename_with(~ stringr::str_replace(., "deaths", "population")) %>% # replace "deaths" with "population"
-                       mutate(age = 0:99, .before = 1) %>%
-                       mutate(age_end = 1:100, .after = age)})
+                       mutate(age = 0:(nrow(.)-1), .before = 1) %>%
+                       mutate(age_end = 1:nrow(.), .after = age)})
                , .before = 1)
     }
 
@@ -464,8 +461,8 @@ get_pop_impact <-
                    .,
                    function(.x){
                      .x <- .x %>%
-                       mutate(age = 0:99, .before = 1) %>%
-                       mutate(age_end = 1:100, .after = age)})
+                       mutate(age = 0:(nrow(.)-1), .before = 1) %>%
+                       mutate(age_end = 1:nrow(.), .after = age)})
                , .before = 1)
     }
 
