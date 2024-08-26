@@ -32,6 +32,9 @@ compile_input(
   info = NULL,
   corrected_discount_rate = NULL,
   duration = NULL,
+  dw_central = NULL,
+  dw_lower = NULL,
+  dw_upper = NULL,
   approach_exposure = NULL,
   approach_newborns = NULL,
   first_age_pop = NULL,
@@ -77,6 +80,8 @@ compile_input(
 \item{corrected_discount_rate}{\code{Numeric value} showing the discount rate for future years including correction from inflation rate}
 
 \item{duration}{\code{Numeric value} showing the disease duration}
+
+\item{dw_central, dw_lower, dw_upper}{Three \code{Numeric value} showing the disability weights (central estimate, lower and upper 95% confidence intervals) associated with the morbidity health outcome}
 
 \item{approach_exposure}{\code{String} showing whether air pollution is constant or only in one year. Options: "single_year" (default), "constant"}
 

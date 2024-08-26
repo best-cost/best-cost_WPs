@@ -12,9 +12,6 @@ get_daly(
   max_age = NULL,
   input_with_risk_and_pop_fraction,
   corrected_discount_rate = NULL,
-  dw_central = NULL,
-  dw_lower = NULL,
-  dw_upper = NULL,
   duration = NULL
 )
 }
@@ -28,8 +25,6 @@ get_daly(
 \item{input_with_risk_and_pop_fraction}{\code{Data frame} with meta-information such as input data, additional information and intermediate results.}
 
 \item{corrected_discount_rate}{\code{Numeric value}  with the annual discount rate as proportion (i.e. 0.1 instead of 10\%). It can be calculated as (1+discount_rate_beforeCorrection/1+rate_of_increase)-1}
-
-\item{dw_central, dw_lower, dw_upper}{Three \code{Numeric value} showing the disability weights (central estimate, lower and upper 95% confidence intervals) associated with the morbidity health outcome}
 
 \item{duration}{\code{Numeric value} showing the duration (in years) of the morbidity health outcome}
 

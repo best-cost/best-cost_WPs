@@ -77,9 +77,7 @@ attribute <-
     #length(exp) == length(prop_pop_exp)
     #})
 
-    # if (approach = "cutoff_in_exposure") { # whole script in this loop
-
-    # Compile input data (except lifetable)
+    # Compile input data
     input <-
       bestcost:::compile_input(
         exp_central = exp_central, exp_lower = exp_lower, exp_upper = exp_upper,
@@ -96,6 +94,11 @@ attribute <-
         info = info,
         health_metric = health_metric,
         approach_risk = approach_risk,
+        # YLD
+        dw_central = dw_central,
+        dw_lower = dw_lower,
+        dw_upper = dw_upper,
+        # duration = duration,
         # Lifetable arguments if needed
         approach_exposure = approach_exposure,
         approach_newborns = approach_newborns,
@@ -116,7 +119,6 @@ attribute <-
                             min_age = min_age,
                             max_age = max_age,
                             corrected_discount_rate = corrected_discount_rate,
-                            dw_central = dw_central, dw_lower = dw_lower, dw_upper = dw_upper,
                             duration = duration,
                             pop_fraction_type = "paf")
 

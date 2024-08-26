@@ -237,6 +237,9 @@ compare <-
           info = info_1,
           geo_id_raw = geo_id_raw,
           geo_id_aggregated = geo_id_aggregated,
+          # YLD
+          dw_central = dw_central, dw_lower = dw_lower, dw_upper = dw_upper,
+          duration = duration,
           # Lifetable data
           approach_exposure = approach_exposure_1,
           approach_newborns = approach_newborns_1,
@@ -268,6 +271,9 @@ compare <-
           info = info_2,
           geo_id_raw = geo_id_raw,
           geo_id_aggregated = geo_id_aggregated,
+          # YLD
+          dw_central = dw_central, dw_lower = dw_lower, dw_upper = dw_upper,
+          duration = duration,
           # Lifetable data
           approach_exposure = approach_exposure_2,
           approach_newborns = approach_newborns_2,
@@ -314,7 +320,6 @@ compare <-
           min_age = min_age,
           max_age = max_age,
           corrected_discount_rate = corrected_discount_rate,
-          dw_central = dw_central, dw_lower = dw_lower, dw_upper = dw_upper,
           duration = duration,
           pop_fraction_type = "pif")
       }

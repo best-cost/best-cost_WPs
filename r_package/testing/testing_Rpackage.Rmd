@@ -292,7 +292,7 @@ bestcost_noise_ha_ar_geo <-
 ```
 
 
-```{r morbidity yld with single relative risk}
+```{r YLD with single relative risk}
 
 bestcost_pm_yld_singlebhd  <- 
   bestcost::attribute_yld_from_prevalence(
@@ -307,7 +307,7 @@ bestcost_pm_yld_singlebhd  <-
     valuation = 1000,
     dw_central = 0.5, dw_lower = 0.1, dw_upper = 10)
 
-View(bestcost_pm_yld_singlebhd)
+# View(bestcost_pm_yld_singlebhd)
 
 # No study to compare bestcost results
 # Check only if results stay the same overtime despite developments
@@ -457,7 +457,7 @@ check_bestcost(result_list_bestcost = bestcost_pm_yll_lifetable_airqplus,
 
 
 
-```{r YLL lifetable from CONSTANT exposre and WITH NEWBORNS}
+```{r YLL lifetable from CONSTANT exposure and WITH NEWBORNS}
 
 # Input data from an AirQ+ case
 
@@ -817,7 +817,7 @@ comparison_singlebhd_ar_delta <-
     info_2 = data.frame(pollutant = "road_noise", outcome = "highly_annoyance", year = 2022)
     )
 
-View(comparison_singlebhd_ar_delta)
+# View(comparison_singlebhd_ar_delta)
 
 # No study to compare bestcost results
 # Check only if results stay the same overtime despite developments
@@ -1198,7 +1198,7 @@ comparison_yll_lifetable_delta  <-
     min_age = 20,
     valuation = 1000)
 
-View(comparison_yll_lifetable_delta)
+# View(comparison_yll_lifetable_delta)
 
 # No study to compare bestcost results
 # Check only if results stay the same overtime despite developments
