@@ -91,6 +91,8 @@ compare <-
            # Iteration
            geo_id_raw = NULL,
            geo_id_aggregated = NULL,
+           # Monetization
+           valuation = NULL,
            info_1 = NULL, info_2 = NULL){
 
     # Calculate attributable health impacts in the scenario 1
@@ -123,6 +125,7 @@ compare <-
         geo_id_raw = geo_id_raw,
         geo_id_aggregated = geo_id_aggregated,
         duration = duration,
+        valuation = valuation,
         info = info_1)
 
     # Calculate attributable health impacts in the scenario 2
@@ -155,6 +158,7 @@ compare <-
         duration = duration,
         geo_id_raw = geo_id_raw,
         geo_id_aggregated = geo_id_aggregated,
+        valuation = valuation,
         info = info_2)
 
 
@@ -233,6 +237,9 @@ compare <-
           info = info_1,
           geo_id_raw = geo_id_raw,
           geo_id_aggregated = geo_id_aggregated,
+          # YLD
+          dw_central = dw_central, dw_lower = dw_lower, dw_upper = dw_upper,
+          duration = duration,
           # Lifetable data
           approach_exposure = approach_exposure_1,
           approach_newborns = approach_newborns_1,
@@ -241,7 +248,8 @@ compare <-
           deaths_male = deaths_male_1,
           deaths_female = deaths_female_1,
           population_midyear_male = population_midyear_male_1,
-          population_midyear_female =  population_midyear_female_1)
+          population_midyear_female =  population_midyear_female_1,
+          valuation = valuation)
 
       # Compile input data of scenario 2
       input_2 <-
@@ -263,6 +271,9 @@ compare <-
           info = info_2,
           geo_id_raw = geo_id_raw,
           geo_id_aggregated = geo_id_aggregated,
+          # YLD
+          dw_central = dw_central, dw_lower = dw_lower, dw_upper = dw_upper,
+          duration = duration,
           # Lifetable data
           approach_exposure = approach_exposure_2,
           approach_newborns = approach_newborns_2,
@@ -271,7 +282,8 @@ compare <-
           deaths_male = deaths_male_2,
           deaths_female = deaths_female_2,
           population_midyear_male = population_midyear_male_2,
-          population_midyear_female =  population_midyear_female_2)
+          population_midyear_female =  population_midyear_female_2,
+          valuation = valuation)
 
       # Identify the arguments scenario specific arguments excluding bhd
       # This will be used for the exceptions in the joining columns
@@ -308,7 +320,6 @@ compare <-
           min_age = min_age,
           max_age = max_age,
           corrected_discount_rate = corrected_discount_rate,
-          dw_central = dw_central, dw_lower = dw_lower, dw_upper = dw_upper,
           duration = duration,
           pop_fraction_type = "pif")
       }

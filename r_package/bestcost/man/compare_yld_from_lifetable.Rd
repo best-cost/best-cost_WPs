@@ -51,6 +51,7 @@ compare_yld_from_lifetable(
   corrected_discount_rate = NULL,
   geo_id_raw = NULL,
   geo_id_aggregated = NULL,
+  valuation = NULL,
   info_1 = NULL,
   info_2 = NULL
 )

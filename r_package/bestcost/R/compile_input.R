@@ -41,42 +41,39 @@ compile_input <-
            geo_id_aggregated = NULL,
            info = NULL,
            corrected_discount_rate = NULL,
+           # YLD
            duration = NULL,
-           # And lifetable-related data...
+           dw_central = NULL, dw_lower = NULL, dw_upper = NULL,
+           # Lifetable data
            approach_exposure = NULL,
            approach_newborns = NULL,
            first_age_pop = NULL, last_age_pop = NULL,
            population_midyear_male = NULL, population_midyear_female = NULL,
-           # For AirQ+ approach for lifetables
-           deaths_male = NULL, deaths_female = NULL){
+           deaths_male = NULL, deaths_female = NULL,
+           # Monetization
+           valuation = NULL){
 
     # Check input data
     # stopifnot(exprs = {
-      #length(exp) == length(prop_pop_exp)
-      #is.null(min_age) == FALSE
-      #is.null(max_age) == FALSE
+    #   length(exp) == length(prop_pop_exp)
+    #   is.null(min_age) == FALSE
+    #   is.null(max_age) == FALSE
     # })
 
+    # PROCESS GEO ID ###################################################################
     # If no geo_id_raw is provided (if is NULL) then assign some value.
-    # geo_id_raw is needed to group results in case of multiple geo_ids
-
+    ## geo_id_raw is needed to group results in case of multiple geo_ids
     if(is.null(geo_id_raw)){
       geo_id_raw <-
         as.character(ifelse(is.list({{exp_central}}), 1:length({{exp_central}}), 1))
     }
 
-
-
-
-    # Input data in data frame
+    # PROCESS ERF ######################################################################
 
     # If the erf is defined by rr, increment, shape and cutoff
-
     if(is.null(erf_c_central)){
-      # Input data in data frame
-      # Compile rr data to assign categories
-      erf_data <-
-        # tibble instead of data.frame because tibble converts NULL into NA
+
+      erf_data <- # 1 x 6 tibble
         dplyr::tibble(
           erf_increment = erf_increment,
           erf_shape = erf_shape,
@@ -85,36 +82,33 @@ compile_input <-
           rr_lower =  rr_lower,
           rr_upper = rr_upper)
 
-    } else { # If it is defined by the erf function
-      erf_data <-
-        # tibble instead of data.frame because tibble converts NULL into NA
+    # If it is defined by the erf function
+    } else {
+      erf_data <- # 1 x 3 tibble
         dplyr::tibble(
           erf_c_central = erf_c_central,
           erf_c_lower = erf_c_lower,
           erf_c_upper = erf_c_upper)
-
     }
 
-    # Store the length of the exposure distribution (to be used below)
-    # Let's take the first element
+    # (NON-LIFETABLE) ARGUMENTS #################################################
+
+    # Store the length of the exposure argument (to be used below)
     length_exp_dist <-
       ifelse(is.list(exp_central),
-             length(exp_central[[1]]),
-             length(exp_central))
+             length(exp_central[[1]]), # If exposure distribution
+             length(exp_central))      # If single exposure
 
     length_exp_list <-
       ifelse(is.list(exp_central),
-             length(exp_central),
-             1)
-
+             length(exp_central),      # If exposure distribution
+             1)                        # If single exposure
 
     input_wo_lifetable <-
-      # Build a tibble instead  a data.frame because tibble converts NULL into NA
+      # Tibble converts NULL into NA: if variable is NULL, column not initiated
       dplyr::tibble(
-        # First compile input data that are only geo-dependent,
-        # ie. those which require adjustment to have the same dimension
-        # as those with multiple dimension because of exposure distribution
-        # Let's use rep() to ensure that there is dimension match
+        # First compile input data that are geo-dependent
+        # Use rep() to ensure that there is dimension match
         geo_id_raw = rep(geo_id_raw, each = length_exp_dist),
         geo_id_aggregated = rep(geo_id_aggregated, each = length_exp_dist),
         bhd_central = rep(unlist(bhd_central), each = length_exp_dist),
@@ -125,9 +119,13 @@ compile_input <-
         approach_exposure = rep(approach_exposure, each = length_exp_dist),
         approach_newborns = rep(approach_newborns, each = length_exp_dist),
 
-        # Second those variables that will have length = 1 (no problematic)
+        # Second those variables with length = 1 (non-problematic)
         duration = duration,
+        dw_central = dw_central,
+        dw_lower = dw_lower,
+        dw_upper = dw_upper,
         corrected_discount_rate = corrected_discount_rate,
+        valuation = valuation,
 
         # Finally, those variables that are multi-dimensional (exposure distribution)
         exp_central = unlist(exp_central),
@@ -146,12 +144,8 @@ compile_input <-
         age_range = ifelse(!is.null(max_age) & is.null(min_age), paste0("below", max_age + 1),
                            ifelse(!is.null(min_age) & is.null(max_age), paste0("from", min_age),
                                   NA)),
-        # Add the approach_risk that refer to the function
-        approach_risk = approach_risk,
+        approach_risk = approach_risk, # RR or AR
         health_metric = health_metric,
-        approach_exposure = approach_exposure,
-        approach_newborns = approach_newborns,
-        # Using {{}} to call the argument instead of the column (same name)
         exposure_dimension =
           rep(1:length_exp_dist, length_exp_list),
         exposure_type =
@@ -165,15 +159,18 @@ compile_input <-
       # The life table has to be provided (by sex)
       # Rename column names to standard names
 
-      # Pivot longer to show all combinations of central, lower and upper estimate
-      # (relevant for iteration)
+
+      # PIVOT LONGER ###########################################################
+      # I.e. increase nr of rows to show all combinations of
+      # central, lower and upper estimates (relevant for iteration)
+
       ## For exposure,
       tidyr::pivot_longer(.,
                           cols = starts_with("exp_"),
                           names_to = "exp_ci",
                           names_prefix = "exp_",
                           values_to = "exp") %>%
-      ## Exposure response function &
+      ## Exposure response function,
       {if(is.null(erf_c_central))
         tidyr::pivot_longer(.,
                             cols = starts_with("rr_"),
@@ -185,16 +182,25 @@ compile_input <-
                               cols = starts_with("erf_c_"),
                               names_to = "erf_ci",
                               names_prefix = "erf_c_",
-                              values_to = "erf_c")}%>%
-      ## Baseline health data
+                              values_to = "erf_c")} %>%
+      ## Baseline health data,
       {if(!is.null(bhd_central))
         tidyr::pivot_longer(.,
                             cols = starts_with("bhd_"),
                             names_to = "bhd_ci",
                             names_prefix = "bhd_",
-                            values_to = "bhd") else .}
+                            values_to = "bhd") else .} %>%
+      ## & Disability weight
+      {if(!is.null(dw_central))
+        tidyr::pivot_longer(.,
+                            cols = starts_with("dw_"),
+                            names_to = "dw_ci",
+                            names_prefix = "dw_",
+                            values_to = "dw") else .}
 
 
+    # CREATE LIFETABLES ##########################################################
+    # As nested tibble
     if(grepl("lifetable", health_metric)){
 
       # Build the data set for lifetable-related data
@@ -276,7 +282,7 @@ compile_input <-
       # }
 
 
-
+      # JOIN TIBBLES ###########################################################
       # Join the input without and with lifetable variable into one tibble
       input <-
         dplyr::left_join(input_wo_lifetable,
