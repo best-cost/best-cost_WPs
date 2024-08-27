@@ -235,16 +235,16 @@ get_pop_impact <-
                 deaths_2019 = .x$population_2019_end - .y$population_2019_end)),
           .after = pop_impacted_scenario_nest)
 
-      # Rename column names
-      pop <- pop %>%
-        dplyr::mutate(
-          premature_deaths_nest =
-            purrr::map(
-              .x = premature_deaths_nest,
-              ~.x %>%
-                # replace "deaths" with "population"
-                dplyr::rename_with(~ stringr::str_replace(., "deaths", "population"))
-            ))
+      # # Rename column names
+      # pop <- pop %>%
+      #   dplyr::mutate(
+      #     premature_deaths_nest =
+      #       purrr::map(
+      #         .x = premature_deaths_nest,
+      #         ~.x %>%
+      #           # replace "population" with "deaths"
+      #           dplyr::rename_with(~ gsub("population", "deaths", .), contains("population"))
+      #       ))
     }
 
     # YLL & PREMATURE DEATHS (CONSTANT EXPOSURE) ####################################################
