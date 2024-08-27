@@ -14,7 +14,7 @@
 #' @param erf_shape
 #' \code{String} showing the shape of the exposure-response function to be assumed using the relative risk from the literature as support point. Options: "linear", log_linear", "linear_log", "log_log".
 #' @param erf_c
-#' \code{String} refer to the user-defined function that puts the relative risk in relation with concentration. A string or a data frame can be entered. If a string is entered, it will be converted into a function. The string has to show the function in terms of one variable: "c", which means concentration. E.g. "3+c+c^2". If a data frame is entered, a column with name "c" should refer to concentration (x-axis) while a column "rr" should refer to relative risk for that concentration (y-axis). A cubic spline natural interpolation will be assumed. Default value = NULL.
+#' \code{String} refer to the user-defined function that puts the relative risk in relation with concentration. A string or a data frame can be entered. If a string is entered, it will be converted into a function. The string has to show the function in terms of one variable: "c", which means concentration. E.g. "3+c+c^2". If a data frame is entered, a first column (or with name "c" or "x") should refer to concentration (x-axis) while a second column (or with name "rr" or "y") should refer to relative risk for that concentration (y-axis). A cubic spline natural interpolation will be assumed. Default value = NULL.
 #' @return
 #' This function returns three \code{values} corresponding to the central estimate as well as the lower and upper bound of the exposure-response function.
 #' @examples
@@ -101,10 +101,25 @@ get_risk <-
     if(!is.null(erf_c) & is.data.frame(erf_c)){
 
 
+      x <-
+        ifelse("c" %in% names(erf_c),
+               erf$c,
+               ifelse("x" %in% names(erf_c),
+                      erf$x,
+                      erf[, 1]))
+
+      y <-
+        ifelse("rr" %in% names(erf_c),
+               erf$r,
+               ifelse("y" %in% names(erf_c),
+                      erf$y,
+                      erf[, 2]))
+
+
       erf <-
         stats::splinefun(
-          x = erf_c$c,
-          y = erf_c$rr,
+          x = x,
+          y = y,
           method = "natural")
 
     }
