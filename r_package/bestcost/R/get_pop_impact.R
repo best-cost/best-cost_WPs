@@ -220,7 +220,7 @@ get_pop_impact <-
     # PREMATURE DEATHS (SINGLE YEAR EXPOSURE) ######################################################
     # YOA = YEAR OF ANALYSIS
     if (outcome_metric == "deaths" &
-        unique(input_with_risk_and_pop_fraction$approach_exposure) == "single_year") {
+        unique(input_with_risk_and_pop_fraction %>% select(contains("approach_exposure"))== "single_year")[1]) {
 
       pop <- pop %>%
         # Premature deaths = ( impacted scenario YOA end-of-year population ) - ( baseline scenario YOA end-of-year pop )
@@ -235,22 +235,12 @@ get_pop_impact <-
                 deaths_2019 = .x$population_2019_end - .y$population_2019_end)),
           .after = pop_impacted_scenario_nest)
 
-      # Rename column names
-      pop <- pop %>%
-        dplyr::mutate(
-          premature_deaths_nest =
-            purrr::map(
-              .x = premature_deaths_nest,
-              ~.x %>%
-                # replace "deaths" with "population"
-                dplyr::rename_with(~ stringr::str_replace(., "deaths", "population"))
-            ))
     }
 
     # YLL & PREMATURE DEATHS (CONSTANT EXPOSURE) ####################################################
 
     if ((outcome_metric %in% c("yll", "yld", "daly") |
-         (outcome_metric == "deaths" & unique(input_with_risk_and_pop_fraction$approach_exposure) == "constant"))) {
+         (unique(input_with_risk_and_pop_fraction %>% select(contains("approach_exposure")) == "constant")[1] & outcome_metric == "deaths"))) {
 
       ## PROJECT POPULATIONS #########################################################################
 
@@ -321,9 +311,9 @@ get_pop_impact <-
       }
 
       ### SINGLE YEAR EXPOSURE #######################################################################
-      # # Determine YLLs for baseline and impacted scenario's in the single year exposure case
+      # Determine YLLs for baseline and impacted scenario's in the single year exposure case
 
-      if (unique(input_with_risk_and_pop_fraction$approach_exposure) == "single_year"){
+      if (unique(input_with_risk_and_pop_fraction %>% select(contains("approach_exposure")) == "single_year")[1]){
 
         # PROJECT POPULATIONS IN BOTH IMPACTED AND BASELINE SCENARIO FROM YOA+1 UNTIL THE END
         # USING MODIFIED SURVIVAL PROBABILITIES (BECAUSE AFTER YOA THERE IS NO MORE AIR POLLUTION)
@@ -470,7 +460,8 @@ get_pop_impact <-
               .x = premature_deaths_nest,
               ~.x %>%
                 # replace "deaths" with "population"
-                dplyr::rename_with(~ stringr::str_replace(., "deaths", "population"))
+                # dplyr::rename_with(~ stringr::str_replace(., "deaths", "population"))
+                dplyr::rename_with(~ gsub("population", "deaths", .), contains("population"))
             ))
 
       ## NEWBORNS #################################################################
@@ -494,7 +485,8 @@ get_pop_impact <-
             yll_nest = purrr::map(
               .x = yll_nest,
               function(.x){
-                .x <- fill_right_of_diag(.x)
+                .x[, setdiff(names(.x), c("age", "age_end"))] <- fill_right_of_diag(.x[, setdiff(names(.x), c("age", "age_end"))])
+                return(.x)
               }
               )
             , .before = 1)
@@ -503,7 +495,8 @@ get_pop_impact <-
           dplyr::mutate(premature_deaths_nest = purrr::map(
             .x = premature_deaths_nest,
             function(.x){
-              .x <- fill_right_of_diag(.x)
+              .x[, setdiff(names(.x), c("age", "age_end"))] <- fill_right_of_diag(.x[, setdiff(names(.x), c("age", "age_end"))])
+              return(.x)
             }
           )
           , .before = 1)
