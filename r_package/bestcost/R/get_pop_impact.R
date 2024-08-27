@@ -470,7 +470,8 @@ get_pop_impact <-
               .x = premature_deaths_nest,
               ~.x %>%
                 # replace "deaths" with "population"
-                dplyr::rename_with(~ stringr::str_replace(., "deaths", "population"))
+                # dplyr::rename_with(~ stringr::str_replace(., "deaths", "population"))
+                dplyr::rename_with(~ gsub("population", "deaths", .), contains("population"))
             ))
 
       ## NEWBORNS #################################################################
@@ -494,7 +495,8 @@ get_pop_impact <-
             yll_nest = purrr::map(
               .x = yll_nest,
               function(.x){
-                .x <- fill_right_of_diag(.x)
+                .x[, setdiff(names(.x), c("age", "age_end"))] <- fill_right_of_diag(.x[, setdiff(names(.x), c("age", "age_end"))])
+                return(.x)
               }
               )
             , .before = 1)
@@ -503,7 +505,8 @@ get_pop_impact <-
           dplyr::mutate(premature_deaths_nest = purrr::map(
             .x = premature_deaths_nest,
             function(.x){
-              .x <- fill_right_of_diag(.x)
+              .x[, setdiff(names(.x), c("age", "age_end"))] <- fill_right_of_diag(.x[, setdiff(names(.x), c("age", "age_end"))])
+              return(.x)
             }
           )
           , .before = 1)

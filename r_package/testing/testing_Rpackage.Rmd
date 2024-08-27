@@ -482,7 +482,7 @@ bestcost_pm_yll_lifetable_airqplus_with_newborns <-
     min_age = airqplus_pm_deaths_yll[["input"]]$apply_rr_from_age,
     valuation = 1000)
 
-# View(bestcost_pm_yll_lifetable_airqplus_with_newborns)
+View(bestcost_pm_yll_lifetable_airqplus_with_newborns)
 
 check_bestcost(result_list_bestcost = bestcost_pm_yll_lifetable_airqplus_with_newborns,
                result_vector_alternative = c(3248408.53,	1700230.04,	4786195.41)) # AirQ+ result
