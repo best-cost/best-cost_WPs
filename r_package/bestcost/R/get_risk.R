@@ -14,7 +14,7 @@
 #' @param erf_shape
 #' \code{String} showing the shape of the exposure-response function to be assumed using the relative risk from the literature as support point. Options: "linear", log_linear", "linear_log", "log_log".
 #' @param erf_c
-#' \code{String} showing the user-defined function that puts the relative risk in relation with concentration. The function must have only one variable: c, which means concentration. E.g. "3+c+c^2". Default value = NULL.
+#' \code{String} refer to the user-defined function that puts the relative risk in relation with concentration. A string or a data frame can be entered. If a string is entered, it will be converted into a function. The string has to show the function in terms of one variable: "c", which means concentration. E.g. "3+c+c^2". If a data frame is entered, a column with name "c" should refer to concentration (x-axis) while a column "rr" should refer to relative risk for that concentration (y-axis). A cubic spline natural interpolation will be assumed. Default value = NULL.
 #' @return
 #' This function returns three \code{values} corresponding to the central estimate as well as the lower and upper bound of the exposure-response function.
 #' @examples
@@ -80,16 +80,32 @@ get_risk <-
     }
 
 
-    # A second (and less usual) option is to define the erf using
+    # A second option is to define the erf using
     # an own defined option
 
-    if(!is.null(erf_c)){
+    if(!is.null(erf_c) & is.character(erf_c)){
+
 
       erf <- function(c){
         # eval() and parse() convert the string into a function
         eval(parse(text = erf_c))
 
       }
+
+    }
+
+    # A third option is to define the erf using
+    # a set of points (x = exposure, y = relative risk)
+    # It will be assumed that
+
+    if(!is.null(erf_c) & is.data.frame(erf_c)){
+
+
+      erf <-
+        stats::splinefun(
+          x = erf_c$c,
+          y = erf_c$rr,
+          method = "natural")
 
     }
 
