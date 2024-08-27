@@ -28,6 +28,7 @@ library(purrr)
 library(stringr)
 library(tibble)
 library(zoo)
+library(stats)
 
 # to set colors in console messages (checking)
 library(crayon)
