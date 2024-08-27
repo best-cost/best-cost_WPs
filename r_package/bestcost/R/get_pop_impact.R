@@ -84,7 +84,6 @@ get_pop_impact <-
                 dplyr::select(age, age_end, deaths, population, modification_factor) %>%
                 dplyr::rename(!!population_yoa := population) %>%
 
-
                 # CALCULATE ENTRY POPULATION OF YEAR OF ANALYSIS (YOA)
                 dplyr::mutate(
                   !!population_yoa_entry := !!sym(population_yoa) + (deaths / 2),
@@ -195,7 +194,6 @@ get_pop_impact <-
             .,
             function(.x){
               .x <- .x %>%
-
 
               # MID-YEAR POP = (ENTRY POP) * ( survival probability until mid year )
               dplyr::mutate(!!population_yoa :=
@@ -521,14 +519,11 @@ get_pop_impact <-
         pop_impact_nest =
           if(outcome_metric == "deaths") premature_deaths_nest else yll_nest)
 
-
-
     # Remove from pop, as already present in input_with_risk_...
     pop <- pop %>%
       dplyr::select(-lifetable_with_pop_nest)
 
     if (outcome_metric != "yld" & outcome_metric != "daly"){ # YLL & premature deaths case
-
 
       joining_columns_pop_impact <-
         bestcost:::find_joining_columns(input_with_risk_and_pop_fraction,
