@@ -4,15 +4,7 @@
 \alias{get_risk}
 \title{Re-scale the relative risk}
 \usage{
-get_risk(
-  rr,
-  exp,
-  cutoff,
-  erf_increment,
-  erf_shape,
-  erf_full = FALSE,
-  erf_c = NULL
-)
+get_risk(rr, exp, cutoff, erf_increment, erf_shape, erf_c = NULL)
 }
 \arguments{
 \item{rr}{\code{Numeric vector} containing the relative risk. The data frame must contain the central estimate as well as the lower and upper bound of the exposure-response function.}
@@ -24,8 +16,6 @@ get_risk(
 \item{erf_increment}{\code{Numeric value} showing the size of the increment in concentration related to the relative risk provided in the literature (e.g. for 10 ug/m3 PM2.5).}
 
 \item{erf_shape}{\code{String} showing the shape of the exposure-response function to be assumed using the relative risk from the literature as support point. Options: "linear", log_linear", "linear_log", "log_log".}
-
-\item{erf_full}{\code{Boolean value} to show if the exposure-response function is entirely defined by the user  with the argument erf_c (erf_full = TRUE) or by the arguments exp, cutoff, erf_increment and erf_shape (erf_full = TRUE). Default value = FALSE.}
 
 \item{erf_c}{\code{String} showing the user-defined function that puts the relative risk in relation with concentration. The function must have only one variable: c, which means concentration. E.g. "3+c+c^2". Default value = NULL.}
 }

@@ -13,8 +13,6 @@
 #' \code{Numeric value} showing the size of the increment in concentration related to the relative risk provided in the literature (e.g. for 10 ug/m3 PM2.5).
 #' @param erf_shape
 #' \code{String} showing the shape of the exposure-response function to be assumed using the relative risk from the literature as support point. Options: "linear", log_linear", "linear_log", "log_log".
-#' @param erf_full
-#' \code{Boolean value} to show if the exposure-response function is entirely defined by the user  with the argument erf_c (erf_full = TRUE) or by the arguments exp, cutoff, erf_increment and erf_shape (erf_full = TRUE). Default value = FALSE.
 #' @param erf_c
 #' \code{String} showing the user-defined function that puts the relative risk in relation with concentration. The function must have only one variable: c, which means concentration. E.g. "3+c+c^2". Default value = NULL.
 #' @return
@@ -31,12 +29,11 @@ get_risk <-
            cutoff,
            erf_increment,
            erf_shape,
-           erf_full = FALSE,
            erf_c = NULL){
 
     # The function assumes that the user of the package does not define the function entirely,
     # but using arguments such as exp, cutoff, erf_increment and erf_shape
-    # Therefore, the default value of the argument erf_full is FALSE
+    # Therefore, the default value of the argument erf_c should be NULL
     # If the user enter a TRUE, erf_c is read. Otherwise the arguments
     # exp, cutoff, erf_increment and erf_shape.
 
@@ -47,7 +44,7 @@ get_risk <-
     # the shape of the function (erf_shape) and
     # the relative risk from the literature
 
-    if(erf_full == FALSE){
+    if(is.null(erf_c)){
 
 
       if(erf_shape == "linear"){
@@ -86,7 +83,7 @@ get_risk <-
     # A second (and less usual) option is to define the erf using
     # an own defined option
 
-    if(erf_full == TRUE){
+    if(!is.null(erf_c)){
 
       erf <- function(c){
         # eval() and parse() convert the string into a function
