@@ -62,7 +62,7 @@ get_output <-
                                     paste0("impact", c("", "_1", "_2"))),
                                   names(.))),
                  ~sum(.x, na.rm = TRUE)),
-          .groups = "drop")%>%
+          .groups = "drop") %>%
         # Round impact
         dplyr::mutate(impact_rounded = round(impact, 0))
 

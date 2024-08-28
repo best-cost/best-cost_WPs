@@ -9,12 +9,12 @@
 #' # Example of how to use the function
 #' function_name(param1 = value1, param2 = value2)
 #' @export
-monetize <- function(impact_raw) {
+monetize <- function(output) {
 
-  impact_raw[["main"]] <- impact_raw[["main"]] %>%
+  output[["main"]] <- output[["main"]] %>%
     mutate(impact_monetized = valuation * impact, .after = impact) %>%
     mutate(impact_monetized_rounded = round(impact_monetized), .after = impact_rounded)
 
-  return(impact_raw)
+  return(output)
 
 }

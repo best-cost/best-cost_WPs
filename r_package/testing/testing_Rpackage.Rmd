@@ -234,9 +234,9 @@ bestcost_noise_ihd_expDist <-
     valuation = 1000,
     info = data.frame(pollutant = "road_noise", outcome = "YLD"))
 
-# View(bestcost_noise_ihd_expDist)
+View(bestcost_noise_ihd_expDist)
 
-check_bestcost(result_list_bestcost = bestcost_noise_ihd_expDist,
+# check_bestcost(result_list_bestcost = bestcost_noise_ihd_expDist,
                result_vector_alternative = niph_noise_ihd_result)
 
 # Obtain attributable cases using the bestcost package
@@ -286,7 +286,7 @@ bestcost_noise_ha_ar <-
     exp_central = niph_noise_ha_input$exposure_mean,
     pop_exp = niph_noise_ha_input$population_exposed_total, 
     erf_c_central = "78.9270-3.1162*c+0.0342*c^2",
-    # valuation = 1000, # Results change with valuation ####
+    valuation = 1000,
     info = data.frame(pollutant = "road_noise", outcome = "highly_annoyance"))
 
 # View(bestcost_noise_ha_ar)
@@ -347,6 +347,7 @@ bestcost_pm_yld_ci <- get_ci(paf = bestcost_pm_yld_singlebhd$main$pop_fraction[1
                              dw_lower = 0.25,
                              dw_upper = 0.75)
 
+View(bestcost_pm_yld_ci)
 ```
 
 
@@ -846,7 +847,7 @@ comparison_singlebhd_ar_delta <-
     pop_exp_1 = c(387500, 286000, 191800, 72200, 7700), # Values as example provided by NIPH
     pop_exp_2 = c(387500, 286000, 191800, 72200, 7700), # Fake values
     erf_c_central = "78.9270-3.1162*c+0.0342*c^2",
-    # valuation = 1000, # Results change with valuation ####
+    valuation = 1000, # Results change with valuation ####
     info_1 = data.frame(pollutant = "road_noise", outcome = "highly_annoyance", year = 2020),
     info_2 = data.frame(pollutant = "road_noise", outcome = "highly_annoyance", year = 2022)
     )
