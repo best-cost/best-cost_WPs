@@ -39,9 +39,7 @@ get_output <-
         # we have to round final results
         # not summing rounded results ("too rounded")
         dplyr::select(., -all_of(intersect(paste0("impact_rounded", c("", "_1", "_2")),
-                                        names(.)))
-                      , -contains("monetized") # Remove the monetized impact column so they don't interfere with calculation below
-                      ) %>%
+                                        names(.)))) %>%
         # Collapse the exposure categories to have only a vector
         dplyr::mutate(., across(all_of(intersect(c(paste0("exp", c("", "_1", "_2")),
                                                 paste0("pop_exp", c("", "_1", "_2")),
