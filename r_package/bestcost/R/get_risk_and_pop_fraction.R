@@ -25,6 +25,11 @@ get_risk_and_pop_fraction <-
   function(input,
            pop_fraction_type){
 
+    # Check if erf_c is NULL before going into get_risk
+    # Otherwise the variable is created without value and cannot be evaluated
+    # We need to know erf_c is NULL if statements within get_risk
+    if(!"erf_c" %in% names(input)){erf_c <- NULL}
+
     # Calculate health impact attributable to exposure ####
     input_with_risk_and_pop_fraction <-
       input %>%
@@ -58,6 +63,47 @@ get_risk_and_pop_fraction <-
                                              erf_increment = erf_increment,
                                              erf_shape = erf_shape,
                                              erf_c = erf_c))}%>%
+
+      # # Calculate relative risk based on "pop_fraction_type"
+      # dplyr::mutate(
+      #   # Calculate rr_conc if "pop_fraction_type" is "paf"
+      #   rr_conc = dplyr::case_when(
+      #     pop_fraction_type == "paf" ~
+      #       bestcost::get_risk(
+      #         rr = rr,
+      #         exp = exp,
+      #         cutoff = cutoff,
+      #         erf_increment = erf_increment,
+      #         erf_shape = erf_shape,
+      #         erf_c = erf_c),
+      #     TRUE ~ NA_real_  # If not 'paf', set rr_conc to NA
+      #   ),
+      #
+      #   # Calculate rr_conc_1 and rr_conc_2 if 'pop_fraction_type' is not 'paf'
+      #   rr_conc_1 = case_when(
+      #     pop_fraction_type != "paf" ~ bestcost::get_risk(
+      #       rr = rr,
+      #       exp = exp_1,
+      #       cutoff = cutoff,
+      #       erf_increment = erf_increment,
+      #       erf_shape = erf_shape,
+      #       erf_c = erf_c
+      #     ),
+      #     TRUE ~ NA_real_  # If 'paf', set rr_conc_1 to NA
+      #   ),
+      #   rr_conc_2 = case_when(
+      #     pop_fraction_type != "paf" ~ bestcost::get_risk(
+      #       rr = rr,
+      #       exp = exp_2,
+      #       cutoff = cutoff,
+      #       erf_increment = erf_increment,
+      #       erf_shape = erf_shape,
+      #       erf_c = erf_c
+      #     ),
+      #     TRUE ~ NA_real_  # If 'paf', set rr_conc_2 to NA
+      #   )
+      # ) %>%
+
 
 
 

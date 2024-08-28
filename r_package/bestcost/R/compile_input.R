@@ -84,7 +84,7 @@ compile_input <-
     }
 
     # If it is defined by the erf function
-    if(is.character(erf_c_central)){
+    if(!is.null(erf_c_central) & is.character(erf_c_central)){
 
         erf_data <- # 1 x 3 tibble
           dplyr::tibble(
@@ -93,7 +93,7 @@ compile_input <-
             erf_c_upper = erf_c_upper)
     }
 
-    if(is.data.frame(erf_c_central)){
+    if(!is.null(erf_c_central) & is.data.frame(erf_c_central)){
 
         erf_data <- # 1 x 3 tibble
           dplyr::tibble(
