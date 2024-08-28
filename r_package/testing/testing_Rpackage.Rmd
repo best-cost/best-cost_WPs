@@ -314,7 +314,20 @@ bestcost_pm_yld_singlebhd  <-
 check_bestcost(result_list_bestcost = bestcost_pm_yld_singlebhd ,
                result_vector_alternative = c(525, 277, 768)) # Result on 16 May 2024
 
+# Summary uncertainty
+bestcost_pm_yld_ci <- get_ci(paf = bestcost_pm_yld_singlebhd$main$pop_fraction[1], # PAF central estimate
+                             bhd_central = bestcost_pm_yld_singlebhd$main$bhd[1],
+                             bhd_lower = 0.5 * bestcost_pm_yld_singlebhd$main$bhd[1],
+                             bhd_upper = 1.5 * bestcost_pm_yld_singlebhd$main$bhd[1],
+                             duration_central = 10,
+                             duration_lower = 5,
+                             duration_upper = 15,
+                             dw_central = 0.5,
+                             dw_lower = 0.25,
+                             dw_upper = 0.75)
+
 ```
+
 
 
 ### Life table
