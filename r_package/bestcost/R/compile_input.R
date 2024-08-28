@@ -81,15 +81,33 @@ compile_input <-
           rr_central = rr_central,
           rr_lower =  rr_lower,
           rr_upper = rr_upper)
+    }
 
     # If it is defined by the erf function
-    } else {
-      erf_data <- # 1 x 3 tibble
-        dplyr::tibble(
-          erf_c_central = erf_c_central,
-          erf_c_lower = erf_c_lower,
-          erf_c_upper = erf_c_upper)
+    if(is.character(erf_c_central)){
+
+        erf_data <- # 1 x 3 tibble
+          dplyr::tibble(
+            erf_c_central = erf_c_central,
+            erf_c_lower = erf_c_lower,
+            erf_c_upper = erf_c_upper)
     }
+
+    if(is.data.frame(erf_c_central)){
+
+        erf_data <- # 1 x 3 tibble
+          dplyr::tibble(
+            erf_c_central = list(erf_c_central)) %>%
+
+          # If a confidence interval for the erf is provided, add the erf columns
+          {if (!is.null(erf_c_lower) & !is.null(erf_c_upper))
+            dplyr::mutate(.,
+              erf_c_lower = list(erf_c_lower),
+              erf_c_upper = list(erf_c_upper))
+            else .}
+        }
+
+
 
     # (NON-LIFETABLE) ARGUMENTS #################################################
 

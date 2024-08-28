@@ -24,11 +24,11 @@
 #' @export
 
 get_risk <-
-  function(rr,
+  function(rr = NULL,
            exp,
-           cutoff,
-           erf_increment,
-           erf_shape,
+           cutoff = NULL,
+           erf_increment = NULL,
+           erf_shape = NULL,
            erf_c = NULL){
 
     # The function assumes that the user of the package does not define the function entirely,
@@ -38,11 +38,13 @@ get_risk <-
     # exp, cutoff, erf_increment and erf_shape.
 
     # Let's write the exposure-response function (erf)
-    # based on c (concentration) as single argument
+    # based on c (concentration) as single data
 
     # A first (and most usual) option is to define the erf using
     # the shape of the function (erf_shape) and
     # the relative risk from the literature
+
+
 
     if(is.null(erf_c)){
 
@@ -103,17 +105,17 @@ get_risk <-
 
       x <-
         ifelse("c" %in% names(erf_c),
-               erf$c,
+               erf_c$c,
                ifelse("x" %in% names(erf_c),
-                      erf$x,
-                      erf[, 1]))
+                      erf_c$x,
+                      erf_c[, 1]))
 
       y <-
         ifelse("rr" %in% names(erf_c),
-               erf$r,
+               erf_c$rr,
                ifelse("y" %in% names(erf_c),
-                      erf$y,
-                      erf[, 2]))
+                      erf_c$y,
+                      erf_c[, 2]))
 
 
       erf <-
@@ -126,7 +128,7 @@ get_risk <-
 
     # rr for the specific concentration
     rr_c <-
-      erf(c = exp)
+      erf(exp)
 
     return(rr_c)
 

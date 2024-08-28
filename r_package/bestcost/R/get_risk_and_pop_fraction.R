@@ -40,7 +40,8 @@ get_risk_and_pop_fraction <-
                                            exp = exp,
                                            cutoff = cutoff,
                                            erf_increment = erf_increment,
-                                           erf_shape = erf_shape))
+                                           erf_shape = erf_shape,
+                                           erf_c = erf_c))
         else
           dplyr::mutate(.,
                         rr_conc_1 =
@@ -48,13 +49,15 @@ get_risk_and_pop_fraction <-
                                              exp = exp_1,
                                              cutoff = cutoff,
                                              erf_increment = erf_increment,
-                                             erf_shape = erf_shape),
+                                             erf_shape = erf_shape,
+                                             erf_c = erf_c),
                         rr_conc_2 =
                           bestcost::get_risk(rr = rr,
                                              exp = exp_2,
                                              cutoff = cutoff,
                                              erf_increment = erf_increment,
-                                             erf_shape = erf_shape))}%>%
+                                             erf_shape = erf_shape,
+                                             erf_c = erf_c))}%>%
 
 
 
