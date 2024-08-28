@@ -28,6 +28,7 @@ library(purrr)
 library(stringr)
 library(tibble)
 library(zoo)
+library(stats)
 
 # to set colors in console messages (checking)
 library(crayon)
@@ -155,7 +156,27 @@ system.time(bestcost_pm_copd_geo <-
 ```
 
 
-```{r single exposure value and relative risk}
+```{r single exposure value and user-defined points for relative risk}
+
+# Assess attributable cases using the AirQ+ export as input data
+bestcost_pm_copd_1rr <-
+  bestcost::attribute_health(
+    exp_central = airqplus_pm_copd$mean_concentration,
+    cutoff = airqplus_pm_copd$cut_off_value,   
+    bhd_central = airqplus_pm_copd$incidents_per_100_000_per_year/1E5*airqplus_pm_copd$population_at_risk,
+    # GBD2019 ERF for PM and lower respiratory infections
+    erf_c_central = 
+      data.frame(
+        x = c(600,500,400,300,200,150,130,110,90,70,50,30,25,20,15,10,5,0),
+        y = c(2.189,2.143,2.098,2.052,1.909,1.751,1.68,1.607,1.533,1.453,1.357,1.238,1.204,1.168,1.129,1.089,1.046,	1)),
+    info = paste0(airqplus_pm_copd$pollutant,"_", airqplus_pm_copd$evaluation_name))
+
+
+#TODO: Make an automatic comparison to always check if the result is right
+```
+
+
+```{r single exposure value and relative risk with monetization}
 
 # Assess attributable cases using the AirQ+ export as input data
 bestcost_pm_copd_1rr <-
