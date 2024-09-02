@@ -13,10 +13,8 @@
 #' \code{Numeric value} showing the size of the increment in concentration related to the relative risk provided in the literature (e.g. for 10 ug/m3 PM2.5).
 #' @param erf_shape
 #' \code{String} showing the shape of the exposure-response function to be assumed using the relative risk from the literature as support point. Options: "linear", log_linear", "linear_log", "log_log".
-#' @param erf_full
-#' \code{Boolean value} to show if the exposure-response function is entirely defined by the user  with the argument erf_c (erf_full = TRUE) or by the arguments exp, cutoff, erf_increment and erf_shape (erf_full = TRUE). Default value = FALSE.
 #' @param erf_c
-#' \code{String} showing the user-defined function that puts the relative risk in relation with concentration. The function must have only one variable: c, which means concentration. E.g. "3+c+c^2". Default value = NULL.
+#' \code{String} refer to the user-defined function that puts the relative risk in relation with concentration. A string or a data frame can be entered. If a string is entered, it will be converted into a function. The string has to show the function in terms of one variable: "c", which means concentration. E.g. "3+c+c^2". If a data frame is entered, a first column (or with name "c" or "x") should refer to concentration (x-axis) while a second column (or with name "rr" or "y") should refer to relative risk for that concentration (y-axis). A cubic spline natural interpolation will be assumed. Default value = NULL.
 #' @return
 #' This function returns three \code{values} corresponding to the central estimate as well as the lower and upper bound of the exposure-response function.
 #' @examples
@@ -26,28 +24,29 @@
 #' @export
 
 get_risk <-
-  function(rr,
+  function(rr = NULL,
            exp,
-           cutoff,
-           erf_increment,
-           erf_shape,
-           erf_full = FALSE,
+           cutoff = NULL,
+           erf_increment = NULL,
+           erf_shape = NULL,
            erf_c = NULL){
 
     # The function assumes that the user of the package does not define the function entirely,
     # but using arguments such as exp, cutoff, erf_increment and erf_shape
-    # Therefore, the default value of the argument erf_full is FALSE
+    # Therefore, the default value of the argument erf_c should be NULL
     # If the user enter a TRUE, erf_c is read. Otherwise the arguments
     # exp, cutoff, erf_increment and erf_shape.
 
     # Let's write the exposure-response function (erf)
-    # based on c (concentration) as single argument
+    # based on c (concentration) as single data
 
     # A first (and most usual) option is to define the erf using
     # the shape of the function (erf_shape) and
     # the relative risk from the literature
 
-    if(erf_full == FALSE){
+
+
+    if(is.null(erf_c)){
 
 
       if(erf_shape == "linear"){
@@ -83,10 +82,11 @@ get_risk <-
     }
 
 
-    # A second (and less usual) option is to define the erf using
+    # A second option is to define the erf using
     # an own defined option
 
-    if(erf_full == TRUE){
+    if(!is.null(erf_c) & is.character(erf_c)){
+
 
       erf <- function(c){
         # eval() and parse() convert the string into a function
@@ -96,9 +96,39 @@ get_risk <-
 
     }
 
+    # A third option is to define the erf using
+    # a set of points (x = exposure, y = relative risk)
+    # It will be assumed that
+
+    if(!is.null(erf_c) & is.data.frame(erf_c)){
+
+
+      x <-
+        ifelse("c" %in% names(erf_c),
+               erf_c$c,
+               ifelse("x" %in% names(erf_c),
+                      erf_c$x,
+                      erf_c[, 1]))
+
+      y <-
+        ifelse("rr" %in% names(erf_c),
+               erf_c$rr,
+               ifelse("y" %in% names(erf_c),
+                      erf_c$y,
+                      erf_c[, 2]))
+
+
+      erf <-
+        stats::splinefun(
+          x = x,
+          y = y,
+          method = "natural")
+
+    }
+
     # rr for the specific concentration
     rr_c <-
-      erf(c = exp)
+      erf(exp)
 
     return(rr_c)
 

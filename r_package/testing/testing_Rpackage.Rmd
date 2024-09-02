@@ -28,6 +28,7 @@ library(purrr)
 library(stringr)
 library(tibble)
 library(zoo)
+library(stats)
 
 # to set colors in console messages (checking)
 library(crayon)
@@ -155,7 +156,27 @@ system.time(bestcost_pm_copd_geo <-
 ```
 
 
-```{r single exposure value and relative risk}
+```{r single exposure value and user-defined points for relative risk}
+
+# Assess attributable cases using the AirQ+ export as input data
+bestcost_pm_copd_1rr <-
+  bestcost::attribute_health(
+    exp_central = airqplus_pm_copd$mean_concentration,
+    cutoff = airqplus_pm_copd$cut_off_value,   
+    bhd_central = airqplus_pm_copd$incidents_per_100_000_per_year/1E5*airqplus_pm_copd$population_at_risk,
+    # GBD2019 ERF for PM and lower respiratory infections
+    erf_c_central = 
+      data.frame(
+        x = c(600,500,400,300,200,150,130,110,90,70,50,30,25,20,15,10,5,0),
+        y = c(2.189,2.143,2.098,2.052,1.909,1.751,1.68,1.607,1.533,1.453,1.357,1.238,1.204,1.168,1.129,1.089,1.046,	1)),
+    info = paste0(airqplus_pm_copd$pollutant,"_", airqplus_pm_copd$evaluation_name))
+
+
+#TODO: Make an automatic comparison to always check if the result is right
+```
+
+
+```{r single exposure value and relative risk with monetization}
 
 # Assess attributable cases using the AirQ+ export as input data
 bestcost_pm_copd_1rr <-
@@ -213,9 +234,9 @@ bestcost_noise_ihd_expDist <-
     valuation = 1000,
     info = data.frame(pollutant = "road_noise", outcome = "YLD"))
 
-# View(bestcost_noise_ihd_expDist)
+View(bestcost_noise_ihd_expDist)
 
-check_bestcost(result_list_bestcost = bestcost_noise_ihd_expDist,
+# check_bestcost(result_list_bestcost = bestcost_noise_ihd_expDist,
                result_vector_alternative = niph_noise_ihd_result)
 
 # Obtain attributable cases using the bestcost package
@@ -265,7 +286,7 @@ bestcost_noise_ha_ar <-
     exp_central = niph_noise_ha_input$exposure_mean,
     pop_exp = niph_noise_ha_input$population_exposed_total, 
     erf_c_central = "78.9270-3.1162*c+0.0342*c^2",
-    # valuation = 1000, # Results change with valuation ####
+    valuation = 1000,
     info = data.frame(pollutant = "road_noise", outcome = "highly_annoyance"))
 
 # View(bestcost_noise_ha_ar)
@@ -314,7 +335,21 @@ bestcost_pm_yld_singlebhd  <-
 check_bestcost(result_list_bestcost = bestcost_pm_yld_singlebhd ,
                result_vector_alternative = c(525, 277, 768)) # Result on 16 May 2024
 
+# Summary uncertainty
+bestcost_pm_yld_ci <- get_ci(paf = bestcost_pm_yld_singlebhd$main$pop_fraction[1], # PAF central estimate
+                             bhd_central = bestcost_pm_yld_singlebhd$main$bhd[1],
+                             bhd_lower = 0.5 * bestcost_pm_yld_singlebhd$main$bhd[1],
+                             bhd_upper = 1.5 * bestcost_pm_yld_singlebhd$main$bhd[1],
+                             duration_central = 10,
+                             duration_lower = 5,
+                             duration_upper = 15,
+                             dw_central = 0.5,
+                             dw_lower = 0.25,
+                             dw_upper = 0.75)
+
+View(bestcost_pm_yld_ci)
 ```
+
 
 
 ### Life table
@@ -812,7 +847,7 @@ comparison_singlebhd_ar_delta <-
     pop_exp_1 = c(387500, 286000, 191800, 72200, 7700), # Values as example provided by NIPH
     pop_exp_2 = c(387500, 286000, 191800, 72200, 7700), # Fake values
     erf_c_central = "78.9270-3.1162*c+0.0342*c^2",
-    # valuation = 1000, # Results change with valuation ####
+    valuation = 1000, # Results change with valuation ####
     info_1 = data.frame(pollutant = "road_noise", outcome = "highly_annoyance", year = 2020),
     info_2 = data.frame(pollutant = "road_noise", outcome = "highly_annoyance", year = 2022)
     )
@@ -970,7 +1005,7 @@ check_bestcost(result_list_bestcost = comparison_yld_singlebhd_rr_pif_geo ,
 
 ### Lifetable
 
-```{r comparison deaths lifetable, warning=FALSE}
+```{r comparison deaths lifetable, warning=TRUE}
 
 # DELTA
 
