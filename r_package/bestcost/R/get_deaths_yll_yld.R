@@ -43,12 +43,22 @@ get_deaths_yll_yld <-
           pop_impact_nest %>%
           purrr::map(.,
           function(.x){
-            .x <- .x %>%
+
+            # Set values in upper triangle to NA (also removes newborns values)
+            if(outcome_metric == "deaths"){ # If TRUE Select columns containing "deaths"
+              .x <- .x %>%
+              dplyr::mutate(
+                across(contains("deaths"),
+                       ~ . %>%
+                         { `[<-`(., upper.tri(., diag = FALSE), NA) }))
+            } else {                        # ELSE Select columns containing "population"
+              .x <- .x %>%
               # Set values in upper triangle to NA (also removes newborns values)
               dplyr::mutate(
                 across(contains("population"),
                        ~ . %>%
-                         { `[<-`(., upper.tri(., diag = FALSE), NA) }))
+                         { `[<-`(., upper.tri(., diag = FALSE), NA) }))}
+
             # Filter keeping only the relevant age
             # use {{}} to refer to the argument and avoid warnings
             if(!is.null({{max_age}})){
@@ -125,7 +135,7 @@ get_deaths_yll_yld <-
             if(outcome_metric == "deaths"){
               .x <-
                 .x %>%
-                dplyr::select(.,all_of(paste0("population_", year_of_analysis))) %>%
+                dplyr::select(.,all_of(paste0("deaths_", year_of_analysis))) %>%
                 sum(., na.rm = TRUE)
             }
 

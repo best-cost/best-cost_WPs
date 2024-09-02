@@ -122,16 +122,15 @@ attribute <-
                             duration = duration,
                             pop_fraction_type = "paf")
 
-    # Monetize
-    if (is.null(valuation) == FALSE){
-      impact_raw <-
-        bestcost:::monetize(impact_raw)
-    }
-
     # Get the main and detailed output by aggregating and/or filtering cases (rows)
     output <-
       bestcost:::get_output(impact_raw)
 
+    # Monetize
+    if ( ( is.null(valuation) == FALSE) ) {
+      output <-
+        bestcost:::monetize(output)
+    }
 
 
 
