@@ -18,9 +18,9 @@ attribute(
   rr_upper = NULL,
   erf_increment = NULL,
   erf_shape = NULL,
-  erf_c_central = NULL,
-  erf_c_lower = NULL,
-  erf_c_upper = NULL,
+  erf_x_central = NULL,
+  erf_x_lower = NULL,
+  erf_x_upper = NULL,
   bhd_central = NULL,
   bhd_lower = NULL,
   bhd_upper = NULL,
@@ -97,7 +97,7 @@ attribute(
 
 \item{info}{\code{String} or {data frame} showing additional information or id. The suffix "info" will be added to the column name. Default value = NULL.}
 
-\item{erf_c}{\code{String} showing the user-defined function that puts the relative risk in relation with concentration. The function must have only one variable: c, which means concentration. E.g. "3+c+c^2". Default value = NULL.<<<<<<< HEAD}
+\item{erf_x}{\code{String} showing the user-defined function that puts the relative risk in relation with concentration. The function must have only one variable: c, which means concentration. E.g. "3+c+c^2". Default value = NULL.<<<<<<< HEAD}
 }
 \value{
 TBD. E.g. This function returns a \code{data.frame} with one row for each value of the

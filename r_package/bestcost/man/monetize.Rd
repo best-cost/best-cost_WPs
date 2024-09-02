@@ -4,7 +4,7 @@
 \alias{monetize}
 \title{monetize}
 \usage{
-monetize(impact_raw)
+monetize(output)
 }
 \arguments{
 \item{impact_raw}{}

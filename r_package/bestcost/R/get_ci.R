@@ -14,8 +14,7 @@
 #' @author Axel Luyten
 #' @note Experimental function
 #' @export
-#' @import prevalence
-#' @import dplyr
+
 
 get_ci <- function(paf = 0.1,
                    bhd_central = 100000, bhd_lower = 50000, bhd_upper = 150000,

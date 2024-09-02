@@ -21,7 +21,7 @@
 attribute_health_ar <-
   function(exp_central, exp_lower = NULL, exp_upper = NULL,
            pop_exp,
-           erf_c_central, erf_c_lower = NULL, erf_c_upper = NULL,
+           erf_x_central, erf_x_lower = NULL, erf_x_upper = NULL,
            geo_id_raw = NULL, geo_id_aggregated = NULL,
            valuation = NULL,
            info = NULL){
@@ -37,7 +37,7 @@ attribute_health_ar <-
         rr_central = NULL, rr_lower = NULL, rr_upper = NULL,
         erf_increment = NULL,
         erf_shape = NULL,
-        erf_c_central = erf_c_central, erf_c_lower = erf_c_lower, erf_c_upper = erf_c_upper,
+        erf_x_central = erf_x_central, erf_x_lower = erf_x_lower, erf_x_upper = erf_x_upper,
         bhd_central = NULL, bhd_lower = NULL, bhd_upper = NULL,
         approach_exposure = NULL,
         approach_newborns = NULL,
