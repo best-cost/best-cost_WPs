@@ -12,8 +12,10 @@
 monetize <- function(output) {
 
   output[["main"]] <- output[["main"]] %>%
-    mutate(impact_monetized = valuation * impact, .after = impact) %>%
-    mutate(impact_monetized_rounded = round(impact_monetized), .after = impact_rounded)
+    dplyr::mutate(impact_monetized = as.numeric(valuation) * as.numeric(impact),
+                  .after = impact) %>%
+    dplyr::mutate(impact_monetized_rounded = round(impact_monetized),
+                  .after = impact_rounded)
 
   return(output)
 

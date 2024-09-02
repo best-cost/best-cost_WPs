@@ -79,7 +79,7 @@ get_output <-
         output_last %>%
         # Group by higher geo level
         dplyr::group_by(., across(all_of(intersect(c("geo_id_aggregated", "exp_ci",
-                                                  "bhd_ci", "erf_ci","dw_ci"),
+                                                     "bhd_ci", "erf_ci","dw_ci", "valuation"),
                                                 names(.)))))%>%
         dplyr::summarise(impact = sum(impact),
                          impact_rounded = round(impact),

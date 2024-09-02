@@ -234,7 +234,7 @@ bestcost_noise_ihd_expDist <-
     valuation = 1000,
     info = data.frame(pollutant = "road_noise", outcome = "YLD"))
 
-View(bestcost_noise_ihd_expDist)
+#View(bestcost_noise_ihd_expDist)
 
  check_bestcost(result_list_bestcost = bestcost_noise_ihd_expDist,
                result_vector_alternative = niph_noise_ihd_result)
@@ -347,7 +347,7 @@ bestcost_pm_yld_ci <- get_ci(paf = bestcost_pm_yld_singlebhd$main$pop_fraction[1
                              dw_lower = 0.25,
                              dw_upper = 0.75)
 
-View(bestcost_pm_yld_ci)
+#View(bestcost_pm_yld_ci)
 ```
 
 
