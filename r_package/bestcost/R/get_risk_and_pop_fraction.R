@@ -25,10 +25,10 @@ get_risk_and_pop_fraction <-
   function(input,
            pop_fraction_type){
 
-    # Check if erf_c is NULL before going into get_risk
+    # Check if erf_x is NULL before going into get_risk
     # Otherwise the variable is created without value and cannot be evaluated
-    # We need to know erf_c is NULL if statements within get_risk
-    if(!"erf_c" %in% names(input)){erf_c <- NULL}
+    # We need to know erf_x is NULL if statements within get_risk
+    if(!"erf_x" %in% names(input)){erf_x <- NULL}
 
     # Calculate health impact attributable to exposure ####
     input_with_risk_and_pop_fraction <-
@@ -46,7 +46,7 @@ get_risk_and_pop_fraction <-
                                            cutoff = cutoff,
                                            erf_increment = erf_increment,
                                            erf_shape = erf_shape,
-                                           erf_c = erf_c))
+                                           erf_x = erf_x))
         else
           dplyr::mutate(.,
                         rr_conc_1 =
@@ -55,14 +55,14 @@ get_risk_and_pop_fraction <-
                                              cutoff = cutoff,
                                              erf_increment = erf_increment,
                                              erf_shape = erf_shape,
-                                             erf_c = erf_c),
+                                             erf_x = erf_x),
                         rr_conc_2 =
                           bestcost::get_risk(rr = rr,
                                              exp = exp_2,
                                              cutoff = cutoff,
                                              erf_increment = erf_increment,
                                              erf_shape = erf_shape,
-                                             erf_c = erf_c))}%>%
+                                             erf_x = erf_x))}%>%
 
       # # Calculate relative risk based on "pop_fraction_type"
       # dplyr::mutate(
@@ -75,7 +75,7 @@ get_risk_and_pop_fraction <-
       #         cutoff = cutoff,
       #         erf_increment = erf_increment,
       #         erf_shape = erf_shape,
-      #         erf_c = erf_c),
+      #         erf_x = erf_x),
       #     TRUE ~ NA_real_  # If not 'paf', set rr_conc to NA
       #   ),
       #
@@ -87,7 +87,7 @@ get_risk_and_pop_fraction <-
       #       cutoff = cutoff,
       #       erf_increment = erf_increment,
       #       erf_shape = erf_shape,
-      #       erf_c = erf_c
+      #       erf_x = erf_x
       #     ),
       #     TRUE ~ NA_real_  # If 'paf', set rr_conc_1 to NA
       #   ),
@@ -98,7 +98,7 @@ get_risk_and_pop_fraction <-
       #       cutoff = cutoff,
       #       erf_increment = erf_increment,
       #       erf_shape = erf_shape,
-      #       erf_c = erf_c
+      #       erf_x = erf_x
       #     ),
       #     TRUE ~ NA_real_  # If 'paf', set rr_conc_2 to NA
       #   )

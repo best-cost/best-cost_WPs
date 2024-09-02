@@ -165,7 +165,7 @@ bestcost_pm_copd_1rr <-
     cutoff = airqplus_pm_copd$cut_off_value,   
     bhd_central = airqplus_pm_copd$incidents_per_100_000_per_year/1E5*airqplus_pm_copd$population_at_risk,
     # GBD2019 ERF for PM and lower respiratory infections
-    erf_c_central = 
+    erf_x_central = 
       data.frame(
         x = c(600,500,400,300,200,150,130,110,90,70,50,30,25,20,15,10,5,0),
         y = c(2.189,2.143,2.098,2.052,1.909,1.751,1.68,1.607,1.533,1.453,1.357,1.238,1.204,1.168,1.129,1.089,1.046,	1)),
@@ -234,9 +234,9 @@ bestcost_noise_ihd_expDist <-
     valuation = 1000,
     info = data.frame(pollutant = "road_noise", outcome = "YLD"))
 
-View(bestcost_noise_ihd_expDist)
+#View(bestcost_noise_ihd_expDist)
 
-# check_bestcost(result_list_bestcost = bestcost_noise_ihd_expDist,
+ check_bestcost(result_list_bestcost = bestcost_noise_ihd_expDist,
                result_vector_alternative = niph_noise_ihd_result)
 
 # Obtain attributable cases using the bestcost package
@@ -285,7 +285,7 @@ bestcost_noise_ha_ar <-
   bestcost::attribute_health_ar(
     exp_central = niph_noise_ha_input$exposure_mean,
     pop_exp = niph_noise_ha_input$population_exposed_total, 
-    erf_c_central = "78.9270-3.1162*c+0.0342*c^2",
+    erf_x_central = "78.9270-3.1162*c+0.0342*c^2",
     valuation = 1000,
     info = data.frame(pollutant = "road_noise", outcome = "highly_annoyance"))
 
@@ -305,7 +305,7 @@ bestcost_noise_ha_ar_geo <-
     pop_exp = list(runif_with_seed(5,5E3,1E4,1), 
                    runif_with_seed(5,5E3,1E4,2), 
                    runif_with_seed(5,5E3,1E4,3)), 
-    erf_c_central = "78.9270-3.1162*c+0.0342*c^2",
+    erf_x_central = "78.9270-3.1162*c+0.0342*c^2",
     geo_id_raw = 1:3,
     valuation = 1000,
     info = data.frame(pollutant = "road_noise", outcome = "highly_annoyance"))
@@ -347,7 +347,7 @@ bestcost_pm_yld_ci <- get_ci(paf = bestcost_pm_yld_singlebhd$main$pop_fraction[1
                              dw_lower = 0.25,
                              dw_upper = 0.75)
 
-View(bestcost_pm_yld_ci)
+#View(bestcost_pm_yld_ci)
 ```
 
 
@@ -846,7 +846,7 @@ comparison_singlebhd_ar_delta <-
     exp_central_2 = c(50, 55, 60, 65, 75), # Fake values
     pop_exp_1 = c(387500, 286000, 191800, 72200, 7700), # Values as example provided by NIPH
     pop_exp_2 = c(387500, 286000, 191800, 72200, 7700), # Fake values
-    erf_c_central = "78.9270-3.1162*c+0.0342*c^2",
+    erf_x_central = "78.9270-3.1162*c+0.0342*c^2",
     valuation = 1000, # Results change with valuation ####
     info_1 = data.frame(pollutant = "road_noise", outcome = "highly_annoyance", year = 2020),
     info_2 = data.frame(pollutant = "road_noise", outcome = "highly_annoyance", year = 2022)
@@ -866,7 +866,7 @@ comparison_singlebhd_ar_delta_geo <-
     exp_central_2 = list(c(50, 55, 60, 65, 75), c(50.5, 55.5, 60.5, 65.5, 75.5)), # Fake values
     pop_exp_1 = list(c(387500, 286000, 191800, 72200, 7700), c(380000, 280000, 190800, 72000, 7000)), # Fake values
     pop_exp_2 = list(c(387500, 286000, 191800, 72200, 7700), c(380000, 280000, 190800, 72000, 7000)), # Fake values
-    erf_c_central = "78.9270-3.1162*c+0.0342*c^2",
+    erf_x_central = "78.9270-3.1162*c+0.0342*c^2",
     info_1 = data.frame(pollutant = "road_noise", outcome = "highly_annoyance", year = 2020),
     info_2 = data.frame(pollutant = "road_noise", outcome = "highly_annoyance", year = 2022),
     geo_id_raw = c("a", "b"),
