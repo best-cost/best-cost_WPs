@@ -46,7 +46,7 @@ Software dependencies
     - geopandas
     - rasterio
     - sqlalchemy
-    - 
+    - tqdm
     
 How to access the mapped data
 -----------------------------
