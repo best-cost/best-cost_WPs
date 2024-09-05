@@ -33,7 +33,7 @@ compile_input <-
            rr_central, rr_lower = NULL, rr_upper = NULL,
            erf_increment = NULL,
            erf_shape = NULL,
-           erf_c_central = NULL, erf_c_lower = NULL, erf_c_upper = NULL,
+           erf_x_central = NULL, erf_x_lower = NULL, erf_x_upper = NULL,
            bhd_central = NULL, bhd_lower = NULL, bhd_upper = NULL,
            min_age = NULL,
            max_age = NULL,
@@ -71,7 +71,7 @@ compile_input <-
     # PROCESS ERF ######################################################################
 
     # If the erf is defined by rr, increment, shape and cutoff
-    if(is.null(erf_c_central)){
+    if(is.null(erf_x_central)){
 
       erf_data <- # 1 x 6 tibble
         dplyr::tibble(
@@ -84,26 +84,26 @@ compile_input <-
     }
 
     # If it is defined by the erf function
-    if(!is.null(erf_c_central) & is.character(erf_c_central)){
+    if(!is.null(erf_x_central) & is.character(erf_x_central)){
 
         erf_data <- # 1 x 3 tibble
           dplyr::tibble(
-            erf_c_central = erf_c_central,
-            erf_c_lower = erf_c_lower,
-            erf_c_upper = erf_c_upper)
+            erf_x_central = erf_x_central,
+            erf_x_lower = erf_x_lower,
+            erf_x_upper = erf_x_upper)
     }
 
-    if(!is.null(erf_c_central) & is.data.frame(erf_c_central)){
+    if(!is.null(erf_x_central) & is.data.frame(erf_x_central)){
 
         erf_data <- # 1 x 3 tibble
           dplyr::tibble(
-            erf_c_central = list(erf_c_central)) %>%
+            erf_x_central = list(erf_x_central)) %>%
 
           # If a confidence interval for the erf is provided, add the erf columns
-          {if (!is.null(erf_c_lower) & !is.null(erf_c_upper))
+          {if (!is.null(erf_x_lower) & !is.null(erf_x_upper))
             dplyr::mutate(.,
-              erf_c_lower = list(erf_c_lower),
-              erf_c_upper = list(erf_c_upper))
+              erf_x_lower = list(erf_x_lower),
+              erf_x_upper = list(erf_x_upper))
             else .}
         }
 
@@ -189,7 +189,7 @@ compile_input <-
                           names_prefix = "exp_",
                           values_to = "exp") %>%
       ## Exposure response function,
-      {if(is.null(erf_c_central))
+      {if(is.null(erf_x_central))
         tidyr::pivot_longer(.,
                             cols = starts_with("rr_"),
                             names_to = "erf_ci",
@@ -197,10 +197,10 @@ compile_input <-
                             values_to = "rr")
         else
           tidyr::pivot_longer(.,
-                              cols = starts_with("erf_c_"),
+                              cols = starts_with("erf_x_"),
                               names_to = "erf_ci",
-                              names_prefix = "erf_c_",
-                              values_to = "erf_c")} %>%
+                              names_prefix = "erf_x_",
+                              values_to = "erf_x")} %>%
       ## Baseline health data,
       {if(!is.null(bhd_central))
         tidyr::pivot_longer(.,

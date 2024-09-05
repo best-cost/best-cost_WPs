@@ -10,7 +10,7 @@
 #' @param rr_central,rr_lower,rr_upper Three \code{numeric values} referring to the central estimate of the relative risk and the corresponding lower and upper 95\% confidence interval bounds.
 #' @param erf_increment \code{Numeric value} showing the increment of the exposure-response function in ug/m3 (usually 10 or 5).
 #' @param erf_shape \code{String} showing the shape of the exposure-response function to be assumed using the relative risk from the literature as support point. Options: "linear", log_linear", "linear_log", "log_log".
-#' @param erf_c \code{String} showing the user-defined function that puts the relative risk in relation with concentration. The function must have only one variable: c, which means concentration. E.g. "3+c+c^2". Default value = NULL.<<<<<<< HEAD
+#' @param erf_x \code{String} showing the user-defined function that puts the relative risk in relation with concentration. The function must have only one variable: c, which means concentration. E.g. "3+c+c^2". Default value = NULL.<<<<<<< HEAD
 #' @param approach_exposure \code{String} showing whether air pollution is constant or only in one year. Options: "single_year" (default), "constant"
 #' @param approach_newborns \code{String} showing whether newborns are considered in the years after the year of analysis. Options: "without_newborns" (default), "with_newborns"
 #' @param first_age_pop \code{Numeric value} starting age of the youngest age group from population and life table data (age interval = 1 year)
@@ -51,7 +51,7 @@ attribute <-
            rr_central = NULL, rr_lower = NULL, rr_upper = NULL,
            erf_increment = NULL,
            erf_shape = NULL,
-           erf_c_central = NULL, erf_c_lower = NULL, erf_c_upper = NULL,
+           erf_x_central = NULL, erf_x_lower = NULL, erf_x_upper = NULL,
            bhd_central = NULL, bhd_lower = NULL, bhd_upper = NULL,
            # Lifetable arguments
            approach_exposure = NULL,
@@ -87,7 +87,7 @@ attribute <-
         rr_central = rr_central, rr_lower = rr_lower, rr_upper = rr_upper,
         erf_increment = erf_increment,
         erf_shape = erf_shape,
-        erf_c_central = erf_c_central, erf_c_lower = erf_c_lower, erf_c_upper = erf_c_upper,
+        erf_x_central = erf_x_central, erf_x_lower = erf_x_lower, erf_x_upper = erf_x_upper,
         bhd_central = bhd_central, bhd_lower = bhd_lower, bhd_upper = bhd_upper,
         geo_id_raw = geo_id_raw,
         geo_id_aggregated = geo_id_aggregated,
@@ -122,16 +122,15 @@ attribute <-
                             duration = duration,
                             pop_fraction_type = "paf")
 
-    # Monetize
-    if (is.null(valuation) == FALSE){
-      impact_raw <-
-        bestcost:::monetize(impact_raw)
-    }
-
     # Get the main and detailed output by aggregating and/or filtering cases (rows)
     output <-
       bestcost:::get_output(impact_raw)
 
+    # Monetize
+    if ( ( is.null(valuation) == FALSE) ) {
+      output <-
+        bestcost:::monetize(output)
+    }
 
 
 
