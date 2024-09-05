@@ -8,7 +8,7 @@ This folder contains the Python scripts, SQL scripts and QGIS project file used 
 
 As can be seen in the preprocessing scripts, all used spatial data are organized as layers in a single geopackage, which is essentially an SQLite database file. The QGIS project file contains several SQL scripts that query, combine and enhance these data to make them suitable for specific map products. The SQL scripts can be accessed via the SQL Window in the DB manager add-on when opening the QGIS project. Copies of these SQL scripts have also been included as sql-files in the subfolder 'Queries', because the Python script generating the support graphs draws on these files to reproduce the data mapped in QGIS.
 
-For more information on the challenges and the proposed methodological framework that underpin this work, we refer you to the report of Task 3.2 that can also be found on the BEST-COST WP3 SharePoint.
+For more information on the challenges and the proposed methodological framework that underpin this work, we refer you to the report of Task 3.2 that can be found on the BEST-COST WP3 SharePoint.
 
 Included scripts
 ----------------
@@ -38,7 +38,7 @@ Software dependencies
 ---------------------
 
 - QGIS
-- Python (10+)
+- Python (3.10+)
     - matplotlib
     - numpy
     - gdal
