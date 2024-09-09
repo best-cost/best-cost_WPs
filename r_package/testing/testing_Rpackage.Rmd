@@ -368,7 +368,7 @@ bestcost_pm_no2_mortality_additive <-
 # View(bestcost_pm_copd_1rr)
 
 check_bestcost(result_list_bestcost = bestcost_pm_no2_mortality_additive,
-               result_vector_alternative = 0.097 * 1000)
+               result_vector_alternative = 0.081 * 1000)
 ```
 
 

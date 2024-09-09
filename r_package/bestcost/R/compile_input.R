@@ -85,6 +85,7 @@ compile_input <-
 
       erf_data <- # 1 x 6 tibble
         dplyr::tibble(
+          exposure_type = names(rr_central),
           erf_increment = erf_increment,
           erf_shape = erf_shape,
           cutoff = cutoff,
@@ -93,16 +94,17 @@ compile_input <-
           rr_upper = rr_upper)
     }
 
-    # If it is defined by the erf function
+    # If it is defined by the erf function as string
     if(!is.null(erf_eq_central) & is.character(erf_eq_central)){
 
         erf_data <- # 1 x 3 tibble
           dplyr::tibble(
+            exposure_type = names(rr_central = rr_central),
             erf_eq_central = erf_eq_central,
             erf_eq_lower = erf_eq_lower,
             erf_eq_upper = erf_eq_upper)
     }
-
+    # If it is defined by the erf function as function
     if(!is.null(erf_eq_central) & is.function(erf_eq_central)){
 
         erf_data <- # 1 x 3 tibble

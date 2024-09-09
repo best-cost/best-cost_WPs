@@ -36,9 +36,11 @@ get_risk_and_pop_fraction <-
       # Add input
       dplyr::mutate(pop_fraction_type = pop_fraction_type) %>%
       # For the calculations below rowwise approach is needed
-      dplyr::rowwise(.) %>%
+      # Specifically when more than one exposure type is considered
+
       # Obtain the relative risk for the relevant concentration
       {if({{pop_fraction_type}} == "paf")
+        dplyr::rowwise(.)%>%
         dplyr::mutate(.,
                       rr_conc =
                         bestcost::get_risk(rr = rr,
@@ -118,6 +120,7 @@ get_risk_and_pop_fraction <-
       # dplyr::group_by(if("geo_id_raw" %in% names(input)){geo_id_raw}, exp_ci, erf_ci)%>%
 
       {if({{pop_fraction_type}} == "paf")
+        dplyr::rowwise(.)%>%
         dplyr::mutate(.,
                       pop_fraction =
                         bestcost::get_pop_fraction(rr_conc_1 = rr_conc,
