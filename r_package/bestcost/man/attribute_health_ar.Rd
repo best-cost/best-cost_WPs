@@ -23,7 +23,7 @@ attribute_health_ar(
 
 \item{pop_exp}{\code{Numeric value} or {vector} showing the population exposed for each of the exposure categories. The length of this input variable must be the same as "exp".}
 
-\item{erf_eq_central, erf_eq_lower, erf_eq_upper}{\code{String} showing the user-defined function that puts the relative risk in relation with concentration. The function must have only one variable:x, which means concentration. E.g. "3+x+x^2".}
+\item{erf_eq_central, erf_eq_lower, erf_eq_upper}{Equation of the user-defined exposure-response function that puts the relative risk (y) in relation with exposure (x). If the function is provided as \code{string}, it can only contains one variable: x (exposure). E.g. "3+x+x^2". If the function is provided as a \code{function}, the object should have a function class. If only the values of the x-axis (exposure) and y axis (relative risk) of the dots in the exposure-response function are available, a cubic spline natural interpolation can be assumed to get the function using, e.g., \code{stats::splinefun(x, y, method="natural")}}
 
 \item{geo_id_raw}{\code{Vector} showing the id code of the each geographic area considered in the assessment. If a vector is entered here, the data for each geographical area have to be provided as list in the corresponding arguments.}
 
