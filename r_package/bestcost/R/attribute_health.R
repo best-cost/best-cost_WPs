@@ -24,23 +24,24 @@
 #' @export
 
 attribute_health <-
-  function(
-      exp_central, exp_lower = NULL, exp_upper = NULL,
-      prop_pop_exp = 1,
-      cutoff,
-      rr_central = NULL, rr_lower = NULL, rr_upper = NULL,
-      erf_increment = NULL,
-      erf_shape = NULL,
-      erf_eq_central = NULL, erf_eq_lower = NULL, erf_eq_upper = NULL,
-      bhd_central, bhd_lower = NULL, bhd_upper = NULL,
-      geo_id_raw = NULL, geo_id_aggregated = NULL,
-      valuation = NULL,
-      info = NULL){
+  function(approach_multipollutant = NULL,
+           exp_central, exp_lower = NULL, exp_upper = NULL,
+           prop_pop_exp = 1,
+           cutoff,
+           rr_central = NULL, rr_lower = NULL, rr_upper = NULL,
+           erf_increment = NULL,
+           erf_shape = NULL,
+           erf_eq_central = NULL, erf_eq_lower = NULL, erf_eq_upper = NULL,
+           bhd_central, bhd_lower = NULL, bhd_upper = NULL,
+           geo_id_raw = NULL, geo_id_aggregated = NULL,
+           valuation = NULL,
+           info = NULL){
 
     output <-
       bestcost::attribute(
         health_metric = "same_input_output",
         approach_risk = "relative_risk",
+        approach_multipollutant = approach_multipollutant,
         exp_central = exp_central, exp_lower = exp_lower, exp_upper = exp_upper,
         prop_pop_exp = prop_pop_exp,
         pop_exp = NULL,

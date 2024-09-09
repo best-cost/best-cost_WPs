@@ -6,6 +6,7 @@
 Calculates the year lived with disability between two scenarios (e.g. before and after a intervention in a health impact assessments). It provides as a result the central estimate as well as the lower and the higher bound of the confidence interval based on the uncertainty of the exposure-response function.}
 \usage{
 compare_yld_from_lifetable(
+  approach_multipollutant = NULL,
   approach_comparison = "delta",
   exp_central_1,
   exp_lower_1 = NULL,

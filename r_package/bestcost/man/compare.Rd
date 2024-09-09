@@ -6,6 +6,7 @@
 Calculates the health impacts between two scenarios (e.g. before and after a intervention in a health impact assessments). It provides as a result the central estimate as well as the lower and the higher bound of the confidence interval based on the uncertainty of the exposure-response function.}
 \usage{
 compare(
+  approach_multipollutant = NULL,
   approach_comparison = "delta",
   health_metric = "same_input_output",
   approach_risk = "relative_risk",

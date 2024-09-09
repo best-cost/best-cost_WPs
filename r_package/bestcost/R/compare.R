@@ -53,7 +53,8 @@
 #' @note Experimental function
 #' @export
 compare <-
-  function(approach_comparison = "delta",
+  function(approach_multipollutant = NULL,
+           approach_comparison = "delta",
            health_metric = "same_input_output",
            approach_risk = "relative_risk",
            exp_central_1, exp_lower_1 = NULL, exp_upper_1 = NULL,
@@ -98,6 +99,7 @@ compare <-
     # Calculate attributable health impacts in the scenario 1
     impact_raw_1 <-
       bestcost::attribute(
+        approach_multipollutant = approach_multipollutant,
         approach_risk = approach_risk,
         health_metric = health_metric,
         exp_central = exp_central_1, exp_lower = exp_lower_1, exp_upper = exp_upper_1,

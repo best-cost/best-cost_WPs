@@ -60,6 +60,15 @@ compile_input <-
     #   is.null(max_age) == FALSE
     # })
 
+
+    # PROCESS MULTIPLE EXPOSURE #########################################################
+    # If multiple exposures are considered at the same time
+    if(!is.null(approach_multipollutant)){
+      geo_id_raw <-
+        as.character(ifelse(is.list({{exp_central}}), 1:length({{exp_central}}), 1))
+    }
+
+
     # PROCESS GEO ID ###################################################################
     # If no geo_id_raw is provided (if is NULL) then assign some value.
     ## geo_id_raw is needed to group results in case of multiple geo_ids

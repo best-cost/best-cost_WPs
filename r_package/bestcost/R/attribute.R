@@ -43,6 +43,7 @@
 
 attribute <-
   function(health_metric = "same_input_output",
+           approach_multipollutant = NULL,
            approach_risk = "relative_risk",
            exp_central, exp_lower = NULL, exp_upper = NULL,
            prop_pop_exp = 1,

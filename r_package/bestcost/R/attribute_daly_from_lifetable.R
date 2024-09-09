@@ -11,7 +11,8 @@
 #' @note Experimental function
 #' @export
 attribute_daly_from_lifetable <-
-  function(exp_central, exp_lower = NULL, exp_upper = NULL,
+  function(approach_multipollutant = NULL,
+           exp_central, exp_lower = NULL, exp_upper = NULL,
            prop_pop_exp = 1,
            cutoff,
            rr_central = NULL, rr_lower = NULL, rr_upper = NULL,
@@ -36,6 +37,7 @@ attribute_daly_from_lifetable <-
       bestcost::attribute(
         health_metric = "daly_from_lifetable",
         approach_risk = "relative_risk",
+        approach_multipollutant = approach_multipollutant,
         exp_central = exp_central, exp_lower = exp_lower, exp_upper = exp_upper,
         prop_pop_exp = prop_pop_exp,
         pop_exp = NULL,

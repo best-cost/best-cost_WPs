@@ -359,7 +359,7 @@ bestcost_pm_no2_mortality_additive <-
   bestcost::attribute_health(
     approach_multiexposure = "additive",
     exp_central = c("pm2.5" = 8.1, "no2" =  10.9),
-    cutoff =  c("pm2.5" = 0, "no2" =  0),
+    cutoff =  setNames(c(0, 0), c("pm2.5", "no2")),
     bhd_central = 1000, # Fake data just to get a similar value (PAF) as in the T1.4 report
     rr_central = setNames(c(1.063, 1.031), c("pm2.5", "no2")),
     erf_increment = 10, 
@@ -367,8 +367,8 @@ bestcost_pm_no2_mortality_additive <-
 
 # View(bestcost_pm_copd_1rr)
 
-check_bestcost(result_list_bestcost = bestcost_pm_copd,
-               result_vector_alternative = airqplus_pm_copd_result)
+check_bestcost(result_list_bestcost = bestcost_pm_no2_mortality_additive,
+               result_vector_alternative = 0.097 * 1000)
 ```
 
 
