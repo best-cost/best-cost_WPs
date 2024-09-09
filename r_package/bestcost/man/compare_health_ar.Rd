@@ -15,9 +15,9 @@ compare_health_ar(
   exp_upper_2 = NULL,
   pop_exp_1,
   pop_exp_2,
-  erf_x_central,
-  erf_x_lower = NULL,
-  erf_x_upper = NULL,
+  erf_eq_central,
+  erf_eq_lower = NULL,
+  erf_eq_upper = NULL,
   geo_id_raw = NULL,
   geo_id_aggregated = NULL,
   valuation = NULL,
@@ -35,6 +35,8 @@ compare_health_ar(
 \item{pop_exp_1}{\code{Numeric value} or {vector} showing the population exposed for each of the exposure categories for the scenario 1. The length of this input variable must be the same as "exp".}
 
 \item{pop_exp_2}{\code{Numeric value} or {vector} showing the population exposed for each of the exposure categories for the scenario 2. The length of this input variable must be the same as "exp".}
+
+\item{erf_eq_central, erf_eq_lower, erf_eq_upper}{Equation of the user-defined exposure-response function that puts the relative risk (y) in relation with exposure (x). If the function is provided as \code{string}, it can only contains one variable: x (exposure). E.g. "3+x+x^2". If the function is provided as a \code{function}, the object should have a function class. If only the values of the x-axis (exposure) and y axis (relative risk) of the dots in the exposure-response function are available, a cubic spline natural interpolation can be assumed to get the function using, e.g., \code{stats::splinefun(x, y, method="natural")}}
 
 \item{geo_id_raw}{\code{Vector} showing the id code of the each geographic area considered in the assessment. If a vector is entered here, the data for each geographical area have to be provided as list in the corresponding arguments.}
 

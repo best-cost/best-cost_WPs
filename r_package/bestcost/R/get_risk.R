@@ -11,10 +11,7 @@
 #' \code{Numeric value} showing the cut-off exposure in ug/m3 (i.e. the exposure level below which no health effects occur).
 #' @param erf_increment
 #' \code{Numeric value} showing the size of the increment in concentration related to the relative risk provided in the literature (e.g. for 10 ug/m3 PM2.5).
-#' @param erf_shape
-#' \code{String} showing the shape of the exposure-response function to be assumed using the relative risk from the literature as support point. Options: "linear", log_linear", "linear_log", "log_log".
-#' @param erf_x
-#' \code{String} refer to the user-defined function that puts the relative risk in relation with concentration. A string or a data frame can be entered. If a string is entered, it will be converted into a function. The string has to show the function in terms of one variable: "c", which means concentration. E.g. "3+c+c^2". If a data frame is entered, a first column (or with name "c" or "x") should refer to concentration (x-axis) while a second column (or with name "rr" or "y") should refer to relative risk for that concentration (y-axis). A cubic spline natural interpolation will be assumed. Default value = NULL.
+#' @param erf_eq \code Equation of the user-defined exposure-response function that puts the relative risk (y) in relation with exposure (x). If the function is provided as \code{string}, it can only contains one variable: x (exposure). E.g. "3+x+x^2". If the function is provided as a \code{function}, the object should have a function class. If only the values of the x-axis (exposure) and y axis (relative risk) of the dots in the exposure-response function are available, a cubic spline natural interpolation can be assumed to get the function using, e.g., \code{stats::splinefun(x, y, method="natural")}
 #' @return
 #' This function returns three \code{values} corresponding to the central estimate as well as the lower and upper bound of the exposure-response function.
 #' @examples
@@ -29,12 +26,12 @@ get_risk <-
            cutoff = NULL,
            erf_increment = NULL,
            erf_shape = NULL,
-           erf_x = NULL){
+           erf_eq = NULL){
 
     # The function assumes that the user of the package does not define the function entirely,
     # but using arguments such as exp, cutoff, erf_increment and erf_shape
-    # Therefore, the default value of the argument erf_x should be NULL
-    # If the user enter a TRUE, erf_x is read. Otherwise the arguments
+    # Therefore, the default value of the argument erf_eq should be NULL
+    # If the user enter a TRUE, erf_eq is read. Otherwise the arguments
     # exp, cutoff, erf_increment and erf_shape.
 
     # Let's write the exposure-response function (erf)
@@ -46,7 +43,7 @@ get_risk <-
 
 
 
-    if(is.null(erf_x)){
+    if(is.null(erf_eq)){
 
 
       if(erf_shape == "linear"){
@@ -85,12 +82,12 @@ get_risk <-
     # A second option is to define the erf using
     # an own defined option
 
-    if(!is.null(erf_x) & is.character(erf_x)){
+    if(!is.null(erf_eq) & is.character(erf_eq)){
 
 
       erf <- function(c){
         # eval() and parse() convert the string into a function
-        eval(parse(text = erf_x))
+        eval(parse(text = erf_eq))
 
       }
 
@@ -100,29 +97,11 @@ get_risk <-
     # a set of points (x = exposure, y = relative risk)
     # It will be assumed that
 
-    if(!is.null(erf_x) & is.data.frame(erf_x)){
+    if(!is.null(erf_eq) & is.function(erf_eq)){
 
 
-      x <-
-        ifelse("c" %in% names(erf_x),
-               erf_x$c,
-               ifelse("x" %in% names(erf_x),
-                      erf_x$x,
-                      erf_x[, 1]))
+     erf <- erf_eq
 
-      y <-
-        ifelse("rr" %in% names(erf_x),
-               erf_x$rr,
-               ifelse("y" %in% names(erf_x),
-                      erf_x$y,
-                      erf_x[, 2]))
-
-
-      erf <-
-        stats::splinefun(
-          x = x,
-          y = y,
-          method = "natural")
 
     }
 
