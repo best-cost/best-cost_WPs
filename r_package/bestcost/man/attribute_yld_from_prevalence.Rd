@@ -16,9 +16,9 @@ attribute_yld_from_prevalence(
   rr_upper = NULL,
   erf_increment,
   erf_shape,
-  erf_x_central = NULL,
-  erf_x_lower = NULL,
-  erf_x_upper = NULL,
+  erf_eq_central = NULL,
+  erf_eq_lower = NULL,
+  erf_eq_upper = NULL,
   bhd_central,
   bhd_lower = NULL,
   bhd_upper = NULL,
@@ -41,6 +41,8 @@ attribute_yld_from_prevalence(
 \item{erf_increment}{\code{Numeric value} showing the increment of the exposure-response function in ug/m3 (usually 10 or 5).}
 
 \item{erf_shape}{\code{String} showing the shape of the exposure-response function to be assumed using the relative risk from the literature as support point. Options: "linear", log_linear", "linear_log", "log_log".}
+
+\item{erf_eq_central, erf_eq_lower, erf_eq_upper}{\code{String} showing the user-defined function that puts the relative risk in relation with concentration. The function must have only one variable:x, which means concentration. E.g. "3+x+x^2".}
 
 \item{bhd_central, bhd_lower, bhd_upper}{\code{Numeric value} showing the central estimate and (optionally) the lower bound and the upper bound of the confidence interval of the baseline health data (e.g. incidence of the health outcome in the population).}
 

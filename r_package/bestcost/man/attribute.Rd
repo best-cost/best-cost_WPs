@@ -18,9 +18,9 @@ attribute(
   rr_upper = NULL,
   erf_increment = NULL,
   erf_shape = NULL,
-  erf_x_central = NULL,
-  erf_x_lower = NULL,
-  erf_x_upper = NULL,
+  erf_eq_central = NULL,
+  erf_eq_lower = NULL,
+  erf_eq_upper = NULL,
   bhd_central = NULL,
   bhd_lower = NULL,
   bhd_upper = NULL,
@@ -65,6 +65,8 @@ attribute(
 
 \item{erf_shape}{\code{String} showing the shape of the exposure-response function to be assumed using the relative risk from the literature as support point. Options: "linear", log_linear", "linear_log", "log_log".}
 
+\item{erf_eq_central, erf_eq_lower, erf_eq_upper}{\code{String} showing the user-defined function that puts the relative risk in relation with concentration. The function must have only one variable:x, which means concentration. E.g. "3+x+x^2".}
+
 \item{bhd_central, bhd_lower, bhd_upper}{\code{Numeric value} showing the central estimate and (optionally) the lower bound and the upper bound of the confidence interval of the baseline health data (e.g. incidence of the health outcome in the population).}
 
 \item{approach_exposure}{\code{String} showing whether air pollution is constant or only in one year. Options: "single_year" (default), "constant"}
@@ -96,8 +98,6 @@ attribute(
 \item{valuation}{\code{Numeric value} showing the value of statistical life which will be used in the health impact monetization}
 
 \item{info}{\code{String} or {data frame} showing additional information or id. The suffix "info" will be added to the column name. Default value = NULL.}
-
-\item{erf_x}{\code{String} showing the user-defined function that puts the relative risk in relation with concentration. The function must have only one variable: c, which means concentration. E.g. "3+c+c^2". Default value = NULL.<<<<<<< HEAD}
 }
 \value{
 TBD. E.g. This function returns a \code{data.frame} with one row for each value of the

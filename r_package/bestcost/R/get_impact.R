@@ -119,7 +119,7 @@ get_impact <-
       impact_raw_main <-
         input %>%
         dplyr::mutate(
-          absolute_risk_as_percent = bestcost::get_risk(exp = exp, erf_x = erf_x) ,
+          absolute_risk_as_percent = bestcost::get_risk(exp = exp, erf_eq = erf_eq) ,
           impact = absolute_risk_as_percent/100 * pop_exp)
 
       impact_raw = list(main = impact_raw_main)
