@@ -133,6 +133,7 @@ compare <-
     # Calculate attributable health impacts in the scenario 2
     impact_raw_2 <-
       bestcost::attribute(
+        approach_multipollutant = approach_multipollutant,
         approach_risk = approach_risk,
         health_metric = health_metric,
         exp_central = exp_central_2, exp_lower = exp_lower_2, exp_upper = exp_upper_2,

@@ -1,6 +1,7 @@
 #' Attributable health cases based on relative risk
 
 #' @description Calculates the health impacts, mortality or morbidity, of an environmental stressor using a single value for baseline heath data, i.e. without life table. It provides as a result the mean as well as the lower and the higher bound of the impact based on the confidence interval of the concentration-response function.
+#' @param approach_multipollutant \code{String} showing the approach that has to be used in assessments with multiple exposures. To choose among: "additive" and "multiplicative".
 #' @param health_metric \code{String} showing the change in outcome metric to assess attributable health impacts. To choose between "same_input_output" (default), "yld_from_prevalence", "deaths_from_lifetable", "yll_from_lifetable", "yld_from_lifetable" and "daly_from_lifetable".
 #' @param approach_risk \code{String} showing the risk risk method. To choose between: "relative_risk" (default) or "absolute_risk".
 #' @param exp_central,exp_lower,exp_upper \code{Numeric values} of the exposure to the environmental stressor referring to the central estimate and (optionally) to lower and upper bound of the confidence interval. If only one value is provided, it will be assumed that it refers to population-weighted mean exposure in ug/m3. If a {vector} is provided, it will be assumed that it refers to the exposure categories (average exposure in the category) in a exposure distribution (this information is linked to the proportion of population exposed).
@@ -81,6 +82,7 @@ attribute <-
     # Compile input data
     input <-
       bestcost:::compile_input(
+        approach_multipollutant = approach_multipollutant,
         exp_central = exp_central, exp_lower = exp_lower, exp_upper = exp_upper,
         prop_pop_exp = prop_pop_exp,
         pop_exp = pop_exp,

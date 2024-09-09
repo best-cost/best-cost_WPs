@@ -352,7 +352,7 @@ bestcost_pm_yld_ci <- get_ci(paf = bestcost_pm_yld_singlebhd$main$pop_fraction[1
 ```
 
 
-```{r correlated exposures}
+```{r multiple exposure}
 
 # Assess attributable cases using the BEST-COST task 1.4 report
 bestcost_pm_no2_mortality_additive <-
