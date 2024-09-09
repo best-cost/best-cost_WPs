@@ -93,7 +93,7 @@ compile_input <-
             erf_eq_upper = erf_eq_upper)
     }
 
-    if(!is.null(erf_eq_central) & is.data.frame(erf_eq_central)){
+    if(!is.null(erf_eq_central) & is.function(erf_eq_central)){
 
         erf_data <- # 1 x 3 tibble
           dplyr::tibble(

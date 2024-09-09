@@ -97,29 +97,11 @@ get_risk <-
     # a set of points (x = exposure, y = relative risk)
     # It will be assumed that
 
-    if(!is.null(erf_eq) & is.data.frame(erf_eq)){
+    if(!is.null(erf_eq) & is.function(erf_eq)){
 
 
-      x <-
-        ifelse("c" %in% names(erf_eq),
-               erf_eq$c,
-               ifelse("x" %in% names(erf_eq),
-                      erf_eq$x,
-                      erf_eq[, 1]))
+     erf <- erf_eq
 
-      y <-
-        ifelse("rr" %in% names(erf_eq),
-               erf_eq$rr,
-               ifelse("y" %in% names(erf_eq),
-                      erf_eq$y,
-                      erf_eq[, 2]))
-
-
-      erf <-
-        stats::splinefun(
-          x = x,
-          y = y,
-          method = "natural")
 
     }
 
