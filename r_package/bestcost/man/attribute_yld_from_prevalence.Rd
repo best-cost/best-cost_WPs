@@ -6,7 +6,7 @@
 Calculates the YLDs using a single value for baseline heath data, i.e. without life table. It provides as a result the mean as well as the lower and the higher bounds of the morbidity impact based on the confidence interval of the exposure-response function. Assumption: cases happen at the start of the year.}
 \usage{
 attribute_yld_from_prevalence(
-  approach_multipollutant = NULL,
+  approach_multiexposure = NULL,
   exp_central,
   exp_lower = NULL,
   exp_upper = NULL,

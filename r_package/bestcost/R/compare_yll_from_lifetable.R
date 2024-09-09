@@ -23,7 +23,7 @@
 #' @note Experimental function
 #' @export
 compare_yll_from_lifetable <-
-  function(approach_multipollutant = NULL,
+  function(approach_multiexposure = NULL,
            approach_comparison = "delta",
            exp_central_1, exp_lower_1 = NULL, exp_upper_1 = NULL,
            exp_central_2, exp_lower_2 = NULL, exp_upper_2 = NULL,
@@ -58,7 +58,7 @@ compare_yll_from_lifetable <-
 
     output <-
       bestcost::compare(
-        approach_multipollutant = approach_multipollutant,
+        approach_multiexposure = approach_multiexposure,
         approach_comparison = approach_comparison,
         health_metric = "yll_from_lifetable",
         approach_risk = "relative_risk",

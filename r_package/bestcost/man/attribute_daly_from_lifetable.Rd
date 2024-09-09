@@ -6,7 +6,7 @@
 Calculates the years lived with disability attributable to the exposure to an environmental stressor using a life table approach. It provides the central estimate of the impact and the corresponding 95\% confidence intervals (based on the 95\% confidence interval exposure-response function).}
 \usage{
 attribute_daly_from_lifetable(
-  approach_multipollutant = NULL,
+  approach_multiexposure = NULL,
   exp_central,
   exp_lower = NULL,
   exp_upper = NULL,

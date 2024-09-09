@@ -5,7 +5,7 @@
 \title{Attribute health impact from the same health metric and using on relative risk}
 \usage{
 attribute_health(
-  approach_multipollutant = NULL,
+  approach_multiexposure = NULL,
   exp_central,
   exp_lower = NULL,
   exp_upper = NULL,

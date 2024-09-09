@@ -5,7 +5,7 @@
 \title{Attributable years of life lost based on life tables}
 \usage{
 attribute_yll_from_lifetable(
-  approach_multipollutant = NULL,
+  approach_multiexposure = NULL,
   exp_central,
   exp_lower = NULL,
   exp_upper = NULL,

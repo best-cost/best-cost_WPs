@@ -29,7 +29,7 @@ attribute_health_ar <-
     output <-
       bestcost::attribute(
         health_metric = "same_input_output",
-        approach_multipollutant = NULL,
+        approach_multiexposure = NULL,
         approach_risk = "absolute_risk",
         exp_central = exp_central, exp_lower = exp_lower, exp_upper = exp_upper,
         prop_pop_exp = NULL,

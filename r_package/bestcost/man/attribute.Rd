@@ -6,7 +6,7 @@
 \usage{
 attribute(
   health_metric = "same_input_output",
-  approach_multipollutant = NULL,
+  approach_multiexposure = NULL,
   approach_risk = "relative_risk",
   exp_central,
   exp_lower = NULL,

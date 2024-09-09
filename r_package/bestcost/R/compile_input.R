@@ -25,7 +25,7 @@
 
 compile_input <-
   function(health_metric = NULL,
-           approach_multipollutant = NULL,
+           approach_multiexposure = NULL,
            approach_risk = NULL,
            exp_central, exp_lower = NULL, exp_upper = NULL,
            prop_pop_exp = NULL,
@@ -64,7 +64,7 @@ compile_input <-
 
     # PROCESS MULTIPLE EXPOSURE #########################################################
     # If multiple exposures are considered at the same time
-    # if(!is.null(approach_multipollutant)){
+    # if(!is.null(approach_multiexposure)){
     #   geo_id_raw <-
     #     as.character(ifelse(is.list({{exp_central}}), 1:length({{exp_central}}), 1))
     # }
@@ -144,7 +144,7 @@ compile_input <-
         bhd_upper = rep(unlist(bhd_lower), each = length_exp_dist),
         min_age = rep(min_age, each = length_exp_dist),
         max_age = rep(max_age, each = length_exp_dist),
-        approach_multipollutant = rep(approach_exposure, each = length_exp_dist),
+        approach_multiexposure = rep(approach_exposure, each = length_exp_dist),
         approach_exposure = rep(approach_exposure, each = length_exp_dist),
         approach_newborns = rep(approach_newborns, each = length_exp_dist),
 

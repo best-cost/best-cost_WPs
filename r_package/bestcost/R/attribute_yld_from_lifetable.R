@@ -11,7 +11,7 @@
 #' @note Experimental function
 #' @export
 attribute_yld_from_lifetable <-
-  function(approach_multipollutant = NULL,
+  function(approach_multiexposure = NULL,
            exp_central, exp_lower = NULL, exp_upper = NULL,
            prop_pop_exp = 1,
            cutoff,
@@ -36,7 +36,7 @@ attribute_yld_from_lifetable <-
       bestcost::attribute(
         health_metric = "yld_from_lifetable",
         approach_risk = "relative_risk",
-        approach_multipollutant = approach_multipollutant,
+        approach_multiexposure = approach_multiexposure,
         exp_central = exp_central, exp_lower = exp_lower, exp_upper = exp_upper,
         prop_pop_exp = prop_pop_exp,
         pop_exp = NULL,

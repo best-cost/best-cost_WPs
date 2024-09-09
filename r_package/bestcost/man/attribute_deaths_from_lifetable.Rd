@@ -5,7 +5,7 @@
 \title{Attributable deaths based on life tables}
 \usage{
 attribute_deaths_from_lifetable(
-  approach_multipollutant = NULL,
+  approach_multiexposure = NULL,
   exp_central,
   exp_lower = NULL,
   exp_upper = NULL,

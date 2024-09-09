@@ -7,7 +7,7 @@ Compiles the input data of the main function and calculates the population attri
 \usage{
 compile_input(
   health_metric = NULL,
-  approach_multipollutant = NULL,
+  approach_multiexposure = NULL,
   approach_risk = NULL,
   exp_central,
   exp_lower = NULL,
