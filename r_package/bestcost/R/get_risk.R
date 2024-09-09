@@ -11,10 +11,8 @@
 #' \code{Numeric value} showing the cut-off exposure in ug/m3 (i.e. the exposure level below which no health effects occur).
 #' @param erf_increment
 #' \code{Numeric value} showing the size of the increment in concentration related to the relative risk provided in the literature (e.g. for 10 ug/m3 PM2.5).
-#' @param erf_shape
-#' \code{String} showing the shape of the exposure-response function to be assumed using the relative risk from the literature as support point. Options: "linear", log_linear", "linear_log", "log_log".
-#' @param erf_eq
-#' \code{String} refer to the user-defined function that puts the relative risk in relation with concentration. A string or a data frame can be entered. If a string is entered, it will be converted into a function. The string has to show the function in terms of one variable: "c", which means concentration. E.g. "3+c+c^2". If a data frame is entered, a first column (or with name "c" or "x") should refer to concentration (x-axis) while a second column (or with name "rr" or "y") should refer to relative risk for that concentration (y-axis). A cubic spline natural interpolation will be assumed. Default value = NULL.
+#' @param erf_eq \code{String} showing the equation of the user-defined function that puts the relative risk (y) in relation with exposure (x). The function must have only one variable:x, which means exposure. E.g. "3+x+x^2".
+#' @param erf_x,erf_y \code{Vectors} showing the values of the x-axis (exposure) and y axis (relative risk) of the dots that define the line of the exposure-response function. A cubic spline natural interpolation will be assumed.
 #' @return
 #' This function returns three \code{values} corresponding to the central estimate as well as the lower and upper bound of the exposure-response function.
 #' @examples

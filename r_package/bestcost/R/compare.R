@@ -11,10 +11,11 @@
 #' @param pop_exp_1 \code{Numeric value} or {vector} showing the population exposed for each of the exposure categories for the scenario 1. The length of this input variable must be the same as "exp".
 #' @param pop_exp_2 \code{Numeric value} or {vector} showing the population exposed for each of the exposure categories for the scenario 2. The length of this input variable must be the same as "exp".
 #' @param cutoff \code{Numeric value} showing the cut-off exposure in ug/m3 (i.e. the exposure level below which no health effects occur).
-#' @param rr \code{Vector} of three numeric values referring to the central estimate as well as the lower and upper bound of the confidence interval.
+#' @param rr_central,rr_lower,rr_upper \code{Numeric values} referring to the central estimate of the relative risk and the corresponding lower and upper 95\% confidence interval bounds.
 #' @param erf_increment \code{Numeric value} showing the increment of the concentration-response function in ug/m3 (usually 10 or 5).
 #' @param erf_shape \code{String} showing the shape of the exposure-response function to be assumed using the relative risk from the literature as support point. Options: "linear", log_linear", "linear_log", "log_log".
-#' @param erf_eq \code{String} showing the user-defined function that puts the relative risk in relation with concentration. The function must have only one variable: c, which means concentration. E.g. "3+c+c^2". Default value = NULL.
+#' @param erf_eq_central,erf_eq_lower,erf_eq_upper \code{String} showing the equation of the user-defined function that puts the relative risk (y) in relation with exposure (x). The function must have only one variable:x, which means exposure. E.g. "3+x+x^2".
+#' @param erf_x_central,erf_x_lower,erf_x_upper,erf_y_central,erf_y_lower,erf_y_upper \code{Vectors} showing the values of the x-axis (exposure) and y axis (relative risk) of the dots that define the line of the exposure-response function. A cubic spline natural interpolation will be assumed.
 #' @param approach_exposure_1 \code{String} showing whether air pollution is constant or only in one year. Options: "single_year" (default), "constant"
 #' @param approach_newborns_1 \code{String} showing whether newborns are considered in the years after the year of analysis. Options: "without_newborns" (default), "with_newborns"
 #' @param first_age_pop_1 \code{Numeric value} starting age of the youngest age group from population and life table data in the scenario 1.
