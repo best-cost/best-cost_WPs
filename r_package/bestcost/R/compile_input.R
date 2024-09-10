@@ -85,7 +85,7 @@ compile_input <-
 
       erf_data <- # 1 x 6 tibble
         dplyr::tibble(
-          exposure_type = names(rr_central),
+          exposure_name = names(rr_central),
           erf_increment = erf_increment,
           erf_shape = erf_shape,
           cutoff = cutoff,
@@ -99,7 +99,7 @@ compile_input <-
 
         erf_data <- # 1 x 3 tibble
           dplyr::tibble(
-            exposure_type = names(rr_central = rr_central),
+            exposure_name = names(erf_eq_central),
             erf_eq_central = erf_eq_central,
             erf_eq_lower = erf_eq_lower,
             erf_eq_upper = erf_eq_upper)
@@ -109,6 +109,7 @@ compile_input <-
 
         erf_data <- # 1 x 3 tibble
           dplyr::tibble(
+            exposure_name = names(erf_eq_central),
             erf_eq_central = list(erf_eq_central)) %>%
 
           # If a confidence interval for the erf is provided, add the erf columns
@@ -117,7 +118,16 @@ compile_input <-
               erf_eq_lower = list(erf_eq_lower),
               erf_eq_upper = list(erf_eq_upper))
             else .}
-        }
+    }
+
+    # If there exist no column with name "exposure_name" because the vectors were not named,
+    # then the column has to be added as NA
+    if(!"exposure_name" %in% names(erf_data)){
+      erf_data <-
+        erf_data %>%
+        dplyr::mutate(exposure_name = NA)
+
+    }
 
 
 
@@ -165,7 +175,7 @@ compile_input <-
         prop_pop_exp = unlist(prop_pop_exp),
         pop_exp = unlist(pop_exp)) %>%
 
-      # Add rr with a cross join to produce all likely combinations
+      # Add erf data
       dplyr::bind_cols(., erf_data) %>%
       # Add additional (meta-)information
       bestcost:::add_info(df = ., info = info) %>%
@@ -184,7 +194,8 @@ compile_input <-
                  "population_weighted_mean",
                  "exposure_distribution")) %>%
       # Remove all columns with all values being NA
-      dplyr::select(where(~ !all(is.na(.)))) %>%
+      # dplyr::select(where(~ !all(is.na(.)))) %>%
+
       # Add lifetable-related data as nested tibble
       # Build the data set
       # The life table has to be provided (by sex)

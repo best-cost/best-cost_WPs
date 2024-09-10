@@ -111,7 +111,7 @@ get_risk_and_pop_fraction <-
 
       # Calculate population (attributable or impact) fraction (PAF or PIF) ####
       # Group by exp in case that there are different exposure categories
-      group_by(geo_id_raw, exp_ci, erf_ci) %>%
+      dplyr::group_by(geo_id_raw, exposure_name, exp_ci, erf_ci) %>%
       # Alternative coding if one of the grouping variables is NULL
       # dplyr::group_by(across(all_of(intersect(c("geo_id_raw", "exp_ci", "erf_ci"), names(input))))) %>%
       # Alternative coding with if statement within group_by
@@ -120,7 +120,7 @@ get_risk_and_pop_fraction <-
       # dplyr::group_by(if("geo_id_raw" %in% names(input)){geo_id_raw}, exp_ci, erf_ci)%>%
 
       {if({{pop_fraction_type}} == "paf")
-        dplyr::rowwise(.)%>%
+
         dplyr::mutate(.,
                       pop_fraction =
                         bestcost::get_pop_fraction(rr_conc_1 = rr_conc,

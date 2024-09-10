@@ -235,11 +235,12 @@ bestcost_noise_ihd_expDist <-
     valuation = 1000,
     info = data.frame(pollutant = "road_noise", outcome = "YLD"))
 
-#View(bestcost_noise_ihd_expDist)
 
- check_bestcost(result_list_bestcost = bestcost_noise_ihd_expDist,
+#View(bestcost_noise_ihd_expDist)
+check_bestcost(result_list_bestcost = bestcost_noise_ihd_expDist,
                result_vector_alternative = niph_noise_ihd_result)
 
+ 
 # Obtain attributable cases using the bestcost package
 # for multiple geo_sections
 bestcost_noise_ihd_expDist_geo <- 
@@ -286,7 +287,7 @@ bestcost_noise_ha_ar <-
   bestcost::attribute_health_ar(
     exp_central = niph_noise_ha_input$exposure_mean,
     pop_exp = niph_noise_ha_input$population_exposed_total, 
-    erf_x_central = "78.9270-3.1162*c+0.0342*c^2",
+    erf_eq_central = "78.9270-3.1162*c+0.0342*c^2",
     valuation = 1000,
     info = data.frame(pollutant = "road_noise", outcome = "highly_annoyance"))
 
@@ -306,7 +307,7 @@ bestcost_noise_ha_ar_geo <-
     pop_exp = list(runif_with_seed(5,5E3,1E4,1), 
                    runif_with_seed(5,5E3,1E4,2), 
                    runif_with_seed(5,5E3,1E4,3)), 
-    erf_x_central = "78.9270-3.1162*c+0.0342*c^2",
+    erf_eq_central = "78.9270-3.1162*c+0.0342*c^2",
     geo_id_raw = 1:3,
     valuation = 1000,
     info = data.frame(pollutant = "road_noise", outcome = "highly_annoyance"))
