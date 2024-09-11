@@ -25,6 +25,31 @@ get_risk_and_pop_fraction <-
   function(input,
            pop_fraction_type){
 
+
+    # Define a function that will be used below
+    # This function enables the collapse of the data frame to have only one row
+    # The columns with the same values inside will be condensed: e.g. c(1,1,1) = 1
+    # The values in columns with different values are pasted: e.g. c(1,2,3) = "1, 2, 3"
+    # The variable column_for_group refers to the column that is used to group the collapse
+    # The variable sep refers to the string to be used to collapse different values
+    collapse_to_one_row <-
+      function(df, column_for_group = NULL, sep){
+        df <-
+          df %>%
+          {if(!is.null(column_for_group)){
+            dplyr::group_by(., across(all_of(column_for_group)))}else{.}}%>%
+          dplyr::summarize(
+            across(everything(),
+                   ~ if (length(unique(.)) == 1) {
+                     first(.)
+                   } else {
+                     paste(., collapse = sep)}),
+            .groups = "drop")
+      }
+
+
+
+
     # Check if erf_eq is NULL before going into get_risk
     # Otherwise the variable is created without value and cannot be evaluated
     # We need to know erf_eq is NULL if statements within get_risk
@@ -97,59 +122,9 @@ get_risk_and_pop_fraction <-
         input_with_risk_and_pop_fraction <-
           input_with_risk_and_pop_fraction %>%
           dplyr::mutate(exposure_name = paste(unique(exposure_name), collapse = ", ")) %>%
-          dplyr::group_by(exposure_name)%>%
-          dplyr::summarize(
-            across(everything(),
-                   ~ if (length(unique(.)) == 1) {
-                     first(.)
-                   } else {
-                     paste(., collapse = ", ")}),
-            .groups = 'drop')
+          collapse_to_one_row(df =., sep = ", ")
       }
     }
-
-
-
-
-      # # Calculate relative risk based on "pop_fraction_type"
-      # dplyr::mutate(
-      #   # Calculate rr_conc if "pop_fraction_type" is "paf"
-      #   rr_conc = dplyr::case_when(
-      #     pop_fraction_type == "paf" ~
-      #       bestcost::get_risk(
-      #         rr = rr,
-      #         exp = exp,
-      #         cutoff = cutoff,
-      #         erf_increment = erf_increment,
-      #         erf_shape = erf_shape,
-      #         erf_eq = erf_eq),
-      #     TRUE ~ NA_real_  # If not 'paf', set rr_conc to NA
-      #   ),
-      #
-      #   # Calculate rr_conc_1 and rr_conc_2 if 'pop_fraction_type' is not 'paf'
-      #   rr_conc_1 = case_when(
-      #     pop_fraction_type != "paf" ~ bestcost::get_risk(
-      #       rr = rr,
-      #       exp = exp_1,
-      #       cutoff = cutoff,
-      #       erf_increment = erf_increment,
-      #       erf_shape = erf_shape,
-      #       erf_eq = erf_eq
-      #     ),
-      #     TRUE ~ NA_real_  # If 'paf', set rr_conc_1 to NA
-      #   ),
-      #   rr_conc_2 = case_when(
-      #     pop_fraction_type != "paf" ~ bestcost::get_risk(
-      #       rr = rr,
-      #       exp = exp_2,
-      #       cutoff = cutoff,
-      #       erf_increment = erf_increment,
-      #       erf_shape = erf_shape,
-      #       erf_eq = erf_eq
-      #     ),
-      #     TRUE ~ NA_real_  # If 'paf', set rr_conc_2 to NA
-      #   )
-      # ) %>%
 
 
 
@@ -199,14 +174,7 @@ get_risk_and_pop_fraction <-
         input_with_risk_and_pop_fraction <-
           input_with_risk_and_pop_fraction %>%
           dplyr::mutate(exposure_name = paste(unique(exposure_name), collapse = ", ")) %>%
-          dplyr::group_by(exposure_name)%>%
-          dplyr::summarize(
-            across(everything(),
-                   ~ if (length(unique(.)) == 1) {
-                     first(.)
-                   } else {
-                     paste(., collapse = ", ")}),
-            .groups = 'drop')
+          collapse_to_one_row(df =., sep = ", ")
         }
       }
 
@@ -214,16 +182,7 @@ get_risk_and_pop_fraction <-
     # Only if exposure distribution (multiple exposure categories)
     # then reduce the number of rows to keep the same number as in rr
     if(unique(input$exposure_type) == "exposure_distribution"){
-      input_with_risk_and_pop_fraction <-
-        input_with_risk_and_pop_fraction %>%
-        dplyr::mutate(
-          # Replace the actual values with "multiple" to enable reduction of rows
-          exp = paste(exp, collapse = ", "),
-          exposure_dimension = paste("1:", max(exposure_dimension)),
-          prop_pop_exp = paste(prop_pop_exp, collapse = ", "),
-          rr_conc = paste(rr_conc, collapse = ", ")) %>%
-        # Keep only rows that are distinct
-        dplyr::distinct(.)
+      collapse_to_one_row(df = input_with_risk_and_pop_fraction, sep = ", ")
     }
 
     return(input_with_risk_and_pop_fraction)
