@@ -159,7 +159,7 @@ system.time(bestcost_pm_copd_geo <-
 ```{r single exposure value and user-defined points for relative risk}
 
 # Assess attributable cases using the AirQ+ export as input data
-bestcost_pm_copd_1rr <-
+bestcost_pm_alri_erf_dots <-
   bestcost::attribute_health(
     exp_central = airqplus_pm_copd$mean_concentration,
     cutoff = airqplus_pm_copd$cut_off_value,   
@@ -235,11 +235,12 @@ bestcost_noise_ihd_expDist <-
     valuation = 1000,
     info = data.frame(pollutant = "road_noise", outcome = "YLD"))
 
-#View(bestcost_noise_ihd_expDist)
 
- check_bestcost(result_list_bestcost = bestcost_noise_ihd_expDist,
+#View(bestcost_noise_ihd_expDist)
+check_bestcost(result_list_bestcost = bestcost_noise_ihd_expDist,
                result_vector_alternative = niph_noise_ihd_result)
 
+ 
 # Obtain attributable cases using the bestcost package
 # for multiple geo_sections
 bestcost_noise_ihd_expDist_geo <- 
@@ -286,7 +287,7 @@ bestcost_noise_ha_ar <-
   bestcost::attribute_health_ar(
     exp_central = niph_noise_ha_input$exposure_mean,
     pop_exp = niph_noise_ha_input$population_exposed_total, 
-    erf_x_central = "78.9270-3.1162*c+0.0342*c^2",
+    erf_eq_central = "78.9270-3.1162*c+0.0342*c^2",
     valuation = 1000,
     info = data.frame(pollutant = "road_noise", outcome = "highly_annoyance"))
 
@@ -306,7 +307,7 @@ bestcost_noise_ha_ar_geo <-
     pop_exp = list(runif_with_seed(5,5E3,1E4,1), 
                    runif_with_seed(5,5E3,1E4,2), 
                    runif_with_seed(5,5E3,1E4,3)), 
-    erf_x_central = "78.9270-3.1162*c+0.0342*c^2",
+    erf_eq_central = "78.9270-3.1162*c+0.0342*c^2",
     geo_id_raw = 1:3,
     valuation = 1000,
     info = data.frame(pollutant = "road_noise", outcome = "highly_annoyance"))
@@ -350,7 +351,63 @@ bestcost_pm_yld_ci <- get_ci(paf = bestcost_pm_yld_singlebhd$main$pop_fraction[1
 
 #View(bestcost_pm_yld_ci)
 ```
+### Multiple exposure
 
+```{r additive approach}
+# Assess attributable cases using the BEST-COST task 1.4 report
+bestcost_pm_no2_mortality_additive <-
+  bestcost::attribute_health(
+    approach_multiexposure = "additive",
+    exp_central = c("pm2.5" = 8.1, "no2" =  10.9),
+    cutoff =  setNames(c(0, 0), c("pm2.5", "no2")),
+    bhd_central = 1000, # Fake data just to get a similar value (PAF) as in the T1.4 report
+    rr_central = setNames(c(1.063, 1.031), c("pm2.5", "no2")),
+    erf_increment = setNames(c(10, 10), c("pm2.5", "no2")), 
+    erf_shape = "log_linear")
+
+# View(bestcost_pm_copd_1rr)
+
+check_bestcost(result_list_bestcost = bestcost_pm_no2_mortality_additive,
+               result_vector_alternative = 0.081 * 1000)
+```
+
+
+```{r multiplicative approach}
+# Assess attributable cases using the BEST-COST task 1.4 report
+bestcost_pm_no2_mortality_multiplicative <-
+  bestcost::attribute_health(
+    approach_multiexposure = "multiplicative",
+    exp_central = c("pm2.5" = 8.1, "no2" =  10.9),
+    cutoff =  setNames(c(0, 0), c("pm2.5", "no2")),
+    bhd_central = 1000, # Fake data just to get a similar value (PAF) as in the T1.4 report
+    rr_central = setNames(c(1.063, 1.031), c("pm2.5", "no2")),
+    erf_increment = setNames(c(10, 10), c("pm2.5", "no2")), 
+    erf_shape = "log_linear")
+
+# View(bestcost_pm_copd_1rr)
+
+check_bestcost(result_list_bestcost = bestcost_pm_no2_mortality_multiplicative,
+               result_vector_alternative = 0.079 * 1000)
+```
+
+
+```{r combined approach}
+# Assess attributable cases using the BEST-COST task 1.4 report
+bestcost_pm_no2_mortality_multiplicative <-
+  bestcost::attribute_health(
+    approach_multiexposure = "combined",
+    exp_central = c("pm2.5" = 8.1, "no2" =  10.9),
+    cutoff =  setNames(c(0, 0), c("pm2.5", "no2")),
+    bhd_central = 1000, # Fake data just to get a similar value (PAF) as in the T1.4 report
+    rr_central = setNames(c(1.063, 1.031), c("pm2.5", "no2")),
+    erf_increment = setNames(c(10, 10), c("pm2.5", "no2")), 
+    erf_shape = "log_linear")
+
+# View(bestcost_pm_copd_1rr)
+
+check_bestcost(result_list_bestcost = bestcost_pm_no2_mortality_multiplicative,
+               result_vector_alternative = 0.079 * 1000)
+```
 
 
 ### Life table
@@ -847,7 +904,7 @@ comparison_singlebhd_ar_delta <-
     exp_central_2 = c(50, 55, 60, 65, 75), # Fake values
     pop_exp_1 = c(387500, 286000, 191800, 72200, 7700), # Values as example provided by NIPH
     pop_exp_2 = c(387500, 286000, 191800, 72200, 7700), # Fake values
-    erf_x_central = "78.9270-3.1162*c+0.0342*c^2",
+    erf_eq_central = "78.9270-3.1162*c+0.0342*c^2",
     valuation = 1000, # Results change with valuation ####
     info_1 = data.frame(pollutant = "road_noise", outcome = "highly_annoyance", year = 2020),
     info_2 = data.frame(pollutant = "road_noise", outcome = "highly_annoyance", year = 2022)
@@ -867,7 +924,7 @@ comparison_singlebhd_ar_delta_geo <-
     exp_central_2 = list(c(50, 55, 60, 65, 75), c(50.5, 55.5, 60.5, 65.5, 75.5)), # Fake values
     pop_exp_1 = list(c(387500, 286000, 191800, 72200, 7700), c(380000, 280000, 190800, 72000, 7000)), # Fake values
     pop_exp_2 = list(c(387500, 286000, 191800, 72200, 7700), c(380000, 280000, 190800, 72000, 7000)), # Fake values
-    erf_x_central = "78.9270-3.1162*c+0.0342*c^2",
+    erf_eq_central = "78.9270-3.1162*c+0.0342*c^2",
     info_1 = data.frame(pollutant = "road_noise", outcome = "highly_annoyance", year = 2020),
     info_2 = data.frame(pollutant = "road_noise", outcome = "highly_annoyance", year = 2022),
     geo_id_raw = c("a", "b"),

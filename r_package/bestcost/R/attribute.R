@@ -1,6 +1,7 @@
 #' Attributable health cases based on relative risk
 
 #' @description Calculates the health impacts, mortality or morbidity, of an environmental stressor using a single value for baseline heath data, i.e. without life table. It provides as a result the mean as well as the lower and the higher bound of the impact based on the confidence interval of the concentration-response function.
+#' @param approach_multiexposure \code{String} showing the approach that has to be used in assessments with multiple exposures. To choose among: "additive" and "multiplicative".
 #' @param health_metric \code{String} showing the change in outcome metric to assess attributable health impacts. To choose between "same_input_output" (default), "yld_from_prevalence", "deaths_from_lifetable", "yll_from_lifetable", "yld_from_lifetable" and "daly_from_lifetable".
 #' @param approach_risk \code{String} showing the risk risk method. To choose between: "relative_risk" (default) or "absolute_risk".
 #' @param exp_central,exp_lower,exp_upper \code{Numeric values} of the exposure to the environmental stressor referring to the central estimate and (optionally) to lower and upper bound of the confidence interval. If only one value is provided, it will be assumed that it refers to population-weighted mean exposure in ug/m3. If a {vector} is provided, it will be assumed that it refers to the exposure categories (average exposure in the category) in a exposure distribution (this information is linked to the proportion of population exposed).
@@ -10,7 +11,7 @@
 #' @param rr_central,rr_lower,rr_upper \code{Numeric values} referring to the central estimate of the relative risk and the corresponding lower and upper 95\% confidence interval bounds.
 #' @param erf_increment \code{Numeric value} showing the increment of the exposure-response function in ug/m3 (usually 10 or 5).
 #' @param erf_shape \code{String} showing the shape of the exposure-response function to be assumed using the relative risk from the literature as support point. Options: "linear", log_linear", "linear_log", "log_log".
-#' @param erf_eq_central,erf_eq_lower,erf_eq_upper Equation of the user-defined exposure-response function that puts the relative risk (y) in relation with exposure (x). If the function is provided as \code{string}, it can only contains one variable: x (exposure). E.g. "3+x+x^2". If the function is provided as a \code{function}, the object should have a function class. If only the values of the x-axis (exposure) and y axis (relative risk) of the dots in the exposure-response function are available, a cubic spline natural interpolation can be assumed to get the function using, e.g., \code{stats::splinefun(x, y, method="natural")}
+#' @param erf_eq_central,erf_eq_lower,erf_eq_upper \code{String} or \code{function} referring to the equation of the user-defined exposure-response function. If a \code{string} is entered, the function must contains only one variable: x (exposure). E.g. "3+x+x^2". If a \code{function} is entered, it has to have a function class. If only the values of the x-axis (exposure) and y axis (relative risk) of the dots in the exposure-response function are available, a cubic spline natural interpolation can be assumed to get the function using, e.g., \code{stats::splinefun(x, y, method="natural")}
 #' @param approach_exposure \code{String} showing whether air pollution is constant or only in one year. Options: "single_year" (default), "constant"
 #' @param approach_newborns \code{String} showing whether newborns are considered in the years after the year of analysis. Options: "without_newborns" (default), "with_newborns"
 #' @param first_age_pop \code{Numeric value} starting age of the youngest age group from population and life table data (age interval = 1 year)
@@ -43,6 +44,7 @@
 
 attribute <-
   function(health_metric = "same_input_output",
+           approach_multiexposure = NULL,
            approach_risk = "relative_risk",
            exp_central, exp_lower = NULL, exp_upper = NULL,
            prop_pop_exp = 1,
@@ -80,6 +82,7 @@ attribute <-
     # Compile input data
     input <-
       bestcost:::compile_input(
+        approach_multiexposure = approach_multiexposure,
         exp_central = exp_central, exp_lower = exp_lower, exp_upper = exp_upper,
         prop_pop_exp = prop_pop_exp,
         pop_exp = pop_exp,

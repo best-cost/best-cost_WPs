@@ -24,8 +24,9 @@
 #' @keywords internal
 
 compile_input <-
-  function(approach_risk = NULL,
-           health_metric = NULL,
+  function(health_metric = NULL,
+           approach_multiexposure = NULL,
+           approach_risk = NULL,
            exp_central, exp_lower = NULL, exp_upper = NULL,
            prop_pop_exp = NULL,
            pop_exp = NULL,
@@ -60,6 +61,15 @@ compile_input <-
     #   is.null(max_age) == FALSE
     # })
 
+
+    # PROCESS MULTIPLE EXPOSURE #########################################################
+    # If multiple exposures are considered at the same time
+    # if(!is.null(approach_multiexposure)){
+    #   geo_id_raw <-
+    #     as.character(ifelse(is.list({{exp_central}}), 1:length({{exp_central}}), 1))
+    # }
+
+
     # PROCESS GEO ID ###################################################################
     # If no geo_id_raw is provided (if is NULL) then assign some value.
     ## geo_id_raw is needed to group results in case of multiple geo_ids
@@ -75,6 +85,7 @@ compile_input <-
 
       erf_data <- # 1 x 6 tibble
         dplyr::tibble(
+          exposure_name = names(rr_central),
           erf_increment = erf_increment,
           erf_shape = erf_shape,
           cutoff = cutoff,
@@ -83,20 +94,22 @@ compile_input <-
           rr_upper = rr_upper)
     }
 
-    # If it is defined by the erf function
+    # If it is defined by the erf function as string
     if(!is.null(erf_eq_central) & is.character(erf_eq_central)){
 
         erf_data <- # 1 x 3 tibble
           dplyr::tibble(
+            exposure_name = names(erf_eq_central),
             erf_eq_central = erf_eq_central,
             erf_eq_lower = erf_eq_lower,
             erf_eq_upper = erf_eq_upper)
     }
-
+    # If it is defined by the erf function as function
     if(!is.null(erf_eq_central) & is.function(erf_eq_central)){
 
         erf_data <- # 1 x 3 tibble
           dplyr::tibble(
+            exposure_name = names(erf_eq_central),
             erf_eq_central = list(erf_eq_central)) %>%
 
           # If a confidence interval for the erf is provided, add the erf columns
@@ -105,7 +118,16 @@ compile_input <-
               erf_eq_lower = list(erf_eq_lower),
               erf_eq_upper = list(erf_eq_upper))
             else .}
-        }
+    }
+
+    # If there exist no column with name "exposure_name" because the vectors were not named,
+    # then the column has to be added as NA
+    if(!"exposure_name" %in% names(erf_data)){
+      erf_data <-
+        erf_data %>%
+        dplyr::mutate(exposure_name = NA)
+
+    }
 
 
 
@@ -134,6 +156,7 @@ compile_input <-
         bhd_upper = rep(unlist(bhd_lower), each = length_exp_dist),
         min_age = rep(min_age, each = length_exp_dist),
         max_age = rep(max_age, each = length_exp_dist),
+        approach_multiexposure = rep(approach_multiexposure, each = length_exp_dist),
         approach_exposure = rep(approach_exposure, each = length_exp_dist),
         approach_newborns = rep(approach_newborns, each = length_exp_dist),
 
@@ -152,7 +175,7 @@ compile_input <-
         prop_pop_exp = unlist(prop_pop_exp),
         pop_exp = unlist(pop_exp)) %>%
 
-      # Add rr with a cross join to produce all likely combinations
+      # Add erf data
       dplyr::bind_cols(., erf_data) %>%
       # Add additional (meta-)information
       bestcost:::add_info(df = ., info = info) %>%
@@ -171,7 +194,8 @@ compile_input <-
                  "population_weighted_mean",
                  "exposure_distribution")) %>%
       # Remove all columns with all values being NA
-      dplyr::select(where(~ !all(is.na(.)))) %>%
+      # dplyr::select(where(~ !all(is.na(.)))) %>%
+
       # Add lifetable-related data as nested tibble
       # Build the data set
       # The life table has to be provided (by sex)

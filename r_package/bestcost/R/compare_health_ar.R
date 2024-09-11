@@ -35,6 +35,7 @@ compare_health_ar <-
 
     output <-
       bestcost::compare(
+        approach_multiexposure = NULL,
         approach_comparison = approach_comparison,
         health_metric = "same_input_output",
         approach_risk = "absolute_risk",

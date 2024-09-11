@@ -23,7 +23,8 @@
 #' @note Experimental function
 #' @export
 compare_yld_from_prevalence <-
-  function(approach_comparison = "delta",
+  function(approach_multiexposure = NULL,
+           approach_comparison = "delta",
            exp_central_1, exp_lower_1 = NULL, exp_upper_1 = NULL,
            exp_central_2, exp_lower_2 = NULL, exp_upper_2 = NULL,
            prop_pop_exp_1 = 1,
@@ -43,6 +44,7 @@ compare_yld_from_prevalence <-
 
     output <-
       bestcost::compare(
+        approach_multiexposure = approach_multiexposure,
         approach_comparison = approach_comparison,
         health_metric = "yld_from_prevalence",
         approach_risk = "relative_risk",

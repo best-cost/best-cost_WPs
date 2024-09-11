@@ -25,11 +25,9 @@ get_output <-
                    detailed = list(raw = impact_raw[["main"]],
                                    interim = impact_raw[["detailed"]]))
 
+    output_last <-
+      output[["main"]]
 
-    output_last <- impact_raw[["main"]] %>%
-      {if(unique(impact_raw[["main"]]$health_metric) == "yld_from_prevalence" |
-          unique(impact_raw[["main"]]$health_metric) == "yld_from_lifetable")
-        dplyr::filter(., dw_ci %in% "central") else .}
 
     if(unique(impact_raw[["main"]]$approach_risk) == "absolute_risk") {
 
@@ -78,7 +76,8 @@ get_output <-
       output[["detailed"]][["agg_geo"]]  <-
         output_last %>%
         # Group by higher geo level
-        dplyr::group_by(., across(all_of(intersect(c("geo_id_aggregated", "exp_ci",
+        dplyr::group_by(., across(all_of(intersect(c("exposure_name",
+                                                     "geo_id_aggregated", "exp_ci",
                                                      "bhd_ci", "erf_ci","dw_ci", "valuation"),
                                                 names(.)))))%>%
         dplyr::summarise(impact = sum(impact),
@@ -90,14 +89,37 @@ get_output <-
 
     }
 
+    # Aggregate results across pollutants (exposures)
+    # if approach_multiexposure == "additive"
+    if(length(unique(impact_raw[["main"]]$exposure_name)) > 1){
+
+      output[["detailed"]][["agg_exp_names"]]  <-
+        output_last %>%
+        dplyr::mutate(
+          exposure_name = paste(unique(exposure_name), collapse = ", ")) %>%
+        # Group by higher geo level
+        dplyr::group_by(., across(all_of(intersect(c("geo_id_aggregated", "exp_ci",
+                                                     "bhd_ci", "erf_ci","dw_ci", "valuation"),
+                                                   names(.)))))%>%
+        dplyr::summarise(impact = sum(impact),
+                         impact_rounded = round(impact),
+                         .groups = "drop")
+
+      output_last <- output[["detailed"]][["agg_exp_names"]]
+
+
+    }
 
     # Filter for total list element
     # Keep only exp_ci = central and bhd_ci = central
     output[["main"]] <-
       output_last %>%
-      dplyr::filter(!exp_ci %in% c("lower", "upper"))%>%
+      dplyr::filter(exp_ci %in% c("central")) %>%
       {if("bhd_ci" %in% names(.))
-        dplyr::filter(., !bhd_ci %in% c("lower", "upper")) else .}
+        dplyr::filter(., bhd_ci %in% c("central")) else .} %>%
+      {if(unique(impact_raw[["main"]]$health_metric) %in%
+          c("yld_from_prevalence", "yld_from_lifetable"))
+        dplyr::filter(., dw_ci %in% "central") else .}
 
 
     return(output)
