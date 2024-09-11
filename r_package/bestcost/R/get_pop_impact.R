@@ -542,8 +542,8 @@ get_pop_impact <-
       pop_impact <-
         input_backup %>%
         {if( is_empty( (grep("_1", names(pop))) ) )
-          dplyr::left_join(., pop, by = c("geo_id_raw", "exp", "prop_pop_exp", "rr", "erf_ci", "sex"))           # attribute_... cases
-          else dplyr::left_join(., pop, by = c("geo_id_raw", "exp_1", "prop_pop_exp_1", "rr", "erf_ci", "sex"))} # compare_... cases
+          dplyr::left_join(., pop, by = c("geo_id_raw", "exp", "prop_pop_exp", "rr", "erf_ci", "sex", "exposure_name"))           # attribute_... cases
+          else dplyr::left_join(., pop, by = c("geo_id_raw", "exp_1", "prop_pop_exp_1", "rr", "erf_ci", "sex", "exposure_name"))} # compare_... cases
     }
 
 

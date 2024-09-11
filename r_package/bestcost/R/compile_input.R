@@ -156,7 +156,7 @@ compile_input <-
         bhd_upper = rep(unlist(bhd_lower), each = length_exp_dist),
         min_age = rep(min_age, each = length_exp_dist),
         max_age = rep(max_age, each = length_exp_dist),
-        approach_multiexposure = rep(approach_exposure, each = length_exp_dist),
+        approach_multiexposure = rep(approach_multiexposure, each = length_exp_dist),
         approach_exposure = rep(approach_exposure, each = length_exp_dist),
         approach_newborns = rep(approach_newborns, each = length_exp_dist),
 

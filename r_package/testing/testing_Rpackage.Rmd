@@ -363,13 +363,30 @@ bestcost_pm_no2_mortality_additive <-
     cutoff =  setNames(c(0, 0), c("pm2.5", "no2")),
     bhd_central = 1000, # Fake data just to get a similar value (PAF) as in the T1.4 report
     rr_central = setNames(c(1.063, 1.031), c("pm2.5", "no2")),
-    erf_increment = 10, 
+    erf_increment = setNames(c(10, 10), c("pm2.5", "no2")), 
     erf_shape = "log_linear")
 
 # View(bestcost_pm_copd_1rr)
 
 check_bestcost(result_list_bestcost = bestcost_pm_no2_mortality_additive,
                result_vector_alternative = 0.081 * 1000)
+
+
+# Assess attributable cases using the BEST-COST task 1.4 report
+bestcost_pm_no2_mortality_multiplicative <-
+  bestcost::attribute_health(
+    approach_multiexposure = "multiplicative",
+    exp_central = c("pm2.5" = 8.1, "no2" =  10.9),
+    cutoff =  setNames(c(0, 0), c("pm2.5", "no2")),
+    bhd_central = 1000, # Fake data just to get a similar value (PAF) as in the T1.4 report
+    rr_central = setNames(c(1.063, 1.031), c("pm2.5", "no2")),
+    erf_increment = setNames(c(10, 10), c("pm2.5", "no2")), 
+    erf_shape = "log_linear")
+
+# View(bestcost_pm_copd_1rr)
+
+check_bestcost(result_list_bestcost = bestcost_pm_no2_mortality_multiplicative,
+               result_vector_alternative = 0.079 * 1000)
 ```
 
 

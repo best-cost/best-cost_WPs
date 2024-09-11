@@ -110,11 +110,6 @@ get_output <-
 
     }
 
-
-
-
-
-
     # Filter for total list element
     # Keep only exp_ci = central and bhd_ci = central
     output[["main"]] <-

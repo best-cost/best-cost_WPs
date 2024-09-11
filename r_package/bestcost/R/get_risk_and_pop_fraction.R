@@ -37,10 +37,10 @@ get_risk_and_pop_fraction <-
       dplyr::mutate(pop_fraction_type = pop_fraction_type) %>%
       # For the calculations below rowwise approach is needed
       # Specifically when more than one exposure type is considered
-
+      dplyr::rowwise(.)%>%
       # Obtain the relative risk for the relevant concentration
       {if({{pop_fraction_type}} == "paf")
-        dplyr::rowwise(.)%>%
+
         dplyr::mutate(.,
                       rr_conc =
                         bestcost::get_risk(rr = rr,
@@ -49,7 +49,7 @@ get_risk_and_pop_fraction <-
                                            erf_increment = erf_increment,
                                            erf_shape = erf_shape,
                                            erf_eq = erf_eq))
-        else
+        else # If PIF
           dplyr::mutate(.,
                         rr_conc_1 =
                           bestcost::get_risk(rr = rr,
@@ -65,6 +65,50 @@ get_risk_and_pop_fraction <-
                                              erf_increment = erf_increment,
                                              erf_shape = erf_shape,
                                              erf_eq = erf_eq))}%>%
+      # Deactivate rowwise(.)
+      dplyr::ungroup(.)
+
+    if("approach_multiexposure" %in% names(input)){
+      if(unique(input$approach_multiexposure) %in% "multiplicative"){
+      # In the multiplicative approach, relative risks have to be merged
+      # by multiplying across different exposures
+      if({{pop_fraction_type}} == "paf"){
+        input_with_risk_and_pop_fraction <-
+          input_with_risk_and_pop_fraction %>%
+          # prod() multiplies all elements in a vector
+          dplyr::mutate(.,
+            rr_conc_before_multiplying = rr_conc,
+            rr_conc = prod(rr_conc))
+
+        } else { # if PIF
+        input_with_risk_and_pop_fraction <-
+          input_with_risk_and_pop_fraction %>%
+          # prod() multiplies all elements in a vector
+          dplyr::mutate(
+            rr_conc_1_before_multiplying = rr_conc_1,
+            rr_conc_2_before_multiplying = rr_conc_2,
+            rr_conc_1 = prod(rr_conc_1),
+            rr_conc_2 = prod(rr_conc_2))
+        }
+
+        # Data wrangling for multiple exposures
+        # Collapse data frame into one row pasting the columns with different values
+        input_with_risk_and_pop_fraction <-
+          input_with_risk_and_pop_fraction %>%
+          dplyr::mutate(exposure_name = paste(unique(exposure_name), collapse = ", ")) %>%
+          dplyr::group_by(exposure_name)%>%
+          dplyr::summarize(
+            across(everything(),
+                   ~ if (length(unique(.)) == 1) {
+                     first(.)
+                   } else {
+                     paste(., collapse = ", ")}),
+            .groups = 'drop')
+      }
+    }
+
+
+
 
       # # Calculate relative risk based on "pop_fraction_type"
       # dplyr::mutate(
@@ -108,7 +152,8 @@ get_risk_and_pop_fraction <-
 
 
 
-
+    input_with_risk_and_pop_fraction <-
+      input_with_risk_and_pop_fraction %>%
       # Calculate population (attributable or impact) fraction (PAF or PIF) ####
       # Group by exp in case that there are different exposure categories
       dplyr::group_by(geo_id_raw, exposure_name, exp_ci, erf_ci) %>%
@@ -144,8 +189,6 @@ get_risk_and_pop_fraction <-
       input_with_risk_and_pop_fraction <-
         input_with_risk_and_pop_fraction %>%
         dplyr::mutate(
-          # Add a column for the average exp (way to summarize exposure)
-          exp_mean = mean(exp),
           # Replace the actual values with "multiple" to enable reduction of rows
           exp = paste(exp, collapse = ", "),
           exposure_dimension = paste("1:", max(exposure_dimension)),
