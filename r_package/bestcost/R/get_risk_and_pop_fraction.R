@@ -70,26 +70,27 @@ get_risk_and_pop_fraction <-
 
     if("approach_multiexposure" %in% names(input)){
       if(unique(input$approach_multiexposure) %in% "multiplicative"){
-      # In the multiplicative approach, relative risks have to be merged
-      # by multiplying across different exposures
-      if({{pop_fraction_type}} == "paf"){
-        input_with_risk_and_pop_fraction <-
-          input_with_risk_and_pop_fraction %>%
-          # prod() multiplies all elements in a vector
-          dplyr::mutate(.,
-            rr_conc_before_multiplying = rr_conc,
-            rr_conc = prod(rr_conc))
 
-        } else { # if PIF
-        input_with_risk_and_pop_fraction <-
-          input_with_risk_and_pop_fraction %>%
-          # prod() multiplies all elements in a vector
-          dplyr::mutate(
-            rr_conc_1_before_multiplying = rr_conc_1,
-            rr_conc_2_before_multiplying = rr_conc_2,
-            rr_conc_1 = prod(rr_conc_1),
-            rr_conc_2 = prod(rr_conc_2))
-        }
+        # In the multiplicative approach, relative risks have to be merged
+        # by multiplying across different exposures
+        if({{pop_fraction_type}} == "paf"){
+          input_with_risk_and_pop_fraction <-
+            input_with_risk_and_pop_fraction %>%
+            # prod() multiplies all elements in a vector
+            dplyr::mutate(.,
+              rr_conc_before_multiplying = rr_conc,
+              rr_conc = prod(rr_conc))
+
+          } else { # if PIF
+          input_with_risk_and_pop_fraction <-
+            input_with_risk_and_pop_fraction %>%
+            # prod() multiplies all elements in a vector
+            dplyr::mutate(
+              rr_conc_1_before_multiplying = rr_conc_1,
+              rr_conc_2_before_multiplying = rr_conc_2,
+              rr_conc_1 = prod(rr_conc_1),
+              rr_conc_2 = prod(rr_conc_2))
+          }
 
         # Data wrangling for multiple exposures
         # Collapse data frame into one row pasting the columns with different values
@@ -181,6 +182,33 @@ get_risk_and_pop_fraction <-
                                                      prop_pop_exp_2 = prop_pop_exp_2))}%>%
 
       dplyr::ungroup(.)
+
+    if("approach_multiexposure" %in% names(input)){
+      if(unique(input$approach_multiexposure) %in% "combined"){
+
+        input_with_risk_and_pop_fraction <-
+          input_with_risk_and_pop_fraction %>%
+          dplyr::mutate(.,
+                        pop_fraction_before_combining = pop_fraction,
+                        # Multiply with prod() across all pollutants
+                        pop_fraction = 1-(prod(1-pop_fraction)))
+
+
+        # Data wrangling for multiple exposures
+        # Collapse data frame into one row pasting the columns with different values
+        input_with_risk_and_pop_fraction <-
+          input_with_risk_and_pop_fraction %>%
+          dplyr::mutate(exposure_name = paste(unique(exposure_name), collapse = ", ")) %>%
+          dplyr::group_by(exposure_name)%>%
+          dplyr::summarize(
+            across(everything(),
+                   ~ if (length(unique(.)) == 1) {
+                     first(.)
+                   } else {
+                     paste(., collapse = ", ")}),
+            .groups = 'drop')
+        }
+      }
 
     # Data wrangling ####
     # Only if exposure distribution (multiple exposure categories)
