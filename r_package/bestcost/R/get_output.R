@@ -78,7 +78,7 @@ get_output <-
         # Group by higher geo level
         dplyr::group_by(., across(all_of(intersect(c("exposure_name",
                                                      "geo_id_aggregated", "exp_ci",
-                                                     "bhd_ci", "erf_ci","dw_ci", "valuation"),
+                                                     "bhd_ci", "erf_ci","dw_ci"),
                                                 names(.)))))%>%
         dplyr::summarise(impact = sum(impact),
                          impact_rounded = round(impact),
@@ -99,7 +99,7 @@ get_output <-
           exposure_name = paste(unique(exposure_name), collapse = ", ")) %>%
         # Group by higher geo level
         dplyr::group_by(., across(all_of(intersect(c("geo_id_aggregated", "exp_ci",
-                                                     "bhd_ci", "erf_ci","dw_ci", "valuation"),
+                                                     "bhd_ci", "erf_ci","dw_ci"),
                                                    names(.)))))%>%
         dplyr::summarise(impact = sum(impact),
                          impact_rounded = round(impact),
