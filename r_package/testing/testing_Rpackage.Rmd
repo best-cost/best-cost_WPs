@@ -110,7 +110,9 @@ check_bestcost(result_list_bestcost = bestcost_pm_copd,
                result_vector_alternative = airqplus_pm_copd_result)
 
 # Monetize
-bestcost_pm_copd_costs <- bestcost::monetize(bestcost_pm_copd)
+bestcost_pm_copd_costs <- 
+  bestcost::monetize(output = bestcost_pm_copd, 
+                     valuation = 1000)
 ```
 
 

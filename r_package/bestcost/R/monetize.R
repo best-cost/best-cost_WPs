@@ -13,11 +13,22 @@
 monetize <- function(output,
                      valuation) {
 
-  output[["main"]] <- output[["main"]] %>%
-    dplyr::mutate(impact_monetized = as.numeric(valuation) * as.numeric(impact),
-                  .after = impact) %>%
-    dplyr::mutate(impact_monetized_rounded = round(impact_monetized),
-                  .after = impact_rounded)
+  # Define a function to add the monetized impacts (rounded and not rounded)
+  add_monetized_impact <-
+    function(df){
+      df %>%
+        dplyr::mutate(impact_monetized = as.numeric(valuation) * as.numeric(impact),
+                      .after = impact) %>%
+        dplyr::mutate(impact_rounded_monetized = round(impact_monetized),
+                      .after = impact_rounded)
+    }
+
+  # Apply the function in main and detailed results
+  output[["main"]] <-
+    add_monetized_impact(output[["main"]])
+
+  output[["detailed"]][["raw"]] <-
+    add_monetized_impact(output[["detailed"]][["raw"]])
 
   return(output)
 
