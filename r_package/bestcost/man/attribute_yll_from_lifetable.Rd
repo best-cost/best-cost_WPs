@@ -31,7 +31,6 @@ attribute_yll_from_lifetable(
   corrected_discount_rate = NULL,
   min_age = NULL,
   max_age = NULL,
-  valuation = NULL,
   info = NULL
 )
 }
@@ -69,8 +68,6 @@ attribute_yll_from_lifetable(
 \item{min_age}{\code{Numberic value} of the minimal age to be considered for adults (by default 30, i.e. 30+).}
 
 \item{max_age}{\code{Numberic value} of the maximal age to be considered for infants/children (by default 0, i.e. below 1 year old).}
-
-\item{valuation}{\code{Numeric value} showing the value of statistical life which will be used in the health impact monetization}
 
 \item{info}{\code{String} or {data frame} showing additional information or id. The suffix "info" will be added to the column name. Default value = NULL.}
 }

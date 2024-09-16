@@ -26,7 +26,6 @@ attribute_yld_from_prevalence(
   dw_central,
   dw_lower = NULL,
   dw_upper = NULL,
-  valuation = NULL,
   info = NULL
 )
 }
@@ -50,8 +49,6 @@ attribute_yld_from_prevalence(
 \item{bhd_central, bhd_lower, bhd_upper}{\code{Numeric value} showing the central estimate and (optionally) the lower bound and the upper bound of the confidence interval of the baseline health data (e.g. incidence of the health outcome in the population).}
 
 \item{dw_central, dw_lower, dw_upper}{Three \code{Numeric value} showing the disability weights (central estimate, lower and upper 95% confidence intervals) associated with the morbidity health outcome}
-
-\item{valuation}{\code{Numeric value} showing the value of statistical life which will be used in the health impact monetization}
 
 \item{info}{\code{String} or {data frame} showing additional information or id. The suffix "info" will be added to the column name. Default value = NULL.}
 }

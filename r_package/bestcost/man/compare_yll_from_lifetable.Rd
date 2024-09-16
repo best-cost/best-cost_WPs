@@ -51,7 +51,6 @@ compare_yll_from_lifetable(
   max_age = NULL,
   geo_id_raw = NULL,
   geo_id_aggregated = NULL,
-  valuation = NULL,
   info_1 = NULL,
   info_2 = NULL
 )

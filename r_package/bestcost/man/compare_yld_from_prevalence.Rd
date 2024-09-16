@@ -36,7 +36,6 @@ compare_yld_from_prevalence(
   dw_upper = NULL,
   geo_id_raw = NULL,
   geo_id_aggregated = NULL,
-  valuation = NULL,
   info_1 = NULL,
   info_2 = NULL
 )
