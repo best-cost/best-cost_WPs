@@ -94,7 +94,6 @@ bestcost_pm_copd <-
     rr_upper = airqplus_pm_copd$relative_risk_upper,
     erf_increment = 10, 
     erf_shape = "log_linear", 
-    valuation = 1000,
     info = paste0(airqplus_pm_copd$pollutant,"_", airqplus_pm_copd$evaluation_name))
 
 # Store the central, lower and upper estimate of the AirQ+ assessment
@@ -109,6 +108,14 @@ airqplus_pm_copd_result <-
 
 check_bestcost(result_list_bestcost = bestcost_pm_copd,
                result_vector_alternative = airqplus_pm_copd_result)
+```
+
+
+```{r Monetize a simple case}
+# Monetize
+bestcost_pm_copd_costs <- 
+  bestcost::include_cost(output = bestcost_pm_copd, 
+                         valuation = 1000)
 ```
 
 
@@ -129,8 +136,7 @@ bestcost_pm_copd_multiple <-
     rr_lower = airqplus_pm_copd$relative_risk_lower,
     rr_upper = airqplus_pm_copd$relative_risk_upper,
     erf_increment = 10, 
-    erf_shape = "log_linear", 
-    valuation = 1000,
+    erf_shape = "log_linear",
     info = paste0(airqplus_pm_copd$pollutant,"_", airqplus_pm_copd$evaluation_name))
 
 
@@ -188,7 +194,6 @@ bestcost_pm_copd_1rr <-
     rr_central = airqplus_pm_copd$relative_risk,
     erf_increment = 10, 
     erf_shape = "log_linear", 
-    valuation = 1000,
     info = paste0(airqplus_pm_copd$pollutant,"_", airqplus_pm_copd$evaluation_name))
 
 # Store the central, lower and upper estimate of the AirQ+ assessment
@@ -232,7 +237,6 @@ bestcost_noise_ihd_expDist <-
     rr_central = 1.08,
     erf_increment = 10, 
     erf_shape = "log_linear",
-    valuation = 1000,
     info = data.frame(pollutant = "road_noise", outcome = "YLD"))
 
 
@@ -258,7 +262,6 @@ bestcost_noise_ihd_expDist_geo <-
     erf_shape = "log_linear",
     geo_id_raw = 1:3,
     geo_id_aggregated = rep("ch", 3),
-    valuation = 1000,
     info = data.frame(pollutant = "road_noise", outcome = "highly_annoyance"))
 
 ```
@@ -288,7 +291,6 @@ bestcost_noise_ha_ar <-
     exp_central = niph_noise_ha_input$exposure_mean,
     pop_exp = niph_noise_ha_input$population_exposed_total, 
     erf_eq_central = "78.9270-3.1162*c+0.0342*c^2",
-    valuation = 1000,
     info = data.frame(pollutant = "road_noise", outcome = "highly_annoyance"))
 
 # View(bestcost_noise_ha_ar)
@@ -309,7 +311,6 @@ bestcost_noise_ha_ar_geo <-
                    runif_with_seed(5,5E3,1E4,3)), 
     erf_eq_central = "78.9270-3.1162*c+0.0342*c^2",
     geo_id_raw = 1:3,
-    valuation = 1000,
     info = data.frame(pollutant = "road_noise", outcome = "highly_annoyance"))
 
 ```
@@ -327,7 +328,6 @@ bestcost_pm_yld_singlebhd  <-
     rr_upper = 1.179,
     erf_increment = 10, 
     erf_shape = "log_linear", 
-    valuation = 1000,
     dw_central = 0.5, dw_lower = 0.1, dw_upper = 10)
 
 # View(bestcost_pm_yld_singlebhd)
@@ -437,8 +437,7 @@ bestcost_pm_deaths_lifetable_airqplus <-
     population_midyear_male = airqplus_pm_deaths_yll[["pop"]]$midyear_population_male,
     population_midyear_female = airqplus_pm_deaths_yll[["pop"]]$midyear_population_female, 
     year_of_analysis =  airqplus_pm_deaths_yll[["input"]]$start_year, 
-    min_age = airqplus_pm_deaths_yll[["input"]]$apply_rr_from_age,
-    valuation = 1000)
+    min_age = airqplus_pm_deaths_yll[["input"]]$apply_rr_from_age)
 
 # View(bestcost_pm_deaths_lifetable_airqplus)
 
@@ -469,8 +468,7 @@ bestcost_pm_deaths_lifetable_expDistribution <-
       population_midyear_female = lifetable_withPopulation[["female"]]$population, 
       year_of_analysis = 2019, 
       info = input_data_mortality$pollutant[2], 
-      min_age = 20,
-      valuation = 1000)
+      min_age = 20)
 
 # View(bestcost_pm_deaths_lifetable_expDistribution)
 
@@ -506,8 +504,7 @@ bestcost_pm_yll_exposure_single_year_lifetable_geluft <-
     deaths_female = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_female,
     year_of_analysis = 2019, 
     info = input_data_mortality$pollutant[2], 
-    min_age = if(is.na(input_data_mortality$min_age[2])) NULL else input_data_mortality$min_age[2],
-    valuation = 1000)
+    min_age = if(is.na(input_data_mortality$min_age[2])) NULL else input_data_mortality$min_age[2])
 
 check_bestcost(result_list_bestcost = bestcost_pm_yll_exposure_single_year_lifetable_geluft,
                result_vector_alternative = c(29274.89,	15328.16,	43118.30)) # AirQ+ approach result
@@ -539,8 +536,7 @@ bestcost_pm_yll_lifetable_airqplus <-
     deaths_male = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_male,
     deaths_female = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_female,
     year_of_analysis =  airqplus_pm_deaths_yll[["input"]]$start_year, 
-    min_age = airqplus_pm_deaths_yll[["input"]]$apply_rr_from_age,
-    valuation = 1000)
+    min_age = airqplus_pm_deaths_yll[["input"]]$apply_rr_from_age)
 
 # View(bestcost_pm_yll_lifetable_airqplus)
 
@@ -572,8 +568,7 @@ bestcost_pm_yll_lifetable_airqplus_with_newborns <-
     deaths_male = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_male,
     deaths_female = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_female,
     year_of_analysis =  airqplus_pm_deaths_yll[["input"]]$start_year, 
-    min_age = airqplus_pm_deaths_yll[["input"]]$apply_rr_from_age,
-    valuation = 1000)
+    min_age = airqplus_pm_deaths_yll[["input"]]$apply_rr_from_age)
 
 # View(bestcost_pm_yll_lifetable_airqplus_with_newborns)
 
@@ -605,8 +600,7 @@ bestcost_pm_yll_lifetable_1rr_geluft <-
       population_midyear_female = lifetable_withPopulation[["female"]]$population, 
       year_of_analysis = 2019, 
       info = input_data_mortality$pollutant[2], 
-      min_age = if(is.na(input_data_mortality$min_age[2])) NULL else input_data_mortality$min_age[2],
-      valuation = 1000)
+      min_age = if(is.na(input_data_mortality$min_age[2])) NULL else input_data_mortality$min_age[2])
 
 # View(bestcost_pm_yll_lifetable_1rr_geluft)
 
@@ -640,8 +634,7 @@ bestcost_pm_yll_lifetable_expDistribution_geluft <-
       population_midyear_female = lifetable_withPopulation[["female"]]$population, 
       year_of_analysis = 2019, 
       info = input_data_mortality$pollutant[2], 
-      min_age = if(is.na(input_data_mortality$min_age[2])) NULL else input_data_mortality$min_age[2],
-      valuation = 1000)
+      min_age = if(is.na(input_data_mortality$min_age[2])) NULL else input_data_mortality$min_age[2])
 
 # View(bestcost_pm_yll_lifetable_expDistribution_geluft)
 
@@ -685,9 +678,7 @@ bestcost_pm_yld_lifetable_geluft  <-
     info = input_data_mortality$pollutant[2],
     min_age = input_data_mortality$min_age[2], # min_age = 20,
     duration = 100, 
-    dw_central = 1, dw_lower = 0.1, dw_upper = 10,
-    valuation = 1000
-  )
+    dw_central = 1, dw_lower = 0.1, dw_upper = 10)
 
 # View(bestcost_pm_yld_lifetable_geluft)
 
@@ -729,9 +720,7 @@ bestcost_pm_daly_lifetable_geluft  <-
     info = input_data_mortality$pollutant[2],
     min_age = input_data_mortality$min_age[2], # min_age = 20,
     duration = 100, 
-    dw_central = 1,
-    valuation = 1000
-  )
+    dw_central = 1)
 
 # The Swiss project GeLuft did not calculated the YLD, only YLL. 
 # But disability weight = 1 in the function above, then YLD = YLL 
@@ -768,8 +757,7 @@ comparison_singlebhd_rr_delta <-
     erf_increment = 10, 
     erf_shape = "log_linear", 
     info_1 = "PM2.5_mortality_2010",
-    info_2 = "PM2.5_mortality_2020",
-    valuation = 1000)
+    info_2 = "PM2.5_mortality_2020")
 
 # View(comparison_singlebhd_rr_delta)
 
@@ -795,8 +783,7 @@ comparison_singlebhd_rr_delta_geo <-
     info_1 = "PM2.5_mortality_2010",
     info_2 = "PM2.5_mortality_2020",
     geo_id_raw = c("a", "b"),
-    geo_id_aggregated = rep("ch", 2),
-    valuation = 1000)
+    geo_id_aggregated = rep("ch", 2))
 
 # View(comparison_singlebhd_rr_delta_geo)
 
@@ -821,8 +808,7 @@ comparison_singlebhd_rr_pif <-
     erf_increment = 10, 
     erf_shape = "log_linear", 
     info_1 = "PM2.5_mortality_2010",
-    info_2 = "PM2.5_mortality_2020",
-    valuation = 1000)
+    info_2 = "PM2.5_mortality_2020")
 
 # View(comparison_singlebhd_rr_pif)
 
@@ -848,8 +834,7 @@ comparison_singlebhd_rr_pif_geo <-
     info_1 = "PM2.5_mortality_2010",
     info_2 = "PM2.5_mortality_2020",
     geo_id_raw = c("a", "b"),
-    geo_id_aggregated = rep("ch", 2),
-    valuation = 1000)
+    geo_id_aggregated = rep("ch", 2))
 
 # View(comparison_singlebhd_rr_pif_geo)
 
@@ -886,8 +871,7 @@ comparison_singlebhd_rr_geo <-
     geo_id_raw = 1:1E4, 
     geo_id_aggregated = rep("CH", 1E4),
     info_1 = "PM2.5_mortality_2010",
-    info_2 = "PM2.5_mortality_2020",
-    valuation = 1000)
+    info_2 = "PM2.5_mortality_2020")
 
 # View(comparison_singlebhd_rr_geo)
 ```
@@ -905,7 +889,6 @@ comparison_singlebhd_ar_delta <-
     pop_exp_1 = c(387500, 286000, 191800, 72200, 7700), # Values as example provided by NIPH
     pop_exp_2 = c(387500, 286000, 191800, 72200, 7700), # Fake values
     erf_eq_central = "78.9270-3.1162*c+0.0342*c^2",
-    valuation = 1000, # Results change with valuation ####
     info_1 = data.frame(pollutant = "road_noise", outcome = "highly_annoyance", year = 2020),
     info_2 = data.frame(pollutant = "road_noise", outcome = "highly_annoyance", year = 2022)
     )
@@ -928,8 +911,7 @@ comparison_singlebhd_ar_delta_geo <-
     info_1 = data.frame(pollutant = "road_noise", outcome = "highly_annoyance", year = 2020),
     info_2 = data.frame(pollutant = "road_noise", outcome = "highly_annoyance", year = 2022),
     geo_id_raw = c("a", "b"),
-    geo_id_aggregated = rep("ch", 2),
-    valuation = 1000)
+    geo_id_aggregated = rep("ch", 2))
 
 # View(comparison_singlebhd_ar_delta_geo)
 
@@ -955,7 +937,6 @@ comparison_yld_singlebhd_rr_delta <-
     erf_increment = 10, 
     erf_shape = "log_linear", 
     dw_central = 0.5,
-    valuation = 1000,
     info_1 = "PM2.5_yld_before",
     info_2 = "PM2.5_yld_after")
 
@@ -988,8 +969,7 @@ comparison_yld_singlebhd_rr_delta_geo <-
     info_1 = "PM2.5_yld_before",
     info_2 = "PM2.5_yld_after",
     geo_id_raw = c("a", "b"),
-    geo_id_aggregated = rep("ch", 2),
-    valuation = 1000,)
+    geo_id_aggregated = rep("ch", 2))
 
 # View(comparison_yld_singlebhd_rr_delta_geo)
 
@@ -1016,8 +996,7 @@ comparison_yld_singlebhd_rr_pif <-
     erf_shape = "log_linear", 
     dw_central = 0.5,
     info_1 = "PM2.5_yld_before",
-    info_2 = "PM2.5_yld_after",
-    valuation = 1000)
+    info_2 = "PM2.5_yld_after")
 
 # View(comparison_yld_singlebhd_rr_pif)
 
@@ -1048,8 +1027,7 @@ comparison_yld_singlebhd_rr_pif_geo <-
     info_1 = "PM2.5_yld_before",
     info_2 = "PM2.5_yld_after",
     geo_id_raw = c("a", "b"),
-    geo_id_aggregated = rep("ch", 2),
-    valuation = 1000)
+    geo_id_aggregated = rep("ch", 2))
 
 # View(comparison_yld_singlebhd_rr_pif_geo)
 
@@ -1096,8 +1074,7 @@ comparison_deaths_lifetable_delta <-
     year_of_analysis_2 = 2019,
     info_1 = input_data_mortality$pollutant[2],
     info_2 = input_data_mortality$pollutant[2], 
-    min_age = 20,
-    valuation = 1000)
+    min_age = 20)
 
 # View(comparison_deaths_lifetable_delta)
 
@@ -1141,8 +1118,7 @@ comparison_deaths_lifetable_delta_geo <-
     info_2 = input_data_mortality$pollutant[2], 
     min_age = 20,
     geo_id_raw = c("a", "b"),
-    geo_id_aggregated = rep("ch", 2),
-    valuation = 1000)
+    geo_id_aggregated = rep("ch", 2))
 
 # View(comparison_deaths_lifetable_delta_geo)
 
@@ -1192,8 +1168,7 @@ comparison_deaths_lifetable_pif  <-
     population_midyear_male_2 = lifetable_withPopulation[["male"]]$population, 
     population_midyear_female_2 = lifetable_withPopulation[["female"]]$population, 
     year_of_analysis_2 = 2019,
-    min_age = 20,
-    valuation = 1000)
+    min_age = 20)
 
 # View(comparison_deaths_lifetable_pif)
 
@@ -1238,8 +1213,7 @@ comparison_deaths_lifetable_pif_geo <-
     info_2 = input_data_mortality$pollutant[2], 
     min_age = 20,
     geo_id_raw = c("a", "b"),
-    geo_id_aggregated = rep("ch", 2),
-    valuation = 1000)
+    geo_id_aggregated = rep("ch", 2))
 
 # View(comparison_deaths_lifetable_pif_geo)
 
@@ -1288,8 +1262,7 @@ comparison_yll_lifetable_delta  <-
     year_of_analysis_2 = 2019, 
     info_1 = input_data_mortality$pollutant[2],
     info_2 = input_data_mortality$pollutant[2], 
-    min_age = 20,
-    valuation = 1000)
+    min_age = 20)
 
 # View(comparison_yll_lifetable_delta)
 
@@ -1337,8 +1310,7 @@ comparison_yll_lifetable_delta_geo <-
     info_2 = input_data_mortality$pollutant[2], 
     min_age = 20,
     geo_id_raw = c("a", "b"),
-    geo_id_aggregated = rep("ch", 2),
-    valuation = 1000)
+    geo_id_aggregated = rep("ch", 2))
 
 # View(comparison_yll_lifetable_delta_geo)
 
@@ -1380,8 +1352,7 @@ comparison_yll_lifetable_pif <-
     year_of_analysis_2 = 2019, 
     info_1 = NULL,
     info_2 = NULL, 
-    min_age = 20,
-    valuation = 1000)
+    min_age = 20)
 
 # View(comparison_yll_lifetable_pif)
 
@@ -1426,8 +1397,7 @@ comparison_yll_lifetable_pif_geo <-
     info_2 = input_data_mortality$pollutant[2], 
     min_age = 20,
     geo_id_raw = c("a", "b"),
-    geo_id_aggregated = rep("ch", 2),
-    valuation = 1000)
+    geo_id_aggregated = rep("ch", 2))
 
 # View(comparison_yll_lifetable_pif_geo)
 
@@ -1474,8 +1444,7 @@ comparison_yld_lifetable_delta  <-
     info_2 = input_data_mortality$pollutant[2], 
     min_age = 20,
     duration = 100,
-    dw_central = 1,
-    valuation = 1000)
+    dw_central = 1)
 
 # View(comparison_yld_lifetable_delta)
 
@@ -1521,8 +1490,7 @@ comparison_yld_lifetable_delta_geo <-
     geo_id_raw = c("a", "b"),
     geo_id_aggregated = rep("ch", 2),
     duration = 100,
-    dw_central = 1,
-    valuation = 1000)
+    dw_central = 1)
 
 # View(comparison_yld_lifetable_delta_geo)
 
@@ -1564,8 +1532,7 @@ comparison_yld_lifetable_pif <-
     info_2 = NULL, 
     min_age = 20,
     duration = 100,
-    dw_central = 1,
-    valuation = 1000)
+    dw_central = 1)
 
 # View(comparison_yld_lifetable_pif)
 
@@ -1611,8 +1578,7 @@ comparison_yld_lifetable_pif_geo <-
     geo_id_raw = c("a", "b"),
     geo_id_aggregated = rep("ch", 2),
     duration = 100,
-    dw_central = 1,
-    valuation = 1000)
+    dw_central = 1)
 
 # View(comparison_yld_lifetable_pif_geo)
 
@@ -1659,8 +1625,7 @@ comparison_daly_lifetable_delta  <-
     info_2 = input_data_mortality$pollutant[2], 
     min_age = 20,
     duration = 100,
-    dw_central = 1,
-    valuation = 1000)
+    dw_central = 1)
 
 # View(comparison_daly_lifetable_delta)
 
@@ -1706,8 +1671,7 @@ comparison_daly_lifetable_delta_geo <-
     geo_id_raw = c("a", "b"),
     geo_id_aggregated = rep("ch", 2),
     duration = 100,
-    dw_central = 1,
-    valuation = 1000)
+    dw_central = 1)
 
 # View(comparison_daly_lifetable_delta_geo)
 
@@ -1749,8 +1713,7 @@ comparison_daly_lifetable_pif <-
     info_2 = NULL, 
     min_age = 20,
     duration = 100,
-    dw_central = 1,
-    valuation = 1000)
+    dw_central = 1)
 
 # View(comparison_daly_lifetable_pif)
 
@@ -1796,8 +1759,7 @@ comparison_daly_lifetable_pif_geo <-
     geo_id_raw = c("a", "b"),
     geo_id_aggregated = rep("ch", 2),
     duration = 100,
-    dw_central = 1,
-    valuation = 1000)
+    dw_central = 1)
 
 # View(comparison_daly_lifetable_pif_geo)
 

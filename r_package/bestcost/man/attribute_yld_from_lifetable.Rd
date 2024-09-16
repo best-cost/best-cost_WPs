@@ -36,7 +36,6 @@ attribute_yld_from_lifetable(
   dw_lower = NULL,
   dw_upper = NULL,
   duration,
-  valuation = NULL,
   info = NULL
 )
 }
@@ -78,8 +77,6 @@ attribute_yld_from_lifetable(
 \item{dw_central, dw_lower, dw_upper}{Three \code{Numeric value} showing the disability weights (central estimate, lower and upper 95% confidence intervals) associated with the morbidity health outcome}
 
 \item{duration}{\code{Numeric value} showing the disease duration}
-
-\item{valuation}{\code{Numeric value} showing the value of statistical life which will be used in the health impact monetization}
 
 \item{info}{\code{String} or {data frame} showing additional information or id. The suffix "info" will be added to the column name. Default value = NULL.}
 }

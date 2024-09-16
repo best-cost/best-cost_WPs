@@ -24,7 +24,6 @@
 #' @param dw_central,dw_lower,dw_upper Three \code{Numeric value} showing the disability weights (central estimate, lower and upper 95% confidence intervals) associated with the morbidity health outcome
 #' @param duration \code{Numeric value} showing the disease duration
 #' @param corrected_discount_rate \code{Numeric value} showing the discount rate for future years including correction from inflation rate
-#' @param valuation \code{Numeric value} showing the value of statistical life which will be used in the health impact monetization
 #' @param geo_id_raw \code{Vector} showing the id code of the each geographic area considered in the assessment. If a vector is entered here, the data for each geographical area have to be provided as list in the corresponding arguments.
 #' @param geo_id_aggregated \code{Vector} showing the id code of the geographic area for which raw geo ids have to be aggregated. The vector has to have the same length as geo_id_raw. Therefore, geo_id_aggregated should have duplicated values for those geo_id_r
 #' @param info \code{String} or {data frame} showing additional information or id. The suffix "info" will be added to the column name. Default value = NULL.
@@ -69,8 +68,6 @@ attribute <-
            # Iteration arguments
            geo_id_raw = NULL,
            geo_id_aggregated = NULL,
-           # Monetization
-           valuation = NULL,
            # Meta-information
            info = NULL){
 
@@ -110,9 +107,7 @@ attribute <-
         population_midyear_male = population_midyear_male,
         population_midyear_female =  population_midyear_female,
         deaths_male = deaths_male,
-        deaths_female = deaths_female,
-        # Monetization
-        valuation = valuation)
+        deaths_female = deaths_female)
 
 
     # Calculate the health impacts for each case (uncertainty, category, geo area...)
@@ -128,13 +123,6 @@ attribute <-
     # Get the main and detailed output by aggregating and/or filtering cases (rows)
     output <-
       bestcost:::get_output(impact_raw)
-
-    # Monetize
-    if ( ( is.null(valuation) == FALSE) ) {
-      output <-
-        bestcost:::monetize(output)
-    }
-
 
 
     return(output)

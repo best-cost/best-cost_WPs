@@ -38,7 +38,6 @@ attribute_deaths_from_lifetable <-
            population_midyear_male, population_midyear_female,
            year_of_analysis,
            min_age = NULL, max_age = NULL,
-           valuation = NULL,
            info = NULL){
 
     output <-
@@ -68,7 +67,6 @@ attribute_deaths_from_lifetable <-
         min_age = min_age, max_age = max_age,
         corrected_discount_rate = NULL,
         geo_id_raw = NULL, geo_id_aggregated = NULL,
-        valuation = valuation,
         info = info)
 
     return(output)

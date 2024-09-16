@@ -43,8 +43,7 @@ compile_input(
   population_midyear_male = NULL,
   population_midyear_female = NULL,
   deaths_male = NULL,
-  deaths_female = NULL,
-  valuation = NULL
+  deaths_female = NULL
 )
 }
 \arguments{
@@ -97,8 +96,6 @@ compile_input(
 \item{last_age_pop}{\code{Numeric value} ending age of the oldest age group from population and life table data (age interval = 1 year)}
 
 \item{population_midyear_male, population_midyear_female}{\code{Numeric vector} containing the mid-year male population for the year of analysis for male and female respectively.}
-
-\item{valuation}{\code{Numeric value} showing the value of statistical life which will be used in the health impact monetization}
 }
 \value{
 This function returns a \code{data.frame} with all input data together
