@@ -118,6 +118,13 @@ bestcost_pm_copd_costs <-
                          valuation = 1000)
 ```
 
+```{r Social aspects in a simple case}
+# Monetize
+bestcost_pm_copd_social <- 
+  bestcost::include_social(output = bestcost_pm_copd, 
+                           deprivation_index = 1000)
+```
+
 
 
 ```{r multiple single exposure value, eval=FALSE, include=FALSE}
