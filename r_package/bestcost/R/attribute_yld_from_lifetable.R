@@ -29,7 +29,6 @@ attribute_yld_from_lifetable <-
            min_age = NULL, max_age = NULL,
            dw_central, dw_lower = NULL, dw_upper = NULL,
            duration,
-           valuation = NULL,
            info = NULL){
 
     output<-
@@ -58,7 +57,6 @@ attribute_yld_from_lifetable <-
         dw_central = dw_central, dw_lower = dw_lower, dw_upper = dw_upper,
         duration = duration,
         geo_id_raw = NULL , geo_id_aggregated = NULL,
-        valuation = valuation,
         info = info)
 
     return(output)

@@ -23,7 +23,6 @@ attribute_health_ar <-
            pop_exp,
            erf_eq_central, erf_eq_lower = NULL, erf_eq_upper = NULL,
            geo_id_raw = NULL, geo_id_aggregated = NULL,
-           valuation = NULL,
            info = NULL){
 
     output <-
@@ -50,7 +49,6 @@ attribute_health_ar <-
         dw_central = NULL, dw_lower = NULL, dw_upper = NULL,
         duration = NULL,
         geo_id_raw = geo_id_raw , geo_id_aggregated = geo_id_aggregated,
-        valuation = valuation,
         info = info)
 
     return(output)
