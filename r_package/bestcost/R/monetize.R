@@ -10,8 +10,8 @@
 #' # Example of how to use the function
 #' function_name(param1 = value1, param2 = value2)
 #' @export
-monetize <- function(output,
-                     valuation) {
+include_cost <- function(output,
+                         valuation) {
 
   # Define a function to add the monetized impacts (rounded and not rounded)
   add_monetized_impact <-
