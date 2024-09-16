@@ -1,16 +1,17 @@
 #' Attributable health cases based on relative risk
 
 #' @description Calculates the health impacts, mortality or morbidity, of an environmental stressor using a single value for baseline heath data, i.e. without life table. It provides as a result the mean as well as the lower and the higher bound of the impact based on the confidence interval of the concentration-response function.
+#' @param approach_multiexposure \code{String} showing the approach that has to be used in assessments with multiple exposures. To choose among: "additive" and "multiplicative".
 #' @param health_metric \code{String} showing the change in outcome metric to assess attributable health impacts. To choose between "same_input_output" (default), "yld_from_prevalence", "deaths_from_lifetable", "yll_from_lifetable", "yld_from_lifetable" and "daly_from_lifetable".
 #' @param approach_risk \code{String} showing the risk risk method. To choose between: "relative_risk" (default) or "absolute_risk".
 #' @param exp_central,exp_lower,exp_upper \code{Numeric values} of the exposure to the environmental stressor referring to the central estimate and (optionally) to lower and upper bound of the confidence interval. If only one value is provided, it will be assumed that it refers to population-weighted mean exposure in ug/m3. If a {vector} is provided, it will be assumed that it refers to the exposure categories (average exposure in the category) in a exposure distribution (this information is linked to the proportion of population exposed).
 #' @param prop_pop_exp \code{Numeric value} or {Numeric vector} Fraction (values between 0 & 1) of the total population exposed to (one or more) exposure categories, i.e., a exposure distribution, respectively. If a exposure distribution is used, the dimension of this input variable should be the same as "exp". By default, 1 for single exposure value will be assigned to this input variable assuming a single exposure value, but users can change this value.
 #' @param pop_exp \code{Numeric value} or {vector} showing the population exposed for each of the exposure categories. The length of this input variable must be the same as "exp".
 #' @param cutoff \code{Numeric value} showing the cut-off exposure in ug/m3 (i.e. the exposure level below which no health effects occur).
-#' @param rr_central,rr_lower,rr_upper Three \code{numeric values} referring to the central estimate of the relative risk and the corresponding lower and upper 95\% confidence interval bounds.
+#' @param rr_central,rr_lower,rr_upper \code{Numeric values} referring to the central estimate of the relative risk and the corresponding lower and upper 95\% confidence interval bounds.
 #' @param erf_increment \code{Numeric value} showing the increment of the exposure-response function in ug/m3 (usually 10 or 5).
 #' @param erf_shape \code{String} showing the shape of the exposure-response function to be assumed using the relative risk from the literature as support point. Options: "linear", log_linear", "linear_log", "log_log".
-#' @param erf_c \code{String} showing the user-defined function that puts the relative risk in relation with concentration. The function must have only one variable: c, which means concentration. E.g. "3+c+c^2". Default value = NULL.<<<<<<< HEAD
+#' @param erf_eq_central,erf_eq_lower,erf_eq_upper \code{String} or \code{function} referring to the equation of the user-defined exposure-response function. If a \code{string} is entered, the function must contains only one variable: x (exposure). E.g. "3+x+x^2". If a \code{function} is entered, it has to have a function class. If only the values of the x-axis (exposure) and y axis (relative risk) of the dots in the exposure-response function are available, a cubic spline natural interpolation can be assumed to get the function using, e.g., \code{stats::splinefun(x, y, method="natural")}
 #' @param approach_exposure \code{String} showing whether air pollution is constant or only in one year. Options: "single_year" (default), "constant"
 #' @param approach_newborns \code{String} showing whether newborns are considered in the years after the year of analysis. Options: "without_newborns" (default), "with_newborns"
 #' @param first_age_pop \code{Numeric value} starting age of the youngest age group from population and life table data (age interval = 1 year)
@@ -43,6 +44,7 @@
 
 attribute <-
   function(health_metric = "same_input_output",
+           approach_multiexposure = NULL,
            approach_risk = "relative_risk",
            exp_central, exp_lower = NULL, exp_upper = NULL,
            prop_pop_exp = 1,
@@ -51,7 +53,7 @@ attribute <-
            rr_central = NULL, rr_lower = NULL, rr_upper = NULL,
            erf_increment = NULL,
            erf_shape = NULL,
-           erf_c_central = NULL, erf_c_lower = NULL, erf_c_upper = NULL,
+           erf_eq_central = NULL, erf_eq_lower = NULL, erf_eq_upper = NULL,
            bhd_central = NULL, bhd_lower = NULL, bhd_upper = NULL,
            # Lifetable arguments
            approach_exposure = NULL,
@@ -77,11 +79,10 @@ attribute <-
     #length(exp) == length(prop_pop_exp)
     #})
 
-    # if (approach = "cutoff_in_exposure") { # whole script in this loop
-
-    # Compile input data (except lifetable)
+    # Compile input data
     input <-
       bestcost:::compile_input(
+        approach_multiexposure = approach_multiexposure,
         exp_central = exp_central, exp_lower = exp_lower, exp_upper = exp_upper,
         prop_pop_exp = prop_pop_exp,
         pop_exp = pop_exp,
@@ -89,13 +90,18 @@ attribute <-
         rr_central = rr_central, rr_lower = rr_lower, rr_upper = rr_upper,
         erf_increment = erf_increment,
         erf_shape = erf_shape,
-        erf_c_central = erf_c_central, erf_c_lower = erf_c_lower, erf_c_upper = erf_c_upper,
+        erf_eq_central = erf_eq_central, erf_eq_lower = erf_eq_lower, erf_eq_upper = erf_eq_upper,
         bhd_central = bhd_central, bhd_lower = bhd_lower, bhd_upper = bhd_upper,
         geo_id_raw = geo_id_raw,
         geo_id_aggregated = geo_id_aggregated,
         info = info,
         health_metric = health_metric,
         approach_risk = approach_risk,
+        # YLD
+        dw_central = dw_central,
+        dw_lower = dw_lower,
+        dw_upper = dw_upper,
+        # duration = duration,
         # Lifetable arguments if needed
         approach_exposure = approach_exposure,
         approach_newborns = approach_newborns,
@@ -116,61 +122,20 @@ attribute <-
                             min_age = min_age,
                             max_age = max_age,
                             corrected_discount_rate = corrected_discount_rate,
-                            dw_central = dw_central, dw_lower = dw_lower, dw_upper = dw_upper,
                             duration = duration,
                             pop_fraction_type = "paf")
-
-    # Monetize
-    if (is.null(valuation) == FALSE){
-      impact_raw <-
-        bestcost:::monetize(impact_raw)
-    }
 
     # Get the main and detailed output by aggregating and/or filtering cases (rows)
     output <-
       bestcost:::get_output(impact_raw)
 
+    # Monetize
+    if ( ( is.null(valuation) == FALSE) ) {
+      output <-
+        bestcost:::monetize(output)
+    }
 
 
 
     return(output)
   }
-
-# } end of loop (for cutoff variante)
-
-
-# if(approach = "scenario_A_minus_scenario_B") { # cutoff in the exposure response function
-# bestcost:::compare() # calculates scenario_A_minus_scenario_B
-# comparison_yll_lifetable_delta  <- # code copied from "testing_Rpackage.Rmd"
-# impact_raw  <-
-#   bestcost::compare(
-#     health_metric = health_metric,
-#     approach_comparison = "delta",
-#     exp_central_1 = exp_central, # Put exp_central here, maybe
-#     prop_pop_exp_1 = prop_pop_exp, # Fake data just for testing purposes
-#     exp_central_2 = cutoff, # Fake data just for testing purposes
-#     prop_pop_exp_2 = prop_pop_exp, # Fake data just for testing purposes
-#     cutoff = 0,   # put to 0, so that in get_risk we don't have cutoff - cutoff = 0
-#     rr_central = rr_central,
-#     rr_lower = rr_lower,
-#     rr_upper = rr_upper,
-#     erf_increment = erf_increment,
-#     erf_shape = erf_shape,
-#     first_age_pop_1 = first_age_pop, #
-#     last_age_pop_1 = 99,
-#     population_midyear_male_1 = lifetable_withPopulation[["male"]]$population,
-#     population_midyear_female_1 = lifetable_withPopulation[["female"]]$population,
-#     year_of_analysis_1 = 2019,
-#     first_age_pop_2 = first_age_pop, #
-#     last_age_pop_2 = 99,
-#     population_midyear_male_2 = lifetable_withPopulation[["male"]]$population,
-#     population_midyear_female_2 = lifetable_withPopulation[["female"]]$population,
-#     year_of_analysis_2 = 2019,
-#     info_1 = input_data_mortality$pollutant[2],
-#     info_2 = input_data_mortality$pollutant[2],
-#     min_age = 20,
-#     dw_central = dw_central, dw_lower = dw_lower, dw_upper = dw_upper,
-#     duration = duration)
-#
-#     return(output)
-# }

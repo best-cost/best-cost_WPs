@@ -6,6 +6,7 @@
 Calculates the health impacts between two scenarios (e.g. before and after a intervention in a health impact assessments). It provides as a result the central estimate as well as the lower and the higher bound of the confidence interval based on the uncertainty of the exposure-response function.}
 \usage{
 compare(
+  approach_multiexposure = NULL,
   approach_comparison = "delta",
   health_metric = "same_input_output",
   approach_risk = "relative_risk",
@@ -25,9 +26,9 @@ compare(
   rr_upper = NULL,
   erf_increment = NULL,
   erf_shape = NULL,
-  erf_c_central = NULL,
-  erf_c_lower = NULL,
-  erf_c_upper = NULL,
+  erf_eq_central = NULL,
+  erf_eq_lower = NULL,
+  erf_eq_upper = NULL,
   bhd_central_1 = NULL,
   bhd_lower_1 = NULL,
   bhd_upper_1 = NULL,
@@ -83,9 +84,13 @@ compare(
 
 \item{cutoff}{\code{Numeric value} showing the cut-off exposure in ug/m3 (i.e. the exposure level below which no health effects occur).}
 
+\item{rr_central, rr_lower, rr_upper}{\code{Numeric values} referring to the central estimate of the relative risk and the corresponding lower and upper 95\% confidence interval bounds.}
+
 \item{erf_increment}{\code{Numeric value} showing the increment of the concentration-response function in ug/m3 (usually 10 or 5).}
 
 \item{erf_shape}{\code{String} showing the shape of the exposure-response function to be assumed using the relative risk from the literature as support point. Options: "linear", log_linear", "linear_log", "log_log".}
+
+\item{erf_eq_central, erf_eq_lower, erf_eq_upper}{Equation of the user-defined exposure-response function that puts the relative risk (y) in relation with exposure (x). If the function is provided as \code{string}, it can only contains one variable: x (exposure). E.g. "3+x+x^2". If the function is provided as a \code{function}, the object should have a function class. If only the values of the x-axis (exposure) and y axis (relative risk) of the dots in the exposure-response function are available, a cubic spline natural interpolation can be assumed to get the function using, e.g., \code{stats::splinefun(x, y, method="natural")}}
 
 \item{approach_exposure_1}{\code{String} showing whether air pollution is constant or only in one year. Options: "single_year" (default), "constant"}
 
@@ -130,10 +135,6 @@ compare(
 \item{info_1}{\code{String} or {data frame} showing additional information or id of the scenario 1. The suffix "info" will be added to the column name. Default value = NULL.}
 
 \item{info_2}{\code{String} or {data frame} showing additional information or id of the scenario 1. The suffix "info" will be added to the column name. Default value = NULL.}
-
-\item{rr}{\code{Vector} of three numeric values referring to the central estimate as well as the lower and upper bound of the confidence interval.}
-
-\item{erf_c}{\code{String} showing the user-defined function that puts the relative risk in relation with concentration. The function must have only one variable: c, which means concentration. E.g. "3+c+c^2". Default value = NULL.}
 }
 \value{
 TBD. E.g. This function returns a \code{data.frame} with one row for each value of the

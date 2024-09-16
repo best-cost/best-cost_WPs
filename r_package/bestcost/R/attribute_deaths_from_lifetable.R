@@ -23,12 +23,13 @@
 #' @export
 
 attribute_deaths_from_lifetable <-
-  function(exp_central, exp_lower = NULL, exp_upper = NULL,
+  function(approach_multiexposure = NULL,
+           exp_central, exp_lower = NULL, exp_upper = NULL,
            prop_pop_exp = 1,
            cutoff,
            rr_central = NULL, rr_lower = NULL, rr_upper = NULL,
            erf_increment = NULL, erf_shape = NULL,
-           erf_c_central = NULL, erf_c_lower = NULL, erf_c_upper = NULL,
+           erf_eq_central = NULL, erf_eq_lower = NULL, erf_eq_upper = NULL,
            approach_exposure = "constant",
            approach_newborns = "without_newborns",
            deaths_male = NULL,
@@ -44,6 +45,7 @@ attribute_deaths_from_lifetable <-
       bestcost::attribute(
         health_metric = "deaths_from_lifetable",
         approach_risk = "relative_risk",
+        approach_multiexposure = approach_multiexposure,
         exp_central = exp_central, exp_lower = exp_lower, exp_upper = exp_upper,
         prop_pop_exp = prop_pop_exp,
         pop_exp = NULL,
@@ -51,7 +53,7 @@ attribute_deaths_from_lifetable <-
         rr_central = rr_central, rr_lower = rr_lower, rr_upper = rr_upper,
         erf_increment = erf_increment,
         erf_shape = erf_shape,
-        erf_c_central = erf_c_central, erf_c_lower = erf_c_lower, erf_c_upper = erf_c_upper,
+        erf_eq_central = erf_eq_central, erf_eq_lower = erf_eq_lower, erf_eq_upper = erf_eq_upper,
         bhd_central = NULL, bhd_lower = NULL, bhd_upper = NULL,
         dw_central = NULL, dw_lower = NULL, dw_upper = NULL,
         duration = NULL,

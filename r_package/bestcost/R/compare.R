@@ -11,10 +11,10 @@
 #' @param pop_exp_1 \code{Numeric value} or {vector} showing the population exposed for each of the exposure categories for the scenario 1. The length of this input variable must be the same as "exp".
 #' @param pop_exp_2 \code{Numeric value} or {vector} showing the population exposed for each of the exposure categories for the scenario 2. The length of this input variable must be the same as "exp".
 #' @param cutoff \code{Numeric value} showing the cut-off exposure in ug/m3 (i.e. the exposure level below which no health effects occur).
-#' @param rr \code{Vector} of three numeric values referring to the central estimate as well as the lower and upper bound of the confidence interval.
+#' @param rr_central,rr_lower,rr_upper \code{Numeric values} referring to the central estimate of the relative risk and the corresponding lower and upper 95\% confidence interval bounds.
 #' @param erf_increment \code{Numeric value} showing the increment of the concentration-response function in ug/m3 (usually 10 or 5).
 #' @param erf_shape \code{String} showing the shape of the exposure-response function to be assumed using the relative risk from the literature as support point. Options: "linear", log_linear", "linear_log", "log_log".
-#' @param erf_c \code{String} showing the user-defined function that puts the relative risk in relation with concentration. The function must have only one variable: c, which means concentration. E.g. "3+c+c^2". Default value = NULL.
+#' @param erf_eq_central,erf_eq_lower,erf_eq_upper Equation of the user-defined exposure-response function that puts the relative risk (y) in relation with exposure (x). If the function is provided as \code{string}, it can only contains one variable: x (exposure). E.g. "3+x+x^2". If the function is provided as a \code{function}, the object should have a function class. If only the values of the x-axis (exposure) and y axis (relative risk) of the dots in the exposure-response function are available, a cubic spline natural interpolation can be assumed to get the function using, e.g., \code{stats::splinefun(x, y, method="natural")}
 #' @param approach_exposure_1 \code{String} showing whether air pollution is constant or only in one year. Options: "single_year" (default), "constant"
 #' @param approach_newborns_1 \code{String} showing whether newborns are considered in the years after the year of analysis. Options: "without_newborns" (default), "with_newborns"
 #' @param first_age_pop_1 \code{Numeric value} starting age of the youngest age group from population and life table data in the scenario 1.
@@ -53,7 +53,8 @@
 #' @note Experimental function
 #' @export
 compare <-
-  function(approach_comparison = "delta",
+  function(approach_multiexposure = NULL,
+           approach_comparison = "delta",
            health_metric = "same_input_output",
            approach_risk = "relative_risk",
            exp_central_1, exp_lower_1 = NULL, exp_upper_1 = NULL,
@@ -66,7 +67,7 @@ compare <-
            rr_central = NULL, rr_lower = NULL, rr_upper = NULL,
            erf_increment = NULL,
            erf_shape = NULL,
-           erf_c_central = NULL, erf_c_lower = NULL, erf_c_upper = NULL,
+           erf_eq_central = NULL, erf_eq_lower = NULL, erf_eq_upper = NULL,
            bhd_central_1 = NULL, bhd_lower_1 = NULL, bhd_upper_1 = NULL,
            bhd_central_2 = NULL, bhd_lower_2 = NULL, bhd_upper_2 = NULL,
            # Lifetable arguments
@@ -98,6 +99,7 @@ compare <-
     # Calculate attributable health impacts in the scenario 1
     impact_raw_1 <-
       bestcost::attribute(
+        approach_multiexposure = approach_multiexposure,
         approach_risk = approach_risk,
         health_metric = health_metric,
         exp_central = exp_central_1, exp_lower = exp_lower_1, exp_upper = exp_upper_1,
@@ -107,7 +109,7 @@ compare <-
         rr_central = rr_central, rr_lower = rr_lower, rr_upper = rr_upper,
         erf_increment = erf_increment,
         erf_shape = erf_shape,
-        erf_c_central = erf_c_central, erf_c_lower = erf_c_lower, erf_c_upper = erf_c_upper,
+        erf_eq_central = erf_eq_central, erf_eq_lower = erf_eq_lower, erf_eq_upper = erf_eq_upper,
         bhd_central = bhd_central_1, bhd_lower = bhd_lower_1, bhd_upper = bhd_upper_1,
         approach_exposure = approach_exposure_1,
         approach_newborns = approach_newborns_1,
@@ -131,6 +133,7 @@ compare <-
     # Calculate attributable health impacts in the scenario 2
     impact_raw_2 <-
       bestcost::attribute(
+        approach_multiexposure = approach_multiexposure,
         approach_risk = approach_risk,
         health_metric = health_metric,
         exp_central = exp_central_2, exp_lower = exp_lower_2, exp_upper = exp_upper_2,
@@ -140,7 +143,7 @@ compare <-
         rr_central = rr_central, rr_lower = rr_lower, rr_upper = rr_upper,
         erf_increment = erf_increment,
         erf_shape = erf_shape,
-        erf_c_central = erf_c_central, erf_c_lower = erf_c_lower, erf_c_upper = erf_c_upper,
+        erf_eq_central = erf_eq_central, erf_eq_lower = erf_eq_lower, erf_eq_upper = erf_eq_upper,
         bhd_central = bhd_central_2, bhd_lower = bhd_lower_2, bhd_upper = bhd_upper_2,
         approach_newborns  = approach_newborns_2,
         approach_exposure = approach_exposure_2,
@@ -231,12 +234,15 @@ compare <-
           rr_upper = rr_upper,
           erf_increment = erf_increment,
           erf_shape = erf_shape,
-          erf_c_central = erf_c_central, erf_c_lower = erf_c_lower, erf_c_upper = erf_c_upper,
+          erf_eq_central = erf_eq_central, erf_eq_lower = erf_eq_lower, erf_eq_upper = erf_eq_upper,
           min_age = min_age,
           max_age = max_age,
           info = info_1,
           geo_id_raw = geo_id_raw,
           geo_id_aggregated = geo_id_aggregated,
+          # YLD
+          dw_central = dw_central, dw_lower = dw_lower, dw_upper = dw_upper,
+          duration = duration,
           # Lifetable data
           approach_exposure = approach_exposure_1,
           approach_newborns = approach_newborns_1,
@@ -262,12 +268,15 @@ compare <-
           rr_upper = rr_upper,
           erf_increment = erf_increment,
           erf_shape = erf_shape,
-          erf_c_central = erf_c_central, erf_c_lower = erf_c_lower, erf_c_upper = erf_c_upper,
+          erf_eq_central = erf_eq_central, erf_eq_lower = erf_eq_lower, erf_eq_upper = erf_eq_upper,
           min_age = min_age,
           max_age = max_age,
           info = info_2,
           geo_id_raw = geo_id_raw,
           geo_id_aggregated = geo_id_aggregated,
+          # YLD
+          dw_central = dw_central, dw_lower = dw_lower, dw_upper = dw_upper,
+          duration = duration,
           # Lifetable data
           approach_exposure = approach_exposure_2,
           approach_newborns = approach_newborns_2,
@@ -314,7 +323,6 @@ compare <-
           min_age = min_age,
           max_age = max_age,
           corrected_discount_rate = corrected_discount_rate,
-          dw_central = dw_central, dw_lower = dw_lower, dw_upper = dw_upper,
           duration = duration,
           pop_fraction_type = "pif")
       }
