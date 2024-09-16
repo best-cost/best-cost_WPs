@@ -80,9 +80,19 @@ get_output <-
                                                      "geo_id_aggregated", "exp_ci",
                                                      "bhd_ci", "erf_ci","dw_ci"),
                                                 names(.)))))%>%
-        dplyr::summarise(impact = sum(impact),
+        {if(!"impact_social" %in% names(output_last))
+          dplyr::summarise(.,
+                           impact = sum(impact),
+                           impact_rounded = round(impact),
+                           .groups = "drop")
+      else
+        dplyr::summarise(.,
+                         impact = sum(impact),
                          impact_rounded = round(impact),
+                         impact_social = sum(impact_social),
+                         impact_social_rounded = round(impact_social),
                          .groups = "drop")
+          }
 
 
       output_last <- output[["detailed"]][["agg_geo"]]
