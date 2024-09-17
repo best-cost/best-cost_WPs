@@ -168,7 +168,7 @@ system.time(bestcost_pm_copd_geo <-
 
 
 ```{r Social aspects in a simple case, eval=FALSE, include=FALSE}
-# Monetize
+# Take into account social aspects
 bestcost_pm_copd_geo_social <- 
   bestcost::include_social(output = bestcost_pm_copd_geo,
                            geo_id_raw = 1:1E4,
