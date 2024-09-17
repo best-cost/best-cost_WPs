@@ -120,6 +120,7 @@ bestcost_pm_copd_costs <-
 
 
 
+
 ```{r multiple single exposure value, eval=FALSE, include=FALSE}
 # Assess attributable cases for multiple uncertainties at the same time
 # i.e. rr, bhd and exp
@@ -159,6 +160,19 @@ system.time(bestcost_pm_copd_geo <-
     geo_id_aggregated = rep("CH", 1E4),
     info = "PM2.5_copd"))
 
+
+
+
+```
+
+
+
+```{r Social aspects in a simple case, eval=FALSE, include=FALSE}
+# Take into account social aspects
+bestcost_pm_copd_geo_social <- 
+  bestcost::include_social(output = bestcost_pm_copd_geo,
+                           geo_id_raw = 1:1E4,
+                           deprivation_weight = as.list(runif_with_seed(1E4, 0.5, 0.8, 1)))
 ```
 
 
