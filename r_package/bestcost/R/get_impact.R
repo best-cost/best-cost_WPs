@@ -45,7 +45,7 @@ get_impact <-
                         pop_fraction, impact,
                         everything())
 
-        impact_raw = list(main = impact_raw_main)
+        impact_raw <- list(main = impact_raw_main)
 
       } else if (unique(input$health_metric) %in% "yld_from_prevalence") {
 
@@ -60,7 +60,7 @@ get_impact <-
                         pop_fraction, impact,
                         everything())
 
-        impact_raw = list(main = impact_raw_main)
+        impact_raw <- list(main = impact_raw_main)
 
         } else if (unique(input$health_metric) %in% c("deaths_from_lifetable",
                                                       "yll_from_lifetable",
@@ -122,7 +122,7 @@ get_impact <-
           absolute_risk_as_percent = bestcost::get_risk(exp = exp, erf_eq = erf_eq) ,
           impact = absolute_risk_as_percent/100 * pop_exp)
 
-      impact_raw = list(main = impact_raw_main)
+      impact_raw <- list(main = impact_raw_main)
 
     }
 

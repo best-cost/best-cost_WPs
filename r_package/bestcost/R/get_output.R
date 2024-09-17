@@ -21,9 +21,18 @@
 get_output <-
   function(impact_raw){
 
-    output <- list(main = impact_raw[["main"]],
-                   detailed = list(raw = impact_raw[["main"]],
-                                   interim = impact_raw[["detailed"]]))
+    # Store output so far
+    # The main will chage below that we give a first value
+    output <-
+      impact_raw
+
+    output[["detailed"]][["raw"]] <- impact_raw[["main"]]
+
+    # # If lifetable approach --> store interim results of population impact by age
+    # if(!is.null(impact_raw[["detailed"]])){
+    #   output[["detailed"]][["detailed"]][["interim_lifetable"]] <-
+    #     impact_raw_
+    # }
 
     output_last <-
       output[["main"]]
