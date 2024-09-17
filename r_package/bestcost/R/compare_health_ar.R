@@ -27,14 +27,14 @@ compare_health_ar <-
            exp_central_1, exp_lower_1 = NULL, exp_upper_1 = NULL,
            exp_central_2, exp_lower_2 = NULL, exp_upper_2 = NULL,
            pop_exp_1, pop_exp_2,
-           erf_x_central, erf_x_lower = NULL, erf_x_upper = NULL,
+           erf_eq_central, erf_eq_lower = NULL, erf_eq_upper = NULL,
            geo_id_raw = NULL,
            geo_id_aggregated = NULL,
-           valuation = NULL,
            info_1 = NULL, info_2 = NULL){
 
     output <-
       bestcost::compare(
+        approach_multiexposure = NULL,
         approach_comparison = approach_comparison,
         health_metric = "same_input_output",
         approach_risk = "absolute_risk",
@@ -48,7 +48,7 @@ compare_health_ar <-
         rr_central = NULL, rr_lower = NULL, rr_upper = NULL,
         erf_increment = NULL,
         erf_shape = NULL,
-        erf_x_central = erf_x_central, erf_x_lower = erf_x_lower, erf_x_upper = erf_x_upper,
+        erf_eq_central = erf_eq_central, erf_eq_lower = erf_eq_lower, erf_eq_upper = erf_eq_upper,
         bhd_central_1 = NULL, bhd_lower_1 = NULL, bhd_upper_1 = NULL,
         bhd_central_2 = NULL, bhd_lower_2 = NULL, bhd_upper_2 = NULL,
         dw_central = NULL, dw_lower = NULL, dw_upper = NULL,
@@ -66,7 +66,6 @@ compare_health_ar <-
         min_age = NULL, max_age = NULL,
         geo_id_raw = geo_id_raw,
         geo_id_aggregated = geo_id_aggregated,
-        valuation = valuation,
         info_1 = info_1, info_2 = info_2)
 
 

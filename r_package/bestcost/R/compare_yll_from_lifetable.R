@@ -23,7 +23,8 @@
 #' @note Experimental function
 #' @export
 compare_yll_from_lifetable <-
-  function(approach_comparison = "delta",
+  function(approach_multiexposure = NULL,
+           approach_comparison = "delta",
            exp_central_1, exp_lower_1 = NULL, exp_upper_1 = NULL,
            exp_central_2, exp_lower_2 = NULL, exp_upper_2 = NULL,
            prop_pop_exp_1 = 1, prop_pop_exp_2 = 1,
@@ -31,7 +32,7 @@ compare_yll_from_lifetable <-
            rr_central = NULL, rr_lower = NULL, rr_upper = NULL,
            erf_increment = NULL,
            erf_shape = NULL,
-           erf_x_central = NULL, erf_x_lower = NULL, erf_x_upper = NULL,
+           erf_eq_central = NULL, erf_eq_lower = NULL, erf_eq_upper = NULL,
            approach_exposure_1 = "single_year",
            approach_newborns_1 = "without_newborns",
            first_age_pop_1, last_age_pop_1,
@@ -51,12 +52,12 @@ compare_yll_from_lifetable <-
            min_age = NULL, max_age = NULL,
            geo_id_raw = NULL,
            geo_id_aggregated = NULL,
-           valuation = NULL,
            info_1 = NULL, info_2 = NULL){
 
 
     output <-
       bestcost::compare(
+        approach_multiexposure = approach_multiexposure,
         approach_comparison = approach_comparison,
         health_metric = "yll_from_lifetable",
         approach_risk = "relative_risk",
@@ -70,7 +71,7 @@ compare_yll_from_lifetable <-
         rr_central = rr_central , rr_lower = rr_lower, rr_upper = rr_upper,
         erf_increment = erf_increment,
         erf_shape = erf_shape,
-        erf_x_central = erf_x_central, erf_x_lower = erf_x_lower, erf_x_upper = erf_x_upper,
+        erf_eq_central = erf_eq_central, erf_eq_lower = erf_eq_lower, erf_eq_upper = erf_eq_upper,
         bhd_central_1 = NULL, bhd_lower_1 = NULL, bhd_upper_1 = NULL,
         bhd_central_2 = NULL, bhd_lower_2 = NULL, bhd_upper_2 = NULL,
         approach_exposure_1 = approach_exposure_1,
@@ -93,7 +94,6 @@ compare_yll_from_lifetable <-
         corrected_discount_rate = corrected_discount_rate,
         geo_id_raw = geo_id_raw,
         geo_id_aggregated = geo_id_aggregated,
-        valuation = valuation,
         info_1 = info_1 , info_2 = info_2)
 
 

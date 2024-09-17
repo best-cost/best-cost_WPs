@@ -9,12 +9,11 @@ attribute_health_ar(
   exp_lower = NULL,
   exp_upper = NULL,
   pop_exp,
-  erf_x_central,
-  erf_x_lower = NULL,
-  erf_x_upper = NULL,
+  erf_eq_central,
+  erf_eq_lower = NULL,
+  erf_eq_upper = NULL,
   geo_id_raw = NULL,
   geo_id_aggregated = NULL,
-  valuation = NULL,
   info = NULL
 )
 }
@@ -23,11 +22,11 @@ attribute_health_ar(
 
 \item{pop_exp}{\code{Numeric value} or {vector} showing the population exposed for each of the exposure categories. The length of this input variable must be the same as "exp".}
 
+\item{erf_eq_central, erf_eq_lower, erf_eq_upper}{\code{String} or \code{function} referring to the equation of the user-defined exposure-response function. If a \code{string} is entered, the function must contains only one variable: x (exposure). E.g. "3+x+x^2". If a \code{function} is entered, it has to have a function class. If only the values of the x-axis (exposure) and y axis (relative risk) of the dots in the exposure-response function are available, a cubic spline natural interpolation can be assumed to get the function using, e.g., \code{stats::splinefun(x, y, method="natural")}}
+
 \item{geo_id_raw}{\code{Vector} showing the id code of the each geographic area considered in the assessment. If a vector is entered here, the data for each geographical area have to be provided as list in the corresponding arguments.}
 
 \item{geo_id_aggregated}{\code{Vector} showing the id code of the geographic area for which raw geo ids have to be aggregated. The vector has to have the same length as geo_id_raw. Therefore, geo_id_aggregated should have duplicated values for those geo_id_r}
-
-\item{valuation}{\code{Numeric value} showing the value of statistical life which will be used in the health impact monetization}
 
 \item{info}{\code{String} or {data frame} showing additional information or id. The suffix "info" will be added to the column name. Default value = NULL.}
 }

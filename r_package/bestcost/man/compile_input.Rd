@@ -6,8 +6,9 @@
 Compiles the input data of the main function and calculates the population attributable fraction based on the input data (all in one data frame)}
 \usage{
 compile_input(
-  approach_risk = NULL,
   health_metric = NULL,
+  approach_multiexposure = NULL,
+  approach_risk = NULL,
   exp_central,
   exp_lower = NULL,
   exp_upper = NULL,
@@ -19,9 +20,9 @@ compile_input(
   rr_upper = NULL,
   erf_increment = NULL,
   erf_shape = NULL,
-  erf_x_central = NULL,
-  erf_x_lower = NULL,
-  erf_x_upper = NULL,
+  erf_eq_central = NULL,
+  erf_eq_lower = NULL,
+  erf_eq_upper = NULL,
   bhd_central = NULL,
   bhd_lower = NULL,
   bhd_upper = NULL,
@@ -42,14 +43,15 @@ compile_input(
   population_midyear_male = NULL,
   population_midyear_female = NULL,
   deaths_male = NULL,
-  deaths_female = NULL,
-  valuation = NULL
+  deaths_female = NULL
 )
 }
 \arguments{
-\item{approach_risk}{\code{String} showing the risk risk method. To choose between: "relative_risk" (default) or "absolute_risk".}
-
 \item{health_metric}{\code{String} showing the change in outcome metric to assess attributable health impacts. To choose between "same_input_output" (default), "yld_from_prevalence", "deaths_from_lifetable", "yll_from_lifetable", "yld_from_lifetable" and "daly_from_lifetable".}
+
+\item{approach_multiexposure}{\code{String} showing the approach that has to be used in assessments with multiple exposures. To choose among: "additive" and "multiplicative".}
+
+\item{approach_risk}{\code{String} showing the risk risk method. To choose between: "relative_risk" (default) or "absolute_risk".}
 
 \item{exp_central, exp_lower, exp_upper}{\code{Numeric values} of the exposure to the environmental stressor referring to the central estimate and (optionally) to lower and upper bound of the confidence interval. If only one value is provided, it will be assumed that it refers to population-weighted mean exposure in ug/m3. If a {vector} is provided, it will be assumed that it refers to the exposure categories (average exposure in the category) in a exposure distribution (this information is linked to the proportion of population exposed).}
 
@@ -59,11 +61,13 @@ compile_input(
 
 \item{cutoff}{\code{Numeric value} showing the cut-off exposure in ug/m3 (i.e. the exposure level below which no health effects occur).}
 
-\item{rr_central, rr_lower, rr_upper}{Three \code{numeric values} referring to the central estimate of the relative risk and the corresponding lower and upper 95\% confidence interval bounds.}
+\item{rr_central, rr_lower, rr_upper}{\code{Numeric values} referring to the central estimate of the relative risk and the corresponding lower and upper 95\% confidence interval bounds.}
 
 \item{erf_increment}{\code{Numeric value} showing the increment of the exposure-response function in ug/m3 (usually 10 or 5).}
 
 \item{erf_shape}{\code{String} showing the shape of the exposure-response function to be assumed using the relative risk from the literature as support point. Options: "linear", log_linear", "linear_log", "log_log".}
+
+\item{erf_eq_central, erf_eq_lower, erf_eq_upper}{\code{String} or \code{function} referring to the equation of the user-defined exposure-response function. If a \code{string} is entered, the function must contains only one variable: x (exposure). E.g. "3+x+x^2". If a \code{function} is entered, it has to have a function class. If only the values of the x-axis (exposure) and y axis (relative risk) of the dots in the exposure-response function are available, a cubic spline natural interpolation can be assumed to get the function using, e.g., \code{stats::splinefun(x, y, method="natural")}}
 
 \item{bhd_central, bhd_lower, bhd_upper}{\code{Numeric value} showing the central estimate and (optionally) the lower bound and the upper bound of the confidence interval of the baseline health data (e.g. incidence of the health outcome in the population).}
 
@@ -92,8 +96,6 @@ compile_input(
 \item{last_age_pop}{\code{Numeric value} ending age of the oldest age group from population and life table data (age interval = 1 year)}
 
 \item{population_midyear_male, population_midyear_female}{\code{Numeric vector} containing the mid-year male population for the year of analysis for male and female respectively.}
-
-\item{valuation}{\code{Numeric value} showing the value of statistical life which will be used in the health impact monetization}
 }
 \value{
 This function returns a \code{data.frame} with all input data together

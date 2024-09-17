@@ -6,6 +6,7 @@
 \usage{
 attribute(
   health_metric = "same_input_output",
+  approach_multiexposure = NULL,
   approach_risk = "relative_risk",
   exp_central,
   exp_lower = NULL,
@@ -18,9 +19,9 @@ attribute(
   rr_upper = NULL,
   erf_increment = NULL,
   erf_shape = NULL,
-  erf_x_central = NULL,
-  erf_x_lower = NULL,
-  erf_x_upper = NULL,
+  erf_eq_central = NULL,
+  erf_eq_lower = NULL,
+  erf_eq_upper = NULL,
   bhd_central = NULL,
   bhd_lower = NULL,
   bhd_upper = NULL,
@@ -42,12 +43,13 @@ attribute(
   corrected_discount_rate = NULL,
   geo_id_raw = NULL,
   geo_id_aggregated = NULL,
-  valuation = NULL,
   info = NULL
 )
 }
 \arguments{
 \item{health_metric}{\code{String} showing the change in outcome metric to assess attributable health impacts. To choose between "same_input_output" (default), "yld_from_prevalence", "deaths_from_lifetable", "yll_from_lifetable", "yld_from_lifetable" and "daly_from_lifetable".}
+
+\item{approach_multiexposure}{\code{String} showing the approach that has to be used in assessments with multiple exposures. To choose among: "additive" and "multiplicative".}
 
 \item{approach_risk}{\code{String} showing the risk risk method. To choose between: "relative_risk" (default) or "absolute_risk".}
 
@@ -59,11 +61,13 @@ attribute(
 
 \item{cutoff}{\code{Numeric value} showing the cut-off exposure in ug/m3 (i.e. the exposure level below which no health effects occur).}
 
-\item{rr_central, rr_lower, rr_upper}{Three \code{numeric values} referring to the central estimate of the relative risk and the corresponding lower and upper 95\% confidence interval bounds.}
+\item{rr_central, rr_lower, rr_upper}{\code{Numeric values} referring to the central estimate of the relative risk and the corresponding lower and upper 95\% confidence interval bounds.}
 
 \item{erf_increment}{\code{Numeric value} showing the increment of the exposure-response function in ug/m3 (usually 10 or 5).}
 
 \item{erf_shape}{\code{String} showing the shape of the exposure-response function to be assumed using the relative risk from the literature as support point. Options: "linear", log_linear", "linear_log", "log_log".}
+
+\item{erf_eq_central, erf_eq_lower, erf_eq_upper}{\code{String} or \code{function} referring to the equation of the user-defined exposure-response function. If a \code{string} is entered, the function must contains only one variable: x (exposure). E.g. "3+x+x^2". If a \code{function} is entered, it has to have a function class. If only the values of the x-axis (exposure) and y axis (relative risk) of the dots in the exposure-response function are available, a cubic spline natural interpolation can be assumed to get the function using, e.g., \code{stats::splinefun(x, y, method="natural")}}
 
 \item{bhd_central, bhd_lower, bhd_upper}{\code{Numeric value} showing the central estimate and (optionally) the lower bound and the upper bound of the confidence interval of the baseline health data (e.g. incidence of the health outcome in the population).}
 
@@ -93,11 +97,7 @@ attribute(
 
 \item{geo_id_aggregated}{\code{Vector} showing the id code of the geographic area for which raw geo ids have to be aggregated. The vector has to have the same length as geo_id_raw. Therefore, geo_id_aggregated should have duplicated values for those geo_id_r}
 
-\item{valuation}{\code{Numeric value} showing the value of statistical life which will be used in the health impact monetization}
-
 \item{info}{\code{String} or {data frame} showing additional information or id. The suffix "info" will be added to the column name. Default value = NULL.}
-
-\item{erf_x}{\code{String} showing the user-defined function that puts the relative risk in relation with concentration. The function must have only one variable: c, which means concentration. E.g. "3+c+c^2". Default value = NULL.<<<<<<< HEAD}
 }
 \value{
 TBD. E.g. This function returns a \code{data.frame} with one row for each value of the

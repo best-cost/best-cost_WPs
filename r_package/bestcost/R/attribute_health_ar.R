@@ -21,14 +21,14 @@
 attribute_health_ar <-
   function(exp_central, exp_lower = NULL, exp_upper = NULL,
            pop_exp,
-           erf_x_central, erf_x_lower = NULL, erf_x_upper = NULL,
+           erf_eq_central, erf_eq_lower = NULL, erf_eq_upper = NULL,
            geo_id_raw = NULL, geo_id_aggregated = NULL,
-           valuation = NULL,
            info = NULL){
 
     output <-
       bestcost::attribute(
         health_metric = "same_input_output",
+        approach_multiexposure = NULL,
         approach_risk = "absolute_risk",
         exp_central = exp_central, exp_lower = exp_lower, exp_upper = exp_upper,
         prop_pop_exp = NULL,
@@ -37,7 +37,7 @@ attribute_health_ar <-
         rr_central = NULL, rr_lower = NULL, rr_upper = NULL,
         erf_increment = NULL,
         erf_shape = NULL,
-        erf_x_central = erf_x_central, erf_x_lower = erf_x_lower, erf_x_upper = erf_x_upper,
+        erf_eq_central = erf_eq_central, erf_eq_lower = erf_eq_lower, erf_eq_upper = erf_eq_upper,
         bhd_central = NULL, bhd_lower = NULL, bhd_upper = NULL,
         approach_exposure = NULL,
         approach_newborns = NULL,
@@ -49,7 +49,6 @@ attribute_health_ar <-
         dw_central = NULL, dw_lower = NULL, dw_upper = NULL,
         duration = NULL,
         geo_id_raw = geo_id_raw , geo_id_aggregated = geo_id_aggregated,
-        valuation = valuation,
         info = info)
 
     return(output)

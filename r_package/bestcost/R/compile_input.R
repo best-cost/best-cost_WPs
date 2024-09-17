@@ -24,8 +24,9 @@
 #' @keywords internal
 
 compile_input <-
-  function(approach_risk = NULL,
-           health_metric = NULL,
+  function(health_metric = NULL,
+           approach_multiexposure = NULL,
+           approach_risk = NULL,
            exp_central, exp_lower = NULL, exp_upper = NULL,
            prop_pop_exp = NULL,
            pop_exp = NULL,
@@ -33,7 +34,7 @@ compile_input <-
            rr_central, rr_lower = NULL, rr_upper = NULL,
            erf_increment = NULL,
            erf_shape = NULL,
-           erf_x_central = NULL, erf_x_lower = NULL, erf_x_upper = NULL,
+           erf_eq_central = NULL, erf_eq_lower = NULL, erf_eq_upper = NULL,
            bhd_central = NULL, bhd_lower = NULL, bhd_upper = NULL,
            min_age = NULL,
            max_age = NULL,
@@ -49,9 +50,7 @@ compile_input <-
            approach_newborns = NULL,
            first_age_pop = NULL, last_age_pop = NULL,
            population_midyear_male = NULL, population_midyear_female = NULL,
-           deaths_male = NULL, deaths_female = NULL,
-           # Monetization
-           valuation = NULL){
+           deaths_male = NULL, deaths_female = NULL){
 
     # Check input data
     # stopifnot(exprs = {
@@ -59,6 +58,15 @@ compile_input <-
     #   is.null(min_age) == FALSE
     #   is.null(max_age) == FALSE
     # })
+
+
+    # PROCESS MULTIPLE EXPOSURE #########################################################
+    # If multiple exposures are considered at the same time
+    # if(!is.null(approach_multiexposure)){
+    #   geo_id_raw <-
+    #     as.character(ifelse(is.list({{exp_central}}), 1:length({{exp_central}}), 1))
+    # }
+
 
     # PROCESS GEO ID ###################################################################
     # If no geo_id_raw is provided (if is NULL) then assign some value.
@@ -71,10 +79,11 @@ compile_input <-
     # PROCESS ERF ######################################################################
 
     # If the erf is defined by rr, increment, shape and cutoff
-    if(is.null(erf_x_central)){
+    if(is.null(erf_eq_central)){
 
       erf_data <- # 1 x 6 tibble
         dplyr::tibble(
+          exposure_name = names(rr_central),
           erf_increment = erf_increment,
           erf_shape = erf_shape,
           cutoff = cutoff,
@@ -83,29 +92,40 @@ compile_input <-
           rr_upper = rr_upper)
     }
 
-    # If it is defined by the erf function
-    if(!is.null(erf_x_central) & is.character(erf_x_central)){
+    # If it is defined by the erf function as string
+    if(!is.null(erf_eq_central) & is.character(erf_eq_central)){
 
         erf_data <- # 1 x 3 tibble
           dplyr::tibble(
-            erf_x_central = erf_x_central,
-            erf_x_lower = erf_x_lower,
-            erf_x_upper = erf_x_upper)
+            exposure_name = names(erf_eq_central),
+            erf_eq_central = erf_eq_central,
+            erf_eq_lower = erf_eq_lower,
+            erf_eq_upper = erf_eq_upper)
     }
-
-    if(!is.null(erf_x_central) & is.data.frame(erf_x_central)){
+    # If it is defined by the erf function as function
+    if(!is.null(erf_eq_central) & is.function(erf_eq_central)){
 
         erf_data <- # 1 x 3 tibble
           dplyr::tibble(
-            erf_x_central = list(erf_x_central)) %>%
+            exposure_name = names(erf_eq_central),
+            erf_eq_central = list(erf_eq_central)) %>%
 
           # If a confidence interval for the erf is provided, add the erf columns
-          {if (!is.null(erf_x_lower) & !is.null(erf_x_upper))
+          {if (!is.null(erf_eq_lower) & !is.null(erf_eq_upper))
             dplyr::mutate(.,
-              erf_x_lower = list(erf_x_lower),
-              erf_x_upper = list(erf_x_upper))
+              erf_eq_lower = list(erf_eq_lower),
+              erf_eq_upper = list(erf_eq_upper))
             else .}
-        }
+    }
+
+    # If there exist no column with name "exposure_name" because the vectors were not named,
+    # then the column has to be added as NA
+    if(!"exposure_name" %in% names(erf_data)){
+      erf_data <-
+        erf_data %>%
+        dplyr::mutate(exposure_name = NA)
+
+    }
 
 
 
@@ -134,6 +154,7 @@ compile_input <-
         bhd_upper = rep(unlist(bhd_lower), each = length_exp_dist),
         min_age = rep(min_age, each = length_exp_dist),
         max_age = rep(max_age, each = length_exp_dist),
+        approach_multiexposure = rep(approach_multiexposure, each = length_exp_dist),
         approach_exposure = rep(approach_exposure, each = length_exp_dist),
         approach_newborns = rep(approach_newborns, each = length_exp_dist),
 
@@ -143,7 +164,6 @@ compile_input <-
         dw_lower = dw_lower,
         dw_upper = dw_upper,
         corrected_discount_rate = corrected_discount_rate,
-        valuation = valuation,
 
         # Finally, those variables that are multi-dimensional (exposure distribution)
         exp_central = unlist(exp_central),
@@ -152,7 +172,7 @@ compile_input <-
         prop_pop_exp = unlist(prop_pop_exp),
         pop_exp = unlist(pop_exp)) %>%
 
-      # Add rr with a cross join to produce all likely combinations
+      # Add erf data
       dplyr::bind_cols(., erf_data) %>%
       # Add additional (meta-)information
       bestcost:::add_info(df = ., info = info) %>%
@@ -171,7 +191,8 @@ compile_input <-
                  "population_weighted_mean",
                  "exposure_distribution")) %>%
       # Remove all columns with all values being NA
-      dplyr::select(where(~ !all(is.na(.)))) %>%
+      # dplyr::select(where(~ !all(is.na(.)))) %>%
+
       # Add lifetable-related data as nested tibble
       # Build the data set
       # The life table has to be provided (by sex)
@@ -189,7 +210,7 @@ compile_input <-
                           names_prefix = "exp_",
                           values_to = "exp") %>%
       ## Exposure response function,
-      {if(is.null(erf_x_central))
+      {if(is.null(erf_eq_central))
         tidyr::pivot_longer(.,
                             cols = starts_with("rr_"),
                             names_to = "erf_ci",
@@ -197,10 +218,10 @@ compile_input <-
                             values_to = "rr")
         else
           tidyr::pivot_longer(.,
-                              cols = starts_with("erf_x_"),
+                              cols = starts_with("erf_eq_"),
                               names_to = "erf_ci",
-                              names_prefix = "erf_x_",
-                              values_to = "erf_x")} %>%
+                              names_prefix = "erf_eq_",
+                              values_to = "erf_eq")} %>%
       ## Baseline health data,
       {if(!is.null(bhd_central))
         tidyr::pivot_longer(.,

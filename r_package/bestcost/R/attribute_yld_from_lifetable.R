@@ -11,12 +11,13 @@
 #' @note Experimental function
 #' @export
 attribute_yld_from_lifetable <-
-  function(exp_central, exp_lower = NULL, exp_upper = NULL,
+  function(approach_multiexposure = NULL,
+           exp_central, exp_lower = NULL, exp_upper = NULL,
            prop_pop_exp = 1,
            cutoff,
            rr_central = NULL, rr_lower = NULL, rr_upper = NULL,
            erf_increment = NULL, erf_shape = NULL,
-           erf_x_central = NULL, erf_x_lower = NULL, erf_x_upper = NULL,
+           erf_eq_central = NULL, erf_eq_lower = NULL, erf_eq_upper = NULL,
            approach_exposure = "single_year",
            approach_newborns = "without_newborns",
            first_age_pop, last_age_pop,
@@ -28,13 +29,13 @@ attribute_yld_from_lifetable <-
            min_age = NULL, max_age = NULL,
            dw_central, dw_lower = NULL, dw_upper = NULL,
            duration,
-           valuation = NULL,
            info = NULL){
 
     output<-
       bestcost::attribute(
         health_metric = "yld_from_lifetable",
         approach_risk = "relative_risk",
+        approach_multiexposure = approach_multiexposure,
         exp_central = exp_central, exp_lower = exp_lower, exp_upper = exp_upper,
         prop_pop_exp = prop_pop_exp,
         pop_exp = NULL,
@@ -42,7 +43,7 @@ attribute_yld_from_lifetable <-
         rr_central = rr_central, rr_lower = rr_lower, rr_upper = rr_upper,
         erf_increment = erf_increment,
         erf_shape = erf_shape,
-        erf_x_central = erf_x_central, erf_x_lower = erf_x_lower, erf_x_upper = erf_x_upper,
+        erf_eq_central = erf_eq_central, erf_eq_lower = erf_eq_lower, erf_eq_upper = erf_eq_upper,
         bhd_central = NULL, bhd_lower = NULL, bhd_upper = NULL,
         approach_exposure = approach_exposure,
         approach_newborns = approach_newborns,
@@ -56,7 +57,6 @@ attribute_yld_from_lifetable <-
         dw_central = dw_central, dw_lower = dw_lower, dw_upper = dw_upper,
         duration = duration,
         geo_id_raw = NULL , geo_id_aggregated = NULL,
-        valuation = valuation,
         info = info)
 
     return(output)
