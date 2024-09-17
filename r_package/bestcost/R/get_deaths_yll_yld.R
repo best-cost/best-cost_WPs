@@ -253,7 +253,7 @@ get_deaths_yll_yld <-
 
     # Classify results in main and detailed
     output <- list(main = impact_main,
-                   detailed = impact_detailed)
+                   detailed = list(step_by_step_from_lifetable = impact_detailed))
 
     return(output)
 

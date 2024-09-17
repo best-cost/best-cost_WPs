@@ -78,7 +78,7 @@ get_daly <-
     # Create compile main and detailed results
     impact_raw <- list(
       main = impact_daly_main_raw,
-      detailed = impact_yll_yld_raw
+      detailed = list(impact_yll_yld_raw = impact_yll_yld_raw)
     )
 
     return(impact_raw)
