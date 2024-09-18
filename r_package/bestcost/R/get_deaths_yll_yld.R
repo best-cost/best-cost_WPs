@@ -239,6 +239,28 @@ get_deaths_yll_yld <-
       dplyr::bind_rows(impact_detailed, impact_detailed_total)
     }
 
+    # Create ID for the rows (will be used below)
+    id_columns <-
+      c("sex",
+        "exposure_name",
+        "geo_id_raw",
+        "erf_ci", "bhd_ci", "exp_ci", "dw_ci")
+
+    id_columns_in_df <-
+      id_columns[id_columns %in% names(impact_detailed)]
+
+    id <-
+      purrr::pmap_chr(impact_detailed[id_columns_in_df],
+                      ~paste(..., sep = "_"))
+
+    # Name rows with the ids for better overview in Environment
+    impact_detailed <-
+      impact_detailed  %>%
+      dplyr::mutate(across(contains("_nest"),
+                           ~set_names(.x,
+                                      id)))
+
+
     # Get the main results starting from a detailed table of results
     impact_main <-
       impact_detailed %>%
@@ -254,6 +276,8 @@ get_deaths_yll_yld <-
     # Classify results in main and detailed
     output <- list(main = impact_main,
                    detailed = list(step_by_step_from_lifetable = impact_detailed))
+
+
 
     return(output)
 

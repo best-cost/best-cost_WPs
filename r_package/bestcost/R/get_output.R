@@ -28,14 +28,7 @@ get_output <-
 
     output[["detailed"]][["raw"]] <- impact_raw[["main"]]
 
-    # # If lifetable approach --> store interim results of population impact by age
-    # if(!is.null(impact_raw[["detailed"]])){
-    #   output[["detailed"]][["detailed"]][["interim_lifetable"]] <-
-    #     impact_raw_
-    # }
-
-    output_last <-
-      output[["main"]]
+    output_last <- output[["main"]]
 
 
     if(unique(impact_raw[["main"]]$approach_risk) == "absolute_risk") {
@@ -86,10 +79,12 @@ get_output <-
       output[["detailed"]][["agg_geo"]]  <-
         output_last %>%
         # Group by higher geo level
-        dplyr::group_by(., across(all_of(intersect(c("exposure_name",
-                                                     "geo_id_aggregated", "exp_ci",
-                                                     "bhd_ci", "erf_ci","dw_ci"),
-                                                names(.)))))%>%
+        dplyr::group_by(.,
+                        across(all_of(intersect(
+                          c("exposure_name",
+                            "geo_id_aggregated",
+                            "erf_ci", "exp_ci", "bhd_ci", "dw_ci"),
+                          names(.)))))%>%
         {if(!"impact_deprivation_weighted" %in% names(output_last))
           dplyr::summarise(.,
                            impact = sum(impact),
