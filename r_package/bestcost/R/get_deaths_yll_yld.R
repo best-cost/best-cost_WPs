@@ -51,7 +51,7 @@ get_deaths_yll_yld <-
                 across(contains("deaths"),
                        ~ . %>%
                          { `[<-`(., upper.tri(., diag = FALSE), NA) }))
-            } else {                        # ELSE Select columns containing "population"
+            } else { # ELSE Select columns containing "population"
               .x <- .x %>%
               # Set values in upper triangle to NA (also removes newborns values)
               dplyr::mutate(
@@ -94,6 +94,7 @@ get_deaths_yll_yld <-
             } else
               .x<-.x}), .before = 1)
 
+
     # Add disability weights to "impact_detailed"
     if(outcome_metric %in% "yld"){
 
@@ -127,10 +128,10 @@ get_deaths_yll_yld <-
     impact_detailed <- impact_detailed %>%
         # Calculate total, not discounted YLL (single number) ####
         # Store in new column "impact_nest"
-    dplyr::mutate(impact_nest = purrr::map(
-          lifeyears_nest,
-          function(.x){
-
+    dplyr::mutate(
+      impact_nest = purrr::map(
+        .x = lifeyears_nest,
+        function(.x){
             # If deaths
             if(outcome_metric == "deaths"){
               .x <-
@@ -149,14 +150,12 @@ get_deaths_yll_yld <-
 
             # If yld
             if(outcome_metric %in% "yld"){
-
               .x <-
                 .x %>%
                 # Filter for the relevant years
-                dplyr::filter(., year < (year_of_analysis + duration + 1)) %>%
+                #dplyr::filter(., year < (year_of_analysis + duration + 1)) %>%
                 # Sum among years to obtain the total impact (single value)
-                dplyr::summarise(
-                  impact = sum(impact, na.rm = TRUE))%>%
+                dplyr::summarise(., impact = sum(impact, na.rm = TRUE))%>%
                 dplyr::mutate(discounted = FALSE)
             }
             return(.x)
