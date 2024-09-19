@@ -136,6 +136,46 @@ get_output <-
           c("yld_from_prevalence", "yld_from_lifetable"))
         dplyr::filter(., dw_ci %in% "central") else .}
 
+    # Order columns
+    # putting first (on the left) those that determine different results across rows
+
+    id_columns <- c("geo_id_aggregated", "geo_id_raw",
+                    "sex",
+                    "erf_ci","exp_ci", "bhd_ci", "dw_ci")
+
+    put_first_cols <-
+      function(x, cols){
+        dplyr::select(x,
+                      all_of(intersect(cols,
+                                       names(x))),
+                      everything())
+      }
+
+    put_first_cols_recursive <-
+      function(x, cols){
+
+        # If x is a data.frame
+        if(is.data.frame(x)){
+          put_first_cols(x, cols)
+
+        # If x is list and all list elements are data frames (and not lists)
+        }else if (is.list(x) & all(purrr::map_lgl(x, is.data.frame))){
+          purrr::map(
+            .x = x,
+            .f = ~ put_first_cols(.x, cols))
+
+        }else{x}
+
+      }
+
+    output <-
+      purrr:::map(
+        .x = output,
+        .f = ~ put_first_cols_recursive(x = .x,
+                                        cols = id_columns))
+
+
+
 
     return(output)
   }
