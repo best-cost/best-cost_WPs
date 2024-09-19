@@ -30,14 +30,17 @@ get_risk_and_pop_fraction <-
     # This function enables the collapse of the data frame to have only one row
     # The columns with the same values inside will be condensed: e.g. c(1,1,1) = 1
     # The values in columns with different values are pasted: e.g. c(1,2,3) = "1, 2, 3"
-    # The variable column_for_group refers to the column that is used to group the collapse
+    # The variable columns_for_group refers to the column that is used to group the collapse
     # The variable sep refers to the string to be used to collapse different values
-    collapse_to_one_row <-
-      function(df, column_for_group = NULL, sep){
+    collapse_df_by_columns <-
+      function(df, columns_for_group = NULL, sep){
+        columns_for_group_present <-
+          columns_for_group[columns_for_group %in% names(df)]
+
         df <-
           df %>%
-          {if(!is.null(column_for_group)){
-            dplyr::group_by(., across(all_of(column_for_group)))}else{.}}%>%
+          {if(!is.null(columns_for_group)){
+            dplyr::group_by(., across(all_of(columns_for_group_present)))}else{.}}%>%
           dplyr::summarize(
             across(everything(),
                    ~ if (length(unique(.)) == 1) {
@@ -118,11 +121,15 @@ get_risk_and_pop_fraction <-
           }
 
         # Data wrangling for multiple exposures
-        # Collapse data frame into one row pasting the columns with different values
+        # Collapse data frame pasting the columns with different values
         input_with_risk_and_pop_fraction <-
           input_with_risk_and_pop_fraction %>%
           dplyr::mutate(exposure_name = paste(unique(exposure_name), collapse = ", ")) %>%
-          collapse_to_one_row(df =., sep = ", ")
+          collapse_df_by_columns(df =.,
+                              columns_for_group = c("geo_id_raw",
+                                                   "sex","lifetable_with_pop_nest",
+                                                   "erf_ci", "exp_ci", "bhd_ci", "dw_ci"),
+                              sep = ", ")
       }
     }
 
@@ -170,11 +177,15 @@ get_risk_and_pop_fraction <-
 
 
         # Data wrangling for multiple exposures
-        # Collapse data frame into one row pasting the columns with different values
+        # Collapse data frame pasting the columns with different values
         input_with_risk_and_pop_fraction <-
           input_with_risk_and_pop_fraction %>%
           dplyr::mutate(exposure_name = paste(unique(exposure_name), collapse = ", ")) %>%
-          collapse_to_one_row(df =., sep = ", ")
+          collapse_df_by_columns(df =.,
+                              columns_for_group = c("geo_id_raw",
+                                                   "sex","lifetable_with_pop_nest",
+                                                   "erf_ci", "exp_ci", "bhd_ci", "dw_ci"),
+                              sep = ", ")
         }
       }
 
@@ -182,7 +193,13 @@ get_risk_and_pop_fraction <-
     # Only if exposure distribution (multiple exposure categories)
     # then reduce the number of rows to keep the same number as in rr
     if(unique(input$exposure_type) == "exposure_distribution"){
-      collapse_to_one_row(df = input_with_risk_and_pop_fraction, sep = ", ")
+    input_with_risk_and_pop_fraction <-
+      collapse_df_by_columns(df = input_with_risk_and_pop_fraction,
+                          columns_for_group = c("geo_id_raw",
+                                               "exposure_name",
+                                               "sex","lifetable_with_pop_nest",
+                                               "erf_ci", "exp_ci", "bhd_ci", "dw_ci"),
+                          sep = ", ")
     }
 
     return(input_with_risk_and_pop_fraction)
