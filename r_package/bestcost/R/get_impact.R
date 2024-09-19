@@ -37,9 +37,9 @@ get_impact <-
 
         # Get pop_fraction and add it to the input data frame
         impact_raw_main <-
-          input_with_risk_and_pop_fraction %>%
+          input_with_risk_and_pop_fraction |>
           # Build the result table adding the impact to the input table
-          dplyr::mutate(impact = pop_fraction * bhd) %>%
+          dplyr::mutate(impact = pop_fraction * bhd) |>
           # Order columns
           dplyr::select(exp_ci, bhd_ci, erf_ci,
                         pop_fraction, impact,
@@ -51,10 +51,10 @@ get_impact <-
 
         # Add impact
         impact_raw_main <-
-          # impact_raw_main %>% # Line for commented out code above
-          input_with_risk_and_pop_fraction %>%
-          dplyr::mutate(impact = pop_fraction * bhd) %>%
-          dplyr::mutate(., impact = impact * dw)  %>%
+          # impact_raw_main |> # Line for commented out code above
+          input_with_risk_and_pop_fraction |>
+          dplyr::mutate(impact = pop_fraction * bhd) |>
+          dplyr::mutate(., impact = impact * dw)  |>
           # Order columns
           dplyr::select(exp_ci, bhd_ci, erf_ci,
                         pop_fraction, impact,
@@ -117,7 +117,7 @@ get_impact <-
 
       # Calculate absolute risk for each exposure category ####
       impact_raw_main <-
-        input %>%
+        input |>
         dplyr::mutate(
           absolute_risk_as_percent = bestcost::get_risk(exp = exp, erf_eq = erf_eq) ,
           impact = absolute_risk_as_percent/100 * pop_exp)
@@ -128,7 +128,7 @@ get_impact <-
 
     # Round impacts
     impact_raw[["main"]] <-
-      impact_raw[["main"]] %>%
+      impact_raw[["main"]] |>
       dplyr::mutate(impact_rounded = round(impact, 0))
 
 

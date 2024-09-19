@@ -38,9 +38,9 @@ get_risk_and_pop_fraction <-
           columns_for_group[columns_for_group %in% names(df)]
 
         df <-
-          df %>%
+          df |>
           {if(!is.null(columns_for_group)){
-            dplyr::group_by(., across(all_of(columns_for_group_present)))}else{.}}%>%
+            dplyr::group_by(., across(all_of(columns_for_group_present)))}else{.}}|>
           dplyr::summarize(
             across(everything(),
                    ~ if (length(unique(.)) == 1) {
@@ -60,12 +60,12 @@ get_risk_and_pop_fraction <-
 
     # Calculate health impact attributable to exposure ####
     input_with_risk_and_pop_fraction <-
-      input %>%
+      input |>
       # Add input
-      dplyr::mutate(pop_fraction_type = pop_fraction_type) %>%
+      dplyr::mutate(pop_fraction_type = pop_fraction_type) |>
       # For the calculations below rowwise approach is needed
       # Specifically when more than one exposure type is considered
-      dplyr::rowwise(.)%>%
+      dplyr::rowwise(.)|>
       # Obtain the relative risk for the relevant concentration
       {if({{pop_fraction_type}} == "paf")
 
@@ -92,7 +92,7 @@ get_risk_and_pop_fraction <-
                                              cutoff = cutoff,
                                              erf_increment = erf_increment,
                                              erf_shape = erf_shape,
-                                             erf_eq = erf_eq))}%>%
+                                             erf_eq = erf_eq))}|>
       # Deactivate rowwise(.)
       dplyr::ungroup(.)
 
@@ -103,7 +103,7 @@ get_risk_and_pop_fraction <-
         # by multiplying across different exposures
         if({{pop_fraction_type}} == "paf"){
           input_with_risk_and_pop_fraction <-
-            input_with_risk_and_pop_fraction %>%
+            input_with_risk_and_pop_fraction |>
             # prod() multiplies all elements in a vector
             dplyr::mutate(.,
               rr_conc_before_multiplying = rr_conc,
@@ -111,7 +111,7 @@ get_risk_and_pop_fraction <-
 
           } else { # if PIF
           input_with_risk_and_pop_fraction <-
-            input_with_risk_and_pop_fraction %>%
+            input_with_risk_and_pop_fraction |>
             # prod() multiplies all elements in a vector
             dplyr::mutate(
               rr_conc_1_before_multiplying = rr_conc_1,
@@ -123,8 +123,8 @@ get_risk_and_pop_fraction <-
         # Data wrangling for multiple exposures
         # Collapse data frame pasting the columns with different values
         input_with_risk_and_pop_fraction <-
-          input_with_risk_and_pop_fraction %>%
-          dplyr::mutate(exposure_name = paste(unique(exposure_name), collapse = ", ")) %>%
+          input_with_risk_and_pop_fraction |>
+          dplyr::mutate(exposure_name = paste(unique(exposure_name), collapse = ", ")) |>
           collapse_df_by_columns(df =.,
                               columns_for_group = c("geo_id_raw",
                                                    "sex","lifetable_with_pop_nest",
@@ -136,16 +136,16 @@ get_risk_and_pop_fraction <-
 
 
     input_with_risk_and_pop_fraction <-
-      input_with_risk_and_pop_fraction %>%
+      input_with_risk_and_pop_fraction |>
       # Calculate population (attributable or impact) fraction (PAF or PIF) ####
       # Group by exp in case that there are different exposure categories
-      dplyr::group_by(geo_id_raw, exposure_name, exp_ci, erf_ci) %>%
+      dplyr::group_by(geo_id_raw, exposure_name, exp_ci, erf_ci) |>
       # Alternative coding if one of the grouping variables is NULL
-      # dplyr::group_by(across(all_of(intersect(c("geo_id_raw", "exp_ci", "erf_ci"), names(input))))) %>%
+      # dplyr::group_by(across(all_of(intersect(c("geo_id_raw", "exp_ci", "erf_ci"), names(input))))) |>
       # Alternative coding with if statement within group_by
       # Using if statement as below because otherwise (e.g. with if_else or case_when)
       # the FALSE condition is evaluate and results in an error because the names do not match
-      # dplyr::group_by(if("geo_id_raw" %in% names(input)){geo_id_raw}, exp_ci, erf_ci)%>%
+      # dplyr::group_by(if("geo_id_raw" %in% names(input)){geo_id_raw}, exp_ci, erf_ci)|>
 
       {if({{pop_fraction_type}} == "paf")
 
@@ -161,7 +161,7 @@ get_risk_and_pop_fraction <-
                           bestcost::get_pop_fraction(rr_conc_1 = rr_conc_1,
                                                      rr_conc_2 = rr_conc_2,
                                                      prop_pop_exp_1 = prop_pop_exp_1,
-                                                     prop_pop_exp_2 = prop_pop_exp_2))}%>%
+                                                     prop_pop_exp_2 = prop_pop_exp_2))}|>
 
       dplyr::ungroup(.)
 
@@ -169,7 +169,7 @@ get_risk_and_pop_fraction <-
       if(unique(input$approach_multiexposure) %in% "combined"){
 
         input_with_risk_and_pop_fraction <-
-          input_with_risk_and_pop_fraction %>%
+          input_with_risk_and_pop_fraction |>
           dplyr::mutate(.,
                         pop_fraction_before_combining = pop_fraction,
                         # Multiply with prod() across all pollutants
@@ -179,8 +179,8 @@ get_risk_and_pop_fraction <-
         # Data wrangling for multiple exposures
         # Collapse data frame pasting the columns with different values
         input_with_risk_and_pop_fraction <-
-          input_with_risk_and_pop_fraction %>%
-          dplyr::mutate(exposure_name = paste(unique(exposure_name), collapse = ", ")) %>%
+          input_with_risk_and_pop_fraction |>
+          dplyr::mutate(exposure_name = paste(unique(exposure_name), collapse = ", ")) |>
           collapse_df_by_columns(df =.,
                               columns_for_group = c("geo_id_raw",
                                                    "sex","lifetable_with_pop_nest",

@@ -21,15 +21,15 @@ include_social <- function(output,
   # Re-calculate output with the social aspects inside using output_raw
 
   output_social[["main"]] <-
-    output[["detailed"]][["raw"]] %>%
+    output[["detailed"]][["raw"]] |>
     dplyr::left_join(
       .,
       dplyr::tibble(geo_id_raw = geo_id_raw,
                     deprivation_weight = deprivation_weight),
-      by = "geo_id_raw")%>%
+      by = "geo_id_raw")|>
     dplyr::mutate(impact_deprivation_weighted =
                     as.numeric(impact) * as.numeric(deprivation_weight),
-                  .after = impact) %>%
+                  .after = impact) |>
     dplyr::mutate(impact_rounded_deprivation_weighted =
                     round(impact_deprivation_weighted),
                   .after = impact_rounded)

@@ -71,7 +71,7 @@ get_daly <-
       dplyr::full_join(impact_yll_yld_raw[["yll"]][["main"]],
                        impact_yll_yld_raw[["yld"]][["main"]],
                        by = joining_columns_yll_yld,
-                       suffix = c("_yll", "_yld")) %>%
+                       suffix = c("_yll", "_yld")) |>
       # Sum yll and yld
       dplyr::mutate(impact = impact_yll + impact_yld)
 

@@ -164,8 +164,8 @@ compare <-
     # Identify the arguments that have _1 or _2 in the name (scenario specific)
     # This is useful for joining data frames below
     scenario_specific_arguments <-
-      grep("_1|_2", names(formals(compare)), value = TRUE) %>%
-      gsub("_1|_2", "", .) %>%
+      grep("_1|_2", names(formals(compare)), value = TRUE) |>
+      gsub("_1|_2", "", .) |>
       unique(.)
 
     # If the user choose "pif"  as comparison method
@@ -186,7 +186,7 @@ compare <-
             impact_raw_1[["detailed"]][["raw"]],
             impact_raw_2[["detailed"]][["raw"]],
             by = joining_columns_output,
-            suffix = c("_1", "_2")) %>%
+            suffix = c("_1", "_2")) |>
           # Calculate the delta (difference) between scenario 1 and 2
           dplyr::mutate(impact = impact_1 - impact_2,
                         impact_rounded = round(impact, 0))

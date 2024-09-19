@@ -34,18 +34,18 @@ get_output <-
     if(unique(impact_raw[["main"]]$approach_risk) == "absolute_risk") {
 
       output[["detailed"]][["agg_exp_cat"]] <-
-        output_last %>%
+        output_last |>
         # Remove all impact rounded because
         # we have to round final results
         # not summing rounded results ("too rounded")
         dplyr::select(., -all_of(intersect(paste0("impact_rounded", c("", "_1", "_2")),
-                                        names(.)))) %>%
+                                        names(.)))) |>
         # Collapse the exposure categories to have only a vector
         dplyr::mutate(., across(all_of(intersect(c(paste0("exp", c("", "_1", "_2")),
                                                 paste0("pop_exp", c("", "_1", "_2")),
                                                 "exposure_dimension"),
                                               names(.))),
-                             ~ paste(., collapse = ", ")))%>%
+                             ~ paste(., collapse = ", ")))|>
         # Sum columns to summarize
         dplyr::group_by(.,
           across(all_of(setdiff(names(.),
@@ -56,14 +56,14 @@ get_output <-
                                   paste0("rr_conc", c("", "_1", "_2")),
                                   paste0("pop_fraction", c("", "_1", "_2")),
                                   paste0("absolute_risk_as_percent", c("", "_1", "_2")),
-                                  paste0("impact", c("", "_1", "_2"))))))) %>%
+                                  paste0("impact", c("", "_1", "_2"))))))) |>
         dplyr::summarize(.,
           across(all_of(intersect(c(paste0("absolute_risk_as_percent", c("", "_1", "_2")),
                                     paste0("impact", c("", "_1", "_2")),
                                     "impact_social"),
                                   names(.))),
                  ~sum(.x, na.rm = TRUE)),
-          .groups = "drop") %>%
+          .groups = "drop") |>
         # Round impact
         dplyr::mutate(impact_rounded = round(impact, 0))
 
@@ -77,14 +77,14 @@ get_output <-
     if("geo_id_aggregated" %in% names(output_last)){
 
       output[["detailed"]][["agg_geo"]]  <-
-        output_last %>%
+        output_last |>
         # Group by higher geo level
         dplyr::group_by(.,
                         across(all_of(intersect(
                           c("exposure_name",
                             "geo_id_aggregated",
                             "erf_ci", "exp_ci", "bhd_ci", "dw_ci"),
-                          names(.)))))%>%
+                          names(.)))))|>
         {if(!"impact_deprivation_weighted" %in% names(output_last))
           dplyr::summarise(.,
                            impact = sum(impact),
@@ -109,13 +109,13 @@ get_output <-
     if(length(unique(impact_raw[["main"]]$exposure_name)) > 1){
 
       output[["detailed"]][["agg_exp_names"]]  <-
-        output_last %>%
+        output_last |>
         dplyr::mutate(
-          exposure_name = paste(unique(exposure_name), collapse = ", ")) %>%
+          exposure_name = paste(unique(exposure_name), collapse = ", ")) |>
         # Group by higher geo level
         dplyr::group_by(., across(all_of(intersect(c("geo_id_aggregated", "exp_ci",
                                                      "bhd_ci", "erf_ci","dw_ci"),
-                                                   names(.)))))%>%
+                                                   names(.)))))|>
         dplyr::summarise(impact = sum(impact),
                          impact_rounded = round(impact),
                          .groups = "drop")
@@ -128,10 +128,10 @@ get_output <-
     # Filter for total list element
     # Keep only exp_ci = central and bhd_ci = central
     output[["main"]] <-
-      output_last %>%
-      dplyr::filter(exp_ci %in% c("central")) %>%
+      output_last |>
+      dplyr::filter(exp_ci %in% c("central")) |>
       {if("bhd_ci" %in% names(.))
-        dplyr::filter(., bhd_ci %in% c("central")) else .} %>%
+        dplyr::filter(., bhd_ci %in% c("central")) else .} |>
       {if(unique(impact_raw[["main"]]$health_metric) %in%
           c("yld_from_prevalence", "yld_from_lifetable"))
         dplyr::filter(., dw_ci %in% "central") else .}
