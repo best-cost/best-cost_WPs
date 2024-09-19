@@ -33,14 +33,14 @@ get_risk_and_pop_fraction <-
     # The variable columns_for_group refers to the column that is used to group the collapse
     # The variable sep refers to the string to be used to collapse different values
     collapse_df_by_columns <-
-      function(df, columns_for_group = NULL, sep){
+      function(df, columns_for_group, sep){
+
         columns_for_group_present <-
           columns_for_group[columns_for_group %in% names(df)]
 
         df <-
           df |>
-          {if(!is.null(columns_for_group)){
-            dplyr::group_by(., across(all_of(columns_for_group_present)))}else{.}}|>
+          dplyr::group_by(., across(all_of(columns_for_group_present)))|>
           dplyr::summarize(
             across(everything(),
                    ~ if (length(unique(.)) == 1) {
@@ -67,8 +67,7 @@ get_risk_and_pop_fraction <-
       # Specifically when more than one exposure type is considered
       dplyr::rowwise(.)|>
       # Obtain the relative risk for the relevant concentration
-      {if({{pop_fraction_type}} == "paf")
-
+      (\(x) if({{pop_fraction_type}} == "paf"){
         dplyr::mutate(.,
                       rr_conc =
                         bestcost::get_risk(rr = rr,
@@ -77,7 +76,7 @@ get_risk_and_pop_fraction <-
                                            erf_increment = erf_increment,
                                            erf_shape = erf_shape,
                                            erf_eq = erf_eq))
-        else # If PIF
+        } else { # If PIF
           dplyr::mutate(.,
                         rr_conc_1 =
                           bestcost::get_risk(rr = rr,
@@ -92,7 +91,7 @@ get_risk_and_pop_fraction <-
                                              cutoff = cutoff,
                                              erf_increment = erf_increment,
                                              erf_shape = erf_shape,
-                                             erf_eq = erf_eq))}|>
+                                             erf_eq = erf_eq))}) |>
       # Deactivate rowwise(.)
       dplyr::ungroup(.)
 
@@ -147,21 +146,22 @@ get_risk_and_pop_fraction <-
       # the FALSE condition is evaluate and results in an error because the names do not match
       # dplyr::group_by(if("geo_id_raw" %in% names(input)){geo_id_raw}, exp_ci, erf_ci)|>
 
-      {if({{pop_fraction_type}} == "paf")
-
-        dplyr::mutate(.,
-                      pop_fraction =
-                        bestcost::get_pop_fraction(rr_conc_1 = rr_conc,
-                                                   rr_conc_2 = 1,
-                                                   prop_pop_exp_1 = prop_pop_exp,
-                                                   prop_pop_exp_2 = prop_pop_exp))
-        else
-          dplyr::mutate(.,
-                        pop_fraction =
-                          bestcost::get_pop_fraction(rr_conc_1 = rr_conc_1,
-                                                     rr_conc_2 = rr_conc_2,
-                                                     prop_pop_exp_1 = prop_pop_exp_1,
-                                                     prop_pop_exp_2 = prop_pop_exp_2))}|>
+      (\(x) if({{pop_fraction_type}} == "paf"){
+        dplyr::mutate(
+          .,
+          pop_fraction =
+            bestcost::get_pop_fraction(rr_conc_1 = rr_conc,
+                                       rr_conc_2 = 1,
+                                       prop_pop_exp_1 = prop_pop_exp,
+                                       prop_pop_exp_2 = prop_pop_exp))
+      } else {
+        dplyr::mutate(
+          .,
+          pop_fraction =
+            bestcost::get_pop_fraction(rr_conc_1 = rr_conc_1,
+                                       rr_conc_2 = rr_conc_2,
+                                       prop_pop_exp_1 = prop_pop_exp_1,
+                                       prop_pop_exp_2 = prop_pop_exp_2)) }) |>
 
       dplyr::ungroup(.)
 

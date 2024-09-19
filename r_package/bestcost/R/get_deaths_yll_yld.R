@@ -186,15 +186,21 @@ get_deaths_yll_yld <-
                 # Calculate life years discounted
                 dplyr::mutate(
                   discounted_impact = impact * discount) |>
-                {if(outcome_metric %in% "yll")
+                (\(x) if (outcome_metric %in% "yll") {
                   # Sum among years to obtain the total impact (single value)
-                  dplyr::summarise(., impact = sum(discounted_impact), .groups = "drop") else .} |>
-                {if(outcome_metric %in% "yld")
+                  dplyr::summarise(x, impact = sum(discounted_impact), .groups = "drop")
+                } else x) |>
+
+                (\(x) if (outcome_metric %in% "yld") {
                   # Filter for the relevant years
-                  dplyr::filter(., year < (year_of_analysis + duration + 1)) |>
-                  # Sum among years to obtain the total impact (single value)
-                  dplyr::summarise(impact = sum(discounted_impact), .groups = "drop") else .} |>
+                  x |>
+                    dplyr::filter(year < (year_of_analysis + duration + 1)) |>
+                    # Sum among years to obtain the total impact (single value)
+                    dplyr::summarise(impact = sum(discounted_impact), .groups = "drop")
+                } else x) |>
+
                 dplyr::mutate(discounted = TRUE)
+
 
 
               # Bind rows to have both discounted and not discounted
@@ -265,12 +271,14 @@ get_deaths_yll_yld <-
       impact_detailed |>
       dplyr::select(., -contains("nest"))|>
       dplyr::filter(., sex %in% "total") |>
-      {if(unique(impact_detailed$health_metric) == "yld_from_prevalence")
-        dplyr::filter(., dw_ci %in% "central") else .} |>
-      # dplyr::filter(., dw_ci %in% "central") |>
-      {if(!is.null(corrected_discount_rate))
-      # {if(corrected_discount_rate != 0)
-        dplyr::filter(., discounted %in% TRUE) else .}
+
+      (\(x) if (unique(impact_detailed$health_metric) == "yld_from_prevalence") {
+        dplyr::filter(x, dw_ci %in% "central")
+      } else x) |>
+
+      (\(x) if (!is.null(corrected_discount_rate)) {
+        dplyr::filter(x, discounted %in% TRUE)
+      } else x)
 
     # Classify results in main and detailed
     output <- list(main = impact_main,

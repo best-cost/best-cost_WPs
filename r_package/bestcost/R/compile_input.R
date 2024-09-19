@@ -102,21 +102,20 @@ compile_input <-
             erf_eq_lower = erf_eq_lower,
             erf_eq_upper = erf_eq_upper)
     }
+
     # If it is defined by the erf function as function
     if(!is.null(erf_eq_central) & is.function(erf_eq_central)){
 
         erf_data <- # 1 x 3 tibble
           dplyr::tibble(
             exposure_name = names(erf_eq_central),
-            erf_eq_central = list(erf_eq_central)) |>
+            erf_eq_central = list(erf_eq_central))}
 
-          # If a confidence interval for the erf is provided, add the erf columns
-          {if (!is.null(erf_eq_lower) & !is.null(erf_eq_upper))
+        # If a confidence interval for the erf is provided, add the erf columns
+        if (!is.null(erf_eq_lower) & !is.null(erf_eq_upper)){
             dplyr::mutate(.,
               erf_eq_lower = list(erf_eq_lower),
-              erf_eq_upper = list(erf_eq_upper))
-            else .}
-    }
+              erf_eq_upper = list(erf_eq_upper))}
 
     # If there exist no column with name "exposure_name" because the vectors were not named,
     # then the column has to be added as NA
@@ -208,34 +207,42 @@ compile_input <-
                           cols = starts_with("exp_"),
                           names_to = "exp_ci",
                           names_prefix = "exp_",
-                          values_to = "exp") |>
+                          values_to = "exp")
+
+
+    if (is.null(erf_eq_central)) {
+    input_wo_lifetable <-
       ## Exposure response function,
-      {if(is.null(erf_eq_central))
-        tidyr::pivot_longer(.,
-                            cols = starts_with("rr_"),
-                            names_to = "erf_ci",
-                            names_prefix = "rr_",
-                            values_to = "rr")
-        else
-          tidyr::pivot_longer(.,
-                              cols = starts_with("erf_eq_"),
-                              names_to = "erf_ci",
-                              names_prefix = "erf_eq_",
-                              values_to = "erf_eq")} |>
-      ## Baseline health data,
-      {if(!is.null(bhd_central))
-        tidyr::pivot_longer(.,
-                            cols = starts_with("bhd_"),
-                            names_to = "bhd_ci",
-                            names_prefix = "bhd_",
-                            values_to = "bhd") else .} |>
-      ## & Disability weight
-      {if(!is.null(dw_central))
-        tidyr::pivot_longer(.,
-                            cols = starts_with("dw_"),
-                            names_to = "dw_ci",
-                            names_prefix = "dw_",
-                            values_to = "dw") else .}
+      input_wo_lifetable |>
+      tidyr::pivot_longer(x,
+                          cols = starts_with("rr_"),
+                          names_to = "erf_ci",
+                          names_prefix = "rr_",
+                          values_to = "rr")
+    } else {
+      tidyr::pivot_longer(x,
+                          cols = starts_with("erf_eq_"),
+                          names_to = "erf_ci",
+                          names_prefix = "erf_eq_",
+                          values_to = "erf_eq") }
+
+    ## Baseline health data
+    if(!is.null(bhd_central)) {
+      input_wo_lifetable |>
+      tidyr::pivot_longer(x,
+                          cols = starts_with("bhd_"),
+                          names_to = "bhd_ci",
+                          names_prefix = "bhd_",
+                          values_to = "bhd")}
+
+
+    ## Disability weight
+    if (!is.null(dw_central)) {
+      tidyr::pivot_longer(x,
+                          cols = starts_with("dw_"),
+                          names_to = "dw_ci",
+                          names_prefix = "dw_",
+                          values_to = "dw")}
 
 
     # CREATE LIFETABLES ##########################################################

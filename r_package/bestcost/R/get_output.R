@@ -85,19 +85,19 @@ get_output <-
                             "geo_id_aggregated",
                             "erf_ci", "exp_ci", "bhd_ci", "dw_ci"),
                           names(.)))))|>
-        {if(!"impact_deprivation_weighted" %in% names(output_last))
-          dplyr::summarise(.,
+        (\(x) if (!"impact_deprivation_weighted" %in% names(output_last)) {
+          dplyr::summarise(x,
                            impact = sum(impact),
                            impact_rounded = round(impact),
                            .groups = "drop")
-          else
-            dplyr::summarise(.,
-                             impact = sum(impact),
-                             impact_rounded = round(impact),
-                             impact_deprivation_weighted = sum(impact_deprivation_weighted),
-                             impact_deprivation_weighted_rounded = round(impact_deprivation_weighted),
-                             .groups = "drop")
-          }
+        } else {
+          dplyr::summarise(x,
+                           impact = sum(impact),
+                           impact_rounded = round(impact),
+                           impact_deprivation_weighted = sum(impact_deprivation_weighted),
+                           impact_deprivation_weighted_rounded = round(impact_deprivation_weighted),
+                           .groups = "drop")
+        })
 
 
       output_last <- output[["detailed"]][["agg_geo"]]
@@ -130,11 +130,15 @@ get_output <-
     output[["main"]] <-
       output_last |>
       dplyr::filter(exp_ci %in% c("central")) |>
-      {if("bhd_ci" %in% names(.))
-        dplyr::filter(., bhd_ci %in% c("central")) else .} |>
-      {if(unique(impact_raw[["main"]]$health_metric) %in%
-          c("yld_from_prevalence", "yld_from_lifetable"))
-        dplyr::filter(., dw_ci %in% "central") else .}
+
+      (\(x) if("bhd_ci" %in% names(.)) {
+          dplyr::filter(., bhd_ci %in% c("central"))}
+       else {x}) |>
+
+      (\(x) if(unique(impact_raw[["main"]]$health_metric) %in%
+               c("yld_from_prevalence", "yld_from_lifetable")) {
+        dplyr::filter(., dw_ci %in% "central")}
+       else {x})
 
     # Order columns
     # putting first (on the left) those that determine different results across rows
