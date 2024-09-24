@@ -65,18 +65,23 @@ get_risk_and_pop_fraction <-
       dplyr::mutate(pop_fraction_type = pop_fraction_type) |>
       # For the calculations below rowwise approach is needed
       # Specifically when more than one exposure type is considered
-      dplyr::rowwise(.)|>
-      # Obtain the relative risk for the relevant concentration
-      (\(x) if({{pop_fraction_type}} == "paf"){
-        dplyr::mutate(.,
-                      rr_conc =
-                        bestcost::get_risk(rr = rr,
-                                           exp = exp,
-                                           cutoff = cutoff,
-                                           erf_increment = erf_increment,
-                                           erf_shape = erf_shape,
-                                           erf_eq = erf_eq))
+      dplyr::rowwise(.)
+
+      # If PAF
+
+      if({{pop_fraction_type}} == "paf"){
+        input_with_risk_and_pop_fraction <- input_with_risk_and_pop_fraction |>
+          # Obtain the relative risk for the relevant concentration
+          dplyr::mutate(.,
+                        rr_conc =
+                          bestcost::get_risk(rr = rr,
+                                             exp = exp,
+                                             cutoff = cutoff,
+                                             erf_increment = erf_increment,
+                                             erf_shape = erf_shape,
+                                             erf_eq = erf_eq))
         } else { # If PIF
+          input_with_risk_and_pop_fraction <- input_with_risk_and_pop_fraction |>
           dplyr::mutate(.,
                         rr_conc_1 =
                           bestcost::get_risk(rr = rr,
@@ -91,8 +96,9 @@ get_risk_and_pop_fraction <-
                                              cutoff = cutoff,
                                              erf_increment = erf_increment,
                                              erf_shape = erf_shape,
-                                             erf_eq = erf_eq))}) |>
-      # Deactivate rowwise(.)
+                                             erf_eq = erf_eq))}
+      # Deactivate rowwise(.)+
+    input_with_risk_and_pop_fraction <- input_with_risk_and_pop_fraction |>
       dplyr::ungroup(.)
 
     if("approach_multiexposure" %in% names(input)){
@@ -134,11 +140,10 @@ get_risk_and_pop_fraction <-
 
 
 
-    input_with_risk_and_pop_fraction <-
-      input_with_risk_and_pop_fraction |>
+    input_with_risk_and_pop_fraction <- input_with_risk_and_pop_fraction |>
       # Calculate population (attributable or impact) fraction (PAF or PIF) ####
       # Group by exp in case that there are different exposure categories
-      dplyr::group_by(geo_id_raw, exposure_name, exp_ci, erf_ci) |>
+      dplyr::group_by(geo_id_raw, exposure_name, exp_ci, erf_ci)
       # Alternative coding if one of the grouping variables is NULL
       # dplyr::group_by(across(all_of(intersect(c("geo_id_raw", "exp_ci", "erf_ci"), names(input))))) |>
       # Alternative coding with if statement within group_by
@@ -146,7 +151,8 @@ get_risk_and_pop_fraction <-
       # the FALSE condition is evaluate and results in an error because the names do not match
       # dplyr::group_by(if("geo_id_raw" %in% names(input)){geo_id_raw}, exp_ci, erf_ci)|>
 
-      (\(x) if({{pop_fraction_type}} == "paf"){
+      if({{pop_fraction_type}} == "paf"){
+        input_with_risk_and_pop_fraction <- input_with_risk_and_pop_fraction |>
         dplyr::mutate(
           .,
           pop_fraction =
@@ -155,14 +161,17 @@ get_risk_and_pop_fraction <-
                                        prop_pop_exp_1 = prop_pop_exp,
                                        prop_pop_exp_2 = prop_pop_exp))
       } else {
+        input_with_risk_and_pop_fraction <- input_with_risk_and_pop_fraction |>
         dplyr::mutate(
           .,
           pop_fraction =
             bestcost::get_pop_fraction(rr_conc_1 = rr_conc_1,
                                        rr_conc_2 = rr_conc_2,
                                        prop_pop_exp_1 = prop_pop_exp_1,
-                                       prop_pop_exp_2 = prop_pop_exp_2)) }) |>
+                                       prop_pop_exp_2 = prop_pop_exp_2)) }
 
+    # Ungroup
+    input_with_risk_and_pop_fraction <- input_with_risk_and_pop_fraction |>
       dplyr::ungroup(.)
 
     if("approach_multiexposure" %in% names(input)){

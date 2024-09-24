@@ -36,28 +36,29 @@ get_deaths_yll_yld <-
            corrected_discount_rate = NULL,
            duration = NULL){
 
-    impact_detailed <-
-      pop_impact |>
+    impact_detailed <- pop_impact |>
       dplyr::mutate(
-        lifeyears_nest =
-          pop_impact_nest |>
-          purrr::map(.,
-          function(.x){
+        lifeyears_nest = pop_impact_nest |>
+          purrr::map(., function(.x){
 
             # Set values in upper triangle to NA (also removes newborns values)
             if(outcome_metric == "deaths"){ # If TRUE Select columns containing "deaths"
               .x <- .x |>
               dplyr::mutate(
-                across(contains("deaths"),
-                       ~ . |>
-                         { `[<-`(., upper.tri(., diag = FALSE), NA) }))
+                across(contains("deaths"), ~ {
+                  mat <- as.matrix(.x)
+                  mat[upper.tri(mat, diag = FALSE)] <- NA
+                  return(mat)}))
+
             } else { # ELSE Select columns containing "population"
               .x <- .x |>
               # Set values in upper triangle to NA (also removes newborns values)
               dplyr::mutate(
                 across(contains("population"),
-                       ~ . |>
-                         { `[<-`(., upper.tri(., diag = FALSE), NA) }))}
+                       ~ {mat <- as.matrix(.x)
+                       mat[upper.tri(mat, diag = FALSE)] <- NA
+                       return(mat)}))
+                }
 
             # Filter keeping only the relevant age
             # use {{}} to refer to the argument and avoid warnings
@@ -144,7 +145,7 @@ get_deaths_yll_yld <-
             if(outcome_metric %in% c("yll")){
               .x <-
                 .x |>
-                dplyr::summarise(., impact = sum(impact, na.rm = TRUE)) |>
+                dplyr::summarise(impact = sum(impact, na.rm = TRUE)) |>
                 dplyr::mutate(discounted = FALSE)
             }
 
@@ -176,7 +177,7 @@ get_deaths_yll_yld <-
             lifeyears_nest, impact_nest,
             function(.x, .y){
               ## Calculate total, discounted life years (single value) per sex & ci ####
-              x_discounted <-
+              .x <-
                 .x |>
                 # Convert year to numeric
                 dplyr::mutate(year = as.numeric(year)) |>
@@ -185,27 +186,33 @@ get_deaths_yll_yld <-
                   discount = 1/(discount_factor^(year-(year_of_analysis+1)))) |>
                 # Calculate life years discounted
                 dplyr::mutate(
-                  discounted_impact = impact * discount) |>
-                (\(x) if (outcome_metric %in% "yll") {
+                  discounted_impact = impact * discount)
+
+              if (outcome_metric == "yll") {
+                .x <- .x |>
                   # Sum among years to obtain the total impact (single value)
-                  dplyr::summarise(x, impact = sum(discounted_impact), .groups = "drop")
-                } else x) |>
+                  dplyr::summarise(impact = sum(discounted_impact), .groups = "drop")
+              }
 
-                (\(x) if (outcome_metric %in% "yld") {
-                  # Filter for the relevant years
-                  x |>
-                    dplyr::filter(year < (year_of_analysis + duration + 1)) |>
-                    # Sum among years to obtain the total impact (single value)
-                    dplyr::summarise(impact = sum(discounted_impact), .groups = "drop")
-                } else x) |>
 
+              # Handle outcome_metric == "yld"
+              if (outcome_metric == "yld") {
+                .x <- .x |>
+                  # Filter for relevant years
+                  dplyr::filter(year < (year_of_analysis + duration + 1)) |>
+                  # Sum among years to obtain the total impact (single value)
+                  dplyr::summarise(impact = sum(discounted_impact), .groups = "drop")
+              }
+
+              # Add a column to indicate that the impact is discounted
+              .x <- .x |>
                 dplyr::mutate(discounted = TRUE)
 
 
 
               # Bind rows to have both discounted and not discounted
               x_with_and_without_discount <-
-                dplyr::bind_rows(.y, x_discounted)
+                dplyr::bind_rows(.y, .x)
 
               return(x_with_and_without_discount)
 
@@ -217,10 +224,18 @@ get_deaths_yll_yld <-
       impact_detailed |>
       # Unnest the obtained impacts to integrated them the main tibble
       tidyr::unnest(., impact_nest) |>
-      {if(outcome_metric == "deaths") dplyr::rename(., impact = impact_nest) else .}|>
       # Add  metric
       dplyr::mutate(
         outcome_metric = outcome_metric)
+
+
+    # IF DEATHS
+    if(outcome_metric == "deaths"){
+      impact_detailed <- impact_detailed |>
+      dplyr::rename(., impact = impact_nest)
+    }
+
+
 
     # Obtain total rows (sum across sex)
     ## ONLY if not a lifetable calculation, which already have a "total" row
@@ -270,15 +285,15 @@ get_deaths_yll_yld <-
     impact_main <-
       impact_detailed |>
       dplyr::select(., -contains("nest"))|>
-      dplyr::filter(., sex %in% "total") |>
+      dplyr::filter(., sex %in% "total")
 
-      (\(x) if (unique(impact_detailed$health_metric) == "yld_from_prevalence") {
+      if (unique(impact_detailed$health_metric) == "yld_from_prevalence") {
         dplyr::filter(x, dw_ci %in% "central")
-      } else x) |>
+      }
 
-      (\(x) if (!is.null(corrected_discount_rate)) {
+      if (!is.null(corrected_discount_rate)) {
         dplyr::filter(x, discounted %in% TRUE)
-      } else x)
+        }
 
     # Classify results in main and detailed
     output <- list(main = impact_main,

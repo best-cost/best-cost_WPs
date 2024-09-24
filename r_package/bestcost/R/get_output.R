@@ -84,20 +84,23 @@ get_output <-
                           c("exposure_name",
                             "geo_id_aggregated",
                             "erf_ci", "exp_ci", "bhd_ci", "dw_ci"),
-                          names(.)))))|>
-        (\(x) if (!"impact_deprivation_weighted" %in% names(output_last)) {
+                          names(.)))))
+
+        if (!"impact_deprivation_weighted" %in% names(output_last)) {
+          output[["detailed"]][["agg_geo"]]  <- output[["detailed"]][["agg_geo"]] |>
           dplyr::summarise(x,
                            impact = sum(impact),
                            impact_rounded = round(impact),
                            .groups = "drop")
         } else {
+          output[["detailed"]][["agg_geo"]]  <- output[["detailed"]][["agg_geo"]] |>
           dplyr::summarise(x,
                            impact = sum(impact),
                            impact_rounded = round(impact),
                            impact_deprivation_weighted = sum(impact_deprivation_weighted),
                            impact_deprivation_weighted_rounded = round(impact_deprivation_weighted),
                            .groups = "drop")
-        })
+        }
 
 
       output_last <- output[["detailed"]][["agg_geo"]]
@@ -129,16 +132,18 @@ get_output <-
     # Keep only exp_ci = central and bhd_ci = central
     output[["main"]] <-
       output_last |>
-      dplyr::filter(exp_ci %in% c("central")) |>
+      dplyr::filter(exp_ci %in% c("central"))
 
-      (\(x) if("bhd_ci" %in% names(.)) {
+      if("bhd_ci" %in% names(.)) {
+
+        output[["main"]] <- output[["main"]] |>
           dplyr::filter(., bhd_ci %in% c("central"))}
-       else {x}) |>
 
-      (\(x) if(unique(impact_raw[["main"]]$health_metric) %in%
+      if(unique(impact_raw[["main"]]$health_metric) %in%
                c("yld_from_prevalence", "yld_from_lifetable")) {
-        dplyr::filter(., dw_ci %in% "central")}
-       else {x})
+
+        output[["main"]] <- output[["main"]] |>
+          dplyr::filter(., dw_ci %in% "central")}
 
     # Order columns
     # putting first (on the left) those that determine different results across rows
