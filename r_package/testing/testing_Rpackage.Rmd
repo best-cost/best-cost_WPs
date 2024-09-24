@@ -49,6 +49,7 @@ devtools::load_all(export_all = FALSE)
 
 # Load data
 load("../testing/input/data/input_data_for_testing_Rpackage.RData")
+
 ```
 
 
