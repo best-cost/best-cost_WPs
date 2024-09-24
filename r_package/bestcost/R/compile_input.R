@@ -150,7 +150,7 @@ compile_input <-
         geo_id_aggregated = rep(geo_id_aggregated, each = length_exp_dist),
         bhd_central = rep(unlist(bhd_central), each = length_exp_dist),
         bhd_lower = rep(unlist(bhd_lower), each = length_exp_dist),
-        bhd_upper = rep(unlist(bhd_lower), each = length_exp_dist),
+        bhd_upper = rep(unlist(bhd_upper), each = length_exp_dist),
         min_age = rep(min_age, each = length_exp_dist),
         max_age = rep(max_age, each = length_exp_dist),
         approach_multiexposure = rep(approach_multiexposure, each = length_exp_dist),
