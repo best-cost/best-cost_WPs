@@ -40,13 +40,13 @@ get_risk_and_pop_fraction <-
 
         df <-
           df |>
-          dplyr::group_by(., across(all_of(columns_for_group_present)))|>
+          dplyr::group_by(across(all_of(columns_for_group_present)))|>
           dplyr::summarize(
             across(everything(),
                    ~ if (length(unique(.)) == 1) {
                      first(.)
                    } else {
-                     paste(., collapse = sep)}),
+                     paste(collapse = sep)}),
             .groups = "drop")
       }
 
@@ -65,15 +65,14 @@ get_risk_and_pop_fraction <-
       dplyr::mutate(pop_fraction_type = pop_fraction_type) |>
       # For the calculations below rowwise approach is needed
       # Specifically when more than one exposure type is considered
-      dplyr::rowwise(.)
+      dplyr::rowwise()
 
       # If PAF
 
       if({{pop_fraction_type}} == "paf"){
         input_with_risk_and_pop_fraction <- input_with_risk_and_pop_fraction |>
           # Obtain the relative risk for the relevant concentration
-          dplyr::mutate(.,
-                        rr_conc =
+          dplyr::mutate(rr_conc =
                           bestcost::get_risk(rr = rr,
                                              exp = exp,
                                              cutoff = cutoff,
@@ -82,8 +81,7 @@ get_risk_and_pop_fraction <-
                                              erf_eq = erf_eq))
         } else { # If PIF
           input_with_risk_and_pop_fraction <- input_with_risk_and_pop_fraction |>
-          dplyr::mutate(.,
-                        rr_conc_1 =
+          dplyr::mutate(rr_conc_1 =
                           bestcost::get_risk(rr = rr,
                                              exp = exp_1,
                                              cutoff = cutoff,
@@ -99,7 +97,7 @@ get_risk_and_pop_fraction <-
                                              erf_eq = erf_eq))}
       # Deactivate rowwise(.)+
     input_with_risk_and_pop_fraction <- input_with_risk_and_pop_fraction |>
-      dplyr::ungroup(.)
+      dplyr::ungroup()
 
     if("approach_multiexposure" %in% names(input)){
       if(unique(input$approach_multiexposure) %in% "multiplicative"){
@@ -110,7 +108,7 @@ get_risk_and_pop_fraction <-
           input_with_risk_and_pop_fraction <-
             input_with_risk_and_pop_fraction |>
             # prod() multiplies all elements in a vector
-            dplyr::mutate(.,
+            dplyr::mutate(
               rr_conc_before_multiplying = rr_conc,
               rr_conc = prod(rr_conc))
 
@@ -130,11 +128,11 @@ get_risk_and_pop_fraction <-
         input_with_risk_and_pop_fraction <-
           input_with_risk_and_pop_fraction |>
           dplyr::mutate(exposure_name = paste(unique(exposure_name), collapse = ", ")) |>
-          collapse_df_by_columns(df =.,
-                              columns_for_group = c("geo_id_raw",
-                                                   "sex","lifetable_with_pop_nest",
-                                                   "erf_ci", "exp_ci", "bhd_ci", "dw_ci"),
-                              sep = ", ")
+          collapse_df_by_columns(
+            columns_for_group = c("geo_id_raw",
+                                  "sex","lifetable_with_pop_nest",
+                                  "erf_ci", "exp_ci", "bhd_ci", "dw_ci"),
+            sep = ", ")
       }
     }
 
@@ -154,7 +152,6 @@ get_risk_and_pop_fraction <-
       if({{pop_fraction_type}} == "paf"){
         input_with_risk_and_pop_fraction <- input_with_risk_and_pop_fraction |>
         dplyr::mutate(
-          .,
           pop_fraction =
             bestcost::get_pop_fraction(rr_conc_1 = rr_conc,
                                        rr_conc_2 = 1,
@@ -163,7 +160,6 @@ get_risk_and_pop_fraction <-
       } else {
         input_with_risk_and_pop_fraction <- input_with_risk_and_pop_fraction |>
         dplyr::mutate(
-          .,
           pop_fraction =
             bestcost::get_pop_fraction(rr_conc_1 = rr_conc_1,
                                        rr_conc_2 = rr_conc_2,
@@ -172,15 +168,14 @@ get_risk_and_pop_fraction <-
 
     # Ungroup
     input_with_risk_and_pop_fraction <- input_with_risk_and_pop_fraction |>
-      dplyr::ungroup(.)
+      dplyr::ungroup()
 
     if("approach_multiexposure" %in% names(input)){
       if(unique(input$approach_multiexposure) %in% "combined"){
 
         input_with_risk_and_pop_fraction <-
           input_with_risk_and_pop_fraction |>
-          dplyr::mutate(.,
-                        pop_fraction_before_combining = pop_fraction,
+          dplyr::mutate(pop_fraction_before_combining = pop_fraction,
                         # Multiply with prod() across all pollutants
                         pop_fraction = 1-(prod(1-pop_fraction)))
 
@@ -190,11 +185,10 @@ get_risk_and_pop_fraction <-
         input_with_risk_and_pop_fraction <-
           input_with_risk_and_pop_fraction |>
           dplyr::mutate(exposure_name = paste(unique(exposure_name), collapse = ", ")) |>
-          collapse_df_by_columns(df =.,
-                              columns_for_group = c("geo_id_raw",
-                                                   "sex","lifetable_with_pop_nest",
-                                                   "erf_ci", "exp_ci", "bhd_ci", "dw_ci"),
-                              sep = ", ")
+          collapse_df_by_columns(columns_for_group = c("geo_id_raw",
+                                                       "sex","lifetable_with_pop_nest",
+                                                       "erf_ci", "exp_ci", "bhd_ci", "dw_ci"),
+                                 sep = ", ")
         }
       }
 
@@ -204,11 +198,11 @@ get_risk_and_pop_fraction <-
     if(unique(input$exposure_type) == "exposure_distribution"){
     input_with_risk_and_pop_fraction <-
       collapse_df_by_columns(df = input_with_risk_and_pop_fraction,
-                          columns_for_group = c("geo_id_raw",
-                                               "exposure_name",
-                                               "sex","lifetable_with_pop_nest",
-                                               "erf_ci", "exp_ci", "bhd_ci", "dw_ci"),
-                          sep = ", ")
+                             columns_for_group = c("geo_id_raw",
+                                                   "exposure_name",
+                                                   "sex","lifetable_with_pop_nest",
+                                                   "erf_ci", "exp_ci", "bhd_ci", "dw_ci"),
+                             sep = ", ")
     }
 
     return(input_with_risk_and_pop_fraction)

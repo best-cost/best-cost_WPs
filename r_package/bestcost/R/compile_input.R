@@ -169,12 +169,13 @@ compile_input <-
         exp_lower = unlist(exp_lower),
         exp_upper = unlist(exp_upper),
         prop_pop_exp = unlist(prop_pop_exp),
-        pop_exp = unlist(pop_exp)) |>
+        pop_exp = unlist(pop_exp))
 
       # Add erf data
-      dplyr::bind_cols(., erf_data) |>
+    input_wo_lifetable <-
+      dplyr::bind_cols(input_wo_lifetable, erf_data) |>
       # Add additional (meta-)information
-      bestcost:::add_info(df = ., info = info) |>
+      bestcost:::add_info(info = info) |>
       # Information derived from input data
       dplyr::mutate(
         # Add age_max and age_min (not needed without life table)
@@ -203,8 +204,7 @@ compile_input <-
       # central, lower and upper estimates (relevant for iteration)
 
       ## For exposure,
-      tidyr::pivot_longer(.,
-                          cols = starts_with("exp_"),
+      tidyr::pivot_longer(cols = starts_with("exp_"),
                           names_to = "exp_ci",
                           names_prefix = "exp_",
                           values_to = "exp")
@@ -214,14 +214,12 @@ compile_input <-
     input_wo_lifetable <-
       ## Exposure response function,
       input_wo_lifetable |>
-      tidyr::pivot_longer(x,
-                          cols = starts_with("rr_"),
+      tidyr::pivot_longer(cols = starts_with("rr_"),
                           names_to = "erf_ci",
                           names_prefix = "rr_",
                           values_to = "rr")
     } else {
-      tidyr::pivot_longer(x,
-                          cols = starts_with("erf_eq_"),
+      tidyr::pivot_longer(cols = starts_with("erf_eq_"),
                           names_to = "erf_ci",
                           names_prefix = "erf_eq_",
                           values_to = "erf_eq") }
@@ -229,8 +227,7 @@ compile_input <-
     ## Baseline health data
     if(!is.null(bhd_central)) {
       input_wo_lifetable |>
-      tidyr::pivot_longer(x,
-                          cols = starts_with("bhd_"),
+      tidyr::pivot_longer(cols = starts_with("bhd_"),
                           names_to = "bhd_ci",
                           names_prefix = "bhd_",
                           values_to = "bhd")}
@@ -238,8 +235,7 @@ compile_input <-
 
     ## Disability weight
     if (!is.null(dw_central)) {
-      tidyr::pivot_longer(x,
-                          cols = starts_with("dw_"),
+      tidyr::pivot_longer(cols = starts_with("dw_"),
                           names_to = "dw_ci",
                           names_prefix = "dw_",
                           values_to = "dw")}
