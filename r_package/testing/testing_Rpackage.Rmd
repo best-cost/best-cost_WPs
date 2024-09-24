@@ -49,6 +49,7 @@ devtools::load_all(export_all = FALSE)
 
 # Load data
 load("../testing/input/data/input_data_for_testing_Rpackage.RData")
+
 ```
 
 
@@ -239,7 +240,7 @@ niph_noise_ihd_result <-
         dplyr::filter(exposure_category %in% "Total exposed")|>
         dplyr::select(daly)|>
         dplyr::pull() |>
-  round(.)
+  round()
 
 # Obtain attributable cases using the bestcost package and input data from niph
 bestcost_noise_ihd_expDist <- 
@@ -297,7 +298,7 @@ niph_noise_ha_result <-
         dplyr::filter(exposure_category %in% "Total exposed")|>
         dplyr::select(number)|>
         dplyr::pull() |>
-  round(.)
+  round()
 
 # Obtain attributable cases using the bestcost package and input data from niph
 bestcost_noise_ha_ar <- 
