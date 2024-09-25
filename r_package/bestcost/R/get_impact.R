@@ -54,7 +54,7 @@ get_impact <-
           # impact_raw_main |> # Line for commented out code above
           input_with_risk_and_pop_fraction |>
           dplyr::mutate(impact = pop_fraction * bhd) |>
-          dplyr::mutate(., impact = impact * dw)  |>
+          dplyr::mutate(impact = impact * dw)  |>
           # Order columns
           dplyr::select(exp_ci, bhd_ci, erf_ci,
                         pop_fraction, impact,

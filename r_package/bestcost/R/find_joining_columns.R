@@ -31,7 +31,7 @@ find_joining_columns <-
       purrr::keep(~ identical(df1[[.x]],
                               df2[[.x]]))|>
         # Finally exclude scenario specific columns
-        dplyr::setdiff(., except)
+        dplyr::setdiff(except)
 
 
   }

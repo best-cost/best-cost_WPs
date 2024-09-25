@@ -75,9 +75,8 @@ get_pop_impact <-
       dplyr::relocate(lifetable_with_pop_nest, .before = 1) |>
       dplyr::mutate(
         lifetable_with_pop_nest =
-          lifetable_with_pop_nest |>
           purrr::map(
-            .,
+            .x = lifetable_with_pop_nest,
             function(.x){
 
               .x <- .x |>
@@ -115,9 +114,9 @@ get_pop_impact <-
     # CALCULATE MODIFIED SURVIVAL PROBABILITIES
     input_with_risk_and_pop_fraction <- input_with_risk_and_pop_fraction |>
       dplyr::mutate(
-        lifetable_with_pop_nest = lifetable_with_pop_nest |>
+        lifetable_with_pop_nest =
           purrr::map(
-            .,
+            .x = lifetable_with_pop_nest,
             function(.x){
               .x <- .x |>
               # For all ages min_age and higher calculate modified survival probabilities
@@ -156,9 +155,9 @@ get_pop_impact <-
     # DETERMINE ENTRY POPULATION OF YOA+1 IN BASELINE SCENARIO
     pop <- input_with_risk_and_pop_fraction |>
       dplyr:::mutate(
-        pop_baseline_scenario_nest = lifetable_with_pop_nest |>
+        pop_baseline_scenario_nest =
           purrr::map(
-            .,
+            .x = lifetable_with_pop_nest,
             function(.x){
               .x <- .x |>
                 # End-of-year population YOA = entry pop YOA * ( survival probability )
@@ -189,9 +188,9 @@ get_pop_impact <-
     # YOA+1 ENTRY POPULATION USING MODIFIED SURVIVAL PROBABILITIES
     pop <- pop |>
       dplyr::mutate(
-        pop_impacted_scenario_nest = lifetable_with_pop_nest |>
+        pop_impacted_scenario_nest =
           purrr::map(
-            .,
+            .x = lifetable_with_pop_nest ,
             function(.x){
               .x <- .x |>
 
@@ -319,9 +318,9 @@ get_pop_impact <-
         # USING MODIFIED SURVIVAL PROBABILITIES (BECAUSE AFTER YOA THERE IS NO MORE AIR POLLUTION)
         pop <- pop |>
           dplyr::mutate(
-            pop_baseline_scenario_nest = pop_baseline_scenario_nest |>
+            pop_baseline_scenario_nest =
               purrr::map(
-                .,
+                .x = pop_baseline_scenario_nest,
                 function(.x){
                   project_pop(df = .x,
                               prob_survival = .x$prob_survival_mod,
@@ -332,9 +331,9 @@ get_pop_impact <-
 
         pop <- pop |>
           dplyr::mutate(
-            pop_impacted_scenario_nest = pop_impacted_scenario_nest |>
+            pop_impacted_scenario_nest =
               purrr::map(
-                .,
+                .x = pop_impacted_scenario_nest,
                 function(.x){
                   project_pop(df = .x,
                               prob_survival = .x$prob_survival_mod,
@@ -351,9 +350,9 @@ get_pop_impact <-
         # PROJECT POPULATION IN BASELINE SCENARIO
         pop <- pop |>
           dplyr::mutate(
-            pop_baseline_scenario_nest = pop_baseline_scenario_nest |>
+            pop_baseline_scenario_nest =
               purrr::map(
-                .,
+                .x = pop_baseline_scenario_nest,
                 function(.x){
                   project_pop(df = .x,
                               prob_survival = .x$prob_survival,
@@ -365,9 +364,9 @@ get_pop_impact <-
         # PROJECT POPULATION IN IMPACTED SCENARIO
         pop <- pop |>
           dplyr::mutate(
-            pop_impacted_scenario_nest = pop_impacted_scenario_nest |>
+            pop_impacted_scenario_nest =
               purrr::map(
-                .,
+                .x = pop_impacted_scenario_nest,
                 function(.x){
                   project_pop(df = .x,
                               prob_survival = .x$prob_survival_mod,
@@ -406,8 +405,7 @@ get_pop_impact <-
 
               # Add ages (in other pipeline because it does not work in one)
               pop_diff <-
-                pop_diff |>
-                dplyr::bind_cols(ages, .)
+                dplyr::bind_cols(ages, pop_diff)
 
                 return(pop_diff)
             }
@@ -441,8 +439,7 @@ get_pop_impact <-
 
               # Add ages (in other pipeline because it does not work in one)
               pop_diff <-
-                pop_diff |>
-                dplyr::bind_cols(ages, .)
+                dplyr::bind_cols(ages, pop_diff)
 
 
 
@@ -525,7 +522,7 @@ get_pop_impact <-
 
       pop_impact <-
         input_with_risk_and_pop_fraction |>
-        dplyr::right_join(., pop, by = joining_columns_pop_impact) |>
+        dplyr::right_join(pop, by = joining_columns_pop_impact) |>
         relocate(contains("nest"), .before = 1)
 
     } else { # YLD case
@@ -541,11 +538,11 @@ get_pop_impact <-
 
       if( is_empty((grep("_1", names(pop))))){
         pop_impact <- input_backup |>
-        dplyr::left_join(., pop, by = c("geo_id_raw", "exp", "prop_pop_exp", "rr", "erf_ci", "sex", "exposure_name"))
+        dplyr::left_join(pop, by = c("geo_id_raw", "exp", "prop_pop_exp", "rr", "erf_ci", "sex", "exposure_name"))
         }else{
           pop_impact <- input_backup |>
           # attribute_... cases
-          dplyr::left_join(., pop, by = c("geo_id_raw", "exp_1", "prop_pop_exp_1", "rr", "erf_ci", "sex", "exposure_name")) # compare_... cases
+          dplyr::left_join(pop, by = c("geo_id_raw", "exp_1", "prop_pop_exp_1", "rr", "erf_ci", "sex", "exposure_name")) # compare_... cases
         }
 
     }

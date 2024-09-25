@@ -165,8 +165,8 @@ compare <-
     # This is useful for joining data frames below
     scenario_specific_arguments <-
       grep("_1|_2", names(formals(compare)), value = TRUE) |>
-      gsub("_1|_2", "", .) |>
-      unique(.)
+      gsub("_1|_2", "", x = _) |>
+      unique()
 
     # If the user choose "pif"  as comparison method
     # pif is additonally calculated

@@ -113,7 +113,7 @@ compile_input <-
 
         # If a confidence interval for the erf is provided, add the erf columns
         if (!is.null(erf_eq_lower) & !is.null(erf_eq_upper)){
-            dplyr::mutate(.,
+            dplyr::mutate(
               erf_eq_lower = list(erf_eq_lower),
               erf_eq_upper = list(erf_eq_upper))}
 
@@ -211,34 +211,40 @@ compile_input <-
 
 
     if (is.null(erf_eq_central)) {
-    input_wo_lifetable <-
-      ## Exposure response function,
-      input_wo_lifetable |>
-      tidyr::pivot_longer(cols = starts_with("rr_"),
-                          names_to = "erf_ci",
-                          names_prefix = "rr_",
-                          values_to = "rr")
+      ## Exposure response function
+
+      input_wo_lifetable <-
+        tidyr::pivot_longer(data = input_wo_lifetable,
+                            cols = starts_with("rr_"),
+                            names_to = "erf_ci",
+                            names_prefix = "rr_",
+                            values_to = "rr")
     } else {
-      tidyr::pivot_longer(cols = starts_with("erf_eq_"),
-                          names_to = "erf_ci",
-                          names_prefix = "erf_eq_",
-                          values_to = "erf_eq") }
+      input_wo_lifetable <-
+        tidyr::pivot_longer(data = input_wo_lifetable,
+                            cols = starts_with("erf_eq_"),
+                            names_to = "erf_ci",
+                            names_prefix = "erf_eq_",
+                            values_to = "erf_eq") }
 
     ## Baseline health data
     if(!is.null(bhd_central)) {
-      input_wo_lifetable |>
-      tidyr::pivot_longer(cols = starts_with("bhd_"),
-                          names_to = "bhd_ci",
-                          names_prefix = "bhd_",
-                          values_to = "bhd")}
+      input_wo_lifetable <-
+        input_wo_lifetable |>
+        tidyr::pivot_longer(cols = starts_with("bhd_"),
+                            names_to = "bhd_ci",
+                            names_prefix = "bhd_",
+                            values_to = "bhd")}
 
 
     ## Disability weight
     if (!is.null(dw_central)) {
-      tidyr::pivot_longer(cols = starts_with("dw_"),
-                          names_to = "dw_ci",
-                          names_prefix = "dw_",
-                          values_to = "dw")}
+      input_wo_lifetable <-
+        input_wo_lifetable |>
+        tidyr::pivot_longer(cols = starts_with("dw_"),
+                            names_to = "dw_ci",
+                            names_prefix = "dw_",
+                            values_to = "dw")}
 
 
     # CREATE LIFETABLES ##########################################################
@@ -270,7 +276,6 @@ compile_input <-
         # The function rep(, length.out=)
         # is needed to ensure that the vector length matches with number of rows of the tibble.
         dplyr::mutate(
-          .,
           age_end = rep(age_end_sequence, length.out = n()))
 
       # Based on the template create lifetable for male

@@ -1146,9 +1146,14 @@ check_bestcost(result_list_bestcost = comparison_deaths_lifetable_delta_geo ,
 
 # Additionally check that it produces the first scenario produce the same results as above
 # comparison_deaths_lifetable_delta_geo[["detailed"]][["scenario_1"]][["detailed"]][["raw"]] |>  dplyr::filter(., geo_id_raw %in% "a") |> select(., impact)  |> pull(.) == bestcost_pm_deaths_lifetable_geluft[["main"]]$impact 
-round(comparison_deaths_lifetable_delta_geo[["detailed"]][["scenario_1"]][["detailed"]][["raw"]] |>  dplyr::filter(., geo_id_raw %in% "a") |> select(., impact)  |> pull(.), digits = 0) == round(bestcost_pm_deaths_lifetable_airqplus[["main"]]$impact)
+round(comparison_deaths_lifetable_delta_geo[["detailed"]][["scenario_1"]][["detailed"]][["raw"]] |>  
+        dplyr::filter(geo_id_raw %in% "a") |> 
+        select(impact)  |> 
+        pull(), digits = 0) == 
+  round(bestcost_pm_deaths_lifetable_airqplus[["main"]]$impact)
 # Absolute differences
-abs(comparison_deaths_lifetable_delta_geo[["detailed"]][["scenario_1"]][["detailed"]][["raw"]] |>  dplyr::filter(., geo_id_raw %in% "a") |> select(., impact)  |> pull(.) 
+abs(comparison_deaths_lifetable_delta_geo[["detailed"]][["scenario_1"]][["detailed"]][["raw"]] |>  
+      dplyr::filter(geo_id_raw %in% "a") |> select(impact)  |> pull() 
     - bestcost_pm_deaths_lifetable_airqplus[["main"]]$impact)
 # Absolute differences are negligeable (< 0.01, or < 0.0001%)
       
