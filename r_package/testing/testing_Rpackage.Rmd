@@ -99,10 +99,10 @@ bestcost_pm_copd <-
 
 # Store the central, lower and upper estimate of the AirQ+ assessment
 airqplus_pm_copd_result <- 
-  airqplus_pm_copd %>%
+  airqplus_pm_copd |>
   dplyr::select(estimated_number_of_attributable_cases_central,
                 estimated_number_of_attributable_cases_lower,
-                estimated_number_of_attributable_cases_upper)%>%
+                estimated_number_of_attributable_cases_upper)|>
   unlist()
 
 # View(bestcost_pm_copd)
@@ -213,8 +213,8 @@ bestcost_pm_copd_1rr <-
 
 # Store the central, lower and upper estimate of the AirQ+ assessment
 airqplus_pm_copd_1rr_result <- 
-  airqplus_pm_copd %>%
-  dplyr::select(estimated_number_of_attributable_cases_central)%>%
+  airqplus_pm_copd |>
+  dplyr::select(estimated_number_of_attributable_cases_central)|>
   unlist()
 
 # View(bestcost_pm_copd_1rr)
@@ -228,7 +228,7 @@ check_bestcost(result_list_bestcost = bestcost_pm_copd,
 
 # Extract rows that contain input data (others may contain results)
 niph_noise_ihd_input <- 
-  niph_noise_ihd_excel %>%
+  niph_noise_ihd_excel |>
   dplyr::filter(!is.na(niph_noise_ihd_excel$exposure_mean))
 
 # Extract results from excel table
@@ -236,11 +236,11 @@ niph_noise_ihd_input <-
 # so let's repeat the value three times to build 
 # the vector for lower and upper bound
 niph_noise_ihd_result <- 
-  niph_noise_ihd_excel %>%
-        dplyr::filter(exposure_category %in% "Total exposed")%>%
-        dplyr::select(daly)%>%
-        dplyr::pull() %>%
-  round(.)
+  niph_noise_ihd_excel |>
+        dplyr::filter(exposure_category %in% "Total exposed")|>
+        dplyr::select(daly)|>
+        dplyr::pull() |>
+  round()
 
 # Obtain attributable cases using the bestcost package and input data from niph
 bestcost_noise_ihd_expDist <- 
@@ -286,7 +286,7 @@ bestcost_noise_ihd_expDist_geo <-
 
 # Extract rows that contain input data (others may contain results)
 niph_noise_ha_input <- 
-  niph_noise_ha_excel %>%
+  niph_noise_ha_excel |>
   dplyr::filter(!is.na(niph_noise_ha_excel$exposure_mean))
 
 # Extract results from excel table
@@ -294,11 +294,11 @@ niph_noise_ha_input <-
 # so let's repeat the value three times to build 
 # the vector for lower and upper bound
 niph_noise_ha_result <- 
-  niph_noise_ha_excel %>%
-        dplyr::filter(exposure_category %in% "Total exposed")%>%
-        dplyr::select(number)%>%
-        dplyr::pull() %>%
-  round(.)
+  niph_noise_ha_excel |>
+        dplyr::filter(exposure_category %in% "Total exposed")|>
+        dplyr::select(number)|>
+        dplyr::pull() |>
+  round()
 
 # Obtain attributable cases using the bestcost package and input data from niph
 bestcost_noise_ha_ar <- 
@@ -1145,10 +1145,15 @@ check_bestcost(result_list_bestcost = comparison_deaths_lifetable_delta_geo ,
 
 
 # Additionally check that it produces the first scenario produce the same results as above
-# comparison_deaths_lifetable_delta_geo[["detailed"]][["scenario_1"]][["detailed"]][["raw"]] %>%  dplyr::filter(., geo_id_raw %in% "a") %>% select(., impact)  %>% pull(.) == bestcost_pm_deaths_lifetable_geluft[["main"]]$impact 
-round(comparison_deaths_lifetable_delta_geo[["detailed"]][["scenario_1"]][["detailed"]][["raw"]] %>%  dplyr::filter(., geo_id_raw %in% "a") %>% select(., impact)  %>% pull(.), digits = 0) == round(bestcost_pm_deaths_lifetable_airqplus[["main"]]$impact)
+# comparison_deaths_lifetable_delta_geo[["detailed"]][["scenario_1"]][["detailed"]][["raw"]] |>  dplyr::filter(., geo_id_raw %in% "a") |> select(., impact)  |> pull(.) == bestcost_pm_deaths_lifetable_geluft[["main"]]$impact 
+round(comparison_deaths_lifetable_delta_geo[["detailed"]][["scenario_1"]][["detailed"]][["raw"]] |>  
+        dplyr::filter(geo_id_raw %in% "a") |> 
+        select(impact)  |> 
+        pull(), digits = 0) == 
+  round(bestcost_pm_deaths_lifetable_airqplus[["main"]]$impact)
 # Absolute differences
-abs(comparison_deaths_lifetable_delta_geo[["detailed"]][["scenario_1"]][["detailed"]][["raw"]] %>%  dplyr::filter(., geo_id_raw %in% "a") %>% select(., impact)  %>% pull(.) 
+abs(comparison_deaths_lifetable_delta_geo[["detailed"]][["scenario_1"]][["detailed"]][["raw"]] |>  
+      dplyr::filter(geo_id_raw %in% "a") |> select(impact)  |> pull() 
     - bestcost_pm_deaths_lifetable_airqplus[["main"]]$impact)
 # Absolute differences are negligeable (< 0.01, or < 0.0001%)
       

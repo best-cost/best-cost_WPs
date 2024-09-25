@@ -102,27 +102,26 @@ compile_input <-
             erf_eq_lower = erf_eq_lower,
             erf_eq_upper = erf_eq_upper)
     }
+
     # If it is defined by the erf function as function
     if(!is.null(erf_eq_central) & is.function(erf_eq_central)){
 
         erf_data <- # 1 x 3 tibble
           dplyr::tibble(
             exposure_name = names(erf_eq_central),
-            erf_eq_central = list(erf_eq_central)) %>%
+            erf_eq_central = list(erf_eq_central))}
 
-          # If a confidence interval for the erf is provided, add the erf columns
-          {if (!is.null(erf_eq_lower) & !is.null(erf_eq_upper))
-            dplyr::mutate(.,
+        # If a confidence interval for the erf is provided, add the erf columns
+        if (!is.null(erf_eq_lower) & !is.null(erf_eq_upper)){
+            dplyr::mutate(
               erf_eq_lower = list(erf_eq_lower),
-              erf_eq_upper = list(erf_eq_upper))
-            else .}
-    }
+              erf_eq_upper = list(erf_eq_upper))}
 
     # If there exist no column with name "exposure_name" because the vectors were not named,
     # then the column has to be added as NA
     if(!"exposure_name" %in% names(erf_data)){
       erf_data <-
-        erf_data %>%
+        erf_data |>
         dplyr::mutate(exposure_name = NA)
 
     }
@@ -151,7 +150,7 @@ compile_input <-
         geo_id_aggregated = rep(geo_id_aggregated, each = length_exp_dist),
         bhd_central = rep(unlist(bhd_central), each = length_exp_dist),
         bhd_lower = rep(unlist(bhd_lower), each = length_exp_dist),
-        bhd_upper = rep(unlist(bhd_lower), each = length_exp_dist),
+        bhd_upper = rep(unlist(bhd_upper), each = length_exp_dist),
         min_age = rep(min_age, each = length_exp_dist),
         max_age = rep(max_age, each = length_exp_dist),
         approach_multiexposure = rep(approach_multiexposure, each = length_exp_dist),
@@ -170,12 +169,13 @@ compile_input <-
         exp_lower = unlist(exp_lower),
         exp_upper = unlist(exp_upper),
         prop_pop_exp = unlist(prop_pop_exp),
-        pop_exp = unlist(pop_exp)) %>%
+        pop_exp = unlist(pop_exp))
 
       # Add erf data
-      dplyr::bind_cols(., erf_data) %>%
+    input_wo_lifetable <-
+      dplyr::bind_cols(input_wo_lifetable, erf_data) |>
       # Add additional (meta-)information
-      bestcost:::add_info(df = ., info = info) %>%
+      bestcost:::add_info(info = info) |>
       # Information derived from input data
       dplyr::mutate(
         # Add age_max and age_min (not needed without life table)
@@ -189,9 +189,9 @@ compile_input <-
         exposure_type =
           ifelse(length_exp_dist == 1,
                  "population_weighted_mean",
-                 "exposure_distribution")) %>%
+                 "exposure_distribution")) |>
       # Remove all columns with all values being NA
-      # dplyr::select(where(~ !all(is.na(.)))) %>%
+      # dplyr::select(where(~ !all(is.na(.)))) |>
 
       # Add lifetable-related data as nested tibble
       # Build the data set
@@ -204,38 +204,47 @@ compile_input <-
       # central, lower and upper estimates (relevant for iteration)
 
       ## For exposure,
-      tidyr::pivot_longer(.,
-                          cols = starts_with("exp_"),
+      tidyr::pivot_longer(cols = starts_with("exp_"),
                           names_to = "exp_ci",
                           names_prefix = "exp_",
-                          values_to = "exp") %>%
-      ## Exposure response function,
-      {if(is.null(erf_eq_central))
-        tidyr::pivot_longer(.,
+                          values_to = "exp")
+
+
+    if (is.null(erf_eq_central)) {
+      ## Exposure response function
+
+      input_wo_lifetable <-
+        tidyr::pivot_longer(data = input_wo_lifetable,
                             cols = starts_with("rr_"),
                             names_to = "erf_ci",
                             names_prefix = "rr_",
                             values_to = "rr")
-        else
-          tidyr::pivot_longer(.,
-                              cols = starts_with("erf_eq_"),
-                              names_to = "erf_ci",
-                              names_prefix = "erf_eq_",
-                              values_to = "erf_eq")} %>%
-      ## Baseline health data,
-      {if(!is.null(bhd_central))
-        tidyr::pivot_longer(.,
-                            cols = starts_with("bhd_"),
+    } else {
+      input_wo_lifetable <-
+        tidyr::pivot_longer(data = input_wo_lifetable,
+                            cols = starts_with("erf_eq_"),
+                            names_to = "erf_ci",
+                            names_prefix = "erf_eq_",
+                            values_to = "erf_eq") }
+
+    ## Baseline health data
+    if(!is.null(bhd_central)) {
+      input_wo_lifetable <-
+        input_wo_lifetable |>
+        tidyr::pivot_longer(cols = starts_with("bhd_"),
                             names_to = "bhd_ci",
                             names_prefix = "bhd_",
-                            values_to = "bhd") else .} %>%
-      ## & Disability weight
-      {if(!is.null(dw_central))
-        tidyr::pivot_longer(.,
-                            cols = starts_with("dw_"),
+                            values_to = "bhd")}
+
+
+    ## Disability weight
+    if (!is.null(dw_central)) {
+      input_wo_lifetable <-
+        input_wo_lifetable |>
+        tidyr::pivot_longer(cols = starts_with("dw_"),
                             names_to = "dw_ci",
                             names_prefix = "dw_",
-                            values_to = "dw") else .}
+                            values_to = "dw")}
 
 
     # CREATE LIFETABLES ##########################################################
@@ -261,18 +270,17 @@ compile_input <-
       lifetable_with_pop_template <-
         tidyr::crossing(
           geo_id_raw,
-          age = age_sequence) %>%
+          age = age_sequence) |>
         # Add age end with mutate instead of crossing
         # because no additional combinations are needed (already included in age)
         # The function rep(, length.out=)
         # is needed to ensure that the vector length matches with number of rows of the tibble.
         dplyr::mutate(
-          .,
           age_end = rep(age_end_sequence, length.out = n()))
 
       # Based on the template create lifetable for male
       lifetable_with_pop_male <-
-        lifetable_with_pop_template %>%
+        lifetable_with_pop_template |>
         dplyr::mutate(
           sex = "male",
           deaths = rep(unlist(deaths_male), length.out = n()),
@@ -280,7 +288,7 @@ compile_input <-
 
       # The same for female
       lifetable_with_pop_female <-
-        lifetable_with_pop_template %>%
+        lifetable_with_pop_template |>
         dplyr::mutate(
           sex = "female",
           deaths = rep(unlist(deaths_female), length.out = n()),
@@ -293,7 +301,7 @@ compile_input <-
           lifetable_with_pop_female)
 
       lifetable_with_pop <-
-        lifetable_with_pop_male_female %>%
+        lifetable_with_pop_male_female |>
         # Nest the lifetable elements
         tidyr::nest(
           lifetable_with_pop_nest =
@@ -301,7 +309,7 @@ compile_input <-
 
         # The same for total
         lifetable_with_pop_total <-
-          lifetable_with_pop_template %>%
+          lifetable_with_pop_template |>
           dplyr::mutate(
             sex = "total",
             population = lifetable_with_pop_male$population + lifetable_with_pop_female$population,
@@ -313,7 +321,7 @@ compile_input <-
                            lifetable_with_pop_total)
 
         lifetable_with_pop <-
-          lifetable_with_pop_male_female_total %>%
+          lifetable_with_pop_male_female_total |>
           # Nest the lifetable elements
           tidyr::nest(
             lifetable_with_pop_nest =

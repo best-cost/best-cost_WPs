@@ -16,9 +16,9 @@ include_cost <- function(output,
   # Define a function to add the monetized impacts (rounded and not rounded)
   add_monetized_impact <-
     function(df){
-      df %>%
+      df |>
         dplyr::mutate(impact_monetized = as.numeric(valuation) * as.numeric(impact),
-                      .after = impact) %>%
+                      .after = impact) |>
         dplyr::mutate(impact_rounded_monetized = round(impact_monetized),
                       .after = impact_rounded)
     }

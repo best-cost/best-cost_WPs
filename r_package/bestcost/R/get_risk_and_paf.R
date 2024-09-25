@@ -26,8 +26,8 @@ get_risk_and_paf <-
 
     # Calculate health impact attributable to exposure ####
     input_and_risk <-
-      input %>%
-      dplyr::rowwise(.) %>%
+      input |>
+      dplyr::rowwise(.) |>
       dplyr::mutate(
         # Obtain the relative risk for the relevant concentration
         rr_conc =
@@ -39,12 +39,12 @@ get_risk_and_paf <-
 
     # Calculate population attributable fraction (PAF) ####
     input_risk_paf <-
-      input_and_risk %>%
+      input_and_risk |>
       # Group by exp in case that there are different exposure categories
-      dplyr::group_by(erf_ci, exp_ci) %>%
+      dplyr::group_by(erf_ci, exp_ci) |>
       dplyr::summarize(paf = bestcost::get_paf(rr_conc = rr_conc,
                                                prop_pop_exp = prop_pop_exp),
-                       .groups = "drop")%>%
+                       .groups = "drop")|>
 
       # Join the input table with paf values
       dplyr::left_join(., input_and_risk,
@@ -55,14 +55,14 @@ get_risk_and_paf <-
     # then reduce the number of rows to keep the same number as in rr
     if(unique(input$exposure_type) == "exposure_distribution"){
       input_risk_paf <-
-        input_risk_paf %>%
+        input_risk_paf |>
         dplyr::mutate(
           # Add a column for the average exp (way to summarize exposure)
           exp_mean = mean(exp),
           # Replace the actual values with "multiple" to enable reduction of rows
           exp = paste(exp, collapse = ", "),
           prop_pop_exp = paste(prop_pop_exp, collapse = ", "),
-          rr_conc = paste(rr_conc, collapse = ", ")) %>%
+          rr_conc = paste(rr_conc, collapse = ", ")) |>
         # Keep only rows that are distinct
         dplyr::distinct(.)
     }
