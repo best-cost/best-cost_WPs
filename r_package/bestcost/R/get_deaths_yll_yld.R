@@ -139,26 +139,28 @@ get_deaths_yll_yld <-
                 sum(na.rm = TRUE)
             }
 
-            # If yll
-            if(outcome_metric %in% c("yll")){
-              .x <-
-                .x |>
-                dplyr::summarise(impact = sum(impact, na.rm = TRUE)) |>
-                dplyr::mutate(discounted = FALSE)
-            }
 
-            # If yld
+          # If yll or yld
+          if(outcome_metric %in% c("yll", "yld")){
+
+            # Only if yld
             if(outcome_metric %in% "yld"){
               .x <-
                 .x |>
                 # Filter for the relevant years
-                dplyr::filter(.data = _, (year < (year_of_analysis + duration + 1))) |>
-                # Sum among years to obtain the total impact (single value)
-                dplyr::summarise(impact = sum(impact, na.rm = TRUE))|>
-                dplyr::mutate(discounted = FALSE)
+                dplyr::filter(.data = _, (year < (year_of_analysis + duration + 1)))
             }
+
+            # Both yll and yld cases
+            .x <-
+              .x |>
+              dplyr::summarise(impact = sum(impact, na.rm = TRUE)) |>
+              dplyr::mutate(discounted = FALSE)
+
             return(.x)
-          })
+          }
+        }
+        )
         )
 
 
@@ -186,18 +188,17 @@ get_deaths_yll_yld <-
                 dplyr::mutate(
                   discounted_impact = impact * discount)
 
-              if (outcome_metric == "yll") {
-                .x <- .x |>
-                  # Sum among years to obtain the total impact (single value)
-                  dplyr::summarise(impact = sum(discounted_impact), .groups = "drop")
-              }
+              # If yll or yld
+              if(outcome_metric %in% c("yll", "yld")){
 
+                # If "yld"
+                if (outcome_metric == "yld") {
+                  .x <- .x |>
+                    # Filter for the relevant years
+                    dplyr::filter(.data = _, (year < (year_of_analysis + duration + 1)))
+                }
 
-              # Handle outcome_metric == "yld"
-              if (outcome_metric == "yld") {
                 .x <- .x |>
-                  # Filter for the relevant years
-                  dplyr::filter(.data = _, (year < (year_of_analysis + duration + 1))) |>
                   # Sum among years to obtain the total impact (single value)
                   dplyr::summarise(impact = sum(discounted_impact), .groups = "drop")
               }
