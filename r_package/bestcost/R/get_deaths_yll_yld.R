@@ -152,7 +152,7 @@ get_deaths_yll_yld <-
               .x <-
                 .x |>
                 # Filter for the relevant years
-                #dplyr::filter(., year < (year_of_analysis + duration + 1)) |>
+                dplyr::filter(.data = _, (year < (year_of_analysis + duration + 1))) |>
                 # Sum among years to obtain the total impact (single value)
                 dplyr::summarise(impact = sum(impact, na.rm = TRUE))|>
                 dplyr::mutate(discounted = FALSE)
@@ -196,8 +196,8 @@ get_deaths_yll_yld <-
               # Handle outcome_metric == "yld"
               if (outcome_metric == "yld") {
                 .x <- .x |>
-                  # Filter for relevant years
-                  dplyr::filter(year < (year_of_analysis + duration + 1)) |>
+                  # Filter for the relevant years
+                  dplyr::filter(.data = _, (year < (year_of_analysis + duration + 1))) |>
                   # Sum among years to obtain the total impact (single value)
                   dplyr::summarise(impact = sum(discounted_impact), .groups = "drop")
               }
@@ -286,11 +286,13 @@ get_deaths_yll_yld <-
       dplyr::filter(sex %in% "total")
 
       if (unique(impact_detailed$health_metric) == "yld_from_prevalence") {
-        dplyr::filter(x, dw_ci %in% "central")
+        impact_main <- impact_main |>
+          dplyr::filter(dw_ci %in% "central")
       }
 
       if (!is.null(corrected_discount_rate)) {
-        dplyr::filter(x, discounted %in% TRUE)
+        impact_main <- impact_main |>
+          dplyr::filter(discounted %in% TRUE)
         }
 
     # Classify results in main and detailed
