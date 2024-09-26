@@ -13,7 +13,7 @@ Imports:
   purrr,
   tidyr
 Depends: 
-    R (>= 3.5.0)
+    R (>= 4.1.0)
 LazyData: true
 Suggests: 
     testthat (>= 3.0.0)
