@@ -149,7 +149,7 @@ get_deaths_yll_yld <-
               .x <-
                 .x |>
                 # Filter for the relevant years
-                dplyr::filter(.data = _, (year < (year_of_analysis + duration_central + 1)))
+                dplyr::filter(.data = _, year < c(rep_len(year_of_analysis + duration_central + 1, length.out = length(year))))
             }
 
             # Both yll and yld cases
@@ -196,7 +196,7 @@ get_deaths_yll_yld <-
                 if (outcome_metric == "yld") {
                   .x <- .x |>
                     # Filter for the relevant years
-                    dplyr::filter(.data = _, (year < (year_of_analysis + duration_central + 1)))
+                    dplyr::filter(.data = _, (year < c(rep_len(year_of_analysis + duration_central + 1, length.out = length(year)))))
                 }
 
                 .x <- .x |>
