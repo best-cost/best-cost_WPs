@@ -33,8 +33,7 @@ get_daly <-
            min_age = NULL,
            max_age = NULL,
            input_with_risk_and_pop_fraction,
-           corrected_discount_rate = NULL,
-           duration = NULL){
+           corrected_discount_rate = NULL){
 
 
 
