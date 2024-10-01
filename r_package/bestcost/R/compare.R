@@ -63,7 +63,7 @@ compare <-
            prop_pop_exp_2 = 1,
            pop_exp_1 = NULL,
            pop_exp_2 = NULL,
-           cutoff,
+           cutoff_central = NULL, cutoff_lower = NULL, cutoff_upper = NULL,
            rr_central = NULL, rr_lower = NULL, rr_upper = NULL,
            erf_increment = NULL,
            erf_shape = NULL,
@@ -87,7 +87,7 @@ compare <-
            year_of_analysis_2 = NULL,
            min_age = NULL, max_age = NULL,
            dw_central = NULL, dw_lower = NULL, dw_upper = NULL,
-           duration = NULL,
+           duration_central = NULL, duration_lower = NULL, duration_upper = NULL,
            corrected_discount_rate = NULL,
            # Iteration
            geo_id_raw = NULL,
@@ -103,7 +103,7 @@ compare <-
         exp_central = exp_central_1, exp_lower = exp_lower_1, exp_upper = exp_upper_1,
         prop_pop_exp = prop_pop_exp_1,
         pop_exp = pop_exp_1,
-        cutoff = cutoff,
+        cutoff_central = cutoff_central, cutoff_lower = cutoff_lower, cutoff_upper = cutoff_upper,
         rr_central = rr_central, rr_lower = rr_lower, rr_upper = rr_upper,
         erf_increment = erf_increment,
         erf_shape = erf_shape,
@@ -124,7 +124,7 @@ compare <-
         dw_central = dw_central, dw_lower = dw_lower, dw_upper = dw_upper,
         geo_id_raw = geo_id_raw,
         geo_id_aggregated = geo_id_aggregated,
-        duration = duration,
+        duration_central = duration_central, duration_lower = duration_lower, duration_upper = duration_upper,
         info = info_1)
 
     # Calculate attributable health impacts in the scenario 2
@@ -136,7 +136,7 @@ compare <-
         exp_central = exp_central_2, exp_lower = exp_lower_2, exp_upper = exp_upper_2,
         prop_pop_exp = prop_pop_exp_2,
         pop_exp = pop_exp_2,
-        cutoff = cutoff,
+        cutoff_central = cutoff_central, cutoff_lower = cutoff_lower, cutoff_upper = cutoff_upper,
         rr_central = rr_central, rr_lower = rr_lower, rr_upper = rr_upper,
         erf_increment = erf_increment,
         erf_shape = erf_shape,
@@ -155,7 +155,7 @@ compare <-
         max_age = max_age,
         corrected_discount_rate = corrected_discount_rate,
         dw_central = dw_central, dw_lower = dw_lower, dw_upper = dw_upper,
-        duration = duration,
+        duration_central = duration_central, duration_lower = duration_lower, duration_upper = duration_upper,
         geo_id_raw = geo_id_raw,
         geo_id_aggregated = geo_id_aggregated,
         info = info_2)
@@ -223,7 +223,7 @@ compare <-
           approach_risk = approach_risk,
           exp_central = exp_central_1, exp_lower = exp_lower_1, exp_upper = exp_upper_1,
           prop_pop_exp = prop_pop_exp_1,
-          cutoff = cutoff,
+          cutoff_central = cutoff_central, cutoff_lower = cutoff_lower, cutoff_upper = cutoff_upper,
           bhd_central = bhd_central_1, bhd_lower = bhd_lower_1, bhd_upper = bhd_upper_1,
           rr_central = rr_central,
           rr_lower = rr_lower,
@@ -238,7 +238,7 @@ compare <-
           geo_id_aggregated = geo_id_aggregated,
           # YLD
           dw_central = dw_central, dw_lower = dw_lower, dw_upper = dw_upper,
-          duration = duration,
+          duration_central = duration_central, duration_lower = duration_lower, duration_upper = duration_upper,
           # Lifetable data
           approach_exposure = approach_exposure_1,
           approach_newborns = approach_newborns_1,
@@ -256,7 +256,7 @@ compare <-
           approach_risk = approach_risk,
           exp_central = exp_central_2, exp_lower = exp_lower_2, exp_upper = exp_upper_2,
           prop_pop_exp = prop_pop_exp_2,
-          cutoff = cutoff,
+          cutoff_central = cutoff_central, cutoff_lower = cutoff_lower, cutoff_upper = cutoff_upper,
           bhd_central = bhd_central_2, bhd_lower = bhd_lower_2, bhd_upper = bhd_upper_2,
           rr_central = rr_central,
           rr_lower = rr_lower,
@@ -271,7 +271,7 @@ compare <-
           geo_id_aggregated = geo_id_aggregated,
           # YLD
           dw_central = dw_central, dw_lower = dw_lower, dw_upper = dw_upper,
-          duration = duration,
+          duration_central = duration_central, duration_lower = duration_lower, duration_upper = duration_upper,
           # Lifetable data
           approach_exposure = approach_exposure_2,
           approach_newborns = approach_newborns_2,
@@ -317,7 +317,6 @@ compare <-
           min_age = min_age,
           max_age = max_age,
           corrected_discount_rate = corrected_discount_rate,
-          duration = duration,
           pop_fraction_type = "pif")
       }
 

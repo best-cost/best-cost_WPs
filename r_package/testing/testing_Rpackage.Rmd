@@ -786,7 +786,7 @@ comparison_singlebhd_rr_delta <-
     approach_comparison = "delta",
     exp_central_1 = 8.85, 
     exp_central_2 = 6,
-    cutoff = 5,    
+    cutoff_central = 5,    
     bhd_central_1 = 25000,
     bhd_central_2 = 25000,
     rr_central = 1.118, 
@@ -810,7 +810,7 @@ comparison_singlebhd_rr_delta_geo <-
     approach_comparison = "delta",
     exp_central_1 = list(8.85, 8.0),
     exp_central_2 = list(6, 6.5),
-    cutoff = 5,    
+    cutoff_central = 5,    
     bhd_central_1 = list(25000, 20000),
     bhd_central_2 = list(25000, 20000),
     rr_central = 1.118, 
@@ -837,7 +837,7 @@ comparison_singlebhd_rr_pif <-
     approach_comparison = "pif",
     exp_central_1 = 8.85, 
     exp_central_2 = 6,
-    cutoff = 5,    
+    cutoff_central = 5,    
     bhd_central_1 = 25000,
     bhd_central_2 = 25000,
     rr_central = 1.118, 
@@ -861,7 +861,7 @@ comparison_singlebhd_rr_pif_geo <-
     approach_comparison = "pif",
     exp_central_1 = list(8.85, 8.0),
     exp_central_2 = list(6, 6.5),
-    cutoff = 5,    
+    cutoff_central = 5,    
     bhd_central_1 = list(25000, 20000),
     bhd_central_2 = list(25000, 20000),
     rr_central = 1.118, 
@@ -894,7 +894,7 @@ comparison_singlebhd_rr_geo <-
     exp_central_2 = as.list(runif_with_seed(1E4, 8.0, 9.0, 2)),
     exp_lower_2 = as.list(runif_with_seed(1E4, 8.0, 9.0, 2)-0.1),
     exp_upper_2 = as.list(runif_with_seed(1E4, 8.0, 9.0, 2)+0.1),
-    cutoff = 5,   
+    cutoff_central = 5,   
     bhd_central_1 = as.list(runif_with_seed(1E4, 25000, 35000, 1)),
     bhd_lower_1 = as.list(runif_with_seed(1E4, 25000, 35000, 1)),
     bhd_upper_1 = as.list(runif_with_seed(1E4, 25000, 35000, 1)),
@@ -966,7 +966,7 @@ comparison_yld_singlebhd_rr_delta <-
     approach_comparison = "delta",
     exp_central_1 = 8.85, 
     exp_central_2 = 6,
-    cutoff = 5,    
+    cutoff_central = 5,    
     bhd_central_1 = 25000,
     bhd_central_2 = 25000,
     rr_central = 1.118,
@@ -995,7 +995,7 @@ comparison_yld_singlebhd_rr_delta_geo <-
     approach_comparison = "delta",
     exp_central_1 = list(8.85, 8.0),
     exp_central_2 = list(6, 6.5),
-    cutoff = 5,    
+    cutoff_central = 5,    
     bhd_central_1 = 25000,
     bhd_central_2 = 25000,
     rr_central = 1.118,
@@ -1024,7 +1024,7 @@ comparison_yld_singlebhd_rr_pif <-
     approach_comparison = "pif",
     exp_central_1 = 8.85,  
     exp_central_2 = 6,
-    cutoff = 5,    
+    cutoff_central = 5,    
     bhd_central_1 = 25000,
     bhd_central_2 = 25000,
     rr_central = 1.118,
@@ -1053,7 +1053,7 @@ comparison_yld_singlebhd_rr_pif_geo <-
     approach_comparison = "pif",
     exp_central_1 = list(8.85, 8.0),
     exp_central_2 = list(6, 6.5),
-    cutoff = 5,    
+    cutoff_central = 5,    
     bhd_central_1 = 25000,
     bhd_central_2 = 25000,
     rr_central = 1.118,
@@ -1090,7 +1090,7 @@ comparison_deaths_lifetable_delta <-
     prop_pop_exp_1 = 1, # Fake data just for testing purposes
     exp_central_2 = 6, # Fake data just for testing purposes
     prop_pop_exp_2 = 1, # Fake data just for testing purposes
-    cutoff = 5,   # PM2.5=5, WHO AQG 2021 
+    cutoff_central = 5,   # PM2.5=5, WHO AQG 2021 
     rr_central = 1.118,
     rr_lower = 1.060,
     rr_upper = 1.179,
@@ -1132,7 +1132,7 @@ comparison_deaths_lifetable_delta_geo <-
     approach_comparison = "delta",
     exp_central_1 = list(8.85, 8.0),# Fake data just for testing purposes
     exp_central_2 = list(6, 6.5),# Fake data just for testing purposes
-    cutoff = 5,   # PM2.5=5, WHO AQG 2021 
+    cutoff_central = 5,   # PM2.5=5, WHO AQG 2021 
     rr_central = 1.118,
     rr_lower = 1.060,
     rr_upper = 1.179,
@@ -1189,7 +1189,7 @@ comparison_deaths_lifetable_pif  <-
     prop_pop_exp_1 = 1, # Fake data just for testing purposes
     exp_central_2 = 6, # Fake data just for testing purposes
     prop_pop_exp_2 = 1, # Fake data just for testing purposes
-    cutoff = 5,   # PM2.5=5, WHO AQG 2021 
+    cutoff_central = 5,   # PM2.5=5, WHO AQG 2021 
     rr_central = 1.118,
     rr_lower = 1.060,
     rr_upper = 1.179,
@@ -1232,7 +1232,7 @@ comparison_deaths_lifetable_pif_geo <-
     approach_comparison = "pif",
     exp_central_1 = list(8.85, 8.0),# Fake data just for testing purposes
     exp_central_2 = list(6, 6.5),# Fake data just for testing purposes
-    cutoff = 5,   # PM2.5=5, WHO AQG 2021 
+    cutoff_central = 5,   # PM2.5=5, WHO AQG 2021 
     rr_central = 1.118,
     rr_lower = 1.060,
     rr_upper = 1.179,
@@ -1279,7 +1279,7 @@ comparison_yll_lifetable_delta  <-
     prop_pop_exp_1 = 1, # Fake data just for testing purposes
     exp_central_2 = 6, # Fake data just for testing purposes
     prop_pop_exp_2 = 1, # Fake data just for testing purposes
-    cutoff = 5,   # PM2.5=5, WHO AQG 2021 
+    cutoff_central = 5,   # PM2.5=5, WHO AQG 2021 
     rr_central = 1.118,
     rr_lower = 1.060,
     rr_upper = 1.179,
@@ -1327,7 +1327,7 @@ comparison_yll_lifetable_delta_geo <-
     approach_comparison = "delta",
     exp_central_1 = list(8.85, 8.0),# Fake data just for testing purposes
     exp_central_2 = list(6, 6.5),# Fake data just for testing purposes
-    cutoff = 5,   # PM2.5=5, WHO AQG 2021 
+    cutoff_central = 5,   # PM2.5=5, WHO AQG 2021 
     rr_central = 1.118,
     rr_lower = 1.060,
     rr_upper = 1.179,
@@ -1371,7 +1371,7 @@ comparison_yll_lifetable_pif <-
     prop_pop_exp_1 = 1, # Fake data just for testing purposes
     exp_central_2 = 6, # Fake data just for testing purposes
     prop_pop_exp_2 = 1, # Fake data just for testing purposes
-    cutoff = 5,   # PM2.5=5, WHO AQG 2021 
+    cutoff_central = 5,   # PM2.5=5, WHO AQG 2021 
     rr_central = 1.118,
     rr_lower = 1.060,
     rr_upper = 1.179,
@@ -1416,7 +1416,7 @@ comparison_yll_lifetable_pif_geo <-
     approach_comparison = "pif",
     exp_central_1 = list(8.85, 8.0),# Fake data just for testing purposes
     exp_central_2 = list(6, 6.5),# Fake data just for testing purposes
-    cutoff = 5,   # PM2.5=5, WHO AQG 2021 
+    cutoff_central = 5,   # PM2.5=5, WHO AQG 2021 
     rr_central = 1.118,
     rr_lower = 1.060,
     rr_upper = 1.179,
@@ -1463,7 +1463,7 @@ comparison_yld_lifetable_delta  <-
     prop_pop_exp_1 = 1, # Fake data just for testing purposes
     exp_central_2 = 6, # Fake data just for testing purposes
     prop_pop_exp_2 = 1, # Fake data just for testing purposes
-    cutoff = 5,   # PM2.5=5, WHO AQG 2021 
+    cutoff_central = 5,   # PM2.5=5, WHO AQG 2021 
     rr_central = 1.118,
     rr_lower = 1.060,
     rr_upper = 1.179,
@@ -1486,7 +1486,7 @@ comparison_yld_lifetable_delta  <-
     info_1 = input_data_mortality$pollutant[2],
     info_2 = input_data_mortality$pollutant[2], 
     min_age = 20,
-    duration = 100,
+    duration_central = 100,
     dw_central = 1)
 
 # View(comparison_yld_lifetable_delta)
@@ -1507,7 +1507,7 @@ comparison_yld_lifetable_delta_geo <-
     approach_comparison = "delta",
     exp_central_1 = list(8.85, 8.0),# Fake data just for testing purposes
     exp_central_2 = list(6, 6.5),# Fake data just for testing purposes
-    cutoff = 5,   # PM2.5=5, WHO AQG 2021 
+    cutoff_central = 5,   # PM2.5=5, WHO AQG 2021 
     rr_central = 1.118,
     rr_lower = 1.060,
     rr_upper = 1.179,
@@ -1532,7 +1532,7 @@ comparison_yld_lifetable_delta_geo <-
     min_age = 20,
     geo_id_raw = c("a", "b"),
     geo_id_aggregated = rep("ch", 2),
-    duration = 100,
+    duration_central = 100,
     dw_central = 1)
 
 # View(comparison_yld_lifetable_delta_geo)
@@ -1551,7 +1551,7 @@ comparison_yld_lifetable_pif <-
     prop_pop_exp_1 = 1, # Fake data just for testing purposes
     exp_central_2 = 6, # Fake data just for testing purposes
     prop_pop_exp_2 = 1, # Fake data just for testing purposes
-    cutoff = 5,   # PM2.5=5, WHO AQG 2021 
+    cutoff_central = 5,   # PM2.5=5, WHO AQG 2021 
     rr_central = 1.118,
     rr_lower = 1.060,
     rr_upper = 1.179,
@@ -1574,7 +1574,7 @@ comparison_yld_lifetable_pif <-
     info_1 = NULL,
     info_2 = NULL, 
     min_age = 20,
-    duration = 100,
+    duration_central = 100,
     dw_central = 1)
 
 # View(comparison_yld_lifetable_pif)
@@ -1595,7 +1595,7 @@ comparison_yld_lifetable_pif_geo <-
     approach_comparison = "pif",
     exp_central_1 = list(8.85, 8.0),# Fake data just for testing purposes
     exp_central_2 = list(6, 6.5),# Fake data just for testing purposes
-    cutoff = 5,   # PM2.5=5, WHO AQG 2021 
+    cutoff_central = 5,   # PM2.5=5, WHO AQG 2021 
     rr_central = 1.118,
     rr_lower = 1.060,
     rr_upper = 1.179,
@@ -1620,7 +1620,7 @@ comparison_yld_lifetable_pif_geo <-
     min_age = 20,
     geo_id_raw = c("a", "b"),
     geo_id_aggregated = rep("ch", 2),
-    duration = 100,
+    duration_central = 100,
     dw_central = 1)
 
 # View(comparison_yld_lifetable_pif_geo)
@@ -1644,7 +1644,7 @@ comparison_daly_lifetable_delta  <-
     prop_pop_exp_1 = 1, # Fake data just for testing purposes
     exp_central_2 = 6, # Fake data just for testing purposes
     prop_pop_exp_2 = 1, # Fake data just for testing purposes
-    cutoff = 5, # PM2.5=5, WHO AQG 2021 
+    cutoff_central = 5, # PM2.5=5, WHO AQG 2021 
     rr_central = 1.118,
     rr_lower = 1.060,
     rr_upper = 1.179,
@@ -1667,7 +1667,7 @@ comparison_daly_lifetable_delta  <-
     info_1 = input_data_mortality$pollutant[2],
     info_2 = input_data_mortality$pollutant[2], 
     min_age = 20,
-    duration = 100,
+    duration_central = 100,
     dw_central = 1)
 
 # View(comparison_daly_lifetable_delta)
@@ -1688,7 +1688,7 @@ comparison_daly_lifetable_delta_geo <-
     approach_comparison = "delta",
     exp_central_1 = list(8.85, 8.0),# Fake data just for testing purposes
     exp_central_2 = list(6, 6.5),# Fake data just for testing purposes
-    cutoff = 5,   # PM2.5=5, WHO AQG 2021 
+    cutoff_central = 5,   # PM2.5=5, WHO AQG 2021 
     rr_central = 1.118,
     rr_lower = 1.060,
     rr_upper = 1.179,
@@ -1713,7 +1713,7 @@ comparison_daly_lifetable_delta_geo <-
     min_age = 20,
     geo_id_raw = c("a", "b"),
     geo_id_aggregated = rep("ch", 2),
-    duration = 100,
+    duration_central = 100,
     dw_central = 1)
 
 # View(comparison_daly_lifetable_delta_geo)
@@ -1732,7 +1732,7 @@ comparison_daly_lifetable_pif <-
     prop_pop_exp_1 = 1, # Fake data just for testing purposes
     exp_central_2 = 6, # Fake data just for testing purposes
     prop_pop_exp_2 = 1, # Fake data just for testing purposes
-    cutoff = 5,   # PM2.5=5, WHO AQG 2021 
+    cutoff_central = 5,   # PM2.5=5, WHO AQG 2021 
     rr_central = 1.118,
     rr_lower = 1.060,
     rr_upper = 1.179,
@@ -1755,7 +1755,7 @@ comparison_daly_lifetable_pif <-
     info_1 = NULL,
     info_2 = NULL, 
     min_age = 20,
-    duration = 100,
+    duration_central = 100,
     dw_central = 1)
 
 # View(comparison_daly_lifetable_pif)
@@ -1776,7 +1776,7 @@ comparison_daly_lifetable_pif_geo <-
     approach_comparison = "pif",
     exp_central_1 = list(8.85, 8.0),# Fake data just for testing purposes
     exp_central_2 = list(6, 6.5),# Fake data just for testing purposes
-    cutoff = 5,   # PM2.5=5, WHO AQG 2021 
+    cutoff_central = 5,   # PM2.5=5, WHO AQG 2021 
     rr_central = 1.118,
     rr_lower = 1.060,
     rr_upper = 1.179,
@@ -1801,7 +1801,7 @@ comparison_daly_lifetable_pif_geo <-
     min_age = 20,
     geo_id_raw = c("a", "b"),
     geo_id_aggregated = rep("ch", 2),
-    duration = 100,
+    duration_central = 100,
     dw_central = 1)
 
 # View(comparison_daly_lifetable_pif_geo)
