@@ -134,9 +134,10 @@ get_deaths_yll_yld <-
         function(.x){
             # If deaths
             if(outcome_metric == "deaths"){
-              .x <-
-                dplyr::select(.x, all_of(paste0("deaths_", year_of_analysis))) |>
+              .x <- .x |>
+                dplyr::select(.data = _, all_of(paste0("deaths_", year_of_analysis))) |>
                 sum(na.rm = TRUE)
+              return(.x)
             }
 
 
@@ -148,7 +149,7 @@ get_deaths_yll_yld <-
               .x <-
                 .x |>
                 # Filter for the relevant years
-                dplyr::filter(.data = _, (year < (year_of_analysis + duration + 1)))
+                dplyr::filter(.data = _, (year < (year_of_analysis + duration_central + 1)))
             }
 
             # Both yll and yld cases
@@ -195,7 +196,7 @@ get_deaths_yll_yld <-
                 if (outcome_metric == "yld") {
                   .x <- .x |>
                     # Filter for the relevant years
-                    dplyr::filter(.data = _, (year < (year_of_analysis + duration + 1)))
+                    dplyr::filter(.data = _, (year < (year_of_analysis + duration_central + 1)))
                 }
 
                 .x <- .x |>

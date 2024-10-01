@@ -24,7 +24,7 @@ attribute_yld_from_prevalence <-
   function(approach_multiexposure = NULL,
            exp_central, exp_lower = NULL, exp_upper = NULL,
            prop_pop_exp = 1,
-           cutoff,
+           cutoff_central, cutoff_lower = NULL, cutoff_upper = NULL,
            rr_central = NULL, rr_lower = NULL, rr_upper = NULL,
            erf_increment,
            erf_shape,
@@ -42,7 +42,7 @@ attribute_yld_from_prevalence <-
         exp_central = exp_central, exp_lower = exp_lower, exp_upper = exp_upper,
         prop_pop_exp = prop_pop_exp,
         pop_exp = NULL,
-        cutoff = cutoff,
+        cutoff_central = cutoff_central, cutoff_lower = cutoff_lower, cutoff_upper = cutoff_upper,
         rr_central = rr_central, rr_lower = rr_lower, rr_upper = rr_upper,
         erf_increment = erf_increment,
         erf_shape = erf_shape,
@@ -54,7 +54,7 @@ attribute_yld_from_prevalence <-
         min_age = NULL, max_age = NULL,
         corrected_discount_rate = NULL,
         dw_central = dw_central, dw_lower = dw_lower, dw_upper = dw_upper,
-        duration = NULL,
+        duration_central = NULL,
         geo_id_raw = NULL , geo_id_aggregated = NULL,
         info = info)
 

@@ -75,7 +75,7 @@ get_risk_and_pop_fraction <-
           dplyr::mutate(rr_conc =
                           bestcost::get_risk(rr = rr,
                                              exp = exp,
-                                             cutoff = cutoff,
+                                             cutoff_central = cutoff_central,
                                              erf_increment = erf_increment,
                                              erf_shape = erf_shape,
                                              erf_eq = erf_eq))
@@ -84,14 +84,14 @@ get_risk_and_pop_fraction <-
           dplyr::mutate(rr_conc_1 =
                           bestcost::get_risk(rr = rr,
                                              exp = exp_1,
-                                             cutoff = cutoff,
+                                             cutoff_central = cutoff_central,
                                              erf_increment = erf_increment,
                                              erf_shape = erf_shape,
                                              erf_eq = erf_eq),
                         rr_conc_2 =
                           bestcost::get_risk(rr = rr,
                                              exp = exp_2,
-                                             cutoff = cutoff,
+                                             cutoff_central = cutoff_central,
                                              erf_increment = erf_increment,
                                              erf_shape = erf_shape,
                                              erf_eq = erf_eq))}

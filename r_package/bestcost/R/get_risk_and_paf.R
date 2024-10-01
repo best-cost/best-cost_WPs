@@ -33,7 +33,7 @@ get_risk_and_paf <-
         rr_conc =
           bestcost::get_risk(rr = rr,
                              exp = exp,
-                             cutoff = cutoff,
+                             cutoff_central = cutoff_central,
                              erf_increment = erf_increment,
                              erf_shape = erf_shape))
 

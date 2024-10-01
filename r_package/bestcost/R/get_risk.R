@@ -7,8 +7,8 @@
 #' \code{Numeric vector} containing the relative risk. The data frame must contain the central estimate as well as the lower and upper bound of the exposure-response function.
 #' @param exp
 #' Population exposure to the stressor (e.g. annual population-weighted mean).
-#' @param cutoff
-#' \code{Numeric value} showing the cut-off exposure in ug/m3 (i.e. the exposure level below which no health effects occur).
+#' @param cutoff_central
+#' \code{Numeric value} showing the central cut-off exposure level in ug/m3 (i.e. the exposure level below which no health effects occur).
 #' @param erf_increment
 #' \code{Numeric value} showing the size of the increment in concentration related to the relative risk provided in the literature (e.g. for 10 ug/m3 PM2.5).
 #' @param erf_eq \code Equation of the user-defined exposure-response function that puts the relative risk (y) in relation with exposure (x). If the function is provided as \code{string}, it can only contains one variable: x (exposure). E.g. "3+x+x^2". If the function is provided as a \code{function}, the object should have a function class. If only the values of the x-axis (exposure) and y axis (relative risk) of the dots in the exposure-response function are available, a cubic spline natural interpolation can be assumed to get the function using, e.g., \code{stats::splinefun(x, y, method="natural")}
@@ -23,7 +23,7 @@
 get_risk <-
   function(rr = NULL,
            exp,
-           cutoff = NULL,
+           cutoff_central = NULL,
            erf_increment = NULL,
            erf_shape = NULL,
            erf_eq = NULL){
@@ -49,7 +49,7 @@ get_risk <-
       if(erf_shape == "linear"){
         erf <-
           function(c){
-            1+( (rr-1) * (c-cutoff)/erf_increment )
+            1+( (rr-1) * (c-cutoff_central)/erf_increment )
           }
       }
 
@@ -57,7 +57,7 @@ get_risk <-
       if(erf_shape == "log_linear"){
         erf <-
           function(c){
-            exp(log(rr) *(c-cutoff)/erf_increment)
+            exp(log(rr) *(c-cutoff_central)/erf_increment)
           }
       }
 
@@ -65,14 +65,14 @@ get_risk <-
       if(erf_shape == "linear_log"){
         erf <-
           function(c){
-            1+( (rr-1) * (log(c)-log(cutoff))/log(erf_increment) )
+            1+( (rr-1) * (log(c)-log(cutoff_central))/log(erf_increment) )
           }
       }
 
       if(erf_shape == "log_log"){
         erf <-
           function(c){
-            exp( log(rr) *(log(c)-log(cutoff))/log(erf_increment) )
+            exp( log(rr) *(log(c)-log(cutoff_central))/log(erf_increment) )
           }
       }
 

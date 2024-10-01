@@ -88,7 +88,7 @@ library(bestcost)
 bestcost_pm_copd <-
   bestcost::attribute_health(
     exp_central = airqplus_pm_copd$mean_concentration,
-    cutoff = airqplus_pm_copd$cut_off_value,   
+    cutoff_central = airqplus_pm_copd$cut_off_value,   
     bhd_central = airqplus_pm_copd$incidents_per_100_000_per_year/1E5*airqplus_pm_copd$population_at_risk,
     rr_central = airqplus_pm_copd$relative_risk, 
     rr_lower = airqplus_pm_copd$relative_risk_lower,
@@ -151,7 +151,7 @@ bestcost_pm_copd_multiple <-
     exp_central = airqplus_pm_copd$mean_concentration,
     exp_lower = 8,
     exp_upper = 9,
-    cutoff = airqplus_pm_copd$cut_off_value,   
+    cutoff_central = airqplus_pm_copd$cut_off_value,   
     bhd_central = airqplus_pm_copd$incidents_per_100_000_per_year/1E5*airqplus_pm_copd$population_at_risk,
     bhd_lower = 25000,
     bhd_upper = 35000,
@@ -169,7 +169,7 @@ system.time(bestcost_pm_copd_geo <-
     exp_central = as.list(runif_with_seed(1E4, 8.0, 9.0, 1)),
     exp_lower = as.list(runif_with_seed(1E4, 8.0, 9.0, 1)-0.1),
     exp_upper = as.list(runif_with_seed(1E4, 8.0, 9.0, 1)+0.1),
-    cutoff = 5,   
+    cutoff_central = 5,   
     bhd_central = as.list(runif_with_seed(1E4, 25000, 35000, 1)),
     bhd_lower = as.list(runif_with_seed(1E4, 25000, 35000, 1)),
     bhd_upper = as.list(runif_with_seed(1E4, 25000, 35000, 1)),
@@ -204,7 +204,7 @@ bestcost_pm_copd_geo_social <-
 bestcost_pm_alri_erf_dots <-
   bestcost::attribute_health(
     exp_central = airqplus_pm_copd$mean_concentration,
-    cutoff = airqplus_pm_copd$cut_off_value,   
+    cutoff_central = airqplus_pm_copd$cut_off_value,   
     bhd_central = airqplus_pm_copd$incidents_per_100_000_per_year/1E5*airqplus_pm_copd$population_at_risk,
     # GBD2019 ERF for PM and lower respiratory infections
     erf_eq_central = 
@@ -225,7 +225,7 @@ bestcost_pm_alri_erf_dots <-
 bestcost_pm_copd_1rr <-
   bestcost::attribute_health(
     exp_central = airqplus_pm_copd$mean_concentration,
-    cutoff = airqplus_pm_copd$cut_off_value,   
+    cutoff_central = airqplus_pm_copd$cut_off_value,   
     bhd_central = airqplus_pm_copd$incidents_per_100_000_per_year/1E5*airqplus_pm_copd$population_at_risk,
     rr_central = airqplus_pm_copd$relative_risk,
     erf_increment = 10, 
@@ -268,7 +268,7 @@ bestcost_noise_ihd_expDist <-
   bestcost::attribute_health(
     exp_central = niph_noise_ihd_input$exposure_mean,
     prop_pop_exp = niph_noise_ihd_input$prop_exposed,
-    cutoff = min(niph_noise_ihd_input$exposure_mean), 
+    cutoff_central = min(niph_noise_ihd_input$exposure_mean), 
     bhd_central = niph_noise_ihd_input$gbd_daly[1],
     rr_central = 1.08,
     erf_increment = 10, 
@@ -288,7 +288,7 @@ bestcost_noise_ihd_expDist_geo <-
     exp_central = list(runif_with_seed(5,8,10,1), 
                        runif_with_seed(5,8,10,2), 
                        runif_with_seed(5,8,10,3)),
-    cutoff = 5,
+    cutoff_central = 5,
     prop_pop_exp = list(runif_with_seed(5,0.1,1,1),
                         runif_with_seed(5,0.1,1,2), 
                         runif_with_seed(5,0.1,1,3)),
@@ -357,7 +357,7 @@ bestcost_noise_ha_ar_geo <-
 bestcost_pm_yld_singlebhd  <- 
   bestcost::attribute_yld_from_prevalence(
     exp_central = 8.85, 
-    cutoff = 5,    
+    cutoff_central = 5,    
     bhd_central = 25000,
     rr_central = 1.118,
     rr_lower = 1.060, 
@@ -395,7 +395,7 @@ bestcost_pm_no2_mortality_additive <-
   bestcost::attribute_health(
     approach_multiexposure = "additive",
     exp_central = c("pm2.5" = 8.1, "no2" =  10.9),
-    cutoff =  setNames(c(0, 0), c("pm2.5", "no2")),
+    cutoff_central =  setNames(c(0, 0), c("pm2.5", "no2")),
     bhd_central = 1000, # Fake data just to get a similar value (PAF) as in the T1.4 report
     rr_central = setNames(c(1.063, 1.031), c("pm2.5", "no2")),
     erf_increment = setNames(c(10, 10), c("pm2.5", "no2")), 
@@ -414,7 +414,7 @@ bestcost_pm_no2_mortality_multiplicative <-
   bestcost::attribute_health(
     approach_multiexposure = "multiplicative",
     exp_central = c("pm2.5" = 8.1, "no2" =  10.9),
-    cutoff =  setNames(c(0, 0), c("pm2.5", "no2")),
+    cutoff_central =  setNames(c(0, 0), c("pm2.5", "no2")),
     bhd_central = 1000, # Fake data just to get a similar value (PAF) as in the T1.4 report
     rr_central = setNames(c(1.063, 1.031), c("pm2.5", "no2")),
     erf_increment = setNames(c(10, 10), c("pm2.5", "no2")), 
@@ -433,7 +433,7 @@ bestcost_pm_no2_mortality_multiplicative <-
   bestcost::attribute_health(
     approach_multiexposure = "combined",
     exp_central = c("pm2.5" = 8.1, "no2" =  10.9),
-    cutoff =  setNames(c(0, 0), c("pm2.5", "no2")),
+    cutoff_central =  setNames(c(0, 0), c("pm2.5", "no2")),
     bhd_central = 1000, # Fake data just to get a similar value (PAF) as in the T1.4 report
     rr_central = setNames(c(1.063, 1.031), c("pm2.5", "no2")),
     erf_increment = setNames(c(10, 10), c("pm2.5", "no2")), 
@@ -460,7 +460,7 @@ bestcost_pm_deaths_lifetable_airqplus <-
     approach_exposure = "single_year",
     approach_newborns = "with_newborns",
     exp_central = airqplus_pm_deaths_yll[["input"]]$mean_concentration, 
-    cutoff = airqplus_pm_deaths_yll[["input"]]$cut_off_value,
+    cutoff_central = airqplus_pm_deaths_yll[["input"]]$cut_off_value,
     rr_central = airqplus_pm_deaths_yll[["input"]]$relative_risk,
     rr_lower = airqplus_pm_deaths_yll[["input"]]$relative_risk_lower,
     rr_upper = airqplus_pm_deaths_yll[["input"]]$relative_risk_upper,
@@ -490,7 +490,7 @@ bestcost_pm_deaths_lifetable_expDistribution <-
     bestcost::attribute_deaths_from_lifetable(
       exp_central = c(8, 9, 10), # Fake data just for testing purposes
       prop_pop_exp = c(0.2, 0.3, 0.5), # Fake data just for testing purposes
-      cutoff = input_data_mortality$cutoff[2],   # PM2.5=5, NO2=10, i.e. WHO AQG 2021 
+      cutoff_central = input_data_mortality$cutoff[2],   # PM2.5=5, NO2=10, i.e. WHO AQG 2021 
       rr_central = airqplus_pm_deaths_yll[["input"]]$relative_risk,
       rr_lower = airqplus_pm_deaths_yll[["input"]]$relative_risk_lower,
       rr_upper = airqplus_pm_deaths_yll[["input"]]$relative_risk_upper,
@@ -526,7 +526,7 @@ bestcost_pm_yll_exposure_single_year_lifetable_geluft <-
     approach_exposure = "single_year",
     exp_central = input_data_mortality$exp[2], #exp CH 2019
     prop_pop_exp = 1,
-    cutoff = input_data_mortality$cutoff[2], # WHO AQG 2021 
+    cutoff_central = input_data_mortality$cutoff[2], # WHO AQG 2021 
     rr_central = input_data_mortality[2,"rr_central"], 
     rr_lower = input_data_mortality[2,"rr_lower"], 
     rr_upper =input_data_mortality[2,"rr_upper"], 
@@ -559,7 +559,7 @@ bestcost_pm_yll_lifetable_airqplus <-
     approach_exposure = "constant",
     approach_newborns = "without_newborns",
     exp_central = airqplus_pm_deaths_yll[["input"]]$mean_concentration,
-    cutoff = airqplus_pm_deaths_yll[["input"]]$cut_off_value,
+    cutoff_central = airqplus_pm_deaths_yll[["input"]]$cut_off_value,
     rr_central = airqplus_pm_deaths_yll[["input"]]$relative_risk,
     rr_lower = airqplus_pm_deaths_yll[["input"]]$relative_risk_lower,
     rr_upper = airqplus_pm_deaths_yll[["input"]]$relative_risk_upper,
@@ -591,7 +591,7 @@ bestcost_pm_yll_lifetable_airqplus_with_newborns <-
     approach_exposure = "constant",
     approach_newborns = "with_newborns",
     exp_central = airqplus_pm_deaths_yll[["input"]]$mean_concentration,
-    cutoff = airqplus_pm_deaths_yll[["input"]]$cut_off_value,
+    cutoff_central = airqplus_pm_deaths_yll[["input"]]$cut_off_value,
     rr_central = airqplus_pm_deaths_yll[["input"]]$relative_risk,
     rr_lower = airqplus_pm_deaths_yll[["input"]]$relative_risk_lower,
     rr_upper = airqplus_pm_deaths_yll[["input"]]$relative_risk_upper,
@@ -624,7 +624,7 @@ bestcost_pm_yll_lifetable_1rr_geluft <-
     bestcost::attribute_yll_from_lifetable(
       exp_central = input_data_mortality$exp[2], #exp CH 2019
       prop_pop_exp = 1,
-      cutoff = input_data_mortality$cutoff[2], 
+      cutoff_central = input_data_mortality$cutoff[2], 
       rr_central = input_data_mortality[2,"rr_central"], 
       erf_increment = 10, 
       erf_shape = "log_linear",
@@ -656,7 +656,7 @@ bestcost_pm_yll_lifetable_expDistribution_geluft <-
     bestcost::attribute_yll_from_lifetable(
       exp_central = c(8, 9, 10), # Fake data just for testing purposes
       prop_pop_exp = c(0.2, 0.3, 0.5), # Fake data just for testing purposes
-      cutoff = input_data_mortality$cutoff[2], # WHO AQG 2021 
+      cutoff_central = input_data_mortality$cutoff[2], # WHO AQG 2021 
       rr_central = input_data_mortality[2,"rr_central"], 
       rr_lower = input_data_mortality[2,"rr_lower"], 
       rr_upper =input_data_mortality[2,"rr_upper"], 
@@ -697,7 +697,7 @@ bestcost_pm_yld_lifetable_geluft  <-
     # exp_central = c(8, 9, 10), # Fake data. Deactivate to test exposure distribution.
     prop_pop_exp = 1,
     # prop_pop_exp = c(0.2, 0.3, 0.5), # Fake data. Deactivate to test exposure distribution.
-    cutoff = input_data_mortality$cutoff[2],
+    cutoff_central = input_data_mortality$cutoff[2],
     rr_central = input_data_mortality[2,"rr_central"], 
     rr_lower = input_data_mortality[2,"rr_lower"], 
     rr_upper = input_data_mortality[2,"rr_upper"], 
@@ -713,7 +713,7 @@ bestcost_pm_yld_lifetable_geluft  <-
     year_of_analysis = 2019, 
     info = input_data_mortality$pollutant[2],
     min_age = input_data_mortality$min_age[2], # min_age = 20,
-    duration = 100, 
+    duration_central = 100, 
     corrected_discount_rate = 0,
     dw_central = 1, dw_lower = 0.1, dw_upper = 10
 )
@@ -742,7 +742,7 @@ bestcost_pm_daly_lifetable_geluft  <-
   attribute_daly_from_lifetable(
     exp_central = input_data_mortality$exp[2],
     prop_pop_exp = 1,
-    cutoff = input_data_mortality$cutoff[2],
+    cutoff_central = input_data_mortality$cutoff[2],
     rr_central = input_data_mortality[2,"rr_central"], 
     rr_lower = input_data_mortality[2,"rr_lower"], 
     rr_upper =input_data_mortality[2,"rr_upper"], 
@@ -757,7 +757,7 @@ bestcost_pm_daly_lifetable_geluft  <-
     year_of_analysis = 2019, 
     info = input_data_mortality$pollutant[2],
     min_age = input_data_mortality$min_age[2], # min_age = 20,
-    duration = 100, 
+    duration_central = 100, 
     dw_central = 1)
 
 # The Swiss project GeLuft did not calculated the YLD, only YLL. 
