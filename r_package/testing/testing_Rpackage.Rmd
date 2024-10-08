@@ -188,9 +188,6 @@ system.time(bestcost_pm_copd_geo <-
     geo_id_aggregated = rep("CH", 1E4),
     info = "PM2.5_copd"))
 
-
-
-
 ```
 
 
@@ -231,7 +228,9 @@ bestcost_pm_alri_erf_dots <-
 bestcost_pm_copd_1rr <-
   bestcost::attribute_health(
     exp_central = airqplus_pm_copd$mean_concentration,
-    cutoff_central = airqplus_pm_copd$cut_off_value,   
+    cutoff_central = airqplus_pm_copd$cut_off_value,
+    cutoff_lower = airqplus_pm_copd$cut_off_value - 1,
+    cutoff_upper = airqplus_pm_copd$cut_off_value + 1,
     bhd_central = airqplus_pm_copd$incidents_per_100_000_per_year/1E5*airqplus_pm_copd$population_at_risk,
     rr_central = airqplus_pm_copd$relative_risk,
     erf_increment = 10, 
@@ -275,6 +274,8 @@ bestcost_noise_ihd_expDist <-
     exp_central = niph_noise_ihd_input$exposure_mean,
     prop_pop_exp = niph_noise_ihd_input$prop_exposed,
     cutoff_central = min(niph_noise_ihd_input$exposure_mean), 
+    cutoff_lower = min(niph_noise_ihd_input$exposure_mean) - 10,
+    cutoff_upper = min(niph_noise_ihd_input$exposure_mean) + 10,
     bhd_central = niph_noise_ihd_input$gbd_daly[1],
     rr_central = 1.08,
     erf_increment = 10, 
@@ -282,7 +283,7 @@ bestcost_noise_ihd_expDist <-
     info = data.frame(pollutant = "road_noise", outcome = "YLD"))
 
 
-#View(bestcost_noise_ihd_expDist)
+# View(bestcost_noise_ihd_expDist)
 check_bestcost(result_list_bestcost = bestcost_noise_ihd_expDist,
                result_vector_alternative = niph_noise_ihd_result)
 
@@ -719,12 +720,12 @@ bestcost_pm_yld_lifetable_geluft  <-
     year_of_analysis = 2019, 
     info = input_data_mortality$pollutant[2],
     min_age = input_data_mortality$min_age[2], # min_age = 20,
-    duration_central = 100, 
+    duration_central = 75, duration_lower = 50, duration_upper = 100, 
     corrected_discount_rate = 0,
-    dw_central = 1, dw_lower = 0.1, dw_upper = 10
+    dw_central = 1 #, dw_lower = 0.1, dw_upper = 10
 )
 
-# View(bestcost_pm_yld_lifetable_geluft)
+View(bestcost_pm_yld_lifetable_geluft)
 
 # The Swiss project GeLuft did not calculated the YLD, only YLL. 
 # But disability weight = 1 in the function above, then YLD = YLL 
