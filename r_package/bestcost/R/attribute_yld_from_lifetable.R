@@ -14,7 +14,7 @@ attribute_yld_from_lifetable <-
   function(approach_multiexposure = NULL,
            exp_central, exp_lower = NULL, exp_upper = NULL,
            prop_pop_exp = 1,
-           cutoff,
+           cutoff_central, cutoff_lower = NULL, cutoff_upper = NULL,
            rr_central = NULL, rr_lower = NULL, rr_upper = NULL,
            erf_increment = NULL, erf_shape = NULL,
            erf_eq_central = NULL, erf_eq_lower = NULL, erf_eq_upper = NULL,
@@ -28,7 +28,7 @@ attribute_yld_from_lifetable <-
            corrected_discount_rate = NULL,
            min_age = NULL, max_age = NULL,
            dw_central, dw_lower = NULL, dw_upper = NULL,
-           duration,
+           duration_central, duration_lower = NULL, duration_upper = NULL,
            info = NULL){
 
     output<-
@@ -39,7 +39,7 @@ attribute_yld_from_lifetable <-
         exp_central = exp_central, exp_lower = exp_lower, exp_upper = exp_upper,
         prop_pop_exp = prop_pop_exp,
         pop_exp = NULL,
-        cutoff = cutoff,
+        cutoff_central = cutoff_central, cutoff_lower = cutoff_lower, cutoff_upper = cutoff_upper,
         rr_central = rr_central, rr_lower = rr_lower, rr_upper = rr_upper,
         erf_increment = erf_increment,
         erf_shape = erf_shape,
@@ -55,7 +55,7 @@ attribute_yld_from_lifetable <-
         min_age = min_age, max_age = max_age,
         corrected_discount_rate = corrected_discount_rate,
         dw_central = dw_central, dw_lower = dw_lower, dw_upper = dw_upper,
-        duration = duration,
+        duration_central = duration_central, duration_lower = duration_lower, duration_upper = duration_upper,
         geo_id_raw = NULL , geo_id_aggregated = NULL,
         info = info)
 

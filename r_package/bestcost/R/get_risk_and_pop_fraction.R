@@ -69,33 +69,33 @@ get_risk_and_pop_fraction <-
 
       # If PAF
 
-      if({{pop_fraction_type}} == "paf"){
-        input_with_risk_and_pop_fraction <- input_with_risk_and_pop_fraction |>
-          # Obtain the relative risk for the relevant concentration
-          dplyr::mutate(rr_conc =
-                          bestcost::get_risk(rr = rr,
-                                             exp = exp,
-                                             cutoff = cutoff,
-                                             erf_increment = erf_increment,
-                                             erf_shape = erf_shape,
-                                             erf_eq = erf_eq))
-        } else { # If PIF
-          input_with_risk_and_pop_fraction <- input_with_risk_and_pop_fraction |>
-          dplyr::mutate(rr_conc_1 =
-                          bestcost::get_risk(rr = rr,
-                                             exp = exp_1,
-                                             cutoff = cutoff,
-                                             erf_increment = erf_increment,
-                                             erf_shape = erf_shape,
-                                             erf_eq = erf_eq),
-                        rr_conc_2 =
-                          bestcost::get_risk(rr = rr,
-                                             exp = exp_2,
-                                             cutoff = cutoff,
-                                             erf_increment = erf_increment,
-                                             erf_shape = erf_shape,
-                                             erf_eq = erf_eq))}
-      # Deactivate rowwise(.)+
+    if({{pop_fraction_type}} == "paf"){
+      input_with_risk_and_pop_fraction <- input_with_risk_and_pop_fraction |>
+        # Obtain the relative risk for the relevant concentration
+        dplyr::mutate(rr_conc =
+                        bestcost::get_risk(rr = rr,
+                                           exp = exp,
+                                           cutoff = cutoff,
+                                           erf_increment = erf_increment,
+                                           erf_shape = erf_shape,
+                                           erf_eq = erf_eq))
+    } else { # If PIF
+      input_with_risk_and_pop_fraction <- input_with_risk_and_pop_fraction |>
+        dplyr::mutate(rr_conc_1 =
+                        bestcost::get_risk(rr = rr,
+                                           exp = exp_1,
+                                           cutoff = cutoff,
+                                           erf_increment = erf_increment,
+                                           erf_shape = erf_shape,
+                                           erf_eq = erf_eq),
+                      rr_conc_2 =
+                        bestcost::get_risk(rr = rr,
+                                           exp = exp_2,
+                                           cutoff = cutoff,
+                                           erf_increment = erf_increment,
+                                           erf_shape = erf_shape,
+                                           erf_eq = erf_eq))}
+    # Deactivate rowwise(.)+
     input_with_risk_and_pop_fraction <- input_with_risk_and_pop_fraction |>
       dplyr::ungroup()
 
@@ -131,7 +131,7 @@ get_risk_and_pop_fraction <-
           collapse_df_by_columns(
             columns_for_group = c("geo_id_raw",
                                   "sex","lifetable_with_pop_nest",
-                                  "erf_ci", "exp_ci", "bhd_ci", "dw_ci"),
+                                  "erf_ci", "exp_ci", "bhd_ci", "cutoff_ci", "dw_ci", "duration_ci"),
             sep = ", ")
       }
     }
@@ -140,8 +140,8 @@ get_risk_and_pop_fraction <-
 
     input_with_risk_and_pop_fraction <- input_with_risk_and_pop_fraction |>
       # Calculate population (attributable or impact) fraction (PAF or PIF) ####
-      # Group by exp in case that there are different exposure categories
-      dplyr::group_by(geo_id_raw, exposure_name, exp_ci, erf_ci)
+      # Group by exp_ci and cutoff_ci in case that there are different exposure or cutoff categories
+      dplyr::group_by(geo_id_raw, exposure_name, exp_ci, erf_ci, cutoff_ci)
       # Alternative coding if one of the grouping variables is NULL
       # dplyr::group_by(across(all_of(intersect(c("geo_id_raw", "exp_ci", "erf_ci"), names(input))))) |>
       # Alternative coding with if statement within group_by
@@ -187,7 +187,7 @@ get_risk_and_pop_fraction <-
           dplyr::mutate(exposure_name = paste(unique(exposure_name), collapse = ", ")) |>
           collapse_df_by_columns(columns_for_group = c("geo_id_raw",
                                                        "sex","lifetable_with_pop_nest",
-                                                       "erf_ci", "exp_ci", "bhd_ci", "dw_ci"),
+                                                       "erf_ci", "exp_ci", "bhd_ci", "cutoff_ci", "dw_ci", "duration_ci"),
                                  sep = ", ")
         }
       }
@@ -201,7 +201,7 @@ get_risk_and_pop_fraction <-
                              columns_for_group = c("geo_id_raw",
                                                    "exposure_name",
                                                    "sex","lifetable_with_pop_nest",
-                                                   "erf_ci", "exp_ci", "bhd_ci", "dw_ci"),
+                                                   "erf_ci", "exp_ci", "bhd_ci", "cutoff_ci", "dw_ci", "duration_ci"),
                              sep = ", ")
     }
 

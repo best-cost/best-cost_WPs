@@ -30,7 +30,7 @@ compile_input <-
            exp_central, exp_lower = NULL, exp_upper = NULL,
            prop_pop_exp = NULL,
            pop_exp = NULL,
-           cutoff = NULL,
+           cutoff_central = NULL, cutoff_lower = NULL, cutoff_upper = NULL,
            rr_central, rr_lower = NULL, rr_upper = NULL,
            erf_increment = NULL,
            erf_shape = NULL,
@@ -43,7 +43,7 @@ compile_input <-
            info = NULL,
            corrected_discount_rate = NULL,
            # YLD
-           duration = NULL,
+           duration_central = NULL, duration_lower = NULL, duration_upper = NULL,
            dw_central = NULL, dw_lower = NULL, dw_upper = NULL,
            # Lifetable data
            approach_exposure = NULL,
@@ -86,7 +86,6 @@ compile_input <-
           exposure_name = names(rr_central),
           erf_increment = erf_increment,
           erf_shape = erf_shape,
-          cutoff = cutoff,
           rr_central = rr_central,
           rr_lower =  rr_lower,
           rr_upper = rr_upper)
@@ -158,7 +157,12 @@ compile_input <-
         approach_newborns = rep(approach_newborns, each = length_exp_dist),
 
         # Second those variables with length = 1 (non-problematic)
-        duration = duration,
+        cutoff_central = cutoff_central,
+        cutoff_lower = cutoff_lower,
+        cutoff_upper = cutoff_upper,
+        duration_central = duration_central,
+        duration_lower = duration_lower,
+        duration_upper = duration_upper,
         dw_central = dw_central,
         dw_lower = dw_lower,
         dw_upper = dw_upper,
@@ -236,6 +240,15 @@ compile_input <-
                             names_prefix = "bhd_",
                             values_to = "bhd")}
 
+    ## Cutoff health data
+    if(!is.null(cutoff_central)) {
+      input_wo_lifetable <-
+        input_wo_lifetable |>
+        tidyr::pivot_longer(cols = starts_with("cutoff_"),
+                            names_to = "cutoff_ci",
+                            names_prefix = "cutoff_",
+                            values_to = "cutoff")}
+
 
     ## Disability weight
     if (!is.null(dw_central)) {
@@ -245,6 +258,15 @@ compile_input <-
                             names_to = "dw_ci",
                             names_prefix = "dw_",
                             values_to = "dw")}
+
+    ## Duration (of morbidity health outcome)
+    if (!is.null(duration_central)) {
+      input_wo_lifetable <-
+        input_wo_lifetable |>
+        tidyr::pivot_longer(cols = starts_with("duration_"),
+                            names_to = "duration_ci",
+                            names_prefix = "duration_",
+                            values_to = "duration")}
 
 
     # CREATE LIFETABLES ##########################################################

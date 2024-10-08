@@ -36,14 +36,15 @@ get_pop_impact <-
     options(digits = 15)
 
     if ((outcome_metric == "yld") | (outcome_metric == "daly")){
-      # If there are disability weights in the input (i.e. if it's a YLD calculation),
+      # If there are disability weights or duration in the input (i.e. if it's a YLD calculation),
       # the lifetable calculations will only be done for the rows where the
-      # column "dw_ci" has the value "dw_central" (to improve performance).
+      # column "dw_ci" & "duration_ci" has the value "central" (to improve performance).
       # The resulting (nested) lifetable tibbles will be left_join()'ed with "input_backup"
       # at the end of the script.
       input_backup <- input_with_risk_and_pop_fraction
       input_with_risk_and_pop_fraction <- input_with_risk_and_pop_fraction |>
-        filter(dw_ci == "central")
+        filter(dw_ci == "central") |>
+        filter(duration_ci == "central")
     }
 
     # LIFETABLE SETUP ##############################################################################

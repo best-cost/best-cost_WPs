@@ -25,7 +25,7 @@ attribute_yll_from_lifetable <-
   function(approach_multiexposure = NULL,
            exp_central, exp_lower = NULL, exp_upper = NULL,
            prop_pop_exp = 1,
-           cutoff,
+           cutoff_central, cutoff_lower = NULL, cutoff_upper = NULL,
            rr_central = NULL, rr_lower = NULL, rr_upper = NULL,
            erf_increment = NULL, erf_shape = NULL,
            erf_eq_central = NULL, erf_eq_lower = NULL, erf_eq_upper = NULL,
@@ -37,7 +37,8 @@ attribute_yll_from_lifetable <-
            year_of_analysis,
            corrected_discount_rate = NULL,
            min_age = NULL, max_age = NULL,
-           info = NULL){
+           info = NULL,
+           duration_central = 100){
 
     output <-
       bestcost::attribute(
@@ -47,14 +48,14 @@ attribute_yll_from_lifetable <-
         exp_central = exp_central, exp_lower = exp_lower, exp_upper = exp_upper,
         prop_pop_exp = prop_pop_exp,
         pop_exp = NULL,
-        cutoff = cutoff,
+        cutoff_central = cutoff_central, cutoff_lower = cutoff_lower, cutoff_upper = cutoff_upper,
         rr_central = rr_central, rr_lower = rr_lower, rr_upper = rr_upper,
         erf_increment = erf_increment,
         erf_shape = erf_shape,
         erf_eq_central = erf_eq_central, erf_eq_lower = erf_eq_lower, erf_eq_upper = erf_eq_upper,
         bhd_central = NULL, bhd_lower = NULL, bhd_upper = NULL,
         dw_central = NULL, dw_lower = NULL, dw_upper = NULL,
-        duration = NULL,
+        duration_central = duration_central,
         approach_exposure = approach_exposure,
         approach_newborns = approach_newborns,
         first_age_pop = first_age_pop, last_age_pop = last_age_pop,

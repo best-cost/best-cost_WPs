@@ -33,7 +33,7 @@ attribute_health_ar <-
         exp_central = exp_central, exp_lower = exp_lower, exp_upper = exp_upper,
         prop_pop_exp = NULL,
         pop_exp = pop_exp,
-        cutoff = cutoff,
+        cutoff_central = NULL, cutoff_lower = NULL, cutoff_upper = NULL,
         rr_central = NULL, rr_lower = NULL, rr_upper = NULL,
         erf_increment = NULL,
         erf_shape = NULL,
@@ -47,7 +47,7 @@ attribute_health_ar <-
         min_age = NULL, max_age = NULL,
         corrected_discount_rate = NULL,
         dw_central = NULL, dw_lower = NULL, dw_upper = NULL,
-        duration = NULL,
+        duration_central = NULL,
         geo_id_raw = geo_id_raw , geo_id_aggregated = geo_id_aggregated,
         info = info)
 

@@ -22,7 +22,7 @@ get_output <-
   function(impact_raw){
 
     # Store output so far
-    # The main will chage below that we give a first value
+    # The main will change below that we give a first value
     output <-
       impact_raw
 
@@ -117,7 +117,7 @@ get_output <-
           exposure_name = paste(unique(exposure_name), collapse = ", ")) |>
         # Group by higher geo level
         dplyr::group_by(across(all_of(intersect(c("geo_id_aggregated", "exp_ci",
-                                                     "bhd_ci", "erf_ci","dw_ci"),
+                                                     "bhd_ci", "erf_ci","dw_ci", "cutoff_ci", "duration_ci"),
                                                    names(output_last)))))|>
         dplyr::summarise(impact = sum(impact),
                          impact_rounded = round(impact),
@@ -128,29 +128,33 @@ get_output <-
 
     }
 
-    # Filter for total list element
-    # Keep only exp_ci = central and bhd_ci = central
+    # Keep only exp_ci = central and bhd_ci = central in main output ###########
     output[["main"]] <-
       output_last |>
       dplyr::filter(exp_ci %in% c("central"))
 
-      if("bhd_ci" %in% names(output[["main"]])) {
+    if("bhd_ci" %in% names(output[["main"]])) {
 
-        output[["main"]] <- output[["main"]] |>
-          dplyr::filter(bhd_ci %in% c("central"))}
+      output[["main"]] <- output[["main"]] |>
+        dplyr::filter(bhd_ci %in% c("central"))}
 
-      if(unique(impact_raw[["main"]]$health_metric) %in%
-               c("yld_from_prevalence", "yld_from_lifetable")) {
+    if("cutoff_ci" %in% names(output[["main"]])) {
 
-        output[["main"]] <- output[["main"]] |>
-          dplyr::filter(dw_ci %in% "central")}
+      output[["main"]] <- output[["main"]] |>
+        dplyr::filter(cutoff_ci %in% c("central"))}
 
-    # Order columns
+    if(unique(impact_raw[["main"]]$health_metric) %in%
+       c("yld_from_prevalence", "yld_from_lifetable")) {
+
+      output[["main"]] <- output[["main"]] |>
+        dplyr::filter(dw_ci %in% "central")}
+
+    # Order columns ############################################################
     # putting first (on the left) those that determine different results across rows
 
     id_columns <- c("geo_id_aggregated", "geo_id_raw",
                     "sex",
-                    "erf_ci","exp_ci", "bhd_ci", "dw_ci")
+                    "erf_ci","exp_ci", "bhd_ci", "cutoff_ci", "dw_ci", "duration_ci")
 
     put_first_cols <-
       function(x, cols){
