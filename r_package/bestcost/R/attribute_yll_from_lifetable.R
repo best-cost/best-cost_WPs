@@ -37,7 +37,8 @@ attribute_yll_from_lifetable <-
            year_of_analysis,
            corrected_discount_rate = NULL,
            min_age = NULL, max_age = NULL,
-           info = NULL){
+           info = NULL,
+           duration_central = 100){
 
     output <-
       bestcost::attribute(
@@ -54,7 +55,7 @@ attribute_yll_from_lifetable <-
         erf_eq_central = erf_eq_central, erf_eq_lower = erf_eq_lower, erf_eq_upper = erf_eq_upper,
         bhd_central = NULL, bhd_lower = NULL, bhd_upper = NULL,
         dw_central = NULL, dw_lower = NULL, dw_upper = NULL,
-        duration_central = NULL,
+        duration_central = duration_central,
         approach_exposure = approach_exposure,
         approach_newborns = approach_newborns,
         first_age_pop = first_age_pop, last_age_pop = last_age_pop,

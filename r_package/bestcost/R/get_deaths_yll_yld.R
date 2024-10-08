@@ -124,10 +124,11 @@ get_deaths_yll_yld <-
 
     }
 
-    if (outcome_metric %in% "yld") {
+    # If yld or daly
+    if (outcome_metric %in% c("yld", "daly", "yll")) {
       impact_detailed <- impact_detailed |>
         # Create new column for filtering for final year with yld health outcome
-        dplyr::mutate(last_year = year_of_analysis + duration + 1)
+        dplyr::mutate(last_year = year_of_analysis + duration)
     }
 
     impact_detailed <- impact_detailed |>
@@ -135,7 +136,7 @@ get_deaths_yll_yld <-
     # Store in new column "impact_nest"
     dplyr::mutate(
       impact_nest = purrr::pmap(
-        list(.x = lifeyears_nest, .y = last_year),
+        list(.x = lifeyears_nest, .y = last_year + 1),
         function(.x, .y){
           # If deaths
           if(outcome_metric == "deaths"){
@@ -180,7 +181,7 @@ get_deaths_yll_yld <-
         impact_detailed |>
         dplyr::mutate(
           impact_nest = purrr::pmap(
-            list(.x = lifeyears_nest, .y = last_year, .z = impact_nest),
+            list(.x = lifeyears_nest, .y = last_year + 1, .z = impact_nest),
             function(.x, .y, .z){
               ## Calculate total, discounted life years (single value) per sex & ci ####
               .x <-
