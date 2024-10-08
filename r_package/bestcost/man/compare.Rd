@@ -20,7 +20,9 @@ compare(
   prop_pop_exp_2 = 1,
   pop_exp_1 = NULL,
   pop_exp_2 = NULL,
-  cutoff,
+  cutoff_central = NULL,
+  cutoff_lower = NULL,
+  cutoff_upper = NULL,
   rr_central = NULL,
   rr_lower = NULL,
   rr_upper = NULL,
@@ -58,7 +60,9 @@ compare(
   dw_central = NULL,
   dw_lower = NULL,
   dw_upper = NULL,
-  duration = NULL,
+  duration_central = NULL,
+  duration_lower = NULL,
+  duration_upper = NULL,
   corrected_discount_rate = NULL,
   geo_id_raw = NULL,
   geo_id_aggregated = NULL,
@@ -80,8 +84,6 @@ compare(
 \item{pop_exp_1}{\code{Numeric value} or {vector} showing the population exposed for each of the exposure categories for the scenario 1. The length of this input variable must be the same as "exp".}
 
 \item{pop_exp_2}{\code{Numeric value} or {vector} showing the population exposed for each of the exposure categories for the scenario 2. The length of this input variable must be the same as "exp".}
-
-\item{cutoff}{\code{Numeric value} showing the cut-off exposure in ug/m3 (i.e. the exposure level below which no health effects occur).}
 
 \item{rr_central, rr_lower, rr_upper}{\code{Numeric values} referring to the central estimate of the relative risk and the corresponding lower and upper 95\% confidence interval bounds.}
 
@@ -125,8 +127,6 @@ compare(
 
 \item{dw_central, dw_lower, dw_upper}{Three \code{Numeric value} showing the disability weights (central estimate, lower and upper 95% confidence intervals) associated with the morbidity health outcome}
 
-\item{duration}{\code{Numeric value} showing the disease duration}
-
 \item{corrected_discount_rate}{\code{Numeric value} showing the discount rate for future years including correction from inflation rate}
 
 \item{geo_id_raw}{\code{Vector} showing the id code of the each geographic area considered in the assessment. If a vector is entered here, the data for each geographical area have to be provided as list in the corresponding arguments.}
@@ -134,6 +134,10 @@ compare(
 \item{info_1}{\code{String} or {data frame} showing additional information or id of the scenario 1. The suffix "info" will be added to the column name. Default value = NULL.}
 
 \item{info_2}{\code{String} or {data frame} showing additional information or id of the scenario 1. The suffix "info" will be added to the column name. Default value = NULL.}
+
+\item{cutoff}{\code{Numeric value} showing the cut-off exposure in ug/m3 (i.e. the exposure level below which no health effects occur).}
+
+\item{duration}{\code{Numeric value} showing the disease duration}
 }
 \value{
 TBD. E.g. This function returns a \code{data.frame} with one row for each value of the

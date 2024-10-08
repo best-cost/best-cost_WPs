@@ -7,7 +7,7 @@
 get_risk(
   rr = NULL,
   exp,
-  cutoff_central = NULL,
+  cutoff = NULL,
   erf_increment = NULL,
   erf_shape = NULL,
   erf_eq = NULL
@@ -18,7 +18,7 @@ get_risk(
 
 \item{exp}{Population exposure to the stressor (e.g. annual population-weighted mean).}
 
-\item{cutoff_central}{\code{Numeric value} showing the central cut-off exposure level in ug/m3 (i.e. the exposure level below which no health effects occur).}
+\item{cutoff}{\code{Numeric value} showing the cut-off exposure level in ug/m3 (i.e. the exposure level below which no health effects occur).}
 
 \item{erf_increment}{\code{Numeric value} showing the size of the increment in concentration related to the relative risk provided in the literature (e.g. for 10 ug/m3 PM2.5).}
 

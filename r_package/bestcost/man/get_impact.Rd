@@ -10,7 +10,6 @@ get_impact(
   min_age = NULL,
   max_age = NULL,
   corrected_discount_rate = NULL,
-  duration = NULL,
   pop_fraction_type
 )
 }
