@@ -124,12 +124,32 @@ get_deaths_yll_yld <-
 
     }
 
+
+
+    # If deaths
+    if(outcome_metric == "deaths"){
+    impact_detailed <- impact_detailed |>
+    # Store in new column "impact_nest"
+    dplyr::mutate(
+      impact_nest = purrr::map(
+        .x = lifeyears_nest,
+        function(.x){
+
+            .x <- .x |>
+              dplyr::select(.data = _, all_of(paste0("deaths_", year_of_analysis))) |>
+              sum(na.rm = TRUE)
+            return(.x)
+        }
+      )
+    )
+    }
+
     # If yld or daly
     if (outcome_metric %in% c("yld", "daly", "yll")) {
+
       impact_detailed <- impact_detailed |>
         # Create new column for filtering for final year with yld health outcome
         dplyr::mutate(last_year = year_of_analysis + duration)
-    }
 
     impact_detailed <- impact_detailed |>
       # Calculate total, not discounted YLL (single number) ####
@@ -169,6 +189,7 @@ get_deaths_yll_yld <-
         }
       )
     )
+    }
 
 
     # If a value for corrected_discount_rate was provided by the user,

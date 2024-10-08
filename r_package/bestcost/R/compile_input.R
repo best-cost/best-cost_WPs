@@ -86,9 +86,6 @@ compile_input <-
           exposure_name = names(rr_central),
           erf_increment = erf_increment,
           erf_shape = erf_shape,
-          cutoff_central = cutoff_central,
-          cutoff_lower = cutoff_lower,
-          cutoff_upper = cutoff_upper,
           rr_central = rr_central,
           rr_lower =  rr_lower,
           rr_upper = rr_upper)
@@ -160,6 +157,9 @@ compile_input <-
         approach_newborns = rep(approach_newborns, each = length_exp_dist),
 
         # Second those variables with length = 1 (non-problematic)
+        cutoff_central = cutoff_central,
+        cutoff_lower = cutoff_lower,
+        cutoff_upper = cutoff_upper,
         duration_central = duration_central,
         duration_lower = duration_lower,
         duration_upper = duration_upper,
