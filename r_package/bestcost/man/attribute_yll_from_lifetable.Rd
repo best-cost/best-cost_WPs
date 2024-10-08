@@ -33,7 +33,8 @@ attribute_yll_from_lifetable(
   corrected_discount_rate = NULL,
   min_age = NULL,
   max_age = NULL,
-  info = NULL
+  info = NULL,
+  duration_central = 100
 )
 }
 \arguments{

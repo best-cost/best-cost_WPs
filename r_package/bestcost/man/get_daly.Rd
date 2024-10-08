@@ -11,8 +11,7 @@ get_daly(
   min_age = NULL,
   max_age = NULL,
   input_with_risk_and_pop_fraction,
-  corrected_discount_rate = NULL,
-  duration = NULL
+  corrected_discount_rate = NULL
 )
 }
 \arguments{
@@ -26,8 +25,6 @@ get_daly(
 
 \item{corrected_discount_rate}{\code{Numeric value}  with the annual discount rate as proportion (i.e. 0.1 instead of 10\%). It can be calculated as (1+discount_rate_beforeCorrection/1+rate_of_increase)-1}
 
-\item{duration}{\code{Numeric value} showing the duration (in years) of the morbidity health outcome}
-
 \item{age_min}{\code{Numeric value}  with the minimal age to be considered for adults (by default 30, i.e. 30+),}
 
 \item{age_max}{\code{Numeric value}  with the maximal age to be considered for infants/children (by default 0, i.e. below 1 years old)}
@@ -35,6 +32,8 @@ get_daly(
 \item{first_age_pop}{\code{Numeric value} starting age of the youngest age group from population and life table data}
 
 \item{last_age_pop}{\code{Numeric value} ending age of the oldest age group from population and life table data}
+
+\item{duration}{\code{Numeric value} showing the duration (in years) of the morbidity health outcome}
 }
 \value{
 This function returns a \code{List}
