@@ -720,8 +720,9 @@ bestcost_pm_yld_lifetable_geluft  <-
     year_of_analysis = 2019, 
     info = input_data_mortality$pollutant[2],
     min_age = input_data_mortality$min_age[2], # min_age = 20,
-    duration_central = 75, duration_lower = 50, duration_upper = 100, 
-    corrected_discount_rate = 0,
+    duration_central = 100, 
+    duration_lower = 50, duration_upper = 100, 
+    # corrected_discount_rate = 0,
     dw_central = 1 #, dw_lower = 0.1, dw_upper = 10
 )
 

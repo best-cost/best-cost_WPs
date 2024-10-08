@@ -124,20 +124,26 @@ get_deaths_yll_yld <-
 
     }
 
+    if (outcome_metric %in% "yld") {
+      impact_detailed <- impact_detailed |>
+        # Create new column for filtering for final year with yld health outcome
+        dplyr::mutate(last_year = year_of_analysis + duration + 1)
+    }
+
     impact_detailed <- impact_detailed |>
-        # Calculate total, not discounted YLL (single number) ####
-        # Store in new column "impact_nest"
+      # Calculate total, not discounted YLL (single number) ####
+    # Store in new column "impact_nest"
     dplyr::mutate(
-      impact_nest = purrr::map(
-        .x = lifeyears_nest,
-        function(.x){
-            # If deaths
-            if(outcome_metric == "deaths"){
-              .x <- .x |>
-                dplyr::select(.data = _, all_of(paste0("deaths_", year_of_analysis))) |>
-                sum(na.rm = TRUE)
-              return(.x)
-            }
+      impact_nest = purrr::pmap(
+        list(.x = lifeyears_nest, .y = last_year),
+        function(.x, .y){
+          # If deaths
+          if(outcome_metric == "deaths"){
+            .x <- .x |>
+              dplyr::select(.data = _, all_of(paste0("deaths_", year_of_analysis))) |>
+              sum(na.rm = TRUE)
+            return(.x)
+          }
 
 
           # If yll or yld
@@ -148,7 +154,7 @@ get_deaths_yll_yld <-
               .x <-
                 .x |>
                 # Filter for the relevant years
-                dplyr::filter(.data = _, year < c(rep_len(year_of_analysis + duration + 1, length.out = length(year))))
+                dplyr::filter(.data = _, year < .y)
             }
 
             # Both yll and yld cases
@@ -160,13 +166,13 @@ get_deaths_yll_yld <-
             return(.x)
           }
         }
-        )
-        )
+      )
+    )
 
 
     # If a value for corrected_discount_rate was provided by the user,
     # apply discount
-    if(!is.null(corrected_discount_rate)){
+    if( !is.null(corrected_discount_rate) ){
     # if(corrected_discount_rate != 0) {
       discount_factor <- corrected_discount_rate + 1
 
@@ -263,7 +269,7 @@ get_deaths_yll_yld <-
       c("sex",
         "exposure_name",
         "geo_id_raw",
-        "erf_ci", "bhd_ci", "exp_ci", "dw_ci")
+        "erf_ci", "bhd_ci", "exp_ci", "dw_ci", "cutoff_ci", "duration_ci")
 
     id_columns_in_df <-
       id_columns[id_columns %in% names(impact_detailed)]
@@ -286,15 +292,13 @@ get_deaths_yll_yld <-
       dplyr::select(-contains("nest"))|>
       dplyr::filter(sex %in% "total")
 
-      if (unique(impact_detailed$health_metric) == "yld_from_prevalence") {
-        impact_main <- impact_main |>
-          dplyr::filter(dw_ci %in% "central")
-      }
+    if ("duration_ci" %in% names(impact_main)){impact_main <- impact_main |> dplyr::filter(duration_ci %in% "central")}
+    if ("dw_ci" %in% names(impact_main)){impact_main <- impact_main |> dplyr::filter(dw_ci %in% "central")}
 
-      if (!is.null(corrected_discount_rate)) {
-        impact_main <- impact_main |>
-          dplyr::filter(discounted %in% TRUE)
-        }
+    if (!is.null(corrected_discount_rate)) {
+      impact_main <- impact_main |>
+        dplyr::filter(discounted %in% TRUE)
+    }
 
     # Classify results in main and detailed
     output <- list(main = impact_main,
