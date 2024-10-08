@@ -179,9 +179,9 @@ get_deaths_yll_yld <-
       impact_detailed <-
         impact_detailed |>
         dplyr::mutate(
-          impact_nest = purrr::map2(
-            lifeyears_nest, impact_nest,
-            function(.x, .y){
+          impact_nest = purrr::pmap(
+            list(.x = lifeyears_nest, .y = last_year, .z = impact_nest),
+            function(.x, .y, .z){
               ## Calculate total, discounted life years (single value) per sex & ci ####
               .x <-
                 .x |>
@@ -201,9 +201,10 @@ get_deaths_yll_yld <-
                 if (outcome_metric == "yld") {
                   .x <- .x |>
                     # Filter for the relevant years
-                    dplyr::filter(.data = _, (year < c(rep_len(year_of_analysis + duration + 1, length.out = length(year)))))
+                    dplyr::filter(.data = _, year < .y)
                 }
 
+                # Both yll and yld cases
                 .x <- .x |>
                   # Sum among years to obtain the total impact (single value)
                   dplyr::summarise(impact = sum(discounted_impact), .groups = "drop")
@@ -213,11 +214,9 @@ get_deaths_yll_yld <-
               .x <- .x |>
                 dplyr::mutate(discounted = TRUE)
 
-
-
               # Bind rows to have both discounted and not discounted
               x_with_and_without_discount <-
-                dplyr::bind_rows(.y, .x)
+                dplyr::bind_rows(.z, .x)
 
               return(x_with_and_without_discount)
 
