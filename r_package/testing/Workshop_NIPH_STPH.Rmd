@@ -6,6 +6,8 @@ output: html_document
 
 # {BEST-COST} package example
 
+# Arno testing
+
 Guidance on installation of the {bestcost} package: PDF on Teams under
 WP4 PROGRAMMING > Github_hotToUse > Handbook_Github_v1.1.pdf
 
