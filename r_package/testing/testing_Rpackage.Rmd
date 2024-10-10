@@ -84,6 +84,12 @@ install.packages("../testing/input/bestcost_0.0.0.1.tar.gz", repos=NULL, type='s
 library(bestcost)
 ```
 
+# Test prepare function
+
+```{r prepare_exposure_data}
+test <- prepare_exposure_data()
+```
+
 # Calculate health impacts
 
 ## Attributable health impact
