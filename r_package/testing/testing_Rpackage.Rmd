@@ -72,8 +72,15 @@ library(bestcost)
 
 ```{r Alternative 2 to load bestcost: load zip from local source, eval=FALSE, include=FALSE}
 detach("package:bestcost", unload = TRUE) # detach bestcost
+# Package as .zip file
 devtools::build(binary = TRUE, path = "../testing/input/") # Save current state of package as .zip file (e.g. to directly test changes in functions)
 install.packages("../testing/input/bestcost_0.0.0.1.zip", repos=NULL, type='source') # Install package from source
+
+
+# Package as .tar.gz file
+devtools::build(path = "../testing/input/") # Save current state of package as tar.gz file (e.g. to directly test changes in functions)
+install.packages("../testing/input/bestcost_0.0.0.1.tar.gz", repos=NULL, type='source') # Install package from source
+
 library(bestcost)
 ```
 
@@ -201,10 +208,10 @@ bestcost_pm_copd_geo_social <-
 ```
 
 
-```{r single exposure value and user-defined points for relative risk}
+```{r single exposure & user-defined points for relative risk using splinefun}
 
 # Assess attributable cases using the AirQ+ export as input data
-bestcost_pm_alri_erf_dots <-
+bestcost_pm_alri_erf_dots_splinefun <-
   bestcost::attribute_health(
     exp_central = airqplus_pm_copd$mean_concentration,
     cutoff_central = airqplus_pm_copd$cut_off_value,   
@@ -217,8 +224,32 @@ bestcost_pm_alri_erf_dots <-
         method = "natural"),
     info = paste0(airqplus_pm_copd$pollutant,"_", airqplus_pm_copd$evaluation_name))
 
+# View(bestcost_pm_alri_erf_dots_splinefun)
 
-#TODO: Make an automatic comparison to always check if the result is right
+check_bestcost(result_list_bestcost = bestcost_pm_alri_erf_dots_splinefun,
+               result_vector_alternative = c(2263)) # Results on 10 October 2024
+```
+
+```{r single exposure & user-defined points for relative risk using approxfun}
+
+# Assess attributable cases using the AirQ+ export as input data
+bestcost_pm_alri_erf_dots_approxfun <-
+  bestcost::attribute_health(
+    exp_central = airqplus_pm_copd$mean_concentration,
+    cutoff_central = airqplus_pm_copd$cut_off_value,   
+    bhd_central = airqplus_pm_copd$incidents_per_100_000_per_year/1E5*airqplus_pm_copd$population_at_risk,
+    # GBD2019 ERF for PM and lower respiratory infections
+    erf_eq_central = 
+      stats::approxfun(
+        x = c(600,500,400,300,200,150,130,110,90,70,50,30,25,20,15,10,5,0),
+        y = c(2.189,2.143,2.098,2.052,1.909,1.751,1.68,1.607,1.533,1.453,1.357,1.238,1.204,1.168,1.129,1.089,1.046,	1),
+        method = "linear"),
+    info = paste0(airqplus_pm_copd$pollutant,"_", airqplus_pm_copd$evaluation_name))
+
+# View(bestcost_pm_alri_erf_dots_approxfun)
+
+check_bestcost(result_list_bestcost = bestcost_pm_alri_erf_dots_approxfun,
+               result_vector_alternative = c(2254)) # Results on 10 October 2024
 ```
 
 
@@ -283,7 +314,7 @@ bestcost_noise_ihd_expDist <-
     info = data.frame(pollutant = "road_noise", outcome = "YLD"))
 
 
-# View(bestcost_noise_ihd_expDist)
+View(bestcost_noise_ihd_expDist)
 check_bestcost(result_list_bestcost = bestcost_noise_ihd_expDist,
                result_vector_alternative = niph_noise_ihd_result)
 
