@@ -88,10 +88,14 @@ library(bestcost)
 bestcost_pm_copd <-
   bestcost::attribute_health(
     exp_central = airqplus_pm_copd$mean_concentration,
+    exp_lower = airqplus_pm_copd$mean_concentration*0.5,
+    exp_upper = airqplus_pm_copd$mean_concentration*2,
     cutoff_central = airqplus_pm_copd$cut_off_value,
     cutoff_lower = airqplus_pm_copd$cut_off_value - 1,
     cutoff_upper = airqplus_pm_copd$cut_off_value + 1,
     bhd_central = airqplus_pm_copd$incidents_per_100_000_per_year/1E5*airqplus_pm_copd$population_at_risk,
+    bhd_lower = airqplus_pm_copd$incidents_per_100_000_per_year/1E5*airqplus_pm_copd$population_at_risk/2,
+    bhd_upper = airqplus_pm_copd$incidents_per_100_000_per_year/1E5*airqplus_pm_copd$population_at_risk*2,
     rr_central = airqplus_pm_copd$relative_risk, 
     rr_lower = airqplus_pm_copd$relative_risk_lower,
     rr_upper = airqplus_pm_copd$relative_risk_upper,
@@ -99,18 +103,16 @@ bestcost_pm_copd <-
     erf_shape = "log_linear", 
     info = paste0(airqplus_pm_copd$pollutant,"_", airqplus_pm_copd$evaluation_name))
 
-# Store the central, lower and upper estimate of the AirQ+ assessment
-airqplus_pm_copd_result <- 
-  airqplus_pm_copd |>
-  dplyr::select(estimated_number_of_attributable_cases_central,
-                estimated_number_of_attributable_cases_lower,
-                estimated_number_of_attributable_cases_upper)|>
-  unlist()
-
 # View(bestcost_pm_copd)
 
 check_bestcost(result_list_bestcost = bestcost_pm_copd,
-               result_vector_alternative = airqplus_pm_copd_result)
+               result_vector_alternative = airqplus_pm_copd_result <- 
+                 # Store the central, lower and upper estimate of the AirQ+ assessment
+                 airqplus_pm_copd |>
+                 dplyr::select(estimated_number_of_attributable_cases_central,
+                               estimated_number_of_attributable_cases_lower,
+                               estimated_number_of_attributable_cases_upper)|>
+                 unlist())
 ```
 
 ```{r Screenshot for poster, eval=FALSE, include=FALSE}

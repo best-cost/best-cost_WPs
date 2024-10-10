@@ -2,35 +2,40 @@
 % Please edit documentation in R/get_ci.R
 \name{get_ci}
 \alias{get_ci}
-\title{Get confidence interval}
+\title{Get Monte Carlo confidence intervals}
 \usage{
 get_ci(
-  paf = 0.1,
-  bhd_central = 100000,
-  bhd_lower = 50000,
-  bhd_upper = 150000,
-  dw_central = 0.5,
-  dw_lower = 0.25,
-  dw_upper = 0.75,
-  duration_central = 1,
-  duration_lower = 0.5,
-  duration_upper = 1.5
+  rr_central = NULL,
+  rr_lower = NULL,
+  rr_upper = NULL,
+  exp_central = NULL,
+  exp_lower = NULL,
+  exp_upper = NULL,
+  cutoff_central = NULL,
+  cutoff_lower = NULL,
+  cutoff_upper = NULL,
+  bhd_central = NULL,
+  bhd_lower = NULL,
+  bhd_upper = NULL,
+  dw_central = NULL,
+  dw_lower = NULL,
+  dw_upper = NULL
 )
 }
 \arguments{
-\item{paf}{\code{Numerical value} showing the population attributable fraction (paf)}
+\item{rr_central, rr_lower, rr_upper}{\code{Numeric values} referring to the central estimate of the relative risk and the corresponding lower and upper 95\% confidence interval bounds.}
 
-\item{bhd_central, bhd_lower, bhd_upper}{\code{Numeric value} showing the central estimate, the lower bound and the upper bound of the 95% confidence interval of the baseline health data (bhd) (e.g. prevalence of the health outcome in the population).}
+\item{exp_central, exp_lower, exp_upper}{\code{Numeric values} of the exposure to the environmental stressor referring to the central estimate and (optionally) to lower and upper bound of the 95\% confidence interval. If only one value is provided, it will be assumed that it refers to population-weighted mean exposure in ug/m3. If a {vector} is provided, it will be assumed that it refers to the exposure categories (average exposure in the category) in a exposure distribution (this information is linked to the proportion of population exposed).}
 
-\item{dw_central, dw_lower, dw_upper}{Three \code{Numeric value} showing the disability weights (dw) (central estimate, lower and upper 95% confidence intervals) associated with the morbidity health outcome}
+\item{bhd_central, bhd_lower, bhd_upper}{\code{Numeric value} showing the central estimate and (optionally) the lower bound and the upper bound of the confidence interval of the baseline health data (e.g. incidence of the health outcome in the population).}
 
-\item{duration_central, duration_lower, duration_upper}{Three \code{Numeric value} showing the duration (central estimate, lower and upper 95% confidence intervals) of the morbidity health outcome}
+\item{dw_central, dw_lower, dw_upper}{Three \code{Numeric value} showing the disability weights (central estimate, lower and upper 95% confidence intervals) associated with the morbidity health outcome}
 }
 \value{
-This function returns a \code{vector} containing the 95% confidence intervals of the inputted YLD impact
+This function returns ...
 }
 \description{
-Calculate the summary confidence interval of years lived with disability with input sampling
+Determine summary uncertainty based on at least one variable with central, lower and upper estimate
 }
 \note{
 Experimental function
@@ -41,3 +46,4 @@ TBD
 \author{
 Axel Luyten
 }
+\keyword{internal}

@@ -1,61 +1,58 @@
-# Determine confidence interval for years lived with disability
+#' Get Monte Carlo confidence intervals
 
-#' Get confidence interval
-#'
-#' Calculate the summary confidence interval of years lived with disability with input sampling
-#' @param paf \code{Numerical value} showing the population attributable fraction (paf)
-#' @param bhd_central,bhd_lower,bhd_upper \code{Numeric value} showing the central estimate, the lower bound and the upper bound of the 95% confidence interval of the baseline health data (bhd) (e.g. prevalence of the health outcome in the population).
-#' @param dw_central,dw_lower,dw_upper Three \code{Numeric value} showing the disability weights (dw) (central estimate, lower and upper 95% confidence intervals) associated with the morbidity health outcome
-#' @param duration_central,duration_lower,duration_upper Three \code{Numeric value} showing the duration (central estimate, lower and upper 95% confidence intervals) of the morbidity health outcome
+#' @description
+#' Determine summary uncertainty based on at least one variable with central, lower and upper estimate
+#' @inheritParams attribute
 #' @return
-#' This function returns a \code{vector} containing the 95% confidence intervals of the inputted YLD impact
-#' @examples
-#' TBD
+#' This function returns a Monte Carlo summary uncertainty for the attributable health impacts.
+#' @import dplyr
+#' @import purrr
+#' @export
 #' @author Axel Luyten
 #' @note Experimental function
-#' @export
+#' @keywords internal
+#' @examples
+#' TBD
 
-
-get_ci <- function(paf = 0.1,
-                   bhd_central = 100000, bhd_lower = 50000, bhd_upper = 150000,
-                   dw_central = 0.5, dw_lower = 0.25, dw_upper = 0.75,
-                   duration_central = 1, duration_lower = 0.5, duration_upper = 1.5){
-
-  # Variables (for developing code)
-  # paf <- 0.1
-  # bhd_central <- 100000 * paf
-  # bhd_lower <- 50000 * paf
-  # bhd_upper <- 150000 * paf
-  # dw_central <- 0.5
-  # dw_lower <- 0.25
-  # dw_upper <- 0.75
-  # duration_central <- 1
-  # duration_lower <- 0.5
-  # duration_upper <- 1.5
+get_ci <- function(rr_central = NULL, rr_lower = NULL, rr_upper = NULL,
+                   exp_central = NULL, exp_lower = NULL, exp_upper = NULL,
+                   cutoff_central = NULL, cutoff_lower = NULL, cutoff_upper = NULL,
+                   bhd_central = NULL, bhd_lower = NULL, bhd_upper = NULL,
+                   dw_central = NULL, dw_lower = NULL, dw_upper = NULL
+                   # dw_central = dw_central, dw_lower = dw_lower, dw_upper = dw_upper # To be added later (cf. #313)
+                   ){
 
   # Set seed for reproducibility
   set.seed(123)
 
-  # Calculate standard deviations
+  # Define standard deviations (sd)
+  sd_rr <- (rr_upper - rr_lower) / (2 * 1.96)
+  sd_exp <- (exp_upper - exp_lower) / (2 * 1.96)
+  sd_cutoff <- (cutoff_upper - cutoff_lower) / (2 * 1.96)
   sd_bhd <- (bhd_upper - bhd_lower) / (2 * 1.96)
   sd_dw <- (dw_upper - dw_lower) / (2 * 1.96)
-  sd_dur <- (duration_upper - duration_lower) / (2 * 1.96)
 
-  # Monte Carlo simulation
-  n_simulations <- 100000
-  bhd_samples <- rnorm(n_simulations, mean = bhd_central, sd = sd_bhd)
-  dw_samples <- rnorm(n_simulations, mean = dw_central, sd = sd_dw)
-  duration_samples <- rnorm(n_simulations, mean = duration_central, sd = sd_dur)
+  # Simulate values ############################################################
+  n_simulations <- 1000
+  samples_rr <- rnorm(n_simulations, mean = rr_central, sd = sd_rr)
+  samples_exp <- rnorm(n_simulations, mean = exp_central, sd = sd_exp)
+  samples_cutoff <- rnorm(n_simulations, mean = cutoff_central, sd = sd_cutoff)
+  samples_bhd <- rnorm(n_simulations, mean = bhd_central, sd = sd_bhd)
+  samples_dw <- rnorm(n_simulations, mean = dw_central, sd = sd_dw)
 
-  # Calculate YLD for each simulation
-  yld_samples <- bhd_samples * dw_samples * duration_samples
+  # Calculations ###############################################################
+  ## get_risk
 
-  # Calculate 95% confidence interval
-  yld_ci <- quantile(yld_samples, probs = c(0.025, 0.975))
 
-  # Output results
-  cat("Central estimate for YLD", bhd_central * dw_central * duration_central, "\n")
-  cat("95% CI for YLD: [", round(yld_ci[1], 2), ", ", round(yld_ci[2], 2), "]\n", sep = "")
+  ## get_pop_fraction
 
-  return(c(bhd_central * dw_central * duration_central, round(yld_ci[1], 2), round(yld_ci[2], 2)))
+  ## Multiply PAFs with bhd & dw
+
+  ## Calculate 95% CI ##########################################################
+
+  # Output results #############################################################
+
+
+
+
 }
