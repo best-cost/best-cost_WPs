@@ -23,7 +23,8 @@ attribute_health_ar <-
            pop_exp,
            erf_eq_central, erf_eq_lower = NULL, erf_eq_upper = NULL,
            geo_id_raw = NULL, geo_id_aggregated = NULL,
-           info = NULL){
+           info = NULL,
+           summary_uncertainty = NULL){
 
     output <-
       bestcost::attribute(
@@ -49,7 +50,8 @@ attribute_health_ar <-
         dw_central = NULL, dw_lower = NULL, dw_upper = NULL,
         duration_central = NULL,
         geo_id_raw = geo_id_raw , geo_id_aggregated = geo_id_aggregated,
-        info = info)
+        info = info,
+        summary_uncertainty = summary_uncertainty)
 
     return(output)
   }

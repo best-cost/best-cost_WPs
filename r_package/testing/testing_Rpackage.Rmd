@@ -88,14 +88,8 @@ library(bestcost)
 bestcost_pm_copd <-
   bestcost::attribute_health(
     exp_central = airqplus_pm_copd$mean_concentration,
-    exp_lower = airqplus_pm_copd$mean_concentration*0.5,
-    exp_upper = airqplus_pm_copd$mean_concentration*2,
     cutoff_central = airqplus_pm_copd$cut_off_value,
-    cutoff_lower = airqplus_pm_copd$cut_off_value - 1,
-    cutoff_upper = airqplus_pm_copd$cut_off_value + 1,
     bhd_central = airqplus_pm_copd$incidents_per_100_000_per_year/1E5*airqplus_pm_copd$population_at_risk,
-    bhd_lower = airqplus_pm_copd$incidents_per_100_000_per_year/1E5*airqplus_pm_copd$population_at_risk/2,
-    bhd_upper = airqplus_pm_copd$incidents_per_100_000_per_year/1E5*airqplus_pm_copd$population_at_risk*2,
     rr_central = airqplus_pm_copd$relative_risk, 
     rr_lower = airqplus_pm_copd$relative_risk_lower,
     rr_upper = airqplus_pm_copd$relative_risk_upper,
@@ -382,20 +376,34 @@ bestcost_pm_yld_singlebhd  <-
 check_bestcost(result_list_bestcost = bestcost_pm_yld_singlebhd ,
                result_vector_alternative = c(525, 277, 768)) # Result on 16 May 2024
 
-# Summary uncertainty
-bestcost_pm_yld_ci <- get_ci(paf = bestcost_pm_yld_singlebhd$main$pop_fraction[1], # PAF central estimate
-                             bhd_central = bestcost_pm_yld_singlebhd$main$bhd[1],
-                             bhd_lower = 0.5 * bestcost_pm_yld_singlebhd$main$bhd[1],
-                             bhd_upper = 1.5 * bestcost_pm_yld_singlebhd$main$bhd[1],
-                             duration_central = 10,
-                             duration_lower = 5,
-                             duration_upper = 15,
-                             dw_central = 0.5,
-                             dw_lower = 0.25,
-                             dw_upper = 0.75)
-
 #View(bestcost_pm_yld_ci)
 ```
+
+```{r Test summary uncertainty}
+bestcost_pm_yld_singlebhd  <- 
+  bestcost::attribute_yld_from_prevalence(
+    exp_central = 8.85, 
+    exp_lower = airqplus_pm_copd$mean_concentration - 1,
+    exp_upper = airqplus_pm_copd$mean_concentration + 1,
+    cutoff_central = 5,
+    cutoff_lower = airqplus_pm_copd$cut_off_value - 1,
+    cutoff_upper = airqplus_pm_copd$cut_off_value + 1,
+    bhd_central = airqplus_pm_copd$incidents_per_100_000_per_year/1E5*airqplus_pm_copd$population_at_risk,
+    bhd_lower = (airqplus_pm_copd$incidents_per_100_000_per_year/1E5*airqplus_pm_copd$population_at_risk) + 5000,
+    bhd_upper = (airqplus_pm_copd$incidents_per_100_000_per_year/1E5*airqplus_pm_copd$population_at_risk) - 5000,
+    rr_central = 1.118,
+    rr_lower = 1.060, 
+    rr_upper = 1.179,
+    erf_increment = 10, 
+    erf_shape = "log_linear", 
+    dw_central = 0.9, dw_lower = 0.88, dw_upper = 0.93,
+    summary_uncertainty = TRUE
+    )
+
+# View(bestcost_pm_yld_singlebhd)
+```
+
+
 ### Multiple exposure
 
 ```{r additive approach}
