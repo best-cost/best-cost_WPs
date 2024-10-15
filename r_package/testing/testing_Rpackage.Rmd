@@ -410,27 +410,7 @@ print("Summary uncertainty central estimate: ")
 bestcost_pm_copd_with_summary_uncertainty[["detailed"]][["uncertainty"]]$central_estimate
 bestcost_pm_copd_with_summary_uncertainty[["detailed"]][["uncertainty"]]$lower_estimate
 bestcost_pm_copd_with_summary_uncertainty[["detailed"]][["uncertainty"]]$upper_estimate
-
-# Comparison (same function call but without summary uncertainty)
-bestcost_pm_copd_no_summary_uncertainty <- 
-  bestcost::attribute_health(
-    exp_central = 8.85, 
-    exp_lower = airqplus_pm_copd$mean_concentration - 1,
-    exp_upper = airqplus_pm_copd$mean_concentration + 1,
-    cutoff_central = 5,
-    cutoff_lower = airqplus_pm_copd$cut_off_value - 1,
-    cutoff_upper = airqplus_pm_copd$cut_off_value + 1,
-    bhd_central = airqplus_pm_copd$incidents_per_100_000_per_year/1E5*airqplus_pm_copd$population_at_risk,
-    bhd_lower = (airqplus_pm_copd$incidents_per_100_000_per_year/1E5*airqplus_pm_copd$population_at_risk) + 5000,
-    bhd_upper = (airqplus_pm_copd$incidents_per_100_000_per_year/1E5*airqplus_pm_copd$population_at_risk) - 5000,
-    rr_central = 1.118,
-    rr_lower = 1.060, 
-    rr_upper = 1.179,
-    erf_increment = 10, 
-    erf_shape = "log_linear"
-    )
-
-print("Main estimate: ") ; bestcost_pm_copd_no_summary_uncertainty[["main"]][["impact_rounded"]]
+print("Main estimate: ") ; bestcost_pm_copd_with_summary_uncertainty[["main"]][["impact_rounded"]]
 ```
 
 
@@ -456,7 +436,7 @@ bestcost_pm_yld_singlebhd_with_summary_uncertainty  <-
     summary_uncertainty = TRUE
     )
 
-# View(bestcost_pm_yld_singlebhd_with_summary_uncertainty)
+View(bestcost_pm_yld_singlebhd_with_summary_uncertainty)
 ```
 
 ```{r Test summary uncertainty ar}

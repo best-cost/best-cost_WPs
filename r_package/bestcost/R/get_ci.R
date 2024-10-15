@@ -73,6 +73,10 @@ get_ci <- function(rr_central = NULL, rr_lower = NULL, rr_upper = NULL,
         rgamma(n = n_sim, fit[1], fit[2])
       }
 
+    ## Define helper function to fit rbeta distribution for disability weights
+    # dw_par <- prevalence::betaExpert(dw_central, dw_lower, dw_upper, method = "mean")
+    #
+    # dw_sim <- rbeta(n = n_sim, shape1 = dw_par["alpha"], shape2 = dw_par["beta"])
 
     ## Create empty tibble to store simulated values & results in
     dat <- tibble(rr = rep(NA, times = n_sim),
