@@ -1,8 +1,6 @@
-# Title and description
-
 #' Get deaths, YLL or YLD
 #'
-#' Get attributable deaths, years of life lost or years lived with disability from lifetable
+#' @description Get attributable deaths, years of life lost or years lived with disability from lifetable
 #' @param outcome_metric \code{String} with the metric of the health outcome to be assessed. Options: "deaths", "yll" or "yld".
 #' @param pop_impact \code{Data frame} with projected population impact over time
 #' @param year_of_analysis \code{Numeric value} of the year of analysis, which corresponds to the first year of the life table,

@@ -1,10 +1,8 @@
-# Title and description
-
 #' Attributable health cases based on absolute risk
 #'
-#' Calculates the health impacts, of an environmental stressor (e.g. noise) using the absolute risk instead of the relative risk
+#' @description Calculates the health impacts, of an environmental stressor
+#' (e.g. noise) using the absolute risk instead of the relative risk
 #' @inheritParams attribute
-#'
 #' @return
 #' TBD. E.g. This function returns a \code{list} with two \code{data.frames}, one with the total health impact and the second one with a row for each category of the exposure distribution.
 #' The data frame include columns such as:

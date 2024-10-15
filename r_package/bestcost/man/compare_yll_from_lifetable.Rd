@@ -2,8 +2,7 @@
 % Please edit documentation in R/compare_yll_from_lifetable.R
 \name{compare_yll_from_lifetable}
 \alias{compare_yll_from_lifetable}
-\title{Compare attributable years of life lost obtained applying a life table approach
-Calculates the years of life lost between two scenarios (e.g. before and after a intervention in a health impact assessments). It provides as a result the central estimate as well as the lower and the higher bound of the confidence interval based on the uncertainty of the exposure-response function.}
+\title{Compare attributable years of life lost obtained applying a life table approach}
 \usage{
 compare_yll_from_lifetable(
   approach_multiexposure = NULL,
@@ -131,7 +130,6 @@ Moreover, the data frame includes columns such as:
 }
 }
 \description{
-Compare attributable years of life lost obtained applying a life table approach
 Calculates the years of life lost between two scenarios (e.g. before and after a intervention in a health impact assessments). It provides as a result the central estimate as well as the lower and the higher bound of the confidence interval based on the uncertainty of the exposure-response function.
 }
 \note{

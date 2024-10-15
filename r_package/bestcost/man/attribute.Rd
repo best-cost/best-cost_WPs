@@ -44,6 +44,7 @@ attribute(
   approach_newborns = NULL,
   geo_id_raw = NULL,
   geo_id_aggregated = NULL,
+  summary_uncertainty = NULL,
   health_metric = "same_input_output",
   approach_multiexposure = NULL,
   approach_risk = "relative_risk",
@@ -81,7 +82,7 @@ attribute(
 
 \item{year_of_analysis}{\code{Numeric value} of the year of analysis, which corresponds to the first year of the life table.}
 
-\item{dw_central, dw_lower, dw_upper}{Three \code{Numeric value} showing the disability weights (central estimate, lower and upper 95% confidence intervals) associated with the morbidity health outcome}
+\item{dw_central, dw_lower, dw_upper}{\code{Numeric value} showing the disability weights (central estimate, lower and upper 95\% confidence intervals) associated with the morbidity health outcome}
 
 \item{duration_central, duration_lower, duration_upper}{\code{Numeric value} showing the central estimate of the disease duration and (optionally) the lower and upper bounds of the 95\% confidence interval.}
 

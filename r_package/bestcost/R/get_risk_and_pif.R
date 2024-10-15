@@ -1,8 +1,6 @@
-# Title and description
-
 #' Get input data and PIF
 
-#' Calculates the population impact fraction (PIF) based on the input data and puts the results in additional columns joined to the input data frame.
+#' @description Calculates the population impact fraction (PIF) based on the input data and puts the results in additional columns joined to the input data frame.
 #' @param input \code{Data frame} with the input data
 #' @return
 #' This function returns a \code{data.frame} with the input data adding a column for the population attributable fraction

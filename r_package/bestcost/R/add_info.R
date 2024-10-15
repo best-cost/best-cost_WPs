@@ -1,8 +1,6 @@
-# Title and description
-
-#' Add meta-information in the data frame containing the input data
+#' Add meta-information to the data frame containing the input data
 #'
-#' Add meta-information of the input data within the data frame containing the input data.
+#' @description Add meta-information of the input data within the data frame containing the input data.
 #' @param df \code{Data frame} containing the input data
 #' @param info \code{String} or \code{Data frame} with one row or \code{Vector} of length 1 showing additional information or id for the pollutant.
 #'

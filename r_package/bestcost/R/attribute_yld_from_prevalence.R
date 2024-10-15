@@ -1,8 +1,6 @@
-# Title and description
-
 #' Determine years lived with disability (YLD) attributable to the incidence of a specific morbidity health outcome
 
-#' Calculates the YLDs using a single value for baseline heath data, i.e. without life table. It provides as a result the mean as well as the lower and the higher bounds of the morbidity impact based on the confidence interval of the exposure-response function. Assumption: cases happen at the start of the year.
+#' @description Calculates the YLDs using a single value for baseline heath data, i.e. without life table. It provides as a result the mean as well as the lower and the higher bounds of the morbidity impact based on the confidence interval of the exposure-response function. Assumption: cases happen at the start of the year.
 #' @inheritParams attribute
 #'
 #' @return

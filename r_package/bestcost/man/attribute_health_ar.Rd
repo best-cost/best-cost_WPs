@@ -14,7 +14,8 @@ attribute_health_ar(
   erf_eq_upper = NULL,
   geo_id_raw = NULL,
   geo_id_aggregated = NULL,
-  info = NULL
+  info = NULL,
+  summary_uncertainty = NULL
 )
 }
 \arguments{
@@ -38,7 +39,8 @@ The data frame include columns such as:
 }
 }
 \description{
-Calculates the health impacts, of an environmental stressor (e.g. noise) using the absolute risk instead of the relative risk
+Calculates the health impacts, of an environmental stressor
+(e.g. noise) using the absolute risk instead of the relative risk
 }
 \note{
 Experimental function

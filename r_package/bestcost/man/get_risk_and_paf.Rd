@@ -2,8 +2,7 @@
 % Please edit documentation in R/get_risk_and_paf.R
 \name{get_risk_and_paf}
 \alias{get_risk_and_paf}
-\title{Get input data and PAF
-Calculates the population attributable fraction (PAF) based on the input data and puts the results in additional columns joined to the input data frame.}
+\title{Get input data and PAF}
 \usage{
 get_risk_and_paf(input)
 }
@@ -21,7 +20,6 @@ Moreover, the data frame includes columns such as:
 }
 }
 \description{
-Get input data and PAF
 Calculates the population attributable fraction (PAF) based on the input data and puts the results in additional columns joined to the input data frame.
 }
 \note{

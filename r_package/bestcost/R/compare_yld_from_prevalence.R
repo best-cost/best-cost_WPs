@@ -1,8 +1,6 @@
-# Title and description
-
 #' Compare attributable health cases based on single baseline health value and relative risk
 
-#' Calculates the health impacts between two scenarios (e.g. before and after a intervention in a health impact assessments). It provides as a result the central estimate as well as the lower and the higher bound of the confidence interval based on the uncertainty of the exposure-response function.
+#' @description Calculates the health impacts between two scenarios (e.g. before and after a intervention in a health impact assessments). It provides as a result the central estimate as well as the lower and the higher bound of the confidence interval based on the uncertainty of the exposure-response function.
 #' @inheritParams compare
 #'
 #' @return

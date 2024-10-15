@@ -2,7 +2,7 @@
 % Please edit documentation in R/add_info.R
 \name{add_info}
 \alias{add_info}
-\title{Add meta-information in the data frame containing the input data}
+\title{Add meta-information to the data frame containing the input data}
 \usage{
 add_info(df, info)
 }

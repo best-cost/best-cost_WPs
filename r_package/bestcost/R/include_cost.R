@@ -1,6 +1,6 @@
 #' include_cost
-#'
-#' Monetize health impacts
+
+#' @description Monetize health impacts
 #'
 #' @param output \code{List} produced by \code{bestcost::attribute()} or \code{bestcost::compare()} as results
 #' @param valuation \code{Numeric value} showing the value of statistical life which will be used in the health impact monetization
