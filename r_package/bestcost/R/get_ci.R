@@ -1,7 +1,7 @@
 #' Get Monte Carlo confidence intervals
 
-#' @description
-#' Determine summary uncertainty based on at least one variable with central, lower and upper estimate
+#' @description Determine summary uncertainty based on at least one variable
+#' with central, lower and upper estimate
 #' @inheritParams attribute
 #' @return
 #' This function returns a Monte Carlo summary uncertainty for the attributable health impacts.

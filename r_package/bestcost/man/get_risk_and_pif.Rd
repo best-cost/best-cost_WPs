@@ -2,8 +2,7 @@
 % Please edit documentation in R/get_risk_and_pif.R
 \name{get_risk_and_pif}
 \alias{get_risk_and_pif}
-\title{Get input data and PIF
-Calculates the population impact fraction (PIF) based on the input data and puts the results in additional columns joined to the input data frame.}
+\title{Get input data and PIF}
 \usage{
 get_risk_and_pif(input)
 }
@@ -21,7 +20,6 @@ Moreover, the data frame includes columns such as:
 }
 }
 \description{
-Get input data and PIF
 Calculates the population impact fraction (PIF) based on the input data and puts the results in additional columns joined to the input data frame.
 }
 \note{

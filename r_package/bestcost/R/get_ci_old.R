@@ -1,8 +1,6 @@
-# Determine confidence interval for years lived with disability
-
 #' Get confidence interval
-#'
-#' Calculate the summary confidence interval of years lived with disability with input sampling
+
+#' @description Calculate the summary confidence interval of years lived with disability with input sampling
 #' @param paf \code{Numerical value} showing the population attributable fraction (paf)
 #' @param bhd_central,bhd_lower,bhd_upper \code{Numeric value} showing the central estimate, the lower bound and the upper bound of the 95% confidence interval of the baseline health data (bhd) (e.g. prevalence of the health outcome in the population).
 #' @param dw_central,dw_lower,dw_upper Three \code{Numeric value} showing the disability weights (dw) (central estimate, lower and upper 95% confidence intervals) associated with the morbidity health outcome

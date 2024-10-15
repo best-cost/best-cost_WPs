@@ -2,8 +2,7 @@
 % Please edit documentation in R/compile_input.R
 \name{compile_input}
 \alias{compile_input}
-\title{Compile input
-Compiles the input data of the main function and calculates the population attributable fraction based on the input data (all in one data frame)}
+\title{Compile input}
 \usage{
 compile_input(
   health_metric = NULL,
@@ -87,7 +86,7 @@ compile_input(
 
 \item{duration_central, duration_lower, duration_upper}{\code{Numeric value} showing the central estimate of the disease duration and (optionally) the lower and upper bounds of the 95\% confidence interval.}
 
-\item{dw_central, dw_lower, dw_upper}{Three \code{Numeric value} showing the disability weights (central estimate, lower and upper 95% confidence intervals) associated with the morbidity health outcome}
+\item{dw_central, dw_lower, dw_upper}{\code{Numeric value} showing the disability weights (central estimate, lower and upper 95\% confidence intervals) associated with the morbidity health outcome}
 
 \item{approach_exposure}{\code{String} showing whether air pollution is constant or only in one year. Options: "single_year" (default), "constant"}
 
@@ -110,7 +109,6 @@ Moreover, the data frame includes columns such as:
 }
 }
 \description{
-Compile input
 Compiles the input data of the main function and calculates the population attributable fraction based on the input data (all in one data frame)
 }
 \note{

@@ -1,7 +1,6 @@
-# Title and description
 #' Find joining columns
 #'
-#' Find columns in two data frames that have same name and identical values (excluding exceptions).- The resulting joining columns are used to dplyr::x_join data frames and add the vector to by=.
+#' @description Find columns in two data frames that have same name and identical values (excluding exceptions).- The resulting joining columns are used to dplyr::x_join data frames and add the vector to by=.
 #' @param df1 First \code{Data frame}
 #' @param df2 Second \code{Data frame}
 #' @param except \code{Vector} of strings showing columns that have to be excluded although they fulfill the inclusion criteria (same name and value)

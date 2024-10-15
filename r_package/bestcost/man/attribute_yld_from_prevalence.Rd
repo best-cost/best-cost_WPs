@@ -2,8 +2,7 @@
 % Please edit documentation in R/attribute_yld_from_prevalence.R
 \name{attribute_yld_from_prevalence}
 \alias{attribute_yld_from_prevalence}
-\title{Determine years lived with disability (YLD) attributable to the incidence of a specific morbidity health outcome
-Calculates the YLDs using a single value for baseline heath data, i.e. without life table. It provides as a result the mean as well as the lower and the higher bounds of the morbidity impact based on the confidence interval of the exposure-response function. Assumption: cases happen at the start of the year.}
+\title{Determine years lived with disability (YLD) attributable to the incidence of a specific morbidity health outcome}
 \usage{
 attribute_yld_from_prevalence(
   approach_multiexposure = NULL,
@@ -28,7 +27,8 @@ attribute_yld_from_prevalence(
   dw_central,
   dw_lower = NULL,
   dw_upper = NULL,
-  info = NULL
+  info = NULL,
+  summary_uncertainty = NULL
 )
 }
 \arguments{
@@ -48,7 +48,7 @@ attribute_yld_from_prevalence(
 
 \item{bhd_central, bhd_lower, bhd_upper}{\code{Numeric value} showing the central estimate and (optionally) the lower bound and the upper bound of the confidence interval of the baseline health data (e.g. incidence of the health outcome in the population).}
 
-\item{dw_central, dw_lower, dw_upper}{Three \code{Numeric value} showing the disability weights (central estimate, lower and upper 95% confidence intervals) associated with the morbidity health outcome}
+\item{dw_central, dw_lower, dw_upper}{\code{Numeric value} showing the disability weights (central estimate, lower and upper 95\% confidence intervals) associated with the morbidity health outcome}
 
 \item{info}{\code{String} or {data frame} showing additional information or id. The suffix "info" will be added to the column name. Default value = NULL.}
 }
@@ -62,7 +62,6 @@ The YLDs are listed in the columns:
  }
 }
 \description{
-Determine years lived with disability (YLD) attributable to the incidence of a specific morbidity health outcome
 Calculates the YLDs using a single value for baseline heath data, i.e. without life table. It provides as a result the mean as well as the lower and the higher bounds of the morbidity impact based on the confidence interval of the exposure-response function. Assumption: cases happen at the start of the year.
 }
 \note{

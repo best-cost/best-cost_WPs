@@ -1,8 +1,6 @@
-# Title and description
-
 #' Re-scale the relative risk
-#'
-#' Re-scale the relative risk from the increment value in the epidemiological study (e.g. for PM2.5 10 or 5 ug/m3) to the actual population exposure)
+
+#' @description Re-scale the relative risk from the increment value in the epidemiological study (e.g. for PM2.5 10 or 5 ug/m3) to the actual population exposure)
 #' @param rr
 #' \code{Numeric vector} containing the relative risk. The data frame must contain the central estimate as well as the lower and upper bound of the exposure-response function.
 #' @param exp

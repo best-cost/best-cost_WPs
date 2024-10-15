@@ -2,8 +2,7 @@
 % Please edit documentation in R/attribute_daly_from_lifetable.R
 \name{attribute_daly_from_lifetable}
 \alias{attribute_daly_from_lifetable}
-\title{Health impacts based on life tables
-Calculates the years lived with disability attributable to the exposure to an environmental stressor using a life table approach. It provides the central estimate of the impact and the corresponding 95\% confidence intervals (based on the 95\% confidence interval exposure-response function).}
+\title{Health impacts based on life tables}
 \usage{
 attribute_daly_from_lifetable(
   approach_multiexposure = NULL,
@@ -76,7 +75,7 @@ attribute_daly_from_lifetable(
 
 \item{max_age}{\code{Numberic value} of the maximal age to be considered for infants/children (by default 0, i.e. below 1 year old).}
 
-\item{dw_central, dw_lower, dw_upper}{Three \code{Numeric value} showing the disability weights (central estimate, lower and upper 95% confidence intervals) associated with the morbidity health outcome}
+\item{dw_central, dw_lower, dw_upper}{\code{Numeric value} showing the disability weights (central estimate, lower and upper 95\% confidence intervals) associated with the morbidity health outcome}
 
 \item{duration_central, duration_lower, duration_upper}{\code{Numeric value} showing the central estimate of the disease duration and (optionally) the lower and upper bounds of the 95\% confidence interval.}
 
@@ -86,7 +85,6 @@ attribute_daly_from_lifetable(
 This function returns a \code{data.frame}
 }
 \description{
-Health impacts based on life tables
 Calculates the years lived with disability attributable to the exposure to an environmental stressor using a life table approach. It provides the central estimate of the impact and the corresponding 95\% confidence intervals (based on the 95\% confidence interval exposure-response function).
 }
 \note{

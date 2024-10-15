@@ -2,8 +2,7 @@
 % Please edit documentation in R/compare_yld_from_prevalence.R
 \name{compare_yld_from_prevalence}
 \alias{compare_yld_from_prevalence}
-\title{Compare attributable health cases based on single baseline health value and relative risk
-Calculates the health impacts between two scenarios (e.g. before and after a intervention in a health impact assessments). It provides as a result the central estimate as well as the lower and the higher bound of the confidence interval based on the uncertainty of the exposure-response function.}
+\title{Compare attributable health cases based on single baseline health value and relative risk}
 \usage{
 compare_yld_from_prevalence(
   approach_multiexposure = NULL,
@@ -81,7 +80,6 @@ Moreover, the data frame includes columns such as:
 }
 }
 \description{
-Compare attributable health cases based on single baseline health value and relative risk
 Calculates the health impacts between two scenarios (e.g. before and after a intervention in a health impact assessments). It provides as a result the central estimate as well as the lower and the higher bound of the confidence interval based on the uncertainty of the exposure-response function.
 }
 \note{
