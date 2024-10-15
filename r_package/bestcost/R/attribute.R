@@ -66,7 +66,7 @@ attribute <-
            geo_id_raw = NULL,
            geo_id_aggregated = NULL,
            # Meta-information
-           summary_uncertainty = NULL){
+           summary_uncertainty = NULL,
            health_metric = "same_input_output",
            approach_multiexposure = NULL,
            approach_risk = "relative_risk",

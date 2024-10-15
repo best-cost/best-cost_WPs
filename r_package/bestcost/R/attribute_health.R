@@ -34,7 +34,7 @@ attribute_health <-
            erf_eq_central = NULL, erf_eq_lower = NULL, erf_eq_upper = NULL,
            bhd_central, bhd_lower = NULL, bhd_upper = NULL,
            geo_id_raw = NULL, geo_id_aggregated = NULL,
-           summary_uncertainty = NULL){
+           summary_uncertainty = NULL,
            approach_multiexposure = NULL,
            info = NULL){
 
