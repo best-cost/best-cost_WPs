@@ -131,7 +131,7 @@ get_risk_and_pop_fraction <-
           collapse_df_by_columns(
             columns_for_group = c("geo_id_raw",
                                   "sex","lifetable_with_pop_nest",
-                                  "erf_ci", "exp_ci", "bhd_ci", "cutoff_ci", "dw_ci", "duration_ci"),
+                                  "erf_ci", "exp_ci", "bhd_ci", "cutoff_ci", "dw_ci", "duration_ci", "erf_eq"),
             sep = ", ")
       }
     }
@@ -187,7 +187,7 @@ get_risk_and_pop_fraction <-
           dplyr::mutate(exposure_name = paste(unique(exposure_name), collapse = ", ")) |>
           collapse_df_by_columns(columns_for_group = c("geo_id_raw",
                                                        "sex","lifetable_with_pop_nest",
-                                                       "erf_ci", "exp_ci", "bhd_ci", "cutoff_ci", "dw_ci", "duration_ci"),
+                                                       "erf_ci", "exp_ci", "bhd_ci", "cutoff_ci", "dw_ci", "duration_ci", "erf_eq"),
                                  sep = ", ")
         }
       }
@@ -201,7 +201,7 @@ get_risk_and_pop_fraction <-
                              columns_for_group = c("geo_id_raw",
                                                    "exposure_name",
                                                    "sex","lifetable_with_pop_nest",
-                                                   "erf_ci", "exp_ci", "bhd_ci", "cutoff_ci", "dw_ci", "duration_ci"),
+                                                   "erf_ci", "exp_ci", "bhd_ci", "cutoff_ci", "dw_ci", "duration_ci", "erf_eq"),
                              sep = ", ")
     }
 

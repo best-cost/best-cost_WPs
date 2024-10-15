@@ -34,6 +34,7 @@ attribute_health <-
            erf_eq_central = NULL, erf_eq_lower = NULL, erf_eq_upper = NULL,
            bhd_central, bhd_lower = NULL, bhd_upper = NULL,
            geo_id_raw = NULL, geo_id_aggregated = NULL,
+           summary_uncertainty = NULL){
            approach_multiexposure = NULL,
            info = NULL){
 
@@ -61,7 +62,8 @@ attribute_health <-
         dw_central = NULL, dw_lower = NULL, dw_upper = NULL,
         duration_central = NULL,
         geo_id_raw = geo_id_raw , geo_id_aggregated = geo_id_aggregated,
-        info = info)
+        info = info,
+        summary_uncertainty = summary_uncertainty)
 
     return(output)
 

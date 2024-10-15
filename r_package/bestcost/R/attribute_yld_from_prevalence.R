@@ -31,7 +31,8 @@ attribute_yld_from_prevalence <-
            erf_eq_central = NULL, erf_eq_lower = NULL, erf_eq_upper = NULL,
            bhd_central, bhd_lower = NULL, bhd_upper = NULL,
            dw_central, dw_lower = NULL, dw_upper = NULL,
-           info = NULL){
+           info = NULL,
+           summary_uncertainty = NULL){
 
 
     output <-
@@ -56,7 +57,8 @@ attribute_yld_from_prevalence <-
         dw_central = dw_central, dw_lower = dw_lower, dw_upper = dw_upper,
         duration_central = NULL,
         geo_id_raw = NULL , geo_id_aggregated = NULL,
-        info = info)
+        info = info,
+        summary_uncertainty = summary_uncertainty)
 
 
     return(output)

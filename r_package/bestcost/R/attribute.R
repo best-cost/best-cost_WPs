@@ -66,6 +66,7 @@ attribute <-
            geo_id_raw = NULL,
            geo_id_aggregated = NULL,
            # Meta-information
+           summary_uncertainty = NULL){
            health_metric = "same_input_output",
            approach_multiexposure = NULL,
            approach_risk = "relative_risk",
@@ -95,9 +96,7 @@ attribute <-
         health_metric = health_metric,
         approach_risk = approach_risk,
         # YLD
-        dw_central = dw_central,
-        dw_lower = dw_lower,
-        dw_upper = dw_upper,
+        dw_central = dw_central, dw_lower = dw_lower, dw_upper = dw_upper,
         duration_central = duration_central, duration_lower = duration_lower, duration_upper = duration_upper,
         # Lifetable arguments if needed
         approach_exposure = approach_exposure,
@@ -122,6 +121,23 @@ attribute <-
     # Get the main and detailed output by aggregating and/or filtering cases (rows)
     output <-
       bestcost:::get_output(impact_raw)
+
+    # Get summary uncertainty
+    if (!is.null(summary_uncertainty)) {
+      output[["detailed"]][["uncertainty"]] <-
+        get_ci(rr_central = rr_central, rr_lower = rr_lower, rr_upper = rr_upper,
+               exp_central = exp_central, exp_lower = exp_lower, exp_upper = exp_upper,
+               cutoff_central = cutoff_central, cutoff_lower = cutoff_lower, cutoff_upper = cutoff_upper,
+               bhd_central = bhd_central, bhd_lower = bhd_lower, bhd_upper = bhd_upper,
+               dw_central = dw_central, dw_lower = dw_lower, dw_upper = dw_upper,
+               erf_shape = erf_shape,
+               erf_increment = erf_increment,
+               erf_eq = erf_eq_central,
+               pop_exp = pop_exp,
+               prop_pop_exp = prop_pop_exp,
+               approach_risk = approach_risk
+        )
+    }
 
 
     return(output)
