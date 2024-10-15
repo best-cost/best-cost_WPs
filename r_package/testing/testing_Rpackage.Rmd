@@ -140,8 +140,8 @@ bestcost_pm_copd_costs <-
 
 
 
+```{r single exposure value with multiple uncertainties, eval=FALSE, include=FALSE}
 
-```{r multiple single exposure value, eval=FALSE, include=FALSE}
 # Assess attributable cases for multiple uncertainties at the same time
 # i.e. rr, bhd and exp
 bestcost_pm_copd_multiple <-
@@ -188,6 +188,8 @@ system.time(bestcost_pm_copd_geo <-
 
 
 
+
+
 ```{r Social aspects in a simple case, eval=FALSE, include=FALSE}
 # Take into account social aspects
 bestcost_pm_copd_geo_social <- 
@@ -216,6 +218,7 @@ bestcost_pm_alri_erf_dots <-
 
 #TODO: Make an automatic comparison to always check if the result is right
 ```
+
 
 
 ```{r single exposure value and relative risk with monetization}
@@ -270,8 +273,6 @@ bestcost_noise_ihd_expDist <-
     exp_central = niph_noise_ihd_input$exposure_mean,
     prop_pop_exp = niph_noise_ihd_input$prop_exposed,
     cutoff_central = min(niph_noise_ihd_input$exposure_mean), 
-    cutoff_lower = min(niph_noise_ihd_input$exposure_mean) - 10,
-    cutoff_upper = min(niph_noise_ihd_input$exposure_mean) + 10,
     bhd_central = niph_noise_ihd_input$gbd_daly[1],
     rr_central = 1.08,
     erf_increment = 10, 
@@ -303,6 +304,25 @@ bestcost_noise_ihd_expDist_geo <-
     geo_id_aggregated = rep("ch", 3),
     info = data.frame(pollutant = "road_noise", outcome = "highly_annoyance"))
 
+```
+
+```{r exposure distribution and user-defined points for relative risk}
+MRBRT_stroke <- readRDS(file = "../testing/input/MRBRT_stroke.RDS")
+pop_data <- readRDS(file = "../testing/input/pop_data.RDS")
+
+bestcost_pm_stroke_niph <-
+  bestcost::attribute_health(
+    exp_central = pop_data$Concentration,
+    prop_pop_exp = pop_data$Viken,
+    cutoff_central = 4.15,   
+    bhd_central = 4500,
+    erf_eq_central = 
+      stats::splinefun(
+        x = MRBRT_stroke$exposure,
+        y = MRBRT_stroke$mean,
+        method = "natural"))
+
+View(bestcost_pm_stroke_niph)
 ```
 
 
