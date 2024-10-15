@@ -39,13 +39,42 @@ get_ci <- function(rr_central = NULL, rr_lower = NULL, rr_upper = NULL,
   # Set number of simulations
   n_sim <- 1000
 
-  # Calculations ###############################################################
-
-  ## Relative risk ########################################################
+  # Relative risk ##############################################################
 
   if (approach_risk == "relative_risk") {
 
-    # Create tibble to store simulated values & results in
+    ## Define helper function for RR gamma distribution with optimization)
+    ## define gamma fitting and drawing functions
+
+    vector_rr_ci <- c(rr_lower, rr_upper)
+    vector_probabilities <- c(0.025, 0.975)
+    par <- 2 # shape parameter of the gamma distribution
+
+    f_gamma <-
+      function(par, rr_central, vector_propabilities, vector_rr_ci) {
+        qfit <- qgamma(p = vector_propabilities, shape = par, rate = par / rr_central)
+        return(sum((qfit - vector_rr_ci)^2))
+      }
+
+    optim_gamma <-
+      function(rr_central, vector_rr_ci) {
+        vector_propabilities <- c(0.025, 0.975)
+        f <- optimize(f = f_gamma,
+                      interval = c(0, 1e9),
+                       rr_central = rr_central,
+                       vector_propabilities = vector_probabilities,
+                       vector_rr_ci = vector_rr_ci)
+        return(c(f$minimum, f$minimum / rr_central))
+      }
+
+    sim_gamma <-
+      function(n_sim, rr_central, vector_rr_ci) {
+        fit <- optim_gamma(rr_central, vector_rr_ci)
+        rgamma(n = n_sim, fit[1], fit[2])
+      }
+
+
+    ## Create empty tibble to store simulated values & results in
     dat <- tibble(rr = rep(NA, times = n_sim),
                   erf_increment = rep(erf_increment, times = n_sim),
                   erf_shape = erf_shape,
@@ -59,12 +88,18 @@ get_ci <- function(rr_central = NULL, rr_lower = NULL, rr_upper = NULL,
                   impact = rep(NA, times = n_sim)
     )
 
-    ## Define standard deviations (sd) & simulate values #######################
+    ## Define standard deviations (sd) & simulate values
 
     if (!is.null(rr_lower)){
-      sd_rr <- (rr_upper - rr_lower) / (2 * 1.96)
       dat <- dat |>
-        dplyr::mutate(rr = rnorm(n_sim, mean = rr_central, sd = sd_rr))
+        # Gamma distribution with optimization to generate simulated RR's
+        dplyr::mutate(rr = sim_gamma(n_sim = n_sim,
+                                     rr_central = rr_central,
+                                     vector_rr_ci = vector_rr_ci))
+
+        # Normal distribution (initial implementation)
+        # dplyr::mutate(rr = rnorm(n_sim, mean = rr_central, sd = (rr_upper - rr_lower) / (2 * 1.96)))
+
     } else {
       dat <- dat |>
         dplyr::mutate(rr = rr_central)}
@@ -102,8 +137,8 @@ get_ci <- function(rr_central = NULL, rr_lower = NULL, rr_upper = NULL,
         dplyr::mutate(dw = dw_central)
     }
 
+    # Determine rr_conc using call to bestcost::get_risk()
     dat <- dat |>
-      # get_risk
       dplyr::mutate(
         rr_conc = purrr::pmap(
           list(rr = rr, exp = exp, cutoff = cutoff, erf_increment = erf_increment, erf_shape = erf_shape),
@@ -121,9 +156,8 @@ get_ci <- function(rr_central = NULL, rr_lower = NULL, rr_upper = NULL,
 
     dat$rr <- unlist(dat$rr)
 
-
+    ## Determine PAF via call to get_pop_fraction()
     dat <- dat |>
-      # get_pop_fraction
       dplyr::mutate(
         paf = purrr::pmap(
           list(rr_conc = rr_conc, prop_pop_exp = prop_pop_exp),
@@ -139,7 +173,7 @@ get_ci <- function(rr_central = NULL, rr_lower = NULL, rr_upper = NULL,
 
     dat$paf <- unlist(dat$paf)
 
-    ## Multiply PAFs with bhd (& dw)
+    ## Multiply PAFs with bhd (& dw, if applicable)
     if ( !is.null(dw_central) & "dw" %in% names(dat) ) {
       dat <- dat |>
         dplyr::mutate(paf_weighted= paf * dw) |>
@@ -152,20 +186,20 @@ get_ci <- function(rr_central = NULL, rr_lower = NULL, rr_upper = NULL,
   # Absolute risk ##############################################################
   } else if (approach_risk == "absolute_risk"){
 
-    # Create tibble to store simulated values & results in
+    # Create (empty) tibble to store simulated values & results in
     dat <- tibble::tibble(
-      row_id = 1:n_sim) |>   # Add an ID column for the 1000 rows
+      row_id = 1:n_sim) |>
 
       # Simulate 1000 exposure values (normal distribution) for each noise band
       # using the corresponding values of exp_lower & exp_upper
       dplyr::bind_cols(
         purrr::map(seq_along(exp_central),
             ~ tibble::tibble(
-              !!paste0("exp_", .x) := rnorm(n_sim,
-                                            mean = exp_central[.x],
-                                            sd = (exp_upper[.x] - exp_lower[.x]) / (2 * 1.96)),
-              !!paste0("pop_", .x) := pop_exp[.x]
-            )) %>%
+              !!paste0("exp_", .x) :=
+                rnorm(n_sim,
+                      mean = exp_central[.x],
+                      sd = (exp_upper[.x] - exp_lower[.x]) / (2 * 1.96)),
+              !!paste0("pop_", .x) := pop_exp[.x])) |>
           purrr::reduce(bind_cols))
 
     # Calculate risks
@@ -177,20 +211,21 @@ get_ci <- function(rr_central = NULL, rr_lower = NULL, rr_upper = NULL,
       )
 
 
-    # Calculate impact_X = risk_X * pop_X
+    # Calculate impact per noise band (impact_X = risk_X * pop_X)
     dat <- dat |>
       dplyr::mutate(
         # Use purrr::map2 to iterate over corresponding "risk_" and "pop_" columns
         dplyr::across(dplyr::starts_with("risk_"), ~ as.numeric(.x) * as.numeric(dat[[gsub("risk_", "pop_", dplyr::cur_column())]]),
                .names = "impact_{str_remove(.col, 'risk_')}")) |>
-      # Sum impacts
+      # Sum impacts across noise bands to obtain total impact
       dplyr::mutate(impact_total = rowSums(across(starts_with("impact_"))))
 
   }
 
 
-  ## Calculate 95% CI of impact ################################################
-  ci <- quantile(x = dat |> dplyr::pull(impact_total) |> unlist(), probs = c(0.025, 0.5, 0.975))
+  # Determine 95% CI of impact ################################################
+  ci <- quantile(x = dat |> dplyr::pull(impact_total) |> unlist(),
+                 probs = c(0.025, 0.5, 0.975))
 
   # Output results #############################################################
   ci <- unname(ci) # Unname to remove percentiles from the names vector
