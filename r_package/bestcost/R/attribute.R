@@ -124,7 +124,7 @@ attribute <-
 
     # Get summary uncertainty
     if (!is.null(summary_uncertainty)) {
-      output$detailed$uncertainty <-
+      output[["detailed"]][["uncertainty"]] <-
         get_ci(rr_central = rr_central, rr_lower = rr_lower, rr_upper = rr_upper,
                exp_central = exp_central, exp_lower = exp_lower, exp_upper = exp_upper,
                cutoff_central = cutoff_central, cutoff_lower = cutoff_lower, cutoff_upper = cutoff_upper,
@@ -132,7 +132,10 @@ attribute <-
                dw_central = dw_central, dw_lower = dw_lower, dw_upper = dw_upper,
                erf_shape = erf_shape,
                erf_increment = erf_increment,
-               prop_pop_exp = prop_pop_exp
+               erf_eq = erf_eq_central,
+               pop_exp = pop_exp,
+               prop_pop_exp = prop_pop_exp,
+               approach_risk = approach_risk
         )
     }
 
