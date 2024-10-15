@@ -24,8 +24,8 @@
 #' @export
 
 attribute_health <-
-  function(approach_multiexposure = NULL,
-           exp_central, exp_lower = NULL, exp_upper = NULL,
+  function(exp_central,
+           exp_lower = NULL, exp_upper = NULL,
            prop_pop_exp = 1,
            cutoff_central, cutoff_lower = NULL, cutoff_upper = NULL,
            rr_central = NULL, rr_lower = NULL, rr_upper = NULL,
@@ -34,8 +34,9 @@ attribute_health <-
            erf_eq_central = NULL, erf_eq_lower = NULL, erf_eq_upper = NULL,
            bhd_central, bhd_lower = NULL, bhd_upper = NULL,
            geo_id_raw = NULL, geo_id_aggregated = NULL,
-           info = NULL,
            summary_uncertainty = NULL){
+           approach_multiexposure = NULL,
+           info = NULL){
 
     output <-
       bestcost::attribute(
