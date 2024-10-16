@@ -9,7 +9,6 @@
 #' @import purrr
 #' @importFrom tibble tibble
 #' @importFrom stats quantile
-#' @importFrom prevalence betaExpert
 #' @export
 #' @author Axel Luyten
 #' @note Experimental function
