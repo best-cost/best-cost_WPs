@@ -78,7 +78,7 @@ install.packages("../testing/input/bestcost_0.0.0.1.zip", repos=NULL, type='sour
 
 
 # Package as .tar.gz file
-devtools::build(path = "../testing/input/") # Save current state of package as tar.gz file (e.g. to directly test changes in functions)
+devtools::build(path = "../") # Save current state of package as tar.gz file (e.g. to directly test changes in functions)
 install.packages("../testing/input/bestcost_0.0.0.1.tar.gz", repos=NULL, type='source') # Install package from source
 
 library(bestcost)
