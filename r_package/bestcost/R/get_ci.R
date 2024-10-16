@@ -47,7 +47,6 @@ get_ci <- function(rr_central = NULL, rr_lower = NULL, rr_upper = NULL,
 
     vector_rr_ci <- c(rr_lower, rr_upper)
     vector_probabilities <- c(0.025, 0.975)
-    par <- 2 # shape parameter of the gamma distribution
 
     f_gamma <-
       function(par, rr_central, vector_propabilities, vector_rr_ci) {
@@ -72,10 +71,36 @@ get_ci <- function(rr_central = NULL, rr_lower = NULL, rr_upper = NULL,
         rgamma(n = n_sim, fit[1], fit[2])
       }
 
-    ## Define helper function to fit rbeta distribution for disability weights
-    # dw_par <- prevalence::betaExpert(dw_central, dw_lower, dw_upper, method = "mean")
-    #
-    # dw_sim <- rbeta(n = n_sim, shape1 = dw_par["alpha"], shape2 = dw_par["beta"])
+    ## Define helper function for disability weight gamma distribution with optimization
+    ## define beta fitting and drawing functions
+#
+#     vector_dw_ci <- c(dw_lower, dw_upper)
+#     vector_probabilities <- c(0.025, 0.975)
+#
+#     f_beta <-
+#       function(par, dw_central, vector_propabilities, vector_dw_ci) {
+#         # qfit <- qbeta(p = vector_propabilities, shape1 = par, shape2 = ( ( par - (par * dw_central) ) / dw_central )  )
+#         qfit <- qbeta(p = vector_propabilities, shape1 = par, shape2 = 1)
+#         return(sum((qfit - vector_dw_ci)^2))
+#       }
+#
+#     optim_beta <-
+#       function(dw_central, vector_dw_ci) {
+#         vector_propabilities <- c(0.025, 0.975)
+#         f <- optimize(f = f_beta,
+#                       interval = c(0, 1e9),
+#                       dw_central = dw_central,
+#                       vector_propabilities = vector_probabilities,
+#                       vector_dw_ci = vector_dw_ci)
+#         return(c(f$minimum, f$minimum / dw_central))
+#       }
+#
+#     sim_beta <-
+#       function(n_sim, dw_central, vector_dw_ci) {
+#         fit <- optim_beta(dw_central, vector_dw_ci)
+#         rbeta(n = n_sim, fit[1], fit[2])
+#       }
+
 
     ## Create empty tibble to store simulated values & results in
     dat <- tibble(rr = rep(NA, times = n_sim),
@@ -132,9 +157,24 @@ get_ci <- function(rr_central = NULL, rr_lower = NULL, rr_upper = NULL,
         dplyr::mutate(bhd = bhd_central)}
 
     if (!is.null(dw_lower)) {
+
+      # Using beta distribution using prevalence::betaExpert()
+      # dw_sim <- prevalence::betaExpert(dw_central, dw_lower, dw_upper, method = "mean")
+      # dat <- dat |>
+      #   dplyr::mutate(dw = rbeta(n = 1000, shape1 = as.numeric(unname(dw_sim["alpha"])), shape2 = as.numeric(unname(dw_sim["beta"]))))
+
+      # Using beta distribution using qbeta()
+      # dat <- dat |>
+      #   dplyr::mutate(dw = sim_beta(n_sim = n_sim,
+      #                               dw_central = dw_central,
+      #                               vector_dw_ci = vector_dw_ci))
+
+
+      # Using normal distribution
       sd_dw <- (dw_upper - dw_lower) / (2 * 1.96)
       dat <- dat |>
         dplyr::mutate(dw = rnorm(n_sim, mean = dw_central, sd = sd_dw))
+
     } else {
       dat <- dat |>
         dplyr::mutate(dw = dw_central)

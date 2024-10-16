@@ -353,8 +353,10 @@ bestcost_pm_stroke_niph <-
         y = MRBRT_stroke$mean,
         method = "natural"))
 
-View(bestcost_pm_stroke_niph)
+# View(bestcost_pm_stroke_niph)
+# print(bestcost_pm_stroke_niph$main[, c("pop_fraction", "impact_rounded")])
 ```
+
 
 
 ```{r absolute risk}
@@ -483,11 +485,16 @@ bestcost_pm_yld_singlebhd_with_summary_uncertainty  <-
     rr_upper = 1.179,
     erf_increment = 10, 
     erf_shape = "log_linear", 
-    dw_central = 0.9, dw_lower = 0.88, dw_upper = 0.93,
+    # dw_central = 0.9, dw_lower = 0.88, dw_upper = 0.93,
+    dw_central = 0.5, dw_lower = 0.25, dw_upper = 0.75,
     summary_uncertainty = TRUE
     )
 
-View(bestcost_pm_yld_singlebhd_with_summary_uncertainty)
+# View(bestcost_pm_yld_singlebhd_with_summary_uncertainty)
+bestcost_pm_yld_singlebhd_with_summary_uncertainty[["detailed"]][["uncertainty"]]$central_estimate
+bestcost_pm_yld_singlebhd_with_summary_uncertainty[["detailed"]][["uncertainty"]]$lower_estimate
+bestcost_pm_yld_singlebhd_with_summary_uncertainty[["detailed"]][["uncertainty"]]$upper_estimate
+print("Main estimate: ") ; bestcost_pm_yld_singlebhd_with_summary_uncertainty[["main"]][["impact_rounded"]]
 ```
 
 ```{r Test summary uncertainty ar}
