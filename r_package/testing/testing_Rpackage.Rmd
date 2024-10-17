@@ -212,7 +212,8 @@ bestcost_pm_copd_geo_social <-
 bestcost_pm_alri_erf_dots_splinefun <-
   bestcost::attribute_health(
     exp_central = airqplus_pm_copd$mean_concentration,
-    cutoff_central = airqplus_pm_copd$cut_off_value,   
+    cutoff_central = airqplus_pm_copd$cut_off_value,
+    # cutoff_central = 0,
     bhd_central = airqplus_pm_copd$incidents_per_100_000_per_year/1E5*airqplus_pm_copd$population_at_risk,
     # GBD2019 ERF for PM and lower respiratory infections
     erf_eq_central = 
@@ -224,8 +225,10 @@ bestcost_pm_alri_erf_dots_splinefun <-
 
 # View(bestcost_pm_alri_erf_dots_splinefun)
 
+# check_bestcost(result_list_bestcost = bestcost_pm_alri_erf_dots_splinefun,
+#                result_vector_alternative = c(2263)) # Results on 10 October 2024 (with cutoff = 0)
 check_bestcost(result_list_bestcost = bestcost_pm_alri_erf_dots_splinefun,
-               result_vector_alternative = c(2263)) # Results on 10 October 2024
+               result_vector_alternative = c(1057)) # Results on 10 October 2024 (with cutoff = 5 = airqplus_pm_copd$cut_off_value)
 ```
 
 ```{r single exposure & user-defined points for relative risk using approxfun}
@@ -234,7 +237,8 @@ check_bestcost(result_list_bestcost = bestcost_pm_alri_erf_dots_splinefun,
 bestcost_pm_alri_erf_dots_approxfun <-
   bestcost::attribute_health(
     exp_central = airqplus_pm_copd$mean_concentration,
-    cutoff_central = airqplus_pm_copd$cut_off_value,   
+    cutoff_central = airqplus_pm_copd$cut_off_value,
+    # cutoff_central = 0,
     bhd_central = airqplus_pm_copd$incidents_per_100_000_per_year/1E5*airqplus_pm_copd$population_at_risk,
     # GBD2019 ERF for PM and lower respiratory infections
     erf_eq_central = 
@@ -246,8 +250,10 @@ bestcost_pm_alri_erf_dots_approxfun <-
 
 # View(bestcost_pm_alri_erf_dots_approxfun)
 
+# check_bestcost(result_list_bestcost = bestcost_pm_alri_erf_dots_approxfun,
+#                result_vector_alternative = c(2254)) # Results on 10 October 2024 (with cutoff = 0)
 check_bestcost(result_list_bestcost = bestcost_pm_alri_erf_dots_approxfun,
-               result_vector_alternative = c(2254)) # Results on 10 October 2024
+               result_vector_alternative = c(1052)) # Results on 10 October 2024 (with cutoff = 5 = airqplus_pm_copd$cut_off_value)
 ```
 
 
@@ -310,8 +316,8 @@ bestcost_noise_ihd_expDist <-
     erf_shape = "log_linear",
     info = data.frame(pollutant = "road_noise", outcome = "YLD"))
 
+# View(bestcost_noise_ihd_expDist)
 
-View(bestcost_noise_ihd_expDist)
 check_bestcost(result_list_bestcost = bestcost_noise_ihd_expDist,
                result_vector_alternative = niph_noise_ihd_result)
 
@@ -341,11 +347,12 @@ bestcost_noise_ihd_expDist_geo <-
 MRBRT_stroke <- readRDS(file = "../testing/input/MRBRT_stroke.RDS")
 pop_data <- readRDS(file = "../testing/input/pop_data.RDS")
 
-bestcost_pm_stroke_niph <-
+bestcost_pm_stroke_mr_brt <-
   bestcost::attribute_health(
     exp_central = pop_data$Concentration,
     prop_pop_exp = pop_data$Viken,
-    cutoff_central = 4.15,   
+    cutoff_central = 5,
+    # cutoff_central = 0,
     bhd_central = 4500,
     erf_eq_central = 
       stats::splinefun(
@@ -353,7 +360,12 @@ bestcost_pm_stroke_niph <-
         y = MRBRT_stroke$mean,
         method = "natural"))
 
-View(bestcost_pm_stroke_niph)
+# View(bestcost_pm_stroke_mr_brt)
+
+# check_bestcost(result_list_bestcost = bestcost_pm_stroke_mr_brt,
+#                result_vector_alternative = c(249)) # Results on 17 October 2024 (with cutoff = 0)
+check_bestcost(result_list_bestcost = bestcost_pm_stroke_mr_brt,
+               result_vector_alternative = c(32)) # Results on 17 October 2024 (with cutoff = 5 = airqplus_pm_copd$cut_off_value)
 ```
 
 
@@ -487,7 +499,7 @@ bestcost_pm_yld_singlebhd_with_summary_uncertainty  <-
     summary_uncertainty = TRUE
     )
 
-View(bestcost_pm_yld_singlebhd_with_summary_uncertainty)
+# View(bestcost_pm_yld_singlebhd_with_summary_uncertainty)
 ```
 
 ```{r Test summary uncertainty ar}

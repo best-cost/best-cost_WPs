@@ -100,6 +100,14 @@ get_risk <-
 
      erf <- erf_eq
 
+     if(!is.null(cutoff)){
+       exp <- exp - cutoff
+
+       if (exp < 0){
+         exp <- 0 # Avoid negative exposures
+       }
+     }
+
 
     }
 
