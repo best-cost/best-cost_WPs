@@ -25,7 +25,13 @@ get_ci(
   erf_eq = NULL,
   prop_pop_exp = NULL,
   approach_risk,
-  pop_exp = NULL
+  pop_exp = NULL,
+  year_of_analysis = NULL,
+  input = NULL,
+  health_metric = NULL,
+  min_age = NULL,
+  max_age = NULL,
+  approach_exposure = NULL
 )
 }
 \arguments{
@@ -46,6 +52,16 @@ get_ci(
 \item{approach_risk}{\code{String} showing the risk risk method. To choose between: "relative_risk" (default) or "absolute_risk".}
 
 \item{pop_exp}{\code{Numeric value} or {vector} showing the population exposed for each of the exposure categories. The length of this input variable must be the same as "exp".}
+
+\item{year_of_analysis}{\code{Numeric value} of the year of analysis, which corresponds to the first year of the life table.}
+
+\item{health_metric}{\code{String} showing the change in outcome metric to assess attributable health impacts. To choose between "same_input_output" (default), "yld_from_prevalence", "deaths_from_lifetable", "yll_from_lifetable", "yld_from_lifetable" and "daly_from_lifetable".}
+
+\item{min_age}{\code{Numberic value} of the minimal age to be considered for adults (by default 30, i.e. 30+).}
+
+\item{max_age}{\code{Numberic value} of the maximal age to be considered for infants/children (by default 0, i.e. below 1 year old).}
+
+\item{approach_exposure}{\code{String} showing whether air pollution is constant or only in one year. Options: "single_year" (default), "constant"}
 }
 \value{
 This function returns a Monte Carlo summary uncertainty for the attributable health impacts.

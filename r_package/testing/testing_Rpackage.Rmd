@@ -520,8 +520,42 @@ bestcost_noise_ha_ar_with_summary_uncertainty <-
 print("Summary uncertainty central estimate: ")
 bestcost_noise_ha_ar_with_summary_uncertainty[["detailed"]][["uncertainty"]]$central_estimate
 print("Main estimate: ")
-bestcost_noise_ha_ar[["main"]][["impact_rounded"]]
+bestcost_noise_ha_ar_with_summary_uncertainty[["main"]][["impact_rounded"]]
 ```
+
+```{r Test summary uncertainty lifetable premature deaths}
+bestcost_pm_deaths_lifetable_airqplus_with_summary_uncertainty <-
+  bestcost::attribute_deaths_from_lifetable(
+    approach_exposure = "single_year",
+    approach_newborns = "with_newborns",
+    exp_central = airqplus_pm_deaths_yll[["input"]]$mean_concentration, 
+    cutoff_central = airqplus_pm_deaths_yll[["input"]]$cut_off_value,
+    rr_central = airqplus_pm_deaths_yll[["input"]]$relative_risk,
+    rr_lower = airqplus_pm_deaths_yll[["input"]]$relative_risk_lower,
+    rr_upper = airqplus_pm_deaths_yll[["input"]]$relative_risk_upper,
+    erf_increment = 10, 
+    erf_shape = gsub("-", "_", airqplus_pm_deaths_yll[["input"]]$calculation_method),
+    first_age_pop = first(airqplus_pm_deaths_yll[["pop"]]$age_from...),
+    last_age_pop = last(airqplus_pm_deaths_yll[["pop"]]$age_from...),
+    deaths_male = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_male,
+    deaths_female = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_female,
+    population_midyear_male = airqplus_pm_deaths_yll[["pop"]]$midyear_population_male,
+    population_midyear_female = airqplus_pm_deaths_yll[["pop"]]$midyear_population_female, 
+    year_of_analysis =  airqplus_pm_deaths_yll[["input"]]$start_year, 
+    min_age = airqplus_pm_deaths_yll[["input"]]$apply_rr_from_age,
+    summary_uncertainty = TRUE)
+
+# View(bestcost_pm_deaths_lifetable_airqplus_with_summary_uncertainty)
+
+print("Summary uncertainty central estimate: ")
+uncertainty <- bestcost_pm_deaths_lifetable_airqplus_with_summary_uncertainty[["detailed"]][["uncertainty"]]
+uncertainty[uncertainty$sex == "total", "central_estimate"] |>  pull()
+uncertainty[uncertainty$sex == "total", "lower_estimate"] |>  pull()
+uncertainty[uncertainty$sex == "total", "upper_estimate"] |>  pull()
+print("Main estimate: ")
+bestcost_pm_deaths_lifetable_airqplus_with_summary_uncertainty[["main"]][["impact_rounded"]] 
+```
+
 
 ### Multiple exposure
 
@@ -610,7 +644,7 @@ bestcost_pm_deaths_lifetable_airqplus <-
     population_midyear_female = airqplus_pm_deaths_yll[["pop"]]$midyear_population_female, 
     year_of_analysis =  airqplus_pm_deaths_yll[["input"]]$start_year, 
     min_age = airqplus_pm_deaths_yll[["input"]]$apply_rr_from_age,
-    summary_uncertainty = NULL)
+    summary_uncertainty = TRUE)
 
 # View(bestcost_pm_deaths_lifetable_airqplus)
 

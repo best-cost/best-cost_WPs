@@ -144,7 +144,8 @@ attribute <-
 
     ## Lifetable case
     if (!is.null(summary_uncertainty) & grepl("from_lifetable", health_metric)) {
-      get_ci(rr_central = rr_central, rr_lower = rr_lower, rr_upper = rr_upper,
+      output[["detailed"]][["uncertainty"]] <-
+        get_ci(rr_central = rr_central, rr_lower = rr_lower, rr_upper = rr_upper,
              exp_central = exp_central, exp_lower = exp_lower, exp_upper = exp_upper,
              cutoff_central = cutoff_central, cutoff_lower = cutoff_lower, cutoff_upper = cutoff_upper,
              bhd_central = bhd_central, bhd_lower = bhd_lower, bhd_upper = bhd_upper,
@@ -158,7 +159,9 @@ attribute <-
              year_of_analysis = year_of_analysis,
              input = input,
              health_metric = health_metric,
-             min_age = min_age
+             min_age = min_age,
+             max_age = max_age,
+             approach_exposure = output$main$approach_exposure[1]
       )
     }
 

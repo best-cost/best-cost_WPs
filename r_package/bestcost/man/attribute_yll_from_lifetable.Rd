@@ -34,6 +34,7 @@ attribute_yll_from_lifetable(
   min_age = NULL,
   max_age = NULL,
   info = NULL,
+  summary_uncertainty = NULL,
   duration_central = 100
 )
 }
