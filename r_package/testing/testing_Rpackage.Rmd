@@ -50,6 +50,9 @@ devtools::load_all(export_all = FALSE)
 # Load data
 load("../testing/input/data/input_data_for_testing_Rpackage.RData")
 
+# Unit meeting demo
+data <- airqplus_pm_copd |> 
+  mutate(prevalence = incidents_per_100_000_per_year/1E5*population_at_risk)
 ```
 
 
@@ -89,6 +92,29 @@ library(bestcost)
 ## Attributable health impact
 
 ### Single baseline health data
+
+```{r Demo unit meeting}
+
+# Calculate COPD cases attributable to PM exposure
+results_pm_copd <-
+  bestcost::attribute_health(
+    exp_central = data$mean_concentration,                      # 8.85
+    cutoff_central = data$cut_off_value,                        # 5
+    bhd_central = data$prevalence,                              # 30747
+    bhd_lower = data$prevalence - 1000,                         # 29747
+    bhd_upper = data$prevalence + 1000,                         # 31747
+    rr_central = data$relative_risk,                            # 1.36
+    rr_lower = data$relative_risk_lower,                        # 1.124
+    rr_upper = data$relative_risk_upper,                        # 1.664
+    erf_increment = 10,                                           
+    erf_shape = "log_linear", 
+    info = "pm_copd_assessment_1")
+
+# Check results
+View(results_pm_copd)
+View(results_pm_copd$main)
+View(results_pm_copd$detailed$raw)
+```
 
 ```{r single exposure value}
 # Assess attributable cases using the AirQ+ export as input data
