@@ -124,7 +124,9 @@ attribute <-
       bestcost:::get_output(impact_raw)
 
     # Get summary uncertainty
-    if (!is.null(summary_uncertainty)) {
+
+    ## RR & absolute risk case
+    if (!is.null(summary_uncertainty) & !grepl("from_lifetable", health_metric)) {
       output[["detailed"]][["uncertainty"]] <-
         get_ci(rr_central = rr_central, rr_lower = rr_lower, rr_upper = rr_upper,
                exp_central = exp_central, exp_lower = exp_lower, exp_upper = exp_upper,
@@ -140,6 +142,25 @@ attribute <-
         )
     }
 
+    ## Lifetable case
+    if (!is.null(summary_uncertainty) & grepl("from_lifetable", health_metric)) {
+      get_ci(rr_central = rr_central, rr_lower = rr_lower, rr_upper = rr_upper,
+             exp_central = exp_central, exp_lower = exp_lower, exp_upper = exp_upper,
+             cutoff_central = cutoff_central, cutoff_lower = cutoff_lower, cutoff_upper = cutoff_upper,
+             bhd_central = bhd_central, bhd_lower = bhd_lower, bhd_upper = bhd_upper,
+             dw_central = dw_central, dw_lower = dw_lower, dw_upper = dw_upper,
+             erf_shape = erf_shape,
+             erf_increment = erf_increment,
+             erf_eq = erf_eq_central,
+             pop_exp = pop_exp,
+             prop_pop_exp = prop_pop_exp,
+             approach_risk = approach_risk,
+             year_of_analysis = year_of_analysis,
+             input = input,
+             health_metric = health_metric,
+             min_age = min_age
+      )
+    }
 
     return(output)
   }

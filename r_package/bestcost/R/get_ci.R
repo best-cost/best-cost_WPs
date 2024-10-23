@@ -26,7 +26,12 @@ get_ci <- function(rr_central = NULL, rr_lower = NULL, rr_upper = NULL,
                    erf_eq = NULL,
                    prop_pop_exp = NULL,
                    approach_risk,
-                   pop_exp = NULL # in absolute risk case
+                   pop_exp = NULL, # in absolute risk case
+                   # Lifetable
+                   year_of_analysis = NULL,
+                   input = NULL, # contains column "lifetable_with_pop_nest"
+                   health_metric = NULL,
+                   min_age = NULL
                    ){
 
   user_options <- options()
@@ -215,6 +220,24 @@ get_ci <- function(rr_central = NULL, rr_lower = NULL, rr_upper = NULL,
       )
 
     dat$paf <- unlist(dat$paf)
+
+    ## Lifetable ###############################################################
+
+    # Call get_pop_impact()
+
+    outcome_metric <-
+      gsub("_from_lifetable", "", unique(input$health_metric))
+
+    # Filter for central combination in "input"
+    #
+
+    # Rbind the existing data frame with the 1000 PAF values 3 times, so that we
+    # have the same 1000 PAF values for total, male and female lifetables
+    # (i.e. result is a df with 3000 rows)
+
+    # get_pop_impact()
+
+    # Call get_deaths_yll_yld()
 
     ## Multiply PAFs with bhd (& dw, if applicable)
     if ( !is.null(dw_central) & "dw" %in% names(dat) ) {
