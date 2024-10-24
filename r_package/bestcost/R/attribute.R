@@ -138,7 +138,8 @@ attribute <-
                erf_eq = erf_eq_central,
                pop_exp = pop_exp,
                prop_pop_exp = prop_pop_exp,
-               approach_risk = approach_risk
+               approach_risk = approach_risk,
+               health_metric = health_metric
         )
     }
 

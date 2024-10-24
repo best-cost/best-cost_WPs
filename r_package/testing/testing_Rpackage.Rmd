@@ -459,8 +459,7 @@ bestcost_pm_copd_with_summary_uncertainty <-
     )
 
 # View(bestcost_pm_copd_with_summary_uncertainty)
-
-print("Summary uncertainty central estimate: ")
+print("Summary uncertainty estimates: ")
 bestcost_pm_copd_with_summary_uncertainty[["detailed"]][["uncertainty"]]$central_estimate
 bestcost_pm_copd_with_summary_uncertainty[["detailed"]][["uncertainty"]]$lower_estimate
 bestcost_pm_copd_with_summary_uncertainty[["detailed"]][["uncertainty"]]$upper_estimate
@@ -492,6 +491,7 @@ bestcost_pm_yld_singlebhd_with_summary_uncertainty  <-
     )
 
 # View(bestcost_pm_yld_singlebhd_with_summary_uncertainty)
+print("Summary uncertainty estimates: ")
 bestcost_pm_yld_singlebhd_with_summary_uncertainty[["detailed"]][["uncertainty"]]$central_estimate
 bestcost_pm_yld_singlebhd_with_summary_uncertainty[["detailed"]][["uncertainty"]]$lower_estimate
 bestcost_pm_yld_singlebhd_with_summary_uncertainty[["detailed"]][["uncertainty"]]$upper_estimate
@@ -516,7 +516,6 @@ bestcost_noise_ha_ar_with_summary_uncertainty <-
     summary_uncertainty = TRUE)
 
 # View(bestcost_noise_ha_ar_with_summary_uncertainty$detailed$uncertainty)
-
 print("Summary uncertainty central estimate: ")
 bestcost_noise_ha_ar_with_summary_uncertainty[["detailed"]][["uncertainty"]]$central_estimate
 print("Main estimate: ")
