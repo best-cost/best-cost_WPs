@@ -11,7 +11,9 @@ Imports:
   stats,
   dplyr,
   purrr,
-  tidyr
+  tidyr,
+  stringr, 
+  tibble
 Depends: 
     R (>= 4.1.0)
 LazyData: true
