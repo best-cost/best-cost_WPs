@@ -1,7 +1,7 @@
 #' include_social
 
 #' @description Consider socio-economic aspects in the results
-#' @param output \code{List} produced by \code{healthiarattribute()} or \code{healthiarcompare()} as results
+#' @param output \code{List} produced by \code{healthiar::attribute()} or \code{healthiar::compare()} as results
 #' @param deprivation_weighting \code{Vector} with numeric values showing the deprivation index (indicator of economic wealth) of the fine geographical area (it should match with those used in \code{attribute} or \code{compare})
 #' @inheritParams attribute
 #'

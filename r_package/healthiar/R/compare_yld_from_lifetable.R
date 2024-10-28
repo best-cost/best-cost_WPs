@@ -57,7 +57,7 @@ compare_yld_from_lifetable <-
 
 
     output <-
-      healthiarcompare(
+      healthiar::compare(
         approach_multiexposure = approach_multiexposure,
         approach_comparison = approach_comparison,
         health_metric = "yld_from_lifetable",

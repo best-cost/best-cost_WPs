@@ -7,7 +7,7 @@
 include_cost(output, valuation)
 }
 \arguments{
-\item{output}{\code{List} produced by \code{healthiarattribute()} or \code{healthiarcompare()} as results}
+\item{output}{\code{List} produced by \code{healthiar::attribute()} or \code{healthiar::compare()} as results}
 
 \item{valuation}{\code{Numeric value} showing the value of statistical life which will be used in the health impact monetization}
 }

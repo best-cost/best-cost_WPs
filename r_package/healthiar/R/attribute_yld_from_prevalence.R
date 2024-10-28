@@ -34,7 +34,7 @@ attribute_yld_from_prevalence <-
 
 
     output <-
-      healthiarattribute(
+      healthiar::attribute(
         health_metric = "yld_from_prevalence",
         approach_risk = "relative_risk",
         approach_multiexposure = approach_multiexposure,

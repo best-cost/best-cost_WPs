@@ -25,7 +25,7 @@ attribute_health_ar <-
            summary_uncertainty = NULL){
 
     output <-
-      healthiarattribute(
+      healthiar::attribute(
         health_metric = "same_input_output",
         approach_multiexposure = NULL,
         approach_risk = "absolute_risk",

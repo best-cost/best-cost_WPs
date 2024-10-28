@@ -27,14 +27,14 @@ get_risk_and_pif <-
       input |>
       dplyr::mutate(
         rr_conc_1 =
-          healthiarget_risk(rr = rr,
+          healthiar::get_risk(rr = rr,
                              exp = exp_1,
                              cutoff_central = cutoff_central,
                              erf_increment = erf_increment,
                              erf_shape = unique(erf_shape)
                              ),
         rr_conc_2 =
-          healthiarget_risk(rr = rr,
+          healthiar::get_risk(rr = rr,
                              exp = exp_2,
                              cutoff_central = cutoff_central,
                              erf_increment = erf_increment,
@@ -46,7 +46,7 @@ get_risk_and_pif <-
       input_and_risk |>
       # Group by exp in case that there are different exposure categories
       dplyr::group_by(erf_ci) |>
-      dplyr::summarize(pif = healthiarget_pif(rr_conc_1 = rr_conc_1,
+      dplyr::summarize(pif = healthiar::get_pif(rr_conc_1 = rr_conc_1,
                                                rr_conc_2 = rr_conc_2,
                                                prop_pop_exp_1 = prop_pop_exp_1,
                                                prop_pop_exp_2 = prop_pop_exp_2))|>

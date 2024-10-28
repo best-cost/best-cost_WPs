@@ -2,7 +2,7 @@
 
 #' @description Monetize health impacts
 #'
-#' @param output \code{List} produced by \code{healthiarattribute()} or \code{healthiarcompare()} as results
+#' @param output \code{List} produced by \code{healthiar::attribute()} or \code{healthiar::compare()} as results
 #' @param valuation \code{Numeric value} showing the value of statistical life which will be used in the health impact monetization
 #'
 #' @return Description of the return value.

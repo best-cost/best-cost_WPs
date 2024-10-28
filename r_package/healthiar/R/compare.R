@@ -94,7 +94,7 @@ compare <-
 
     # Calculate attributable health impacts in the scenario 1
     impact_raw_1 <-
-      healthiarattribute(
+      healthiar::attribute(
         approach_multiexposure = approach_multiexposure,
         approach_risk = approach_risk,
         health_metric = health_metric,
@@ -127,7 +127,7 @@ compare <-
 
     # Calculate attributable health impacts in the scenario 2
     impact_raw_2 <-
-      healthiarattribute(
+      healthiar::attribute(
         approach_multiexposure = approach_multiexposure,
         approach_risk = approach_risk,
         health_metric = health_metric,

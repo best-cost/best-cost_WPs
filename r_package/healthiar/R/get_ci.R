@@ -140,7 +140,7 @@ get_ci <- function(rr_central = NULL, rr_lower = NULL, rr_upper = NULL,
         dplyr::mutate(dw = dw_central)
     }
 
-    # Determine rr_conc using call to healthiarget_risk()
+    # Determine rr_conc using call to healthiar::get_risk()
     dat <- dat |>
       dplyr::mutate(
         rr_conc = purrr::pmap(
@@ -209,7 +209,7 @@ get_ci <- function(rr_central = NULL, rr_lower = NULL, rr_upper = NULL,
     dat <- dat |>
       dplyr::mutate(
         dplyr::across(.cols = dplyr::starts_with("exp_"),
-                      .fns = ~ healthiarget_risk(exp = .x, erf_eq = erf_eq) / 100,
+                      .fns = ~ healthiar::get_risk(exp = .x, erf_eq = erf_eq) / 100,
                       .names = "risk_{str_remove(.col, 'exp_')}")
       )
 

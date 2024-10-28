@@ -24,7 +24,7 @@ get_paf <-
     # (same result using paf and pif for comparison with no effect)
 
     paf <-
-      healthiarget_pop_fraction(rr_conc_1 = rr_conc,
+      healthiar::get_pop_fraction(rr_conc_1 = rr_conc,
                                  rr_conc_2 = rep(1, length(rr_conc)),
                                  prop_pop_exp_1 = prop_pop_exp,
                                  prop_pop_exp_2 = rep(1, length(prop_pop_exp)))

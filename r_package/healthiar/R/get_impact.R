@@ -116,7 +116,7 @@ get_impact <-
       impact_raw_main <-
         input |>
         dplyr::mutate(
-          absolute_risk_as_percent = healthiarget_risk(exp = exp, erf_eq = erf_eq) ,
+          absolute_risk_as_percent = healthiar::get_risk(exp = exp, erf_eq = erf_eq) ,
           impact = absolute_risk_as_percent/100 * pop_exp)
 
       impact_raw <- list(main = impact_raw_main)

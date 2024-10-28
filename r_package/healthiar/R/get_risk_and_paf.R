@@ -29,7 +29,7 @@ get_risk_and_paf <-
       dplyr::mutate(
         # Obtain the relative risk for the relevant concentration
         rr_conc =
-          healthiarget_risk(rr = rr,
+          healthiar::get_risk(rr = rr,
                              exp = exp,
                              cutoff_central = cutoff_central,
                              erf_increment = erf_increment,
@@ -40,7 +40,7 @@ get_risk_and_paf <-
       input_and_risk |>
       # Group by exp in case that there are different exposure categories
       dplyr::group_by(erf_ci, exp_ci) |>
-      dplyr::summarize(paf = healthiarget_paf(rr_conc = rr_conc,
+      dplyr::summarize(paf = healthiar::get_paf(rr_conc = rr_conc,
                                                prop_pop_exp = prop_pop_exp),
                        .groups = "drop")|>
 

@@ -41,7 +41,7 @@ compare_health <-
 
 
     output <-
-      healthiarcompare(
+      healthiar::compare(
         approach_multiexposure = approach_multiexposure,
         approach_comparison = approach_comparison,
         health_metric = "same_input_output",
