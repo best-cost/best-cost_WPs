@@ -39,7 +39,7 @@ attribute_health <-
            info = NULL){
 
     output <-
-      bestcost::attribute(
+      healthiarattribute(
         health_metric = "same_input_output",
         approach_risk = "relative_risk",
         approach_multiexposure = approach_multiexposure,

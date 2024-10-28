@@ -94,7 +94,7 @@ compare <-
 
     # Calculate attributable health impacts in the scenario 1
     impact_raw_1 <-
-      bestcost::attribute(
+      healthiarattribute(
         approach_multiexposure = approach_multiexposure,
         approach_risk = approach_risk,
         health_metric = health_metric,
@@ -127,7 +127,7 @@ compare <-
 
     # Calculate attributable health impacts in the scenario 2
     impact_raw_2 <-
-      bestcost::attribute(
+      healthiarattribute(
         approach_multiexposure = approach_multiexposure,
         approach_risk = approach_risk,
         health_metric = health_metric,
@@ -173,7 +173,7 @@ compare <-
 
       # Identify the columns that are to be used to join impact_raw_1 and _2
       joining_columns_output <-
-        bestcost:::find_joining_columns(
+        healthiar:find_joining_columns(
           df1 = impact_raw_1[["detailed"]][["raw"]],
           df2 = impact_raw_2[["detailed"]][["raw"]],
           except = scenario_specific_arguments)
@@ -216,7 +216,7 @@ compare <-
 
       # Compile input data of scenario 1
       input_1 <-
-        bestcost:::compile_input(
+        healthiar:compile_input(
           health_metric = health_metric,
           approach_risk = approach_risk,
           exp_central = exp_central_1, exp_lower = exp_lower_1, exp_upper = exp_upper_1,
@@ -249,7 +249,7 @@ compare <-
 
       # Compile input data of scenario 2
       input_2 <-
-        bestcost:::compile_input(
+        healthiar:compile_input(
           health_metric = health_metric,
           approach_risk = approach_risk,
           exp_central = exp_central_2, exp_lower = exp_lower_2, exp_upper = exp_upper_2,
@@ -293,7 +293,7 @@ compare <-
 
       # Get identical columns to join data frames (as above)
       joining_columns_input <-
-        bestcost:::find_joining_columns(
+        healthiar:find_joining_columns(
           df1 = input_1,
           df2 = input_2,
           except =  scenario_specific_arguments_excluding_bhd)
@@ -309,7 +309,7 @@ compare <-
 
       # Calculate the health impacts for each case (uncertainty, category, geo area...)
       impact_raw <-
-        bestcost:::get_impact(
+        healthiar:get_impact(
           input = input,
           year_of_analysis = year_of_analysis,
           min_age = min_age,
@@ -324,7 +324,7 @@ compare <-
       # in a list
 
       output <-
-        bestcost:::get_output(impact_raw = impact_raw)
+        healthiar:get_output(impact_raw = impact_raw)
 
       output[["detailed"]][["scenario_1"]] <- impact_raw_1
       output[["detailed"]][["scenario_2"]] <- impact_raw_2

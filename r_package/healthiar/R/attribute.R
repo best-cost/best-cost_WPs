@@ -80,7 +80,7 @@ attribute <-
 
     # Compile input data
     input <-
-      bestcost:::compile_input(
+      healthiar:compile_input(
         approach_multiexposure = approach_multiexposure,
         exp_central = exp_central, exp_lower = exp_lower, exp_upper = exp_upper,
         prop_pop_exp = prop_pop_exp,
@@ -112,7 +112,7 @@ attribute <-
 
     # Calculate the health impacts for each case (uncertainty, category, geo area...)
     impact_raw <-
-      bestcost:::get_impact(input = input,
+      healthiar:get_impact(input = input,
                             year_of_analysis = year_of_analysis,
                             min_age = min_age,
                             max_age = max_age,
@@ -121,7 +121,7 @@ attribute <-
 
     # Get the main and detailed output by aggregating and/or filtering cases (rows)
     output <-
-      bestcost:::get_output(impact_raw)
+      healthiar:get_output(impact_raw)
 
     # Get summary uncertainty
     if (!is.null(summary_uncertainty)) {

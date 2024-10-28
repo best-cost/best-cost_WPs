@@ -71,7 +71,7 @@ get_risk_and_pop_fraction <-
       input_with_risk_and_pop_fraction <- input_with_risk_and_pop_fraction |>
         # Obtain the relative risk for the relevant concentration
         dplyr::mutate(rr_conc =
-                        bestcost::get_risk(rr = rr,
+                        healthiarget_risk(rr = rr,
                                            exp = exp,
                                            cutoff = cutoff,
                                            erf_increment = erf_increment,
@@ -80,14 +80,14 @@ get_risk_and_pop_fraction <-
     } else { # If PIF
       input_with_risk_and_pop_fraction <- input_with_risk_and_pop_fraction |>
         dplyr::mutate(rr_conc_1 =
-                        bestcost::get_risk(rr = rr,
+                        healthiarget_risk(rr = rr,
                                            exp = exp_1,
                                            cutoff = cutoff,
                                            erf_increment = erf_increment,
                                            erf_shape = erf_shape,
                                            erf_eq = erf_eq),
                       rr_conc_2 =
-                        bestcost::get_risk(rr = rr,
+                        healthiarget_risk(rr = rr,
                                            exp = exp_2,
                                            cutoff = cutoff,
                                            erf_increment = erf_increment,
@@ -151,7 +151,7 @@ get_risk_and_pop_fraction <-
         input_with_risk_and_pop_fraction <- input_with_risk_and_pop_fraction |>
         dplyr::mutate(
           pop_fraction =
-            bestcost::get_pop_fraction(rr_conc_1 = rr_conc,
+            healthiarget_pop_fraction(rr_conc_1 = rr_conc,
                                        rr_conc_2 = 1,
                                        prop_pop_exp_1 = prop_pop_exp,
                                        prop_pop_exp_2 = prop_pop_exp))
@@ -159,7 +159,7 @@ get_risk_and_pop_fraction <-
         input_with_risk_and_pop_fraction <- input_with_risk_and_pop_fraction |>
         dplyr::mutate(
           pop_fraction =
-            bestcost::get_pop_fraction(rr_conc_1 = rr_conc_1,
+            healthiarget_pop_fraction(rr_conc_1 = rr_conc_1,
                                        rr_conc_2 = rr_conc_2,
                                        prop_pop_exp_1 = prop_pop_exp_1,
                                        prop_pop_exp_2 = prop_pop_exp_2)) }

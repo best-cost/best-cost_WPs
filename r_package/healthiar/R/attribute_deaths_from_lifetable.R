@@ -39,7 +39,7 @@ attribute_deaths_from_lifetable <-
            info = NULL){
 
     output <-
-      bestcost::attribute(
+      healthiarattribute(
         health_metric = "deaths_from_lifetable",
         approach_risk = "relative_risk",
         approach_multiexposure = approach_multiexposure,

@@ -34,7 +34,7 @@ attribute_yld_from_prevalence <-
 
 
     output <-
-      bestcost::attribute(
+      healthiarattribute(
         health_metric = "yld_from_prevalence",
         approach_risk = "relative_risk",
         approach_multiexposure = approach_multiexposure,

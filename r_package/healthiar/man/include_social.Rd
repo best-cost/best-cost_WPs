@@ -7,7 +7,7 @@
 include_social(output, deprivation_weight, geo_id_raw)
 }
 \arguments{
-\item{output}{\code{List} produced by \code{bestcost::attribute()} or \code{bestcost::compare()} as results}
+\item{output}{\code{List} produced by \code{healthiarattribute()} or \code{healthiarcompare()} as results}
 
 \item{geo_id_raw}{\code{Vector} showing the id code of the each geographic area considered in the assessment. If a vector is entered here, the data for each geographical area have to be provided as list in the corresponding arguments.}
 

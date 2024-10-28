@@ -39,7 +39,7 @@ attribute_yll_from_lifetable <-
            duration_central = 100){
 
     output <-
-      bestcost::attribute(
+      healthiarattribute(
         health_metric = "yll_from_lifetable", # Set outcome metric
         approach_risk = "relative_risk",
         approach_multiexposure = approach_multiexposure,

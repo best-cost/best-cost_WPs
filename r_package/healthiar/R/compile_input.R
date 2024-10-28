@@ -177,7 +177,7 @@ compile_input <-
     input_wo_lifetable <-
       dplyr::bind_cols(input_wo_lifetable, erf_data) |>
       # Add additional (meta-)information
-      bestcost:::add_info(info = info) |>
+      healthiar:add_info(info = info) |>
       # Information derived from input data
       dplyr::mutate(
         # Add age_max and age_min (not needed without life table)

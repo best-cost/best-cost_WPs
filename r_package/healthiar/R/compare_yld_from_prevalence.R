@@ -40,7 +40,7 @@ compare_yld_from_prevalence <-
            info_1 = NULL, info_2 = NULL){
 
     output <-
-      bestcost::compare(
+      healthiarcompare(
         approach_multiexposure = approach_multiexposure,
         approach_comparison = approach_comparison,
         health_metric = "yld_from_prevalence",

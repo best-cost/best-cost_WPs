@@ -1,7 +1,7 @@
 #' include_social
 
 #' @description Consider socio-economic aspects in the results
-#' @param output \code{List} produced by \code{bestcost::attribute()} or \code{bestcost::compare()} as results
+#' @param output \code{List} produced by \code{healthiarattribute()} or \code{healthiarcompare()} as results
 #' @param deprivation_weighting \code{Vector} with numeric values showing the deprivation index (indicator of economic wealth) of the fine geographical area (it should match with those used in \code{attribute} or \code{compare})
 #' @inheritParams attribute
 #'
@@ -37,7 +37,7 @@ include_social <- function(output,
 
   # Based on the new output_raw that includes social aspects
   # Recalculate output
-  output_social <- bestcost:::get_output(output_social)
+  output_social <- healthiar:get_output(output_social)
 
   # Calculate the weighting
 
