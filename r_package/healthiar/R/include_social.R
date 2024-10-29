@@ -37,7 +37,7 @@ include_social <- function(output,
 
   # Based on the new output_raw that includes social aspects
   # Recalculate output
-  output_social <- healthiar::get_output(output_social)
+  output_social <- healthiar:::get_output(output_social)
 
   # Calculate the weighting
 

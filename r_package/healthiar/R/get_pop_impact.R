@@ -515,7 +515,7 @@ get_pop_impact <-
     if (outcome_metric != "yld" & outcome_metric != "daly"){ # YLL & premature deaths case
 
       joining_columns_pop_impact <-
-        healthiar::find_joining_columns(input_with_risk_and_pop_fraction,
+        healthiar:::find_joining_columns(input_with_risk_and_pop_fraction,
                                         pop,
                                         except = "lifetable_with_pop_nest")
 

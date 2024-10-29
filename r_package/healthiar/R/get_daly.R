@@ -43,7 +43,7 @@ get_daly <-
 
     for(o in c("yll", "yld" )){
       impact_yll_yld_raw[[o]] <-
-        healthiar::get_deaths_yll_yld(
+        healthiar:::get_deaths_yll_yld(
           outcome_metric = "yll",
           pop_impact = pop_impact,
           year_of_analysis = year_of_analysis,
@@ -56,7 +56,7 @@ get_daly <-
     # Identify the common and identical columns (joining columns)
     # Remove impact (it can never be a joining column)
     joining_columns_yll_yld <-
-      healthiar::find_joining_columns(
+      healthiar:::find_joining_columns(
         df1 = impact_yll_yld_raw[["yll"]][["main"]],
         df2 = impact_yll_yld_raw[["yld"]][["main"]],
         except = "impact")

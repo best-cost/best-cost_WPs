@@ -29,7 +29,7 @@ get_impact <-
     if(unique(input$approach_risk) == "relative_risk"){
       # Get pop_fraction and add to the input data frame
       input_with_risk_and_pop_fraction <-
-        healthiar::get_risk_and_pop_fraction(input = input,
+        healthiar:::get_risk_and_pop_fraction(input = input,
                                              pop_fraction_type = pop_fraction_type)
 
       if(unique(input$health_metric) %in% "same_input_output") {
@@ -70,7 +70,7 @@ get_impact <-
 
           # Get population impact ####
           pop_impact <-
-            healthiar::get_pop_impact(
+            healthiar:::get_pop_impact(
               year_of_analysis = year_of_analysis,
               input_with_risk_and_pop_fraction = input_with_risk_and_pop_fraction,
               outcome_metric = outcome_metric,
@@ -78,7 +78,7 @@ get_impact <-
 
 
           impact_raw <-
-            healthiar::get_deaths_yll_yld(
+            healthiar:::get_deaths_yll_yld(
               outcome_metric = outcome_metric,
               pop_impact = pop_impact,
               year_of_analysis = year_of_analysis,
@@ -90,7 +90,7 @@ get_impact <-
     } else if (unique(input$health_metric) %in% "daly_from_lifetable"){
 
       pop_impact <-
-        healthiar::get_pop_impact(
+        healthiar:::get_pop_impact(
           year_of_analysis = year_of_analysis,
           input_with_risk_and_pop_fraction = input_with_risk_and_pop_fraction,
           outcome_metric = "daly",
@@ -98,7 +98,7 @@ get_impact <-
 
 
       impact_raw <-
-        healthiar::get_daly(
+        healthiar:::get_daly(
           outcome_metric = outcome_metric,
           pop_impact = pop_impact,
           year_of_analysis = year_of_analysis,
