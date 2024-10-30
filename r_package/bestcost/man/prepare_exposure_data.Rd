@@ -4,16 +4,18 @@
 \alias{prepare_exposure_data}
 \title{Prepare exposure data}
 \usage{
-prepare_exposure_data(variable_name)
+prepare_exposure_data(poll_grid, geo_units)
 }
 \arguments{
-\item{erf_ci}{\code{Vector} with the central, lower and upper estimate of the relative risk}
+\item{poll_grid}{\code(SpatRaster) of the pollution data.}
+
+\item{geo_units}{\code(sf) of the geographic units data.}
 }
 \value{
-This function returns ...
+This function returns a vector of population exposure values.
 }
 \description{
-This function ...
+This function prepares tabular population exposure data compatible with the attribute() and compare() functions, based on spatial pollution and geographic units data.
 }
 \note{
 Experimental function
