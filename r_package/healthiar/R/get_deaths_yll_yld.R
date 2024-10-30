@@ -165,6 +165,8 @@ get_deaths_yll_yld <-
             }
 
 
+
+
           # If yll or yld
           if(outcome_metric %in% c("yll", "yld")){
 

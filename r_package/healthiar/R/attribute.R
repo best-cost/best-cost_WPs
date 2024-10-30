@@ -127,6 +127,7 @@ attribute <-
 
     ## RR & absolute risk case
     if (!is.null(summary_uncertainty) & !grepl("from_lifetable", health_metric)) {
+
       output[["detailed"]][["uncertainty"]] <-
         get_ci(rr_central = rr_central, rr_lower = rr_lower, rr_upper = rr_upper,
                exp_central = exp_central, exp_lower = exp_lower, exp_upper = exp_upper,
@@ -165,6 +166,7 @@ attribute <-
              approach_exposure = output$main$approach_exposure[1]
       )
     }
+
 
     return(output)
   }

@@ -34,7 +34,7 @@ get_ci <- function(rr_central = NULL, rr_lower = NULL, rr_upper = NULL,
                    min_age = NULL,
                    max_age = NULL,
                    approach_exposure = NULL
-                   ){
+                   pop_exp = NULL # in absolute risk case){
 
   user_options <- options()
   options(digits = 15) # Make sure that no rounding occurs
@@ -54,6 +54,7 @@ get_ci <- function(rr_central = NULL, rr_lower = NULL, rr_upper = NULL,
 
     vector_rr_ci <- c(rr_lower, rr_upper)
     vector_probabilities <- c(0.025, 0.975)
+    par <- 2 # shape parameter of the gamma distribution
 
     f_gamma <-
       function(par, rr_central, vector_propabilities, vector_rr_ci) {
@@ -108,7 +109,6 @@ get_ci <- function(rr_central = NULL, rr_lower = NULL, rr_upper = NULL,
 #         rbeta(n = n_sim, fit[1], fit[2])
 #       }
 
-
     ## Create empty tibble to store simulated values & results in
     dat <- tibble(rr = rep(NA, times = n_sim),
                   erf_increment = rep(erf_increment, times = n_sim),
@@ -120,7 +120,8 @@ get_ci <- function(rr_central = NULL, rr_lower = NULL, rr_upper = NULL,
                   rr_conc = rep(NA, times = n_sim),
                   paf = rep(NA, times = n_sim),
                   paf_weighted = rep(NA, times = n_sim),
-                  # impact = rep(NA, times = n_sim)
+                  #impact = rep(NA, times = n_sim)
+   
     )
 
     ## Define standard deviations (sd) & simulate values
@@ -292,12 +293,15 @@ get_ci <- function(rr_central = NULL, rr_lower = NULL, rr_upper = NULL,
 
     }
 
+
     ## Multiply PAFs with bhd (& dw, if applicable)
     if ( !is.null(dw_central) & "dw" %in% names(dat) ) {
       dat <- dat |>
         dplyr::mutate(paf_weighted= paf * dw) |>
         dplyr::mutate(impact_total = paf_weighted * bhd)
+
     } else if (!grepl("from_lifetable", health_metric)) {
+      
       dat <- dat |>
         dplyr::mutate(impact_total = paf * bhd)
     }
@@ -391,6 +395,16 @@ get_ci <- function(rr_central = NULL, rr_lower = NULL, rr_upper = NULL,
                 ci_female,
                 ci_total)
   }
+
+  ci <- quantile(x = dat |> dplyr::pull(impact_total) |> unlist(),
+                 probs = c(0.025, 0.5, 0.975))
+
+  # Output results #############################################################
+  ci <- unname(ci) # Unname to remove percentiles from the names vector
+  ci <- tibble(central_estimate = ci[2],
+               lower_estimate = ci[1],
+               upper_estimate = ci[3])
+
 
   on.exit(options(user_options))
 

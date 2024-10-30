@@ -99,8 +99,7 @@ test <- prepare_exposure_data()
 
 ### Single baseline health data
 
-<<<<<<< HEAD
-=======
+
 ```{r Demo unit meeting}
 
 # Calculate COPD cases attributable to PM exposure
@@ -123,7 +122,6 @@ View(results_pm_copd)
 View(results_pm_copd$main)
 View(results_pm_copd$detailed$raw)
 ```
->>>>>>> bdf4316b216155a050368890ecb03dc629eb9b89
 
 ```{r single exposure value}
 # Assess attributable cases using the AirQ+ export as input data
@@ -395,17 +393,15 @@ bestcost_pm_stroke_mr_brt <-
         y = MRBRT_stroke$mean,
         method = "natural"))
 
-<<<<<<< HEAD
 # View(bestcost_pm_stroke_niph)
 # print(bestcost_pm_stroke_niph$main[, c("pop_fraction", "impact_rounded")])
-=======
+
 # View(bestcost_pm_stroke_mr_brt)
 
 # check_bestcost(result_list_bestcost = bestcost_pm_stroke_mr_brt,
 #                result_vector_alternative = c(249)) # Results on 17 October 2024 (with cutoff = 0)
 check_bestcost(result_list_bestcost = bestcost_pm_stroke_mr_brt,
                result_vector_alternative = c(32)) # Results on 17 October 2024 (with cutoff = 5 = airqplus_pm_copd$cut_off_value)
->>>>>>> bdf4316b216155a050368890ecb03dc629eb9b89
 ```
 
 
@@ -541,14 +537,11 @@ bestcost_pm_yld_singlebhd_with_summary_uncertainty  <-
     )
 
 # View(bestcost_pm_yld_singlebhd_with_summary_uncertainty)
-<<<<<<< HEAD
 print("Summary uncertainty estimates: ")
 bestcost_pm_yld_singlebhd_with_summary_uncertainty[["detailed"]][["uncertainty"]]$central_estimate
 bestcost_pm_yld_singlebhd_with_summary_uncertainty[["detailed"]][["uncertainty"]]$lower_estimate
 bestcost_pm_yld_singlebhd_with_summary_uncertainty[["detailed"]][["uncertainty"]]$upper_estimate
 print("Main estimate: ") ; bestcost_pm_yld_singlebhd_with_summary_uncertainty[["main"]][["impact_rounded"]]
-=======
->>>>>>> bdf4316b216155a050368890ecb03dc629eb9b89
 ```
 
 ```{r Test summary uncertainty ar}
