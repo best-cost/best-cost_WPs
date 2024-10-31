@@ -129,7 +129,7 @@ attribute <-
     if (!is.null(summary_uncertainty) & !grepl("from_lifetable", health_metric)) {
 
       output[["detailed"]][["uncertainty"]] <-
-        get_ci(rr_central = rr_central, rr_lower = rr_lower, rr_upper = rr_upper,
+        healthiar::get_ci(rr_central = rr_central, rr_lower = rr_lower, rr_upper = rr_upper,
                exp_central = exp_central, exp_lower = exp_lower, exp_upper = exp_upper,
                cutoff_central = cutoff_central, cutoff_lower = cutoff_lower, cutoff_upper = cutoff_upper,
                bhd_central = bhd_central, bhd_lower = bhd_lower, bhd_upper = bhd_upper,
@@ -147,7 +147,7 @@ attribute <-
     ## Lifetable case
     if (!is.null(summary_uncertainty) & grepl("from_lifetable", health_metric)) {
       output[["detailed"]][["uncertainty"]] <-
-        get_ci(rr_central = rr_central, rr_lower = rr_lower, rr_upper = rr_upper,
+        healthiar::get_ci(rr_central = rr_central, rr_lower = rr_lower, rr_upper = rr_upper,
              exp_central = exp_central, exp_lower = exp_lower, exp_upper = exp_upper,
              cutoff_central = cutoff_central, cutoff_lower = cutoff_lower, cutoff_upper = cutoff_upper,
              bhd_central = bhd_central, bhd_lower = bhd_lower, bhd_upper = bhd_upper,

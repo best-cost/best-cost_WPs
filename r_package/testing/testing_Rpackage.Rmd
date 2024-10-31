@@ -89,7 +89,7 @@ library(healthiar)
 
 # Test prepare function
 
-```{r prepare_exposure_data}
+```{r prepare_exposure_data, eval=FALSE, include=FALSE}
 test <- prepare_exposure_data()
 ```
 
@@ -118,9 +118,9 @@ results_pm_copd <-
     info = "pm_copd_assessment_1")
 
 # Check results
-View(results_pm_copd)
-View(results_pm_copd$main)
-View(results_pm_copd$detailed$raw)
+# View(results_pm_copd)
+# View(results_pm_copd$main)
+# View(results_pm_copd$detailed$raw)
 ```
 
 ```{r single exposure value}
@@ -570,7 +570,7 @@ bestcost_noise_ha_ar_with_summary_uncertainty[["main"]][["impact_rounded"]]
 
 ```{r Test summary uncertainty lifetable premature deaths}
 bestcost_pm_deaths_lifetable_airqplus_with_summary_uncertainty <-
-  bestcost::attribute_deaths_from_lifetable(
+  healthiar::attribute_deaths_from_lifetable(
     approach_exposure = "single_year",
     approach_newborns = "with_newborns",
     exp_central = airqplus_pm_deaths_yll[["input"]]$mean_concentration, 

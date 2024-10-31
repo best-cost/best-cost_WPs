@@ -26,15 +26,14 @@ get_ci <- function(rr_central = NULL, rr_lower = NULL, rr_upper = NULL,
                    erf_eq = NULL,
                    prop_pop_exp = NULL,
                    approach_risk,
-                   pop_exp = NULL, # in absolute risk case
                    # Lifetable
                    year_of_analysis = NULL,
                    input = NULL, # contains column "lifetable_with_pop_nest"
                    health_metric = NULL,
                    min_age = NULL,
                    max_age = NULL,
-                   approach_exposure = NULL
-                   pop_exp = NULL # in absolute risk case){
+                   approach_exposure = NULL,
+                   pop_exp = NULL) { # in absolute risk case
 
   user_options <- options()
   options(digits = 15) # Make sure that no rounding occurs
@@ -43,7 +42,7 @@ get_ci <- function(rr_central = NULL, rr_lower = NULL, rr_upper = NULL,
   set.seed(123)
 
   # Set number of simulations
-  n_sim <- 1000
+  n_sim <- 100
 
   # Relative risk ##############################################################
 
@@ -121,7 +120,7 @@ get_ci <- function(rr_central = NULL, rr_lower = NULL, rr_upper = NULL,
                   paf = rep(NA, times = n_sim),
                   paf_weighted = rep(NA, times = n_sim),
                   #impact = rep(NA, times = n_sim)
-   
+
     )
 
     ## Define standard deviations (sd) & simulate values
@@ -274,7 +273,7 @@ get_ci <- function(rr_central = NULL, rr_lower = NULL, rr_upper = NULL,
         dplyr::mutate(health_metric = health_metric)
 
       # get_pop_impact()
-      pop_impact <- bestcost:::get_pop_impact(
+      pop_impact <- healthiar:::get_pop_impact(
         year_of_analysis = year_of_analysis,
         input_with_risk_and_pop_fraction = dat,
         outcome_metric = outcome_metric,
@@ -282,7 +281,7 @@ get_ci <- function(rr_central = NULL, rr_lower = NULL, rr_upper = NULL,
 
       # Call get_deaths_yll_yld()
       dat <-
-        bestcost:::get_deaths_yll_yld(
+        healthiar:::get_deaths_yll_yld(
           outcome_metric = outcome_metric,
           pop_impact = pop_impact,
           year_of_analysis = year_of_analysis,
@@ -301,7 +300,7 @@ get_ci <- function(rr_central = NULL, rr_lower = NULL, rr_upper = NULL,
         dplyr::mutate(impact_total = paf_weighted * bhd)
 
     } else if (!grepl("from_lifetable", health_metric)) {
-      
+
       dat <- dat |>
         dplyr::mutate(impact_total = paf * bhd)
     }
@@ -395,16 +394,6 @@ get_ci <- function(rr_central = NULL, rr_lower = NULL, rr_upper = NULL,
                 ci_female,
                 ci_total)
   }
-
-  ci <- quantile(x = dat |> dplyr::pull(impact_total) |> unlist(),
-                 probs = c(0.025, 0.5, 0.975))
-
-  # Output results #############################################################
-  ci <- unname(ci) # Unname to remove percentiles from the names vector
-  ci <- tibble(central_estimate = ci[2],
-               lower_estimate = ci[1],
-               upper_estimate = ci[3])
-
 
   on.exit(options(user_options))
 
