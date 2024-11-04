@@ -5,9 +5,8 @@
 #' @param poll_grid \code(SpatRaster) of the pollution data.
 #' @param geo_units \code(sf) of the geographic units data.
 #' @return
-#' This function returns a vector of population exposure values. 
-#' @import terra
-#' @import sf
+#' This function returns a vector of population exposure values.
+#' @importFrom terra extract
 #' @export
 #' @author Arno Pauwels
 #' @note Experimental function
