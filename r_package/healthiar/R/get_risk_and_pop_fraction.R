@@ -147,8 +147,8 @@ get_risk_and_pop_fraction <-
       # the FALSE condition is evaluate and results in an error because the names do not match
       # dplyr::group_by(if("geo_id_raw" %in% names(input)){geo_id_raw}, exp_ci, erf_ci)|>
 
-      if({{pop_fraction_type}} == "paf"){
-        input_with_risk_and_pop_fraction <- input_with_risk_and_pop_fraction |>
+    if({{pop_fraction_type}} == "paf"){
+      input_with_risk_and_pop_fraction <- input_with_risk_and_pop_fraction |>
         dplyr::mutate(
           pop_fraction =
             healthiar::get_pop_fraction(rr_conc_1 = rr_conc,

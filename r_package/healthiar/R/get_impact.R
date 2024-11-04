@@ -123,12 +123,20 @@ get_impact <-
 
     }
 
-    # Round impacts
-    impact_raw[["main"]] <-
-      impact_raw[["main"]] |>
-      dplyr::mutate(impact_rounded = round(impact, 0))
-
-
+    # Finalize impact_raw
+    impact_raw[["main"]] <- impact_raw[["main"]] |>
+      dplyr::select(-c(exp, prop_pop_exp, exposure_dimension)) |>
+      dplyr::left_join(
+        x = _,
+        y = input |>
+          dplyr::group_by(exp_ci) |>
+          dplyr::summarize(exp = list(exp),
+                    prop_pop_exp = list(prop_pop_exp),
+                    exposure_dimension = list(exposure_dimension),
+                    .groups = "drop"),
+        by = "exp_ci"
+      )|>
+      mutate(exposure_type = input$exposure_type |> dplyr::first())
 
     return(impact_raw)
 
