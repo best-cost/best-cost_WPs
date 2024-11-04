@@ -303,7 +303,71 @@ include_summary_uncertainty <- function(
       dat <- dat |>
         dplyr::mutate(impact_total = paf * bhd)
     }
-  }
+
+
+  # Absolute risk ##############################################################
+} else if (unique(res[["detailed"]][["raw"]]$approach_risk) == "absolute_risk") {
+
+  # Exposure vectors for simulation below
+  exp_central <- res[["detailed"]][["raw"]] |>
+    filter(exp_ci == "central") |>
+    pull(exp) |>
+    first() |>
+    unlist(x = _)
+  exp_lower <- res[["detailed"]][["raw"]] |>
+    filter(exp_ci == "lower") |>
+    pull(exp) |>
+    first() |>
+    unlist(x = _)
+  exp_upper <- res[["detailed"]][["raw"]] |>
+    filter(exp_ci == "upper") |>
+    pull(exp) |>
+    first() |>
+    unlist(x = _)
+  pop_exp <- res[["detailed"]][["raw"]] |>
+    filter(exp_ci == "central") |>
+    pull(pop_exp) |>
+    unlist(x = _)
+
+  # Create (empty) tibble to store simulated values & results in
+  dat <- tibble::tibble(
+    row_id = 1:n_sim) |>
+
+    # Simulate 1000 exposure values (normal distribution) for each noise band
+    # using the corresponding values of exp_lower & exp_upper
+    dplyr::bind_cols(
+      purrr::map(.x = seq_along(                      # .x will take the values 1, 2, ..., (nr. of exposure categories)
+        res[["detailed"]][["raw"]] |>
+          filter(exp_ci == "central") |>
+          pull(exp) |>
+          first() |>
+          unlist(x = _)),
+        .f = ~ tibble::tibble(
+          !!paste0("exp_", .x) :=                     # .x refers to the xth element of the vector
+            rnorm(n_sim,
+                  mean = exp_central[.x],
+                  sd = (exp_upper[.x] - exp_lower[.x]) / (2 * 1.96)),
+          !!paste0("pop_", .x) := pop_exp[.x])) |>
+        purrr::reduce(bind_cols))
+
+  # Calculate risk for each noise band
+  dat <- dat |>
+    dplyr::mutate(
+      dplyr::across(.cols = dplyr::starts_with("exp_"),
+                    .fns = ~ healthiar::get_risk(exp = .x, erf_eq = res[["main"]]$erf_eq |> first(x = _)) / 100,
+                    .names = "risk_{str_remove(.col, 'exp_')}")
+    )
+
+  # Calculate impact per noise band (impact_X = risk_X * pop_X)
+  dat <- dat |>
+    dplyr::mutate(
+      # Use purrr::map2 to iterate over corresponding "risk_" and "pop_" columns
+      dplyr::across(dplyr::starts_with("risk_"), ~ as.numeric(.x) * as.numeric(dat[[gsub("risk_", "pop_", dplyr::cur_column())]]),
+                    .names = "impact_{str_remove(.col, 'risk_')}")) |>
+    # Sum impacts across noise bands to obtain total impact
+    dplyr::mutate(impact_total = rowSums(across(starts_with("impact_"))))
+
+}
 
   # Determine 95% CI of impact ################################################
 

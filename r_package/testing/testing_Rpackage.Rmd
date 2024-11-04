@@ -376,6 +376,7 @@ bestcost_noise_ihd_expDist_geo <-
     geo_id_aggregated = rep("ch", 3),
     info = data.frame(pollutant = "road_noise", outcome = "highly_annoyance"))
 
+# View(bestcost_noise_ihd_expDist_geo)
 ```
 
 ```{r exposure distribution and user-defined points for relative risk}
@@ -485,7 +486,7 @@ check_bestcost(result_list_bestcost = bestcost_pm_yld_singlebhd ,
 
 ### Summary uncertainty
 
-```{r Test summary uncertainty attribute_health }
+```{r Test summary uncertainty single exposure attribute_health }
 
 bestcost_pm_copd_with_summary_uncertainty <- 
   healthiar::attribute_health(
@@ -520,6 +521,37 @@ print("Summary uncertainty estimates (extern uncertainty function): ")
 bestcost_pm_copd_extern_uncertainty[["detailed"]][["uncertainty"]]$central_estimate
 bestcost_pm_copd_extern_uncertainty[["detailed"]][["uncertainty"]]$lower_estimate
 bestcost_pm_copd_extern_uncertainty[["detailed"]][["uncertainty"]]$upper_estimate
+```
+```{r Test summary uncertainty rr & exposure distribution}
+
+# Data prep
+niph_noise_ihd_input <- 
+  niph_noise_ihd_excel |>
+  dplyr::filter(!is.na(niph_noise_ihd_excel$exposure_mean))
+niph_noise_ihd_result <- 
+  niph_noise_ihd_excel |>
+        dplyr::filter(exposure_category %in% "Total exposed")|>
+        dplyr::select(daly)|>
+        dplyr::pull() |>
+  round()
+
+# Obtain attributable cases using the bestcost package and input data from niph
+bestcost_noise_ihd_expDist <- 
+  healthiar::attribute_health(
+    exp_central = niph_noise_ihd_input$exposure_mean,
+    # exp_lower = niph_noise_ihd_input$exposure_mean - 2,
+    # exp_upper = niph_noise_ihd_input$exposure_mean + 2,
+    prop_pop_exp = niph_noise_ihd_input$prop_exposed,
+    cutoff_central = min(niph_noise_ihd_input$exposure_mean), 
+    bhd_central = niph_noise_ihd_input$gbd_daly[1],
+    rr_central = 1.08,
+    erf_increment = 10, 
+    erf_shape = "log_linear",
+    info = data.frame(pollutant = "road_noise", outcome = "YLD"))
+
+# View(bestcost_noise_ihd_expDist)
+
+bestcost_noise_ihd_expDist_extern_uncertainty <- include_summary_uncertainty(bestcost_noise_ihd_expDist)
 ```
 
 
@@ -561,6 +593,7 @@ niph_noise_ha_input <-
   niph_noise_ha_excel |>
   dplyr::filter(!is.na(niph_noise_ha_excel$exposure_mean))
 
+# Internal get_ci function
 bestcost_noise_ha_ar_with_summary_uncertainty <- 
   healthiar::attribute_health_ar(
     exp_central = niph_noise_ha_input$exposure_mean,
@@ -576,6 +609,15 @@ print("Summary uncertainty central estimate: ")
 bestcost_noise_ha_ar_with_summary_uncertainty[["detailed"]][["uncertainty"]]$central_estimate
 print("Main estimate: ")
 bestcost_noise_ha_ar_with_summary_uncertainty[["main"]][["impact_rounded"]]
+
+# External include_summary_uncertainty function
+bestcost_noise_ha_ar_external_uncertainty <- healthiar::include_summary_uncertainty(bestcost_noise_ha_ar_with_summary_uncertainty)
+
+print("Summary uncertainty estimates (extern uncertainty function): ")
+bestcost_noise_ha_ar_external_uncertainty[["detailed"]][["uncertainty"]]$central_estimate
+bestcost_noise_ha_ar_external_uncertainty[["detailed"]][["uncertainty"]]$lower_estimate
+bestcost_noise_ha_ar_external_uncertainty[["detailed"]][["uncertainty"]]$upper_estimate
+
 ```
 
 ```{r Test summary uncertainty lifetable premature deaths}

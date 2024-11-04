@@ -125,18 +125,18 @@ get_impact <-
 
     # Finalize impact_raw
     impact_raw[["main"]] <- impact_raw[["main"]] |>
-      dplyr::select(-c(exp, prop_pop_exp, exposure_dimension)) |>
+      dplyr::select(-c(exp, exposure_dimension)) |> # removed "prop_pop_exp", as this introduced error in ar pathway
       dplyr::left_join(
         x = _,
         y = input |>
           dplyr::group_by(exp_ci) |>
           dplyr::summarize(exp = list(exp),
-                    prop_pop_exp = list(prop_pop_exp),
+                    # prop_pop_exp = list(prop_pop_exp), # Introduced error in ar pathway
                     exposure_dimension = list(exposure_dimension),
                     .groups = "drop"),
         by = "exp_ci"
       )|>
-      mutate(exposure_type = input$exposure_type |> dplyr::first())
+      dplyr::mutate(exposure_type = input$exposure_type |> dplyr::first())
 
     return(impact_raw)
 
