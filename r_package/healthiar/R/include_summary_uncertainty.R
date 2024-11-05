@@ -82,9 +82,10 @@ include_summary_uncertainty <- function(
                   rr_conc = rep(NA, times = n_sim),
                   paf = rep(NA, times = n_sim),
                   paf_weighted = rep(NA, times = n_sim),
-                  prop_pop_exp = rep(res[["main"]] |>
-                                       pull(prop_pop_exp) |>
-                                       first(), times = n_sim)
+                  prop_pop_exp = rep(NA, times = n_sim) # works for both single exp and exp dist
+                  # prop_pop_exp = rep(res[["main"]] |> # only works for single exp
+                  #                      pull(prop_pop_exp) |>
+                  #                      first(), times = n_sim)
                   #impact = rep(NA, times = n_sim)
 
     )
@@ -149,7 +150,11 @@ include_summary_uncertainty <- function(
 
     ### exp ####################################################################
 
-    if (length(grep("lower", res[["detailed"]][["raw"]][["exp_ci"]])) > 0) {
+    #### Single exposure #######################################################
+
+    if (( length(grep("lower", res[["detailed"]][["raw"]][["exp_ci"]])) > 0 ) &
+        ( unique(res[["main"]]$exposure_type == "population_weighted_mean") )) {
+
       sd_exp <- #(exp_upper - exp_lower) / (2 * 1.96)
       (res[["detailed"]][["raw"]] |> filter(exp_ci == "upper") |> pull(exp) |> first() -
           res[["detailed"]][["raw"]] |> filter(exp_ci == "lower") |> pull(exp) |>  first()) / (2 * 1.96)
@@ -162,12 +167,103 @@ include_summary_uncertainty <- function(
                       pull(exp) |>
                       first(),
             sd = sd_exp))
-    } else {
+    } else if ( !( length(grep("lower", res[["detailed"]][["raw"]][["exp_ci"]])) > 0 ) &
+                ( unique(res[["main"]]$exposure_type == "population_weighted_mean" ) ) ) {
       dat <- dat |>
         dplyr::mutate(exp = res[["detailed"]][["raw"]] |>
                         filter(exp_ci == "central") |>
                         pull(exp) |>
-                        first())}
+                        first())
+      }
+
+    #### Exposure distribution #################################################
+
+    # Exp dist case with exp_central, exp_lower and exp_upper values
+    if (( length(grep("lower", res[["detailed"]][["raw"]][["exp_ci"]])) > 0 ) &
+        ( unique(res[["main"]]$exposure_type == "exposure_distribution") )) {
+
+      # Vectors needed for simulation below
+      exp_central <- res[["detailed"]][["raw"]] |>
+        filter(exp_ci == "central") |>
+        pull(exp) |>
+        first() |>
+        unlist(x = _)
+      exp_lower <- res[["detailed"]][["raw"]] |>
+        filter(exp_ci == "lower") |>
+        pull(exp) |>
+        first() |>
+        unlist(x = _)
+      exp_upper <- res[["detailed"]][["raw"]] |>
+        filter(exp_ci == "upper") |>
+        pull(exp) |>
+        first() |>
+        unlist(x = _)
+      prop_pop_exp <- res[["detailed"]][["raw"]] |>
+        filter(exp_ci == "central") |>
+        pull(prop_pop_exp) |>
+        unlist(x = _)
+
+      # Simulate nsim exposure values (normal distribution) for each exp cat
+      # using the corresponding values of exp_lower & exp_upper
+      dat_exp_dist <- tibble::tibble(
+        row_id = 1:n_sim) |>
+
+        dplyr::bind_cols(
+          purrr::map(.x = seq_along(                      # .x will take the values 1, 2, ..., (nr. of exposure categories)
+            res[["detailed"]][["raw"]] |>
+              filter(exp_ci == "central") |>
+              pull(exp) |>
+              first() |>
+              unlist(x = _)),
+            .f = ~ tibble::tibble(
+              !!paste0("exp_", .x) :=                     # .x refers to the xth element of the vector
+                rnorm(n_sim,
+                      mean = exp_central[.x],
+                      sd = (exp_upper[.x] - exp_lower[.x]) / (2 * 1.96)),
+              !!paste0("prop_pop_exp_", .x) := prop_pop_exp[.x])) |>
+            purrr::reduce(bind_cols))
+
+      # Merge dat & dat_exp_dist
+      dat <- cbind(dat, dat_exp_dist) |>
+        select(-exp)
+
+      # Exp dist case with only exp_cenral values (no exp_lower & exp_upper values)
+    } else if ( !( length(grep("lower", res[["detailed"]][["raw"]][["exp_ci"]])) > 0 ) &
+               ( unique(res[["main"]]$exposure_type == "exposure_distribution") )) {
+
+      # Vectors needed for simulation below (exp_central & prop_pop_exp)
+      exp_central <- res[["detailed"]][["raw"]] |>
+        filter(exp_ci == "central") |>
+        pull(exp) |>
+        first() |>
+        unlist(x = _)
+      prop_pop_exp <- res[["detailed"]][["raw"]] |>
+        filter(exp_ci == "central") |>
+        first() |>
+        pull(prop_pop_exp) |>
+        unlist(x = _)
+
+      # Create a column for each exposure categories and each prop_pop_exp value
+      dat_exp_dist <- tibble::tibble(
+        row_id = 1:n_sim) |>
+
+        dplyr::bind_cols(
+          purrr::map(.x = seq_along(                      # .x will take the values 1, 2, ..., (nr. of exposure categories)
+            res[["detailed"]][["raw"]] |>
+              filter(exp_ci == "central") |>
+              pull(exp) |>
+              first() |>
+              unlist(x = _)),
+            .f = ~ tibble::tibble(
+              !!paste0("exp_", .x) := exp_central[.x],                     # .x refers to the xth element of the vector
+              !!paste0("prop_pop_exp_", .x) := prop_pop_exp[.x])) |>
+            purrr::reduce(bind_cols))
+
+      # Merge dat & dat_exp_dist
+      dat <- cbind(dat, dat_exp_dist) |>
+        select(-exp)
+
+    }
 
     ### cutoff #################################################################
 
@@ -189,7 +285,8 @@ include_summary_uncertainty <- function(
         dplyr::mutate(cutoff = res[["detailed"]][["raw"]] |>
                         filter(cutoff_ci == "central") |>
                         pull(cutoff) |>
-                        first())}
+                        first())
+      }
 
     ### bhd ####################################################################
 
@@ -211,7 +308,8 @@ include_summary_uncertainty <- function(
         dplyr::mutate(bhd = res[["detailed"]][["raw"]] |>
                         filter(bhd_ci == "central") |>
                         pull(bhd) |>
-                        first())}
+                        first())
+      }
 
     ### dw #####################################################################
 
@@ -252,7 +350,10 @@ include_summary_uncertainty <- function(
                         pull(dw) |>
                         first())}
 
-    # Determine rr_conc using call to healthiar::get_risk()
+    ## rr_conc #################################################################
+    ## Determine rr_conc using call to healthiar::get_risk()
+    if ( ( unique(res[["main"]]$exposure_type == "population_weighted_mean" ) ) ) {
+
     dat <- dat |>
       dplyr::mutate(
         rr_conc = purrr::pmap(
@@ -271,105 +372,210 @@ include_summary_uncertainty <- function(
 
     dat$rr <- unlist(dat$rr)
 
+    } else if ( unique(res[["main"]]$exposure_type == "exposure_distribution" ) ) {
+
+      # Calc rr_conc for each exp cat
+      dat <- dat |>
+        dplyr::bind_cols(
+          purrr::map(.x = seq_along(                      # .x will take the values 1, 2, ..., until (nr. of exposure categories)
+            res[["detailed"]][["raw"]] |>
+              filter(exp_ci == "central") |>
+              pull(exp) |>
+              first() |>
+              unlist(x = _)),
+            .f = ~ tibble::tibble(
+              !!paste0("rr_conc_", .x) :=                     # .x refers to the xth element of the vector
+                get_risk(rr = dat$rr,
+                         exp = dat[[!!paste0("exp_", .x)]],
+                         cutoff = dat$cutoff[1],
+                         erf_increment = dat$erf_increment[1],
+                         erf_shape = dat$erf_shape[1],
+                         erf_eq = NULL)
+              )
+            )
+          )
+
+
+
+    }
+
+    ## PAF #####################################################################
     ## Determine PAF via call to get_pop_fraction()
-    dat <- dat |>
-      dplyr::mutate(
-        paf = purrr::pmap(
-          list(rr_conc = rr_conc, prop_pop_exp = prop_pop_exp),
-          function(rr_conc, prop_pop_exp){
-            paf <- get_pop_fraction(rr_conc_1 = rr_conc,
-                                    rr_conc_2 = 1,
-                                    prop_pop_exp_1 = prop_pop_exp,
-                                    prop_pop_exp_2 = prop_pop_exp)
-            return(paf)
-          }
+
+    if ( ( unique(res[["main"]]$exposure_type == "population_weighted_mean" ) ) ) {
+
+      dat <- dat |>
+        dplyr::mutate(
+          paf = purrr::pmap(
+            list(rr_conc = rr_conc, prop_pop_exp = res[["main"]]$prop_pop_exp |> first(x = _)),
+            function(rr_conc, prop_pop_exp){
+              paf <- healthiar::get_pop_fraction(rr_conc_1 = rr_conc,
+                                      rr_conc_2 = 1,
+                                      prop_pop_exp_1 = prop_pop_exp,
+                                      prop_pop_exp_2 = prop_pop_exp)
+              return(paf)
+            }
+          )
         )
-      )
 
-    dat$paf <- unlist(dat$paf)
+      dat$paf <- unlist(dat$paf)
 
-    ## Lifetable ###############################################################
+    } else if ( unique(res[["main"]]$exposure_type == "exposure_distribution" ) ) {
 
-    # To be added... ############
-
-    ## Multiply PAFs with bhd (& dw, if applicable)
-    if ( (length(grep("lower", res[["detailed"]][["raw"]][["dw_ci"]])) > 0) & "dw" %in% names(dat) ) {
+      # Determine product_x = rr_conc_x * prop_pop_exp_x
       dat <- dat |>
-        dplyr::mutate(paf_weighted= paf * dw) |>
-        dplyr::mutate(impact_total = paf_weighted * bhd)
+        dplyr::bind_cols(
+          purrr::map(.x = seq_along(                      # .x will take the values 1, 2, ..., until (nr. of exposure categories)
+            res[["detailed"]][["raw"]] |>
+              filter(exp_ci == "central") |>
+              pull(exp) |>
+              first() |>
+              unlist(x = _)),
+            .f = ~ tibble::tibble(
+              !!paste0("product_", .x) := dat[[!!paste0("rr_conc_", .x)]] * dat[[!!paste0("prop_pop_exp_", .x)]]
+            )
+          )
+        )
 
-    } else if (!grepl("from_lifetable", res[["main"]]$health_metric[1])) {
-
+      # WORKING: CALCULATE PAF FOLLOWING EXCEL EXAMPLE FROM NIPH ####
+      # excel located here: ..\best-cost\r_package\testing\input\noise_niph
       dat <- dat |>
-        dplyr::mutate(impact_total = paf * bhd)
+        mutate(sum_product = rowSums(across(contains("product_")))) |>
+        mutate(paf = ( sum_product - 1 ) / sum_product)
+
+
+      # NOT WORKING: CALCULATE PAF WITH healthiar::get_pop_fraction() ####
+      # to calculate paf per exp band
+      # dat <- dat |>
+      #   select(-c(rr_conc, paf, paf_weighted, prop_pop_exp))
+      #
+      # # Initial try (calculate a paf for each exposure category)
+      # dat <- dat |>
+      #   dplyr::rowwise(data = _) |> # Calculate PAF row by row
+      #   dplyr::mutate(
+      #     # Use dplyr::across to iterate over corresponding "rr_conc_" and "prop_pop_exp_" pairs
+      #     dplyr::across(.cols = dplyr::starts_with("rr_conc_"),
+      #                   .fns = ~ healthiar::get_pop_fraction(
+      #                     rr_conc_1 = as.numeric(.x),
+      #                     rr_conc_2 = 1,
+      #                     prop_pop_exp_1 = as.numeric(dat[[gsub("rr_conc_", "prop_pop_exp_", dplyr::cur_column())]]),
+      #                     prop_pop_exp_2 = as.numeric(dat[[gsub("rr_conc_", "prop_pop_exp_", dplyr::cur_column())]])),
+      #                   .names = "paf_{str_remove(.col, 'rr_conc_')}")) |>
+      #   # Sum impacts across noise bands to obtain total impact
+      #   dplyr::mutate(paf = rowSums(across(starts_with("paf_"))))
+
     }
 
 
+    ## Lifetable ###############################################################
+
+    # See arguments needed for lifetable pathway below
+    #   get_ci <- function(
+    #     rr_central = NULL, rr_lower = NULL, rr_upper = NULL,
+    #     exp_central = NULL, exp_lower = NULL, exp_upper = NULL,
+    #     cutoff_central = NULL, cutoff_lower = NULL, cutoff_upper = NULL,
+    #     bhd_central = NULL, bhd_lower = NULL, bhd_upper = NULL,
+    #     dw_central = NULL, dw_lower = NULL, dw_upper = NULL,
+    #     erf_shape = NULL,
+    #     erf_increment = NULL,
+    #     erf_eq = NULL,
+    #     prop_pop_exp = NULL,
+    #     approach_risk,
+    #     # Lifetable
+    #     year_of_analysis = NULL,
+    #     input = NULL, # contains column "lifetable_with_pop_nest"
+    #     health_metric = NULL,
+    #     min_age = NULL,
+    #     max_age = NULL,
+    #     approach_exposure = NULL,
+    #     pop_exp = NULL) { # in absolute risk case
+
+
+    # To be added... ############
+
+    ## Get impact ##############################################################
+    ## Multiply PAFs with bhd (& dw, if applicable)
+
+    if ( !grepl("from_lifetable", res[["main"]]$health_metric[1]) ) {
+
+      dat <- dat |>
+        dplyr::mutate(impact_total = paf * bhd)
+
+    } else if ( (length(grep("lower", res[["detailed"]][["raw"]][["dw_ci"]])) > 0) &
+         ( !is.na(dat$dw[1]) ) ) {
+
+      dat <- dat |>
+        dplyr::mutate(impact_total= impact_total * dw)
+
+      }
+
   # Absolute risk ##############################################################
-} else if (unique(res[["detailed"]][["raw"]]$approach_risk) == "absolute_risk") {
+  } else if (unique(res[["detailed"]][["raw"]]$approach_risk) == "absolute_risk") {
 
-  # Exposure vectors for simulation below
-  exp_central <- res[["detailed"]][["raw"]] |>
-    filter(exp_ci == "central") |>
-    pull(exp) |>
-    first() |>
-    unlist(x = _)
-  exp_lower <- res[["detailed"]][["raw"]] |>
-    filter(exp_ci == "lower") |>
-    pull(exp) |>
-    first() |>
-    unlist(x = _)
-  exp_upper <- res[["detailed"]][["raw"]] |>
-    filter(exp_ci == "upper") |>
-    pull(exp) |>
-    first() |>
-    unlist(x = _)
-  pop_exp <- res[["detailed"]][["raw"]] |>
-    filter(exp_ci == "central") |>
-    pull(pop_exp) |>
-    unlist(x = _)
+    # Vectors needed for simulation below
+    exp_central <- res[["detailed"]][["raw"]] |>
+      filter(exp_ci == "central") |>
+      pull(exp) |>
+      # first() |>
+      unlist(x = _)
+    exp_lower <- res[["detailed"]][["raw"]] |>
+      filter(exp_ci == "lower") |>
+      pull(exp) |>
+      # first() |>
+      unlist(x = _)
+    exp_upper <- res[["detailed"]][["raw"]] |>
+      filter(exp_ci == "upper") |>
+      pull(exp) |>
+      # first() |>
+      unlist(x = _)
+    pop_exp <- res[["detailed"]][["raw"]] |>
+      filter(exp_ci == "central") |>
+      pull(pop_exp) |>
+      unlist(x = _)
 
-  # Create (empty) tibble to store simulated values & results in
-  dat <- tibble::tibble(
-    row_id = 1:n_sim) |>
+    ## Simulate values #########################################################
+    # Create (empty) tibble to store simulated values & results in
+    dat <- tibble::tibble(
+      row_id = 1:n_sim) |>
 
-    # Simulate 1000 exposure values (normal distribution) for each noise band
-    # using the corresponding values of exp_lower & exp_upper
-    dplyr::bind_cols(
-      purrr::map(.x = seq_along(                      # .x will take the values 1, 2, ..., (nr. of exposure categories)
-        res[["detailed"]][["raw"]] |>
-          filter(exp_ci == "central") |>
-          pull(exp) |>
-          first() |>
-          unlist(x = _)),
-        .f = ~ tibble::tibble(
-          !!paste0("exp_", .x) :=                     # .x refers to the xth element of the vector
-            rnorm(n_sim,
-                  mean = exp_central[.x],
-                  sd = (exp_upper[.x] - exp_lower[.x]) / (2 * 1.96)),
-          !!paste0("pop_", .x) := pop_exp[.x])) |>
-        purrr::reduce(bind_cols))
+      # Simulate 1000 exposure values (normal distribution) for each noise band
+      # using the corresponding values of exp_lower & exp_upper
+      dplyr::bind_cols(
+        purrr::map(.x = seq_along(                      # .x will take the values 1, 2, ..., (nr. of exposure categories)
+          res[["detailed"]][["raw"]] |>
+            filter(exp_ci == "central") |>
+            pull(exp) |>
+            # first() |>
+            unlist(x = _)),
+          .f = ~ tibble::tibble(
+            !!paste0("exp_", .x) :=                     # .x refers to the xth element of the vector
+              rnorm(n_sim,
+                    mean = exp_central[.x],
+                    sd = (exp_upper[.x] - exp_lower[.x]) / (2 * 1.96)),
+            !!paste0("pop_", .x) := pop_exp[.x])) |>
+          purrr::reduce(bind_cols))
 
-  # Calculate risk for each noise band
-  dat <- dat |>
-    dplyr::mutate(
-      dplyr::across(.cols = dplyr::starts_with("exp_"),
-                    .fns = ~ healthiar::get_risk(exp = .x, erf_eq = res[["main"]]$erf_eq |> first(x = _)) / 100,
-                    .names = "risk_{str_remove(.col, 'exp_')}")
-    )
+    # Calculate risk for each noise band
+    dat <- dat |>
+      dplyr::mutate(
+        dplyr::across(.cols = dplyr::starts_with("exp_"),
+                      .fns = ~ healthiar::get_risk(exp = .x, erf_eq = res[["main"]]$erf_eq |> first(x = _)) / 100,
+                      .names = "risk_{str_remove(.col, 'exp_')}")
+      )
 
-  # Calculate impact per noise band (impact_X = risk_X * pop_X)
-  dat <- dat |>
-    dplyr::mutate(
-      # Use purrr::map2 to iterate over corresponding "risk_" and "pop_" columns
-      dplyr::across(dplyr::starts_with("risk_"), ~ as.numeric(.x) * as.numeric(dat[[gsub("risk_", "pop_", dplyr::cur_column())]]),
-                    .names = "impact_{str_remove(.col, 'risk_')}")) |>
-    # Sum impacts across noise bands to obtain total impact
-    dplyr::mutate(impact_total = rowSums(across(starts_with("impact_"))))
+    ### Get impact ##############################################################
+    # Calculate impact per noise band (impact_X = risk_X * pop_X)
+    dat <- dat |>
+      dplyr::mutate(
+        # Use purrr::map2 to iterate over corresponding "risk_" and "pop_" columns
+        dplyr::across(dplyr::starts_with("risk_"), ~ as.numeric(.x) * as.numeric(dat[[gsub("risk_", "pop_", dplyr::cur_column())]]),
+                      .names = "impact_{str_remove(.col, 'risk_')}")) |>
+      # Sum impacts across noise bands to obtain total impact
+      dplyr::mutate(impact_total = rowSums(across(starts_with("impact_"))))
 
-}
+  }
 
-  # Determine 95% CI of impact ################################################
+  # Determine 95% CI of impact #################################################
 
   # Non-lifetable
   if (!grepl("from_lifetable", res[["main"]]$health_metric[1])) {
@@ -426,25 +632,3 @@ include_summary_uncertainty <- function(
   return(res)
 
 }
-
-#   get_ci <- function(
-#     rr_central = NULL, rr_lower = NULL, rr_upper = NULL,
-#     exp_central = NULL, exp_lower = NULL, exp_upper = NULL,
-#     cutoff_central = NULL, cutoff_lower = NULL, cutoff_upper = NULL,
-#     bhd_central = NULL, bhd_lower = NULL, bhd_upper = NULL,
-#     dw_central = NULL, dw_lower = NULL, dw_upper = NULL,
-#     erf_shape = NULL,
-#     erf_increment = NULL,
-#     erf_eq = NULL,
-#     prop_pop_exp = NULL,
-#     approach_risk,
-#     # Lifetable
-#     year_of_analysis = NULL,
-#     input = NULL, # contains column "lifetable_with_pop_nest"
-#     health_metric = NULL,
-#     min_age = NULL,
-#     max_age = NULL,
-#     approach_exposure = NULL,
-#     pop_exp = NULL) { # in absolute risk case
-#
-# }

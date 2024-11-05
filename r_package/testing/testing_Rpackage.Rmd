@@ -341,12 +341,14 @@ niph_noise_ihd_result <-
 bestcost_noise_ihd_expDist <- 
   healthiar::attribute_health(
     exp_central = niph_noise_ihd_input$exposure_mean,
-    exp_lower = niph_noise_ihd_input$exposure_mean - 2,
-    exp_upper = niph_noise_ihd_input$exposure_mean + 2,
+    # exp_lower = niph_noise_ihd_input$exposure_mean - 2,
+    # exp_upper = niph_noise_ihd_input$exposure_mean + 2,
     prop_pop_exp = niph_noise_ihd_input$prop_exposed,
     cutoff_central = min(niph_noise_ihd_input$exposure_mean), 
     bhd_central = niph_noise_ihd_input$gbd_daly[1],
     rr_central = 1.08,
+    # rr_lower = 1.08 - 0.02,
+    # rr_upper = 1.08 + 0.02,
     erf_increment = 10, 
     erf_shape = "log_linear",
     info = data.frame(pollutant = "road_noise", outcome = "YLD"))
@@ -486,7 +488,7 @@ check_bestcost(result_list_bestcost = bestcost_pm_yld_singlebhd ,
 
 ### Summary uncertainty
 
-```{r Test summary uncertainty single exposure attribute_health }
+```{r Test summary uncertainty rr single exposure attribute_health }
 
 bestcost_pm_copd_with_summary_uncertainty <- 
   healthiar::attribute_health(
@@ -545,6 +547,8 @@ bestcost_noise_ihd_expDist <-
     cutoff_central = min(niph_noise_ihd_input$exposure_mean), 
     bhd_central = niph_noise_ihd_input$gbd_daly[1],
     rr_central = 1.08,
+    rr_lower = 1.08 - 0.02,
+    rr_upper = 1.08 + 0.02,
     erf_increment = 10, 
     erf_shape = "log_linear",
     info = data.frame(pollutant = "road_noise", outcome = "YLD"))
@@ -552,10 +556,16 @@ bestcost_noise_ihd_expDist <-
 # View(bestcost_noise_ihd_expDist)
 
 bestcost_noise_ihd_expDist_extern_uncertainty <- include_summary_uncertainty(bestcost_noise_ihd_expDist)
+
+print("Main estimate: ") ; bestcost_noise_ihd_expDist[["main"]][["impact_rounded"]]
+print("Summary uncertainty estimates (extern uncertainty function): ")
+bestcost_noise_ihd_expDist_extern_uncertainty[["detailed"]][["uncertainty"]]$central_estimate
+bestcost_noise_ihd_expDist_extern_uncertainty[["detailed"]][["uncertainty"]]$lower_estimate
+bestcost_noise_ihd_expDist_extern_uncertainty[["detailed"]][["uncertainty"]]$upper_estimate
 ```
 
 
-```{r Test summary uncertainty attribute_yld_from_prevalence }
+```{r Test summary uncertainty rr attribute_yld_from_prevalence }
 
 bestcost_pm_yld_singlebhd_with_summary_uncertainty  <- 
   healthiar::attribute_yld_from_prevalence(
@@ -602,7 +612,8 @@ bestcost_noise_ha_ar_with_summary_uncertainty <-
     pop_exp = niph_noise_ha_input$population_exposed_total, 
     erf_eq_central = "78.9270-3.1162*c+0.0342*c^2",
     info = data.frame(pollutant = "road_noise", outcome = "highly_annoyance"),
-    summary_uncertainty = TRUE)
+    summary_uncertainty = TRUE
+    )
 
 # View(bestcost_noise_ha_ar_with_summary_uncertainty$detailed$uncertainty)
 print("Summary uncertainty central estimate: ")

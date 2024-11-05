@@ -128,25 +128,29 @@ get_impact <-
 
     # Add either prop_pop_exp (rr case) or pop_exp (ar case)
     if ( ( unique(impact_raw[["main"]]$approach_risk) == "relative_risk" ) &
-         ( unique(impact_raw[["main"]]$exposure_type) == "exposure_distribution" ) ){
+         ( unique(impact_raw[["main"]]$exposure_type) == "exposure_distribution" ) &
+         ( !grepl("from_lifetable", impact_raw[["main"]]$health_metric[1]) ) ) {
 
-      # Finalize impact_raw
-    impact_raw[["main"]] <- impact_raw[["main"]] |>
-      dplyr::select(-c(exp, prop_pop_exp, exposure_dimension)) |> # removed "prop_pop_exp", as this introduced error in ar pathway
-      dplyr::left_join(
-        x = _,
-        y = input |>
-          dplyr::group_by(exp_ci) |>
-          dplyr::summarize(exp = list(exp),
-                    prop_pop_exp = list(prop_pop_exp), # Introduced error in ar pathway
-                    exposure_dimension = list(exposure_dimension),
-                    .groups = "drop"),
-        by = "exp_ci"
-      )|>
-      dplyr::mutate(exposure_type = input$exposure_type |> dplyr::first()) |>
-      dplyr::mutate(impact_rounded = round(impact, 0))
+      impact_raw[["main"]] <- impact_raw[["main"]] |>
+        dplyr::select(-c(exp, prop_pop_exp, exposure_dimension)) |> # removed "prop_pop_exp", as this introduced error in ar pathway
+        dplyr::left_join(
+          x = _,
+          y = input |>
+            dplyr::group_by(exp_ci, erf_ci, bhd_ci, cutoff_ci) |>
+            dplyr::summarize(exp = list(exp),
+                             prop_pop_exp = list(prop_pop_exp), # Introduced error in ar pathway
+                             exposure_dimension = list(exposure_dimension),
+                             .groups = "drop") |>
+            dplyr::select(c(exp_ci, erf_ci, exp, prop_pop_exp, exposure_dimension)),
+          by = c("exp_ci", "erf_ci")
+        )|>
+        dplyr::mutate(exposure_type = input$exposure_type |> dplyr::first())
 
+    }
 
+    if ( ( unique(impact_raw[["main"]]$approach_risk) == "relative_risk" ) ) {
+      impact_raw[["main"]] <- impact_raw[["main"]] |>
+        dplyr::mutate(impact_rounded = round(impact, 0))
     }
 
     return(impact_raw)
