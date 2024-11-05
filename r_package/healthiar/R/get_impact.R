@@ -117,26 +117,37 @@ get_impact <-
         input |>
         dplyr::mutate(
           absolute_risk_as_percent = healthiar::get_risk(exp = exp, erf_eq = erf_eq) ,
-          impact = absolute_risk_as_percent/100 * pop_exp)
+          impact = absolute_risk_as_percent/100 * pop_exp) |>
+        dplyr::mutate(impact_rounded = round(impact, 0))
 
       impact_raw <- list(main = impact_raw_main)
 
     }
 
-    # Finalize impact_raw
+
+
+    # Add either prop_pop_exp (rr case) or pop_exp (ar case)
+    if ( ( unique(impact_raw[["main"]]$approach_risk) == "relative_risk" ) &
+         ( unique(impact_raw[["main"]]$exposure_type) == "exposure_distribution" ) ){
+
+      # Finalize impact_raw
     impact_raw[["main"]] <- impact_raw[["main"]] |>
-      dplyr::select(-c(exp, exposure_dimension)) |> # removed "prop_pop_exp", as this introduced error in ar pathway
+      dplyr::select(-c(exp, prop_pop_exp, exposure_dimension)) |> # removed "prop_pop_exp", as this introduced error in ar pathway
       dplyr::left_join(
         x = _,
         y = input |>
           dplyr::group_by(exp_ci) |>
           dplyr::summarize(exp = list(exp),
-                    # prop_pop_exp = list(prop_pop_exp), # Introduced error in ar pathway
+                    prop_pop_exp = list(prop_pop_exp), # Introduced error in ar pathway
                     exposure_dimension = list(exposure_dimension),
                     .groups = "drop"),
         by = "exp_ci"
       )|>
-      dplyr::mutate(exposure_type = input$exposure_type |> dplyr::first())
+      dplyr::mutate(exposure_type = input$exposure_type |> dplyr::first()) |>
+      dplyr::mutate(impact_rounded = round(impact, 0))
+
+
+    }
 
     return(impact_raw)
 
