@@ -14,7 +14,6 @@
 #' @return
 #' This function returns a \code{List}
 #' @import dplyr
-#' @import tidyr
 #' @import purrr
 #' @examples
 #' TBD

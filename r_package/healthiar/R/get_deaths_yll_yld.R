@@ -14,7 +14,8 @@
 #' @return
 #' This function returns a \code{List}
 #' @import dplyr
-#' @import tidyr
+#' @importFrom tidyr pivot_longer
+#' @importFrom tidyr unnest
 #' @import purrr
 #' @examples
 #' TBD
