@@ -30,6 +30,17 @@ include_summary_uncertainty <- function(
   # Set number of simulations
   n_sim <- 100
 
+  # Determine number of geographic units
+  if (length(grep("geo_id", names(res[["detailed"]][["raw"]]))) > 0) {
+
+    n_geo <- max(res[["detailed"]][["raw"]]$geo_id_raw)
+
+  } else {
+
+      n_geo <- 1
+      }
+
+
   # Relative risk ##############################################################
 
   if (unique(res[["detailed"]][["raw"]]$approach_risk) == "relative_risk") {
@@ -68,25 +79,29 @@ include_summary_uncertainty <- function(
       }
 
     ## Create empty tibble to store simulated values & results in
-    dat <- tibble(rr = rep(NA, times = n_sim),
-                  erf_increment = rep(res[["main"]] |>
-                                        pull(erf_increment) |>
-                                        first(), times = n_sim),
-                  erf_shape = rep(res[["main"]] |>
-                                    pull(erf_shape) |>
-                                    first(), times = n_sim),
-                  exp = rep(NA, times = n_sim),
-                  cutoff = rep(NA, times = n_sim),
-                  bhd = rep(NA, times = n_sim),
-                  dw = rep(NA, times = n_sim),
-                  rr_conc = rep(NA, times = n_sim),
-                  paf = rep(NA, times = n_sim),
-                  paf_weighted = rep(NA, times = n_sim),
-                  prop_pop_exp = rep(NA, times = n_sim) # works for both single exp and exp dist
-                  # prop_pop_exp = rep(res[["main"]] |> # only works for single exp
-                  #                      pull(prop_pop_exp) |>
-                  #                      first(), times = n_sim)
-                  #impact = rep(NA, times = n_sim)
+    dat <- tibble(
+      geo_id_raw = rep(1:n_geo, each = n_sim),
+      rr = rep(NA, times = n_sim*n_geo),
+      erf_increment = rep(res[["detailed"]][["raw"]] |>
+        # rep(res[["main"]] |> # Gave error for iteration pathway, as erf_increment not included in main output
+                            pull(erf_increment) |>
+                            first(), times = n_sim*n_geo),
+      erf_shape = rep(res[["detailed"]][["raw"]] |>
+                        # rep(res[["main"]] |> # Gave error for iteration pathway, as erf_increment not included in main output
+                        pull(erf_shape) |>
+                        first(), times = n_sim*n_geo),
+      exp = rep(NA, times = n_sim*n_geo),
+      cutoff = rep(NA, times = n_sim*n_geo),
+      bhd = rep(NA, times = n_sim*n_geo),
+      dw = rep(NA, times = n_sim*n_geo),
+      rr_conc = rep(NA, times = n_sim*n_geo),
+      paf = rep(NA, times = n_sim*n_geo),
+      # paf_weighted = rep(NA, times = n_sim*n_geo),
+      prop_pop_exp = rep(NA, times = n_sim*n_geo) # works for both single exp and exp dist
+      # prop_pop_exp = rep(res[["main"]] |> # only works for single exp
+      #                      pull(prop_pop_exp) |>
+      #                      first(), times = n_sim*n_geo)
+                  #impact = rep(NA, times = n_sim*n_geo)
 
     )
 
@@ -94,13 +109,14 @@ include_summary_uncertainty <- function(
 
     ### rr #####################################################################
 
-    if(length(grep("lower", res[["detailed"]][["raw"]][["erf_ci"]])) > 0)  {
+    # rr CIs & both single and multiple geo unit case
+    if ( length(grep("lower", res[["detailed"]][["raw"]][["erf_ci"]])) > 0 )  {
 
       dat <- dat |>
         # Gamma distribution with optimization to generate simulated RR's
         dplyr::mutate(
           rr = sim_gamma(
-            n_sim = n_sim,
+            n_sim = n_sim*n_geo,
             central_estimate =
               res[["detailed"]][["raw"]] |>
               dplyr::filter(erf_ci == "central") |>
@@ -129,7 +145,7 @@ include_summary_uncertainty <- function(
       # dat <- dat |>
       #   dplyr::mutate(
       #     rr = rnorm(
-      #       n_sim,
+      #       n_sim*n_geo,
       #       mean = res[["detailed"]][["raw"]] |>
       #         filter(erf_ci == "central") |>
       #         pull(rr) |>
@@ -138,7 +154,9 @@ include_summary_uncertainty <- function(
       #     )
       #   )
 
+    # No rr CIs & both single and multiple geo unit case
     } else {
+
       dat <- dat |>
         dplyr::mutate(
           rr = res[["detailed"]][["raw"]] |>
@@ -152,8 +170,10 @@ include_summary_uncertainty <- function(
 
     #### Single exposure #######################################################
 
+    # exp CIs, single geo unit
     if (( length(grep("lower", res[["detailed"]][["raw"]][["exp_ci"]])) > 0 ) &
-        ( unique(res[["main"]]$exposure_type == "population_weighted_mean") )) {
+        ( unique(res[["detailed"]][["raw"]]$exposure_type == "population_weighted_mean") ) &
+        ( max(dat$geo_id_raw) == 1 )) {
 
       sd_exp <- #(exp_upper - exp_lower) / (2 * 1.96)
       (res[["detailed"]][["raw"]] |> filter(exp_ci == "upper") |> pull(exp) |> first() -
@@ -167,20 +187,86 @@ include_summary_uncertainty <- function(
                       pull(exp) |>
                       first(),
             sd = sd_exp))
+
+    # No exp CIs, single geo unit
     } else if ( !( length(grep("lower", res[["detailed"]][["raw"]][["exp_ci"]])) > 0 ) &
-                ( unique(res[["main"]]$exposure_type == "population_weighted_mean" ) ) ) {
+                ( unique(res[["detailed"]][["raw"]]$exposure_type == "population_weighted_mean" ) ) &
+                ( max(dat$geo_id_raw) == 1 ) ) {
+
       dat <- dat |>
         dplyr::mutate(exp = res[["detailed"]][["raw"]] |>
                         filter(exp_ci == "central") |>
                         pull(exp) |>
                         first())
-      }
+
+    # exp CIs, multiple geo units
+    } else if ( ( length(grep("lower", res[["detailed"]][["raw"]][["exp_ci"]])) > 0 ) &
+                ( unique(res[["detailed"]][["raw"]]$exposure_type == "population_weighted_mean" ) ) &
+                ( max(dat$geo_id_raw) > 1 ) ) {
+
+      # For each geo unit, fit a normal distribution and assign to dat
+      # Fit distribution based on each geo units central, lower and upper bhd values
+
+      dat_with_exp_ci <- res[["detailed"]][["raw"]] |>
+        select(geo_id_raw, exp_ci, exp) |>
+        distinct() |>
+        pivot_wider(
+          names_from = exp_ci,
+          names_prefix = "exp_",
+          values_from = exp)
+
+      simulated_data <- dat_with_exp_ci %>%
+        rowwise() %>%
+        mutate(
+          # Generate 100 simulated values for each row
+          exp_simulated = list(
+            rnorm(
+              100,
+              mean = exp_central,
+              sd = (exp_upper - exp_lower) / (2 * 1.96)
+            )
+          )
+        ) %>%
+        ungroup() %>%
+        # Expand each row so each simulated value has its own row
+        unnest(exp_simulated) %>%
+        # Rename for clarity
+        rename(exp = exp_simulated) %>%
+        # Keep only relevant columns
+        select(geo_id_raw, exp)
+
+      dat <- dat |>
+        select(-exp) |>
+        bind_cols(simulated_data |> select(-geo_id_raw)) |>
+        relocate(exp, .after = erf_shape)
+
+
+
+    # No exp CIs, multiple geo units
+    } else if ( !( length(grep("lower", res[["detailed"]][["raw"]][["exp_ci"]])) > 0 ) &
+                # ( unique(res[["main"]]$exposure_type == "population_weighted_mean" ) ) & # Gave error, as no column "exposure_type" in the main iteration output
+                ( unique(res[["detailed"]][["raw"]]$exposure_type == "population_weighted_mean" ) ) &
+                ( max(dat$geo_id_raw) > 1 ) ) {
+
+      test <- dat |>
+        select(-exp) |>
+        left_join(
+          x = _,
+          y = res[["detailed"]][["raw"]] |>
+            select(exp, geo_id_raw) |>
+            distinct(),
+          by = "geo_id_raw"
+        ) |>
+        relocate(exp, .after = erf_shape)
+
+    }
 
     #### Exposure distribution #################################################
 
-    # Exp dist case with exp_central, exp_lower and exp_upper values
+    # Exp dist case with exp CIs, single geo unit
     if (( length(grep("lower", res[["detailed"]][["raw"]][["exp_ci"]])) > 0 ) &
-        ( unique(res[["main"]]$exposure_type == "exposure_distribution") )) {
+        ( unique(res[["detailed"]][["raw"]]$exposure_type == "exposure_distribution") ) &
+        ( max(dat$geo_id_raw) == 1 ) ) {
 
       # Vectors needed for simulation below
       exp_central <- res[["detailed"]][["raw"]] |>
@@ -227,9 +313,10 @@ include_summary_uncertainty <- function(
       dat <- cbind(dat, dat_exp_dist) |>
         select(-exp)
 
-      # Exp dist case with only exp_cenral values (no exp_lower & exp_upper values)
+      # Exp dist case with no exp CIs, single geo unit
     } else if ( !( length(grep("lower", res[["detailed"]][["raw"]][["exp_ci"]])) > 0 ) &
-               ( unique(res[["main"]]$exposure_type == "exposure_distribution") )) {
+               ( unique(res[["detailed"]][["raw"]]$exposure_type == "exposure_distribution") ) &
+               ( max(dat$geo_id_raw) == 1 ) ) {
 
       # Vectors needed for simulation below (exp_central & prop_pop_exp)
       exp_central <- res[["detailed"]][["raw"]] |>
@@ -263,34 +350,57 @@ include_summary_uncertainty <- function(
       dat <- cbind(dat, dat_exp_dist) |>
         select(-exp)
 
+    # Exp dist case no exp CIs, multiple geo units
+    } else if ( !( length(grep("lower", res[["detailed"]][["raw"]][["exp_ci"]])) > 0 ) &
+               ( unique(res[["detailed"]][["raw"]]$exposure_type == "exposure_distribution") ) &
+               ( max(dat$geo_id_raw) > 1 ) ) {
+
+      # Add code
+
+    # Exp dist case with exp CIs, multiple geo units
+    } else if (( length(grep("lower", res[["detailed"]][["raw"]][["exp_ci"]])) > 0 ) &
+               ( unique(res[["detailed"]][["raw"]]$exposure_type == "exposure_distribution") ) &
+               ( max(dat$geo_id_raw) > 1 ) ) {
+
+      # Add code
+
     }
 
     ### cutoff #################################################################
 
-    if (length(grep("lower", res[["detailed"]][["raw"]][["cutoff_ci"]])) > 0) {
+    # cutoff CIs, both single and multiple geo unit case
+    if ( length(grep("lower", res[["detailed"]][["raw"]][["cutoff_ci"]])) > 0 ) {
+
       sd_cutoff <- #(cutoff_upper - cutoff_lower) / (2 * 1.96)
         (res[["detailed"]][["raw"]] |> filter(cutoff_ci == "upper") |> pull(cutoff) |> first() -
            res[["detailed"]][["raw"]] |> filter(cutoff_ci == "lower") |> pull(cutoff) |>  first()) / (2 * 1.96)
+
       dat <- dat |>
         dplyr::mutate(
           cutoff = rnorm(
-            n_sim,
+            n_sim * n_geo,
             mean = res[["detailed"]][["raw"]] |>
               filter(cutoff_ci == "central") |>
               pull(cutoff) |>
               first(),
             sd = sd_cutoff))
-    } else {
+
+    # No cutoff CIs, both single and multiple geo unit case
+    } else if ( !length(grep("lower", res[["detailed"]][["raw"]][["cutoff_ci"]])) > 0 ) {
+
       dat <- dat |>
         dplyr::mutate(cutoff = res[["detailed"]][["raw"]] |>
                         filter(cutoff_ci == "central") |>
                         pull(cutoff) |>
                         first())
-      }
+    }
 
     ### bhd ####################################################################
 
-    if (length(grep("lower", res[["detailed"]][["raw"]][["bhd_ci"]])) > 0) {
+    # bhd CIs & single geo unit
+    if ( (length(grep("lower", res[["detailed"]][["raw"]][["bhd_ci"]])) > 0) &
+      ( max(dat$geo_id_raw) == 1 ) ) {
+
       sd_bhd <- #(bhd_upper - bhd_lower) / (2 * 1.96)
         (res[["detailed"]][["raw"]] |> filter(bhd_ci == "upper") |> pull(bhd) |> first() -
            res[["detailed"]][["raw"]] |> filter(bhd_ci == "lower") |> pull(bhd) |>  first()) / (2 * 1.96)
@@ -303,17 +413,80 @@ include_summary_uncertainty <- function(
               pull(bhd) |>
               first(),
             sd = sd_bhd))
-    } else {
+
+    # No bhd CIs & single geo unit
+    } else if ( !(length(grep("lower", res[["detailed"]][["raw"]][["bhd_ci"]])) > 0) &
+                ( max(dat$geo_id_raw) == 1 ) ) {
       dat <- dat |>
         dplyr::mutate(bhd = res[["detailed"]][["raw"]] |>
                         filter(bhd_ci == "central") |>
                         pull(bhd) |>
                         first())
-      }
+
+    # bhd CIs & multiple geo units
+    } else if ( (length(grep("lower", res[["detailed"]][["raw"]][["bhd_ci"]])) > 0) &
+                ( max(dat$geo_id_raw) > 1 ) ) {
+
+      # For each geo unit, fit a normal distribution and assign to dat
+      # Fit distribution based on each geo units central, lower and upper bhd values
+
+      dat_with_bhd_ci <- res[["detailed"]][["raw"]] |>
+        select(geo_id_raw, bhd_ci, bhd) |>
+        distinct() |>
+        pivot_wider(
+          names_from = bhd_ci,
+          names_prefix = "bhd_",
+          values_from = bhd) |>
+        # Assign new value to bhd_upper so that sd is not 0!!!
+        mutate(bhd_upper = bhd_lower + 10000)
+
+      simulated_data <- dat_with_bhd_ci %>%
+        rowwise() %>%
+        mutate(
+          # Generate 100 simulated values for each row
+          bhd_simulated = list(
+            rnorm(
+              100,
+              mean = bhd_central,
+              sd = (bhd_upper - bhd_lower) / (2 * 1.96)
+            )
+          )
+        ) %>%
+        ungroup() %>%
+        # Expand each row so each simulated value has its own row
+        unnest(bhd_simulated) %>%
+        # Rename for clarity
+        rename(bhd = bhd_simulated) %>%
+        # Keep only relevant columns
+        select(geo_id_raw, bhd)
+
+      dat <- dat |>
+        select(-bhd) |>
+        bind_cols(simulated_data |> select(-geo_id_raw)) |>
+        relocate(bhd, .after = cutoff)
+
+    # No bhd CI's & multiple geo units
+    } else if ( !(length(grep("lower", res[["detailed"]][["raw"]][["bhd_ci"]])) > 0) &
+                ( max(dat$geo_id_raw) > 1 ) ) {
+
+      dat <- dat |>
+        select(-bhd) |>
+        left_join(
+          x = _,
+          y = res[["detailed"]][["raw"]] |>
+            select(bhd, geo_id_raw) |>
+            distinct(),
+          by = "geo_id_raw"
+        ) |>
+        relocate(bhd, .after = cutoff)
+
+    }
 
     ### dw #####################################################################
 
-    if (length(grep("lower", res[["detailed"]][["raw"]][["dw_ci"]])) > 0) {
+    # dw CIs, both single and multiple geo unit case
+    if ( (length(grep("lower", res[["detailed"]][["raw"]][["dw_ci"]])) > 0) &
+         ( max(dat$geo_id_raw) == 1 ) ) {
 
       # Using beta distribution using prevalence::betaExpert()
       # dw_sim <- prevalence::betaExpert(dw_central, dw_lower, dw_upper, method = "mean")
@@ -343,16 +516,28 @@ include_summary_uncertainty <- function(
               pull(dw) |>
               first(),
             sd = sd_dw))
-    } else if ("dw" %in% names(res[["detailed"]][["raw"]])) {
+
+    # No dw CIs, both single and multiple geo unit case
+    } else if ( ("dw" %in% names(res[["detailed"]][["raw"]])) &
+                ( max(dat$geo_id_raw) == 1 ) ) {
       dat <- dat |>
         dplyr::mutate(dw = res[["detailed"]][["raw"]] |>
                         filter(dw_ci == "central") |>
                         pull(dw) |>
-                        first())}
+                        first())
 
-    ## rr_conc #################################################################
-    ## Determine rr_conc using call to healthiar::get_risk()
-    if ( ( unique(res[["main"]]$exposure_type == "population_weighted_mean" ) ) ) {
+    # No dw inputted, both single and multiple geo unit case
+    } else if ( !( "dw" %in% names(res[["detailed"]][["raw"]]) ) ) {
+
+      dat <- dat |>
+        dplyr::mutate(dw = 1)
+
+    }
+
+    ## rr_conc ################################################################
+
+    ### Single exposure case ##################################################
+    if ( ( unique(res[["detailed"]][["raw"]]$exposure_type == "population_weighted_mean" ) ) ) {
 
     dat <- dat |>
       dplyr::mutate(
@@ -372,7 +557,8 @@ include_summary_uncertainty <- function(
 
     dat$rr <- unlist(dat$rr)
 
-    } else if ( unique(res[["main"]]$exposure_type == "exposure_distribution" ) ) {
+    ### Exposure distribution case ############################################
+    } else if ( unique(res[["detailed"]][["raw"]]$exposure_type == "exposure_distribution" ) ) {
 
       # Calc rr_conc for each exp cat
       dat <- dat |>
@@ -402,12 +588,12 @@ include_summary_uncertainty <- function(
     ## PAF #####################################################################
     ## Determine PAF via call to get_pop_fraction()
 
-    if ( ( unique(res[["main"]]$exposure_type == "population_weighted_mean" ) ) ) {
+    if ( ( unique(res[["detailed"]][["raw"]]$exposure_type == "population_weighted_mean" ) ) ) {
 
       dat <- dat |>
         dplyr::mutate(
           paf = purrr::pmap(
-            list(rr_conc = rr_conc, prop_pop_exp = res[["main"]]$prop_pop_exp |> first(x = _)),
+            list(rr_conc = rr_conc, prop_pop_exp = res[["detailed"]][["raw"]]$prop_pop_exp |> first(x = _)),
             function(rr_conc, prop_pop_exp){
               paf <- healthiar::get_pop_fraction(rr_conc_1 = rr_conc,
                                       rr_conc_2 = 1,
@@ -420,7 +606,7 @@ include_summary_uncertainty <- function(
 
       dat$paf <- unlist(dat$paf)
 
-    } else if ( unique(res[["main"]]$exposure_type == "exposure_distribution" ) ) {
+    } else if ( unique(res[["detailed"]][["raw"]]$exposure_type == "exposure_distribution" ) ) {
 
       # Determine product_x = rr_conc_x * prop_pop_exp_x
       dat <- dat |>
@@ -491,18 +677,19 @@ include_summary_uncertainty <- function(
     #     pop_exp = NULL) { # in absolute risk case
 
 
-    # To be added... ############
+    ### To be added... ############
 
     ## Get impact ##############################################################
     ## Multiply PAFs with bhd (& dw, if applicable)
 
-    if ( !grepl("from_lifetable", res[["main"]]$health_metric[1]) ) {
+    ### Non-lifetable case ####
+    if ( !grepl("from_lifetable", res[["detailed"]][["raw"]]$health_metric[1]) ) {
 
       dat <- dat |>
         dplyr::mutate(impact_total = paf * bhd)
 
-    } else if ( (length(grep("lower", res[["detailed"]][["raw"]][["dw_ci"]])) > 0) &
-         ( !is.na(dat$dw[1]) ) ) {
+    ### YLD case (dw present)
+    } else if ( (length(grep("lower", res[["detailed"]][["raw"]][["dw_ci"]])) > 0) ) {
 
       dat <- dat |>
         dplyr::mutate(impact_total= impact_total * dw)
@@ -578,7 +765,7 @@ include_summary_uncertainty <- function(
   # Determine 95% CI of impact #################################################
 
   # Non-lifetable
-  if (!grepl("from_lifetable", res[["main"]]$health_metric[1])) {
+  if (!grepl("from_lifetable", res[["detailed"]][["raw"]]$health_metric[1])) {
     ci <- quantile(x = dat |> dplyr::pull(impact_total) |> unlist(),
                    probs = c(0.025, 0.5, 0.975))
 
