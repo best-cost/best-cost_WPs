@@ -81,7 +81,7 @@ install.packages("../testing/input/healthiar_0.0.0.1.zip", repos=NULL, type='sou
 
 
 # Package as .tar.gz file
-devtools::build(path = "../") # Save current state of package as tar.gz file (e.g. to directly test changes in functions)
+devtools::build(path = "../testing/input/") # Save current state of package as tar.gz file (e.g. to directly test changes in functions)
 install.packages("../testing/input/healthiar_0.0.0.1.tar.gz", repos=NULL, type='source') # Install package from source
 
 library(healthiar)
@@ -89,8 +89,10 @@ library(healthiar)
 
 # Test prepare function
 
-```{r prepare_exposure_data}
-test <- prepare_exposure_data()
+```{r prepare_exposure_data, eval=FALSE, include=FALSE}
+
+# To be added
+# test <- prepare_exposure_data()
 ```
 
 # Calculate health impacts
@@ -117,9 +119,9 @@ results_pm_copd <-
     info = "pm_copd_assessment_1")
 
 # Check results
-View(results_pm_copd)
-View(results_pm_copd$main)
-View(results_pm_copd$detailed$raw)
+# View(results_pm_copd)
+# View(results_pm_copd$main)
+# View(results_pm_copd$detailed$raw)
 ```
 
 ```{r single exposure value}
@@ -556,7 +558,7 @@ bestcost_noise_ha_ar_with_summary_uncertainty <-
 print("Summary uncertainty central estimate: ")
 bestcost_noise_ha_ar_with_summary_uncertainty[["detailed"]][["uncertainty"]]$central_estimate
 print("Main estimate: ")
-bestcost_noise_ha_ar[["main"]][["impact_rounded"]]
+bestcost_noise_ha_ar_with_summary_uncertainty[["main"]][["impact_rounded"]]
 ```
 
 ### Multiple exposure
