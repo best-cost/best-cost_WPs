@@ -33,7 +33,7 @@ include_summary_uncertainty <- function(
   # Determine number of geographic units
   if (length(grep("geo_id", names(res[["detailed"]][["raw"]]))) > 0) {
 
-    n_geo <- max(res[["detailed"]][["raw"]]$geo_id_raw)
+    n_geo <- as.numeric(max(res[["detailed"]][["raw"]]$geo_id_raw))
 
   } else {
 
@@ -358,9 +358,9 @@ include_summary_uncertainty <- function(
       # Add code
 
     # Exp dist case with exp CIs, multiple geo units
-    } else if (( length(grep("lower", res[["detailed"]][["raw"]][["exp_ci"]])) > 0 ) &
-               ( unique(res[["detailed"]][["raw"]]$exposure_type == "exposure_distribution") ) &
-               ( max(dat$geo_id_raw) > 1 ) ) {
+    } else if ( ( length(grep("lower", res[["detailed"]][["raw"]][["exp_ci"]])) > 0 ) &
+                ( unique(res[["detailed"]][["raw"]]$exposure_type == "exposure_distribution") ) &
+                ( max(dat$geo_id_raw) > 1 ) ) {
 
       # Add code
 
@@ -588,6 +588,7 @@ include_summary_uncertainty <- function(
     ## PAF #####################################################################
     ## Determine PAF via call to get_pop_fraction()
 
+    ### Single exposure case ####
     if ( ( unique(res[["detailed"]][["raw"]]$exposure_type == "population_weighted_mean" ) ) ) {
 
       dat <- dat |>
@@ -606,6 +607,7 @@ include_summary_uncertainty <- function(
 
       dat$paf <- unlist(dat$paf)
 
+      ### Exposure distribution case ####
     } else if ( unique(res[["detailed"]][["raw"]]$exposure_type == "exposure_distribution" ) ) {
 
       # Determine product_x = rr_conc_x * prop_pop_exp_x
@@ -764,8 +766,12 @@ include_summary_uncertainty <- function(
 
   # Determine 95% CI of impact #################################################
 
-  # Non-lifetable
-  if (!grepl("from_lifetable", res[["detailed"]][["raw"]]$health_metric[1])) {
+  ## Non-lifetable ####
+
+  ### Single geo unit ####
+  if ( ( !grepl("from_lifetable", res[["detailed"]][["raw"]]$health_metric[1]) ) &
+       (  ( max(dat$geo_id_raw) == 1 ) ) ) {
+
     ci <- quantile(x = dat |> dplyr::pull(impact_total) |> unlist(),
                    probs = c(0.025, 0.5, 0.975))
 
@@ -774,8 +780,38 @@ include_summary_uncertainty <- function(
                  lower_estimate = ci[1],
                  upper_estimate = ci[3])
 
-    # Lifetable
-  } else if (grepl("from_lifetable", res[["main"]]$health_metric[1])) {
+    ### Multiple geo units ####
+  } else if ( ( !grepl("from_lifetable", res[["detailed"]][["raw"]]$health_metric[1]) ) &
+              ( max(dat$geo_id_raw) > 1 ) ) {
+
+    # Impact per geo unit
+    impact_per_geo_unit <- dat |>
+      group_by(geo_id_raw) |>
+      summarize(
+        impact_central = quantile(
+          x = impact_total,
+          probs = c(0.5)
+          ),
+        impact_lower = quantile(
+          x = impact_total,
+          probs = c(0.025)
+        ),
+        impact_upper = quantile(
+          x = impact_total,
+          probs = c(0.975)
+        )
+        )
+
+    # Impact aggregated
+    ci <- impact_per_geo_unit |>
+      summarize(
+        central_estimate = sum(impact_central),
+        lower_estimate = sum(impact_lower),
+        upper_estimate = sum(impact_upper)
+        )
+
+  ## Lifetable ####
+  } else if ( grepl("from_lifetable", res[["detailed"]][["raw"]]$health_metric[1] ) ) {
 
     ci_male <- quantile(
       x = dat$detailed$step_by_step_from_lifetable |> filter(sex == "male") |> dplyr::pull(impact) |> unlist(),
