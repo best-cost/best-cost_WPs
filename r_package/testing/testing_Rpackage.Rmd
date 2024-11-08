@@ -81,7 +81,7 @@ install.packages("../testing/input/healthiar_0.0.0.1.zip", repos=NULL, type='sou
 
 
 # Package as .tar.gz file
-devtools::build(path = "../") # Save current state of package as tar.gz file (e.g. to directly test changes in functions)
+devtools::build(path = "../testing/input/") # Save current state of package as tar.gz file (e.g. to directly test changes in functions)
 install.packages("../testing/input/healthiar_0.0.0.1.tar.gz", repos=NULL, type='source') # Install package from source
 
 library(healthiar)
@@ -90,7 +90,10 @@ library(healthiar)
 # Test prepare function
 
 ```{r prepare_exposure_data, eval=FALSE, include=FALSE}
-test <- prepare_exposure_data()
+
+# To be added
+# test <- prepare_exposure_data()
+
 ```
 
 # Calculate health impacts
