@@ -32,6 +32,7 @@ attribute_deaths_from_lifetable(
   year_of_analysis,
   min_age = NULL,
   max_age = NULL,
+  summary_uncertainty = NULL,
   info = NULL
 )
 }

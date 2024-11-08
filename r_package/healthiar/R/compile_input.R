@@ -14,6 +14,9 @@
 #' }
 #' @import dplyr
 #' @import purrr
+#' @importFrom tidyr pivot_longer
+#' @importFrom tidyr crossing
+#' @importFrom tidyr nest
 #' @examples
 #' TBD
 #' @author Alberto Castro
