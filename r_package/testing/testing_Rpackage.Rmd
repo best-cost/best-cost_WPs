@@ -647,7 +647,7 @@ bestcost_noise_ihd_expDist_extern_uncertainty[["detailed"]][["uncertainty"]]$upp
 
 
 
-```{r Summary uncertainty rr exposure distribution iteration}
+```{r Summary uncertainty rr exposure distribution iteration, eval=FALSE, include=FALSE}
 # Data prep
 niph_noise_ihd_input <- 
   niph_noise_ihd_excel |>
@@ -700,7 +700,7 @@ round(as.numeric(bestcost_noise_ihd_expDist_iteration_uncertainty[["detailed"]][
 
 
 
-```{r Summary uncertainty rr attribute_yld_from_prevalence }
+```{r Summary uncertainty rr attribute_yld_from_prevalence, eval=FALSE, include=FALSE}
 
 bestcost_pm_yld_singlebhd_with_summary_uncertainty  <- 
   healthiar::attribute_yld_from_prevalence(
@@ -736,7 +736,7 @@ print("Summary uncertainty estimates (external function): ")
 round(as.numeric(bestcost_pm_yld_singlebhd_external_summary_uncertainty[["detailed"]][["uncertainty"]]), digits = 0)
 ```
 
-```{r Summary uncertainty ar}
+```{r Summary uncertainty ar, eval=FALSE, include=FALSE}
 
 # Get data
 niph_noise_ha_input <- 
