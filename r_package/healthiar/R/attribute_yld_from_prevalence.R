@@ -46,7 +46,7 @@ attribute_yld_from_prevalence <-
         erf_increment = erf_increment,
         erf_shape = erf_shape,
         erf_eq_central = erf_eq_central, erf_eq_lower = erf_eq_lower, erf_eq_upper = erf_eq_upper,
-        bhd_central = bhd_central, bhd_lower = bhd_lower, bhd_upper = bhd_lower,
+        bhd_central = bhd_central, bhd_lower = bhd_lower, bhd_upper = bhd_upper,
         first_age_pop = NULL, last_age_pop = NULL,
         population_midyear_male = NULL, population_midyear_female = NULL,
         year_of_analysis = NULL,
