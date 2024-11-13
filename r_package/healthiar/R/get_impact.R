@@ -106,11 +106,12 @@ get_impact <-
           max_age = max_age,
           corrected_discount_rate = corrected_discount_rate,
           input_with_risk_and_pop_fraction = input_with_risk_and_pop_fraction)
-
     }
 
-    } else if(unique(input$approach_risk) == "absolute_risk" &
-              unique(input$health_metric) == "same_input_output"){
+
+  # If not relative risk
+    }else if(unique(input$approach_risk) == "absolute_risk" &
+       unique(input$health_metric) == "same_input_output"){
 
       # Calculate absolute risk for each exposure category ####
       impact_raw_main <-
