@@ -239,7 +239,7 @@ system.time(bestcost_pm_copd_geo <-
 # Take into account social aspects
 
 # First calculate attributable deahts based on total mortality as provide by Sciensano
-bestcost_using_sciensano_social <- 
+bestcost_pm_death <- 
   healthiar::attribute_health(
     exp_central = as.list(social_data$PM25_MEAN),
     cutoff_central = 0,
@@ -250,17 +250,18 @@ bestcost_using_sciensano_social <-
     geo_id_raw = social_data$CS01012020)
 
 # Then include social indicators of deprivation 
-bestcost_social_copd_geo_social <- 
-  healthiar::include_social(output = bestcost_pm_copd_geo,
-                            geo_id_raw = 1:1E4,
-                            deprivation_index = as.list(runif_with_seed(1E4, 0.5, 0.8, 1)),
-                            approach = "multiplicative")
+bestcost_pm_death_social <- 
+  healthiar::include_social(output = bestcost_pm_death,
+                            geo_id_raw = social_data$CS01012020,
+                            deprivation_index = social_data$score,
+                            population = social_data$POPULATION,
+                            approach = "decile")
 
 
 bestcost_pm_copd_geo_social <- 
   healthiar::include_social(output = bestcost_pm_copd_geo,
                             geo_id_raw = 1:1E4,
-                            deprivation_index = as.list(runif_with_seed(1E4, 0.5, 0.8, 1)),
+                            deprivation_index = runif_with_seed(1E4, 0.5, 0.8, 1),
                             approach = "multiplicative")
 ```
 
