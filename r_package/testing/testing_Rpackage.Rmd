@@ -46,6 +46,7 @@ library(devtools)
 
 ## to make geo analysis
 library(terra)
+library(sf)
 
 # Load healthiar package (either current version or installed version)
 devtools::load_all(export_all = FALSE)
@@ -236,10 +237,31 @@ system.time(bestcost_pm_copd_geo <-
 
 ```{r Social aspects in a simple case}
 # Take into account social aspects
+
+# First calculate attributable deahts based on total mortality as provide by Sciensano
+bestcost_using_sciensano_social <- 
+  healthiar::attribute_health(
+    exp_central = as.list(social_data$PM25_MEAN),
+    cutoff_central = 0,
+    rr_central = 1.08, # The data set contains the RR for the exposure but not per increment. Calculable as e.g. exp(log(1.038017)/(4.848199)*10) 
+    erf_shape = "log_linear", 
+    erf_increment = 10,
+    bhd_central = as.list(social_data$MORTALITY_TOTAL),
+    geo_id_raw = social_data$CS01012020)
+
+# Then include social indicators of deprivation 
+bestcost_social_copd_geo_social <- 
+  healthiar::include_social(output = bestcost_pm_copd_geo,
+                            geo_id_raw = 1:1E4,
+                            deprivation_index = as.list(runif_with_seed(1E4, 0.5, 0.8, 1)),
+                            approach = "multiplicative")
+
+
 bestcost_pm_copd_geo_social <- 
   healthiar::include_social(output = bestcost_pm_copd_geo,
-                           geo_id_raw = 1:1E4,
-                           deprivation_index = as.list(runif_with_seed(1E4, 0.5, 0.8, 1)))
+                            geo_id_raw = 1:1E4,
+                            deprivation_index = as.list(runif_with_seed(1E4, 0.5, 0.8, 1)),
+                            approach = "multiplicative")
 ```
 
 
