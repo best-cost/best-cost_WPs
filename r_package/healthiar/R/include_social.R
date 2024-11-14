@@ -11,35 +11,38 @@
 #' function_name(param1 = value1, param2 = value2)
 #' @export
 include_social <- function(output,
-                           deprivation_weight,
-                           geo_id_raw
-                           #TODO Add method (if multiple)
-                           ) {
+                           deprivation_index,
+                           geo_id_raw,
+                           approach = "multiplicative") {
 
   output_social <- list()
 
-  # Re-calculate output with the social aspects inside using output_raw
+  if(approach == "multiplicative"){
 
+
+  # Re-calculate output with the social aspects inside using output_raw
   output_social[["main"]] <-
     output[["detailed"]][["raw"]] |>
+
     dplyr::left_join(
-      .,
-      dplyr::tibble(geo_id_raw = geo_id_raw,
-                    deprivation_weight = deprivation_weight),
+      x =_,
+      y = dplyr::tibble(geo_id_raw = geo_id_raw,
+                    deprivation_index = deprivation_index),
       by = "geo_id_raw")|>
-    dplyr::mutate(impact_deprivation_weighted =
-                    as.numeric(impact) * as.numeric(deprivation_weight),
+
+    dplyr::mutate(impact_social =
+                    as.numeric(impact) * as.numeric(deprivation_index),
                   .after = impact) |>
-    dplyr::mutate(impact_rounded_deprivation_weighted =
-                    round(impact_deprivation_weighted),
-                  .after = impact_rounded)
+    dplyr::mutate(impact_rounded_social =
+                    round(impact_social),
+                  .after = impact_rounded_social)
 
 
   # Based on the new output_raw that includes social aspects
   # Recalculate output
   output_social <- healthiar:::get_output(output_social)
 
-  # Calculate the weighting
+  }
 
 
   return(output_social)

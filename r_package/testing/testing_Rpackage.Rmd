@@ -44,6 +44,9 @@ library(credentials)
 library(gitcreds)
 library(devtools)
 
+## to make geo analysis
+library(terra)
+
 # Load healthiar package (either current version or installed version)
 devtools::load_all(export_all = FALSE)
 
@@ -231,12 +234,12 @@ system.time(bestcost_pm_copd_geo <-
 
 
 
-```{r Social aspects in a simple case, eval=FALSE, include=FALSE}
+```{r Social aspects in a simple case}
 # Take into account social aspects
 bestcost_pm_copd_geo_social <- 
   healthiar::include_social(output = bestcost_pm_copd_geo,
                            geo_id_raw = 1:1E4,
-                           deprivation_weight = as.list(runif_with_seed(1E4, 0.5, 0.8, 1)))
+                           deprivation_index = as.list(runif_with_seed(1E4, 0.5, 0.8, 1)))
 ```
 
 
