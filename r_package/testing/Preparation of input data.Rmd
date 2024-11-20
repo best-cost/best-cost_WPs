@@ -1080,7 +1080,7 @@ social_data_input <-
   
 ```
 
-```{r}
+```{r social results}
 ## exposure and attributable burden per deprivation decile
 social_per_decile <- 
   data.frame(

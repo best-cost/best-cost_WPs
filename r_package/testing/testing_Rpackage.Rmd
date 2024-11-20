@@ -259,9 +259,10 @@ bestcost_pm_death_social <-
 
 
 bestcost_pm_copd_geo_social <- 
-  healthiar::include_social(output = bestcost_pm_copd_geo,
-                            geo_id_raw = 1:1E4,
-                            deprivation_index = runif_with_seed(1E4, 0.5, 0.8, 1),
+  healthiar::include_social(output = bestcost_pm_death,
+                            geo_id_raw = social_data$CS01012020,
+                            deprivation_index = social_data$score,
+                            population = social_data$POPULATION,
                             approach = "multiplicative")
 ```
 

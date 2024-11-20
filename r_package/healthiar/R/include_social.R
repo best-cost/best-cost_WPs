@@ -34,8 +34,8 @@ include_social <- function(output,
     if(approach == "multiplicative"){
       # Re-calculate output with the social aspects inside using output_raw
 
-    output_social[["main"]] <-
-      output_social[["main"]] |>
+    output_social <-
+      output_social |>
       dplyr::mutate(impact_social =
                       as.numeric(impact) * as.numeric(deprivation_index),
                     .after = impact) |>
@@ -45,7 +45,7 @@ include_social <- function(output,
 
   # Based on the new output_raw that includes social aspects
   # Recalculate output
-    output_social <- healthiar:::get_output(list(main = output_social))
+    output <- healthiar:::get_output(list(main = output_social))
 
     }
 
@@ -54,24 +54,27 @@ include_social <- function(output,
 
     ## exposure and attributable burden per deprivation decile
 
-    social_per_decile <-
+    output_social <-
       output_social |>
       # Remove NAs
       filter(!is.na(deprivation_index)) |>
       # Add ranking of deprivation index and deciles
       dplyr::mutate(
         ranking = min_rank(desc(deprivation_index)),
-        decile = ntile(deprivation_index, n = 10))
+        decile = dplyr::ntile(desc(deprivation_index), n = 10))
 
     output_social_summary <-
-      social_per_decile |>
+      output_social |>
       # Group by geo_id to ensure that you get one result per geo_id
       # keeping uncertainties
-      dplyr::group_by(geo_id_raw) |>
-      dplyr::summarise(
-        exposure_mean = tapply(exp_central, decile, mean),
-        mort_attr = tapply(impact, decile, sum) * 1e5 / tapply(population, decile, sum),
-        mort_total = tapply(bhd_central, decile, sum) * 1e5 /  tapply(population, decile, sum))
+      dplyr::group_by(decile) |>
+      dplyr::summarize(
+        exposure_mean = mean(exp, na.rm = TRUE),
+        impact_mean = mean(impact, na.rm = TRUE),
+        bhd_mean = mean(bhd, na.rm = TRUE),
+        population_sum = sum(population, na.rm = TRUE),
+        impact_rate = impact_mean * 1e5 / population_sum,
+        bhd_rate = bhd_mean * 1e5 / population_sum)
 
 
 
@@ -79,20 +82,24 @@ include_social <- function(output,
 
     social_results <-
       tidyr::tibble(
-        exp_abs_diff = social_per_decile[["exposure_mean"]][1] - social_per_decile[["exposure_mean"]][10], ## absolute diff,
-        exp_rel_diff = 100 * ( (social_per_decile[["exposure_mean"]][1] / social_per_decile[["exposure_mean"]][10]) - 1 ), ## relative diff
-        exp_paf_di = 100 * (mean(social_data$PM25_MEAN) - social_per_decile[["exposure_mean"]][10]) / mean(social_data$PM25_MEAN), # PAF
-        mort_abs_diff = social_per_decile[["mort_attr"]][1] - social_per_decile[["mort_attr"]][10], ## absolute diff
-        mort_rel_diff = 100 * ( (social_per_decile[["mort_attr"]][1] / social_per_decile[["mort_attr"]][10]) - 1 ), ## relative diff
-        mort_mean = (1e5 * sum(social_data$MORTALITY_ATTR) / sum(social_data$POPULATION))) |>
+        exp_abs_diff = output_social_summary[["exposure_mean"]][1] - output_social_summary[["exposure_mean"]][10], ## absolute diff,
+        exp_rel_diff = 100 * ( (output_social_summary[["exposure_mean"]][1] / output_social_summary[["exposure_mean"]][10]) - 1 ), ## relative diff
+        exp_paf_di = 100 * (mean(social_data$PM25_MEAN) - output_social_summary[["exposure_mean"]][10]) / mean(social_data$PM25_MEAN), # PAF
+        impact_abs_diff = output_social_summary[["impact_rate"]][1] - output_social_summary[["impact_rate"]][10], ## absolute diff
+        impact_rel_diff = 100 * ( (output_social_summary[["impact_rate"]][1] / output_social_summary[["impact_rate"]][10]) - 1 ), ## relative diff
+        impact_mean = (1e5 * sum(social_data$MORTALITY_ATTR) / sum(social_data$POPULATION))) |>
       dplyr::mutate(
-        mort_paf_di = 100 * (mort_mean - social_per_decile[["mort_attr"]][10]) / mort_mean # PAF
+        impact_paf_di = 100 * (impact_mean - output_social_summary[["impact_rate"]][10]) / impact_mean # PAF
       )
+
+
+    output[["detailed"]][["social"]] <- social_results
 
 
   }
 
 
-  return(output_social)
+
+  return(output)
 
 }
