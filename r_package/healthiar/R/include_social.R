@@ -90,34 +90,45 @@ include_social <- function(output,
 
     ## inequalities
     social_results <-
-      output_social_per_decile %>%
+      output_social_per_decile |>
 
       dplyr::summarize(
         # Exposure
 
         ## In comparison with top decile
         ### absolute difference
-        exp_abs_diff_top_decile = first(exposure_mean) - last(exposure_mean),
+        exp_abs_decile = first(exposure_mean) - last(exposure_mean),
         ### relative difference
-        exp_rel_diff_top_decile = exp_abs_diff_top_decile / last(exposure_mean),
+        exp_rel_decile = exp_abs_decile / last(exposure_mean),
 
         ## In comparison with overall
         ### absolute difference
-        exp_abs_diff_overall = exp_mean_overall - last(exposure_mean),
+        exp_abs_overall = exp_mean_overall - last(exposure_mean),
         # Attributable fraction of exposure in comparison with top decile
-        exp_rel_diff_overall =  exp_abs_diff_overall / exp_mean_overall,
+        exp_rel_overall =  exp_abs_overall / exp_mean_overall,
 
         # Impact
         ## In comparison with overall
         ### absolute difference
-        impact_abs_diff_top_decile = first(impact_rate) - last(impact_rate),
+        impact_abs_decile = first(impact_rate) - last(impact_rate),
         ## relative difference
-        impact_rel_diff_top_decile = impact_abs_diff_top_decile / last(impact_rate) ,
+        impact_rel_decile = impact_abs_decile / last(impact_rate) ,
 
         ### absolute difference
-        impact_abs_diff_overall = impact_rate_overall - last(impact_rate),
+        impact_abs_overall = impact_rate_overall - last(impact_rate),
         # Attributable fraction of impact
-        impact_rel_diff_overall = impact_abs_diff_overall / impact_rate_overall)
+        impact_rel_overall = impact_abs_overall / impact_rate_overall) |>
+
+      # Long instead of wide layout
+      tidyr::pivot_longer(
+        cols = everything(),
+        names_to = c("parameter", "difference", "compared_with"),
+        values_to = "value",
+        names_sep = "_") |>
+
+      # Replace "decile" with "top_decile"
+      dplyr::mutate(compared_with = gsub("decile", "top_decile", compared_with))
+
 
 
     output[["detailed"]][["social"]] <- social_results

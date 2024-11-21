@@ -258,6 +258,8 @@ bestcost_pm_death_social <-
                             approach = "decile")
 
 
+
+
 bestcost_pm_copd_geo_social <- 
   healthiar::include_social(output = bestcost_pm_death,
                             geo_id_raw = social_data$CS01012020,
