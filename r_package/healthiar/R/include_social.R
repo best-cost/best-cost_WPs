@@ -63,7 +63,15 @@ include_social <- function(output,
         ranking = min_rank(desc(deprivation_index)),
         decile = dplyr::ntile(desc(deprivation_index), n = 10))
 
-    output_social_summary <-
+    # Basic statistic to be used below
+    # Mean exposure in all geographical units (without stratification by decile)
+    exp_mean_overall = mean(output_social$exp, na.rm = TRUE)
+    # Impact rate in all geographical units (without stratification by decile)
+    impact_rate_overall = sum(output_social$impact, na.rm = TRUE) * 1e5 /
+                           sum(output_social$population, na.rm = TRUE)
+
+    # Stratification by Deciles
+    output_social_per_decile <-
       output_social |>
       # Group by geo_id to ensure that you get one result per geo_id
       # keeping uncertainties
@@ -72,25 +80,44 @@ include_social <- function(output,
         exposure_mean = mean(exp, na.rm = TRUE),
         impact_mean = mean(impact, na.rm = TRUE),
         bhd_mean = mean(bhd, na.rm = TRUE),
+        impact_sum = sum(impact, na.rm = TRUE),
+        bhd_sum = sum(bhd, na.rm = TRUE),
         population_sum = sum(population, na.rm = TRUE),
-        impact_rate = impact_mean * 1e5 / population_sum,
-        bhd_rate = bhd_mean * 1e5 / population_sum)
+        impact_rate = impact_sum * 1e5 / population_sum,
+        bhd_rate = bhd_sum * 1e5 / population_sum)
 
 
 
     ## inequalities
-
     social_results <-
-      tidyr::tibble(
-        exp_abs_diff = output_social_summary[["exposure_mean"]][1] - output_social_summary[["exposure_mean"]][10], ## absolute diff,
-        exp_rel_diff = 100 * ( (output_social_summary[["exposure_mean"]][1] / output_social_summary[["exposure_mean"]][10]) - 1 ), ## relative diff
-        exp_paf_di = 100 * (mean(social_data$PM25_MEAN) - output_social_summary[["exposure_mean"]][10]) / mean(social_data$PM25_MEAN), # PAF
-        impact_abs_diff = output_social_summary[["impact_rate"]][1] - output_social_summary[["impact_rate"]][10], ## absolute diff
-        impact_rel_diff = 100 * ( (output_social_summary[["impact_rate"]][1] / output_social_summary[["impact_rate"]][10]) - 1 ), ## relative diff
-        impact_mean = (1e5 * sum(social_data$MORTALITY_ATTR) / sum(social_data$POPULATION))) |>
-      dplyr::mutate(
-        impact_paf_di = 100 * (impact_mean - output_social_summary[["impact_rate"]][10]) / impact_mean # PAF
-      )
+      output_social_per_decile %>%
+
+      dplyr::summarize(
+        # Exposure
+
+        ## In comparison with top decile
+        ### absolute difference
+        exp_abs_diff_top_decile = first(exposure_mean) - last(exposure_mean),
+        ### relative difference
+        exp_rel_diff_top_decile = exp_abs_diff_top_decile / last(exposure_mean),
+
+        ## In comparison with overall
+        ### absolute difference
+        exp_abs_diff_overall = exp_mean_overall - last(exposure_mean),
+        # Attributable fraction of exposure in comparison with top decile
+        exp_rel_diff_overall =  exp_abs_diff_overall / exp_mean_overall,
+
+        # Impact
+        ## In comparison with overall
+        ### absolute difference
+        impact_abs_diff_top_decile = first(impact_rate) - last(impact_rate),
+        ## relative difference
+        impact_rel_diff_top_decile = impact_abs_diff_top_decile / last(impact_rate) ,
+
+        ### absolute difference
+        impact_abs_diff_overall = impact_rate_overall - last(impact_rate),
+        # Attributable fraction of impact
+        impact_rel_diff_overall = impact_abs_diff_overall / impact_rate_overall)
 
 
     output[["detailed"]][["social"]] <- social_results
