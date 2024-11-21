@@ -5,7 +5,7 @@ library(dplyr)
 
 ## import burden
 mort <-
-  read.csv("./mort_pm25_sector_2019.csv")
+  read.csv("../testing/input/inequalities/mort_pm25_sector_2019.csv")
 
 ## subset Flanders (NUTS1 = BE2)
 mort <- subset(
@@ -15,7 +15,7 @@ mort <- subset(
 )
 
 ## import derpivation index
-bimd <- read.csv("./BIMD_2011_WITHOUT_HEALTH_ELLIS_WIDE.csv")
+bimd <- read.csv("../testing/input/inequalities/BIMD_2011_WITHOUT_HEALTH_ELLIS_WIDE.csv")
 
 ## merge
 mort_bimd <-
