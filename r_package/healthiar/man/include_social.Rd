@@ -4,14 +4,24 @@
 \alias{include_social}
 \title{include_social}
 \usage{
-include_social(output, deprivation_weight, geo_id_raw)
+include_social(
+  output,
+  geo_id_raw,
+  deprivation_index,
+  population,
+  approach = "multiplicative"
+)
 }
 \arguments{
 \item{output}{\code{List} produced by \code{healthiar::attribute()} or \code{healthiar::compare()} as results}
 
 \item{geo_id_raw}{\code{Vector} showing the id code of the each geographic area considered in the assessment. If a vector is entered here, the data for each geographical area have to be provided as list in the corresponding arguments.}
 
-\item{deprivation_weighting}{\code{Vector} with numeric values showing the deprivation index (indicator of economic wealth) of the fine geographical area (it should match with those used in \code{attribute} or \code{compare})}
+\item{deprivation_index}{\code{Vector} with numeric values showing the deprivation index (indicator of economic wealth) of the fine geographical area (it should match with those used in \code{attribute} or \code{compare})}
+
+\item{population}{code{Vector} with numeric values referring to the population in the geographical unit}
+
+\item{approach}{code{String} referring the approach to include the social aspects. To choose between "decile" and "multiplicative"}
 }
 \value{
 Description of the return value.
