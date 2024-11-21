@@ -466,6 +466,23 @@ check_bestcost <-
   
   }
 
+check_general <-
+  function(a, b){
+    diff <- round(a, 4) - round(b, 4)
+         # Check difference between bestcost and alternative source
+  # First the show the difference between bestcost results and alternative source
+  cat(
+    paste0("Difference ", paste(diff, collapse = "; "),"\n"))
+  # Second show message with colors
+  if(all(diff == 0)){
+    cat(paste(crayon::cyan("Right. Bestcost and alternative with identical results.")))
+    
+     } else{
+    cat(paste0("best-cost: ", paste(a, collapse = ";")),"\n", 
+        paste0("alternative_source: ", paste(b, collapse = "; ")),"\n", 
+        crayon::red("Attention! Check! Bestcost and alternative with different results."))}
+  }
+
 
 
 runif_with_seed <- 
@@ -1175,6 +1192,7 @@ rm(list=setdiff(ls(),
                   "paste_round_CI",
                   "round_keeping0",
                   "check_bestcost",
+                  "check_general",
                   "runif_with_seed",
                   "social_data",
                   "social_per_decile", 

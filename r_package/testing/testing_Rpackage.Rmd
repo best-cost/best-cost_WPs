@@ -258,6 +258,13 @@ bestcost_pm_death_social <-
                             approach = "decile")
 
 
+# Check that results did not change over time
+check_general(
+  a = bestcost_pm_death_social[["detailed"]][["social"]]$value,
+  # Results on 21 Nov 2024
+  b = c(0.65578653, 0.05604937, 0.22984830, 0.01926640, 
+        22.52416423, 0.32236823, 14.5680866,0.17252793 ))
+
 
 
 bestcost_pm_copd_geo_social <- 
