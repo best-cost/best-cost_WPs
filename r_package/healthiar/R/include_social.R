@@ -36,30 +36,30 @@ include_social <- function(output,
 
   if(approach == "quantile"){
 
-    ## exposure and attributable burden per deprivation decile
+    ## exposure and attributable burden per deprivation quantile
 
     output_social <-
       output_social |>
       # Remove NAs
       filter(!is.na(deprivation_score)) |>
-      # Add ranking of deprivation score and deciles
+      # Add ranking of deprivation score and quantiles
       dplyr::mutate(
         ranking = min_rank(desc(deprivation_score)),
-        decile = dplyr::ntile(desc(deprivation_score), n = n_quantile))
+        quantile = dplyr::ntile(desc(deprivation_score), n = n_quantile))
 
     # Basic statistic to be used below
-    # Mean exposure in all geographical units (without stratification by decile)
+    # Mean exposure in all geographical units (without stratification by quantile)
     exp_mean_overall = mean(output_social$exp, na.rm = TRUE)
-    # Impact rate in all geographical units (without stratification by decile)
+    # Impact rate in all geographical units (without stratification by quantile)
     impact_rate_overall = sum(output_social$impact, na.rm = TRUE) * 1e5 /
                            sum(output_social$population, na.rm = TRUE)
 
-    # Stratification by Deciles
-    output_social_per_decile <-
+    # Stratification by quantiles
+    output_social_per_quantile <-
       output_social |>
       # Group by geo_id to ensure that you get one result per geo_id
       # keeping uncertainties
-      dplyr::group_by(decile) |>
+      dplyr::group_by(quantile) |>
       dplyr::summarize(
         exposure_mean = mean(exp, na.rm = TRUE),
         impact_mean = mean(impact, na.rm = TRUE),
@@ -74,29 +74,29 @@ include_social <- function(output,
 
     ## inequalities
     social_results <-
-      output_social_per_decile |>
+      output_social_per_quantile |>
 
       dplyr::summarize(
         # Exposure
 
-        ## In comparison with top decile
+        ## In comparison with top quantile
         ### absolute difference
-        exp_abs_decile = first(exposure_mean) - last(exposure_mean),
+        exp_abs_quantile = first(exposure_mean) - last(exposure_mean),
         ### relative difference
-        exp_rel_decile = exp_abs_decile / last(exposure_mean),
+        exp_rel_quantile = exp_abs_quantile / last(exposure_mean),
 
         ## In comparison with overall
         ### absolute difference
         exp_abs_overall = exp_mean_overall - last(exposure_mean),
-        # Attributable fraction of exposure in comparison with top decile
+        # Attributable fraction of exposure in comparison with top quantile
         exp_rel_overall =  exp_abs_overall / exp_mean_overall,
 
         # Impact
         ## In comparison with overall
         ### absolute difference
-        impact_abs_decile = first(impact_rate) - last(impact_rate),
+        impact_abs_quantile = first(impact_rate) - last(impact_rate),
         ## relative difference
-        impact_rel_decile = impact_abs_decile / last(impact_rate) ,
+        impact_rel_quantile = impact_abs_quantile / last(impact_rate) ,
 
         ### absolute difference
         impact_abs_overall = impact_rate_overall - last(impact_rate),
@@ -111,8 +111,8 @@ include_social <- function(output,
         names_sep = "_") |>
 
       dplyr::mutate(
-        # Replace "decile" with "top_decile"
-        compared_with = gsub("decile", "top_decile", compared_with),
+        # Replace "quantile" with "top_quantile"
+        compared_with = gsub("quantile", "top_quantile", compared_with),
         # Flag attributable fraction
         comment =
           ifelse(difference == "rel" & compared_with == "overall",
