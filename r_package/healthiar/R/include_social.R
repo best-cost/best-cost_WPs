@@ -50,9 +50,12 @@ include_social <- function(output,
     # Basic statistic to be used below
     # Mean exposure in all geographical units (without stratification by quantile)
     exp_mean_overall = mean(output_social$exp, na.rm = TRUE)
-    # Impact rate in all geographical units (without stratification by quantile)
-    impact_rate_overall = sum(output_social$impact, na.rm = TRUE) * 1e5 /
-                           sum(output_social$population, na.rm = TRUE)
+    ## Absolute impact and population (sum across all geo units)
+    impact_sum_overall = sum(output_social$impact, na.rm = TRUE)
+    population_sum_overall = sum(output_social$population, na.rm = TRUE)
+    ## Impact rate in all geographical units (without stratification by quantile)
+    ## per 100'000 inhabitants
+    impact_rate_overall = (impact_sum_overall / population_sum_overall) * 1e5
 
     # Stratification by quantiles
     output_social_per_quantile <-
