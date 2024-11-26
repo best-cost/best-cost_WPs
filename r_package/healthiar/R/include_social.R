@@ -4,6 +4,7 @@
 #' @param output \code{List} produced by \code{healthiar::attribute()} or \code{healthiar::compare()} as results
 #' @param deprivation_score \code{Vector} with numeric values showing the deprivation score (indicator of economic wealth) of the fine geographical area (it should match with those used in \code{attribute} or \code{compare})
 #' @param population code{Vector} with numeric values referring to the population in the geographical unit
+#' @param n_quantile code{Numeric value} referring the number of groups in the quantile
 #' @param approach code{String} referring the approach to include the social aspects. To choose between "decile" and "multiplicative"
 #' @inheritParams attribute
 #'
@@ -16,7 +17,8 @@ include_social <- function(output,
                            geo_id_raw,
                            deprivation_score,
                            population,
-                           approach = "multiplicative") {
+                           n_quantile = 10, # by default: decile
+                           approach = "quantile") {
 
 
 
@@ -31,26 +33,8 @@ include_social <- function(output,
       by = "geo_id_raw")
 
 
-    if(approach == "multiplicative"){
-      # Re-calculate output with the social aspects inside using output_raw
 
-    output_social <-
-      output_social |>
-      dplyr::mutate(impact_social =
-                      as.numeric(impact) * as.numeric(deprivation_score),
-                    .after = impact) |>
-      dplyr::mutate(impact_rounded_social =
-                      round(impact_social),
-                    .after = impact_rounded_social)
-
-  # Based on the new output_raw that includes social aspects
-  # Recalculate output
-    output <- healthiar:::get_output(list(main = output_social))
-
-    }
-
-
-  if(approach == "decile"){
+  if(approach == "quantile"){
 
     ## exposure and attributable burden per deprivation decile
 
@@ -61,7 +45,7 @@ include_social <- function(output,
       # Add ranking of deprivation score and deciles
       dplyr::mutate(
         ranking = min_rank(desc(deprivation_score)),
-        decile = dplyr::ntile(desc(deprivation_score), n = 10))
+        decile = dplyr::ntile(desc(deprivation_score), n = n_quantile))
 
     # Basic statistic to be used below
     # Mean exposure in all geographical units (without stratification by decile)
@@ -129,9 +113,28 @@ include_social <- function(output,
       # Replace "decile" with "top_decile"
       dplyr::mutate(compared_with = gsub("decile", "top_decile", compared_with))
 
-
-
     output[["detailed"]][["social"]] <- social_results
+
+
+
+
+    if(approach == "multiplicative"){
+      # Re-calculate output with the social aspects inside using output_raw
+
+      output_social <-
+        output_social |>
+        dplyr::mutate(impact_social =
+                        as.numeric(impact) * as.numeric(deprivation_score),
+                      .after = impact) |>
+        dplyr::mutate(impact_rounded_social =
+                        round(impact_social),
+                      .after = impact_rounded_social)
+
+      # Based on the new output_raw that includes social aspects
+      # Recalculate output
+      output <- healthiar:::get_output(list(main = output_social))
+
+    }
 
 
   }

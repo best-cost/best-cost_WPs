@@ -255,7 +255,8 @@ bestcost_pm_death_social_decile <-
                             geo_id_raw = social_data$CS01012020,
                             deprivation_score = social_data$score,
                             population = social_data$POPULATION,
-                            approach = "decile")
+                            n_quantile = 10,
+                            approach = "quantile")
 
 
 # Check that results did not change over time
