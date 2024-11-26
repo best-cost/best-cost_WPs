@@ -82,7 +82,7 @@ include_social <- function(output,
       dplyr::summarize(
         # Exposure
 
-        ## In comparison with top quantile
+        ## In comparison with bottom quantile
         ### absolute difference
         exp_abs_quantile = first(exposure_mean) - last(exposure_mean),
         ### relative difference
@@ -91,7 +91,7 @@ include_social <- function(output,
         ## In comparison with overall
         ### absolute difference
         exp_abs_overall = exp_mean_overall - last(exposure_mean),
-        # Attributable fraction of exposure in comparison with top quantile
+        # Attributable fraction of exposure in comparison with bottom quantile
         exp_rel_overall =  exp_abs_overall / exp_mean_overall,
 
         # Impact
@@ -114,8 +114,8 @@ include_social <- function(output,
         names_sep = "_") |>
 
       dplyr::mutate(
-        # Replace "quantile" with "top_quantile"
-        compared_with = gsub("quantile", "top_quantile", compared_with),
+        # Replace "quantile" with "bottom_quantile"
+        compared_with = gsub("quantile", "bottom_quantile", compared_with),
         # Flag attributable fraction
         comment =
           ifelse(difference == "rel" & compared_with == "overall",
