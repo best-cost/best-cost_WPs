@@ -283,27 +283,30 @@ bestcost_pm_death <-
     geo_id_raw = social_data$CS01012020)
 
 # Then include social indicators of deprivation 
-bestcost_pm_death_social <- 
+bestcost_pm_death_social_decile <- 
   healthiar::include_social(output = bestcost_pm_death,
                             geo_id_raw = social_data$CS01012020,
-                            deprivation_index = social_data$score,
+                            deprivation_score = social_data$score,
                             population = social_data$POPULATION,
-                            approach = "decile")
+                            n_quantile = 10,
+                            approach = "quantile")
 
 
 # Check that results did not change over time
 check_general(
-  a = bestcost_pm_death_social[["detailed"]][["social"]]$value,
+  a = bestcost_pm_death_social_decile[["detailed"]][["social"]]$value,
   # Results on 21 Nov 2024
-  b = c(0.65578653, 0.05604937, 0.22984830, 0.01926640, 
-        22.52416423, 0.32236823, 14.5680866,0.17252793 ))
+  b = c( 203.54994443, 0.25284914, 142.64936990, 0.15052568,
+         0.65578653, 0.05604937, 0.22984830, 0.01926640, 
+         22.52416423, 0.32236823, 14.5680866,0.17252793,
+         0.004598529, 0.053420096, 0.001606388, 0.018319205))
 
 
 
-bestcost_pm_copd_geo_social <- 
+bestcost_pm_copd_geo_social_multiplicative <- 
   healthiar::include_social(output = bestcost_pm_death,
                             geo_id_raw = social_data$CS01012020,
-                            deprivation_index = social_data$score,
+                            deprivation_score = social_data$score,
                             population = social_data$POPULATION,
                             approach = "multiplicative")
 ```
