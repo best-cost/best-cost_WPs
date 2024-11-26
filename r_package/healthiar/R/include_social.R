@@ -49,13 +49,34 @@ include_social <- function(output,
 
     # Basic statistic to be used below
     # Mean exposure in all geographical units (without stratification by quantile)
-    exp_mean_overall = mean(output_social$exp, na.rm = TRUE)
-    ## Absolute impact and population (sum across all geo units)
-    impact_sum_overall = sum(output_social$impact, na.rm = TRUE)
-    population_sum_overall = sum(output_social$population, na.rm = TRUE)
-    ## Impact rate in all geographical units (without stratification by quantile)
-    ## per 100'000 inhabitants
-    impact_rate_overall = (impact_sum_overall / population_sum_overall) * 1e5
+    overall <-
+      output_social |>
+      dplyr::summarize(
+        # Sum of baseline health data in the overall data set
+        bhd_sum = sum(bhd, na.rm = TRUE),
+        # Sum of population in the overall data set
+        population_sum = sum(population, na.rm = TRUE),
+        # Baseline health data per 100k inhab.
+        bhd_rate = bhd_sum * 1e5 / population_sum,
+        # Average baseline health data in the overall data set
+        bhd_mean = mean(bhd, na.rm = TRUE),
+        # Average exposure in the overall data set
+        exp_mean = mean(exp, na.rm = TRUE),
+        # Average attributable fraction in the overall data set
+        pop_fraction_mean = mean(pop_fraction, na.rm = TRUE),
+        # Average impact in the overall data set
+        impact_mean = mean(impact, na.rm = TRUE),
+        ## Absolute impact and population (sum across all geo units),
+        impact_sum = sum(impact, na.rm = TRUE),
+        ## Impact rate in all geographical units (without stratification by quantile)
+        ## per 100'000 inhabitants
+        impact_rate = (impact_sum / population_sum) * 1e5) |>
+      # Pivot longer to prepare data to be joined below
+      tidyr::pivot_longer(
+        cols = everything(),
+        names_to = "parameter",
+        values_to = "overall")
+
 
     # Stratification by quantiles
     output_social_by_quantile <-
@@ -68,7 +89,8 @@ include_social <- function(output,
         population_sum = sum(population, na.rm = TRUE),
         bhd_rate = bhd_sum * 1e5 / population_sum,
         bhd_mean = mean(bhd, na.rm = TRUE),
-        exposure_mean = mean(exp, na.rm = TRUE),
+        exp_mean = mean(exp, na.rm = TRUE),
+        pop_fraction_mean = mean(pop_fraction, na.rm = TRUE),
         impact_mean = mean(impact, na.rm = TRUE),
         impact_sum = sum(impact, na.rm = TRUE),
         impact_rate = impact_sum * 1e5 / population_sum)
@@ -76,40 +98,46 @@ include_social <- function(output,
 
 
     ## inequalities
-    social_results <-
+    social_calculation <-
       output_social_by_quantile |>
-
+      # Pivot longer to prepare the data and have a column for parameter
+      tidyr::pivot_longer(cols = contains("_"),
+                          names_to = "parameter",
+                          values_to = "value") |>
+      # Put column parameter first
+      dplyr::select(parameter, everything()) |>
+      # Order columns by parameter
+      dplyr::arrange(parameter) |>
+      # Obtain the first (most deprived) and last (least deprived) values
+      # for each parameter
+      dplyr::group_by(parameter) |>
       dplyr::summarize(
-        # Exposure
+        first = first(value),
+        last = last(value)) |>
+      # Add the overall sums and means (not by quantile)
+      dplyr::left_join(
+        x = _,
+        y = overall,
+        by = "parameter") |>
+      # Caculate absolute and relative differences
+      dplyr::mutate(
+        absolute_quantile = first - last,
+        relative_quantile = absolute_quantile / last,
+        absolute_overall = overall - last,
+        relative_overall = absolute_overall / overall)
 
-        ## In comparison with bottom quantile
-        ### absolute difference
-        exp_abs_quantile = first(exposure_mean) - last(exposure_mean),
-        ### relative difference
-        exp_rel_quantile = exp_abs_quantile / last(exposure_mean),
 
-        ## In comparison with overall
-        ### absolute difference
-        exp_abs_overall = exp_mean_overall - last(exposure_mean),
-        # Attributable fraction of exposure in comparison with bottom quantile
-        exp_rel_overall =  exp_abs_overall / exp_mean_overall,
-
-        # Impact
-        ## In comparison with overall
-        ### absolute difference
-        impact_abs_quantile = first(impact_rate) - last(impact_rate),
-        ## relative difference
-        impact_rel_quantile = impact_abs_quantile / last(impact_rate) ,
-
-        ### absolute difference
-        impact_abs_overall = impact_rate_overall - last(impact_rate),
-        # Attributable fraction of impact
-        impact_rel_overall = impact_abs_overall / impact_rate_overall) |>
-
-      # Long instead of wide layout
+    social_results <-
+      social_calculation |>
+      # Remove rows that are not relevant in the output
+      dplyr::filter(parameter %in%
+                      c("exp_mean", "bhd_rate",
+                        "pop_fraction_mean",
+                        "impact_rate")) |>
+    # Long instead of wide layout
       tidyr::pivot_longer(
-        cols = everything(),
-        names_to = c("parameter", "difference", "compared_with"),
+        cols = contains("_"),
+        names_to = c("difference", "compared_with"),
         values_to = "value",
         names_sep = "_") |>
 
@@ -118,10 +146,9 @@ include_social <- function(output,
         compared_with = gsub("quantile", "bottom_quantile", compared_with),
         # Flag attributable fraction
         comment =
-          ifelse(difference == "rel" & compared_with == "overall",
+          ifelse(difference == "relative" & compared_with == "overall",
                  "Theoretical attributable fraction from deprivation",
-                 "")
-        )
+                 ""))
 
     output[["detailed"]][["social"]] <- social_results
 
