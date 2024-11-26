@@ -110,8 +110,15 @@ include_social <- function(output,
         values_to = "value",
         names_sep = "_") |>
 
-      # Replace "decile" with "top_decile"
-      dplyr::mutate(compared_with = gsub("decile", "top_decile", compared_with))
+      dplyr::mutate(
+        # Replace "decile" with "top_decile"
+        compared_with = gsub("decile", "top_decile", compared_with),
+        # Flag attributable fraction
+        comment =
+          ifelse(difference == "rel" & compared_with == "overall",
+                 "Theoretical attributable fraction from deprivation",
+                 "")
+        )
 
     output[["detailed"]][["social"]] <- social_results
 
