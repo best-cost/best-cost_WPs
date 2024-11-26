@@ -64,14 +64,14 @@ include_social <- function(output,
       # keeping uncertainties
       dplyr::group_by(quantile) |>
       dplyr::summarize(
-        exposure_mean = mean(exp, na.rm = TRUE),
-        impact_mean = mean(impact, na.rm = TRUE),
-        bhd_mean = mean(bhd, na.rm = TRUE),
-        impact_sum = sum(impact, na.rm = TRUE),
         bhd_sum = sum(bhd, na.rm = TRUE),
         population_sum = sum(population, na.rm = TRUE),
-        impact_rate = impact_sum * 1e5 / population_sum,
-        bhd_rate = bhd_sum * 1e5 / population_sum)
+        bhd_rate = bhd_sum * 1e5 / population_sum,
+        bhd_mean = mean(bhd, na.rm = TRUE),
+        exposure_mean = mean(exp, na.rm = TRUE),
+        impact_mean = mean(impact, na.rm = TRUE),
+        impact_sum = sum(impact, na.rm = TRUE),
+        impact_rate = impact_sum * 1e5 / population_sum)
 
 
 
