@@ -77,7 +77,7 @@ include_social <- function(output,
 
     ## inequalities
     social_results <-
-      output_social_per_quantile |>
+      output_social_by_quantile |>
 
       dplyr::summarize(
         # Exposure
