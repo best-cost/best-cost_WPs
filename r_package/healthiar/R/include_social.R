@@ -2,7 +2,7 @@
 
 #' @description Consider socio-economic aspects in the results
 #' @param output \code{List} produced by \code{healthiar::attribute()} or \code{healthiar::compare()} as results
-#' @param deprivation_index \code{Vector} with numeric values showing the deprivation index (indicator of economic wealth) of the fine geographical area (it should match with those used in \code{attribute} or \code{compare})
+#' @param deprivation_score \code{Vector} with numeric values showing the deprivation score (indicator of economic wealth) of the fine geographical area (it should match with those used in \code{attribute} or \code{compare})
 #' @param population code{Vector} with numeric values referring to the population in the geographical unit
 #' @param approach code{String} referring the approach to include the social aspects. To choose between "decile" and "multiplicative"
 #' @inheritParams attribute
@@ -14,19 +14,19 @@
 #' @export
 include_social <- function(output,
                            geo_id_raw,
-                           deprivation_index,
+                           deprivation_score,
                            population,
                            approach = "multiplicative") {
 
 
 
   output_social <-
-    # Add deprivation index to detailed output
+    # Add deprivation score to detailed output
     output[["detailed"]][["raw"]] |>
     dplyr::left_join(
       x = _,
       y = dplyr::tibble(geo_id_raw = geo_id_raw,
-                        deprivation_index = deprivation_index,
+                        deprivation_score = deprivation_score,
                         population = population),
       by = "geo_id_raw")
 
@@ -37,7 +37,7 @@ include_social <- function(output,
     output_social <-
       output_social |>
       dplyr::mutate(impact_social =
-                      as.numeric(impact) * as.numeric(deprivation_index),
+                      as.numeric(impact) * as.numeric(deprivation_score),
                     .after = impact) |>
       dplyr::mutate(impact_rounded_social =
                       round(impact_social),
@@ -57,11 +57,11 @@ include_social <- function(output,
     output_social <-
       output_social |>
       # Remove NAs
-      filter(!is.na(deprivation_index)) |>
-      # Add ranking of deprivation index and deciles
+      filter(!is.na(deprivation_score)) |>
+      # Add ranking of deprivation score and deciles
       dplyr::mutate(
-        ranking = min_rank(desc(deprivation_index)),
-        decile = dplyr::ntile(desc(deprivation_index), n = 10))
+        ranking = min_rank(desc(deprivation_score)),
+        decile = dplyr::ntile(desc(deprivation_score), n = 10))
 
     # Basic statistic to be used below
     # Mean exposure in all geographical units (without stratification by decile)
