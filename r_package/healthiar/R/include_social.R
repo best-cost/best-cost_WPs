@@ -58,7 +58,7 @@ include_social <- function(output,
     impact_rate_overall = (impact_sum_overall / population_sum_overall) * 1e5
 
     # Stratification by quantiles
-    output_social_per_quantile <-
+    output_social_by_quantile <-
       output_social |>
       # Group by geo_id to ensure that you get one result per geo_id
       # keeping uncertainties
