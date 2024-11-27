@@ -44,6 +44,10 @@ library(credentials)
 library(gitcreds)
 library(devtools)
 
+## to make geo analysis
+library(terra)
+library(sf)
+
 # Load healthiar package (either current version or installed version)
 devtools::load_all(export_all = FALSE)
 
@@ -264,12 +268,47 @@ check_bestcost(result_list_bestcost = bestcost_pm_copd_geo_short,
 
 
 
-```{r Social aspects in a simple case, eval=FALSE, include=FALSE}
+```{r Social aspects in a simple case}
 # Take into account social aspects
-bestcost_pm_copd_geo_social <- 
-  healthiar::include_social(output = bestcost_pm_copd_geo,
-                           geo_id_raw = 1:1E4,
-                           deprivation_weight = as.list(runif_with_seed(1E4, 0.5, 0.8, 1)))
+
+# First calculate attributable deahts based on total mortality as provide by Sciensano
+bestcost_pm_death <- 
+  healthiar::attribute_health(
+    exp_central = as.list(social_data$PM25_MEAN),
+    cutoff_central = 0,
+    rr_central = 1.08, # The data set contains the RR for the exposure but not per increment. Calculable as e.g. exp(log(1.038017)/(4.848199)*10) 
+    erf_shape = "log_linear", 
+    erf_increment = 10,
+    bhd_central = as.list(social_data$MORTALITY_TOTAL),
+    geo_id_raw = social_data$CS01012020)
+
+# Then include social indicators of deprivation 
+bestcost_pm_death_social_decile <- 
+  healthiar::include_social(output = bestcost_pm_death,
+                            geo_id_raw = social_data$CS01012020,
+                            deprivation_score = social_data$score,
+                            population = social_data$POPULATION,
+                            n_quantile = 10,
+                            approach = "quantile")
+
+
+# Check that results did not change over time
+check_general(
+  a = bestcost_pm_death_social_decile[["detailed"]][["social"]]$value,
+  # Results on 21 Nov 2024
+  b = c( 203.54994443, 0.25284914, 142.64936990, 0.15052568,
+         0.65578653, 0.05604937, 0.22984830, 0.01926640, 
+         22.52416423, 0.32236823, 14.5680866,0.17252793,
+         0.004598529, 0.053420096, 0.001606388, 0.018319205))
+
+
+
+bestcost_pm_copd_geo_social_multiplicative <- 
+  healthiar::include_social(output = bestcost_pm_death,
+                            geo_id_raw = social_data$CS01012020,
+                            deprivation_score = social_data$score,
+                            population = social_data$POPULATION,
+                            approach = "multiplicative")
 ```
 
 
