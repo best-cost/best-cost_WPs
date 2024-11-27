@@ -44,6 +44,10 @@ library(credentials)
 library(gitcreds)
 library(devtools)
 
+## for geospatial data
+library(sf)
+library(terra)
+
 # Load healthiar package (either current version or installed version)
 devtools::load_all(export_all = FALSE)
 
@@ -90,7 +94,14 @@ library(healthiar)
 # Test prepare function
 
 ```{r prepare_exposure_data}
-test <- prepare_exposure_data()
+## test using pollution and geo data for Brussels
+bxl_pm25 <- terra::rast("./data/prepare/pm25_brussels_region_2020.tif") # saving the grid to the .RData file and then loading it afterwards does not work for some reason
+exposure <- prepare_exposure_data(
+    poll_grid = bxl_pm25,
+    geo_units = bxl_sect_pop[, c('geometry')],
+    population = sf::st_drop_geometry(bxl_sect_pop$population),
+    geo_id_aggregated = sf::st_drop_geometry(bxl_sect_pop$mun_id)
+)
 ```
 
 # Calculate health impacts

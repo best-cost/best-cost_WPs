@@ -1,13 +1,16 @@
 #' Prepare exposure data
 
 #' @description
-#' This function prepares tabular population exposure data compatible with the attribute() and compare() functions, based on spatial pollution and geographic units data.
-#' @param poll_grid \code(SpatRaster) of the pollution data.
-#' @param geo_units \code(sf) of the geographic units data.
+#' This function prepares tabular population exposure data compatible with the attribute() and compare() functions, based on gridded pollution concentration data and vector data representing geographic units. The function calculates an average concentration value in each geographic unit, weighted by the fraction of the population in each sub-unit.
+#' @param poll_grid \code(SpatRaster) of the pollution concentration data.
+#' @param geo_units \code(sf) of the geographic sub-units.
+#' @param population \code(Vector) containing the total population number in each geographic sub-unit.
+#' @param geo_id_aggregated \code(Vector) containing the id code of the geographic unit the sub-unit belongs to.
 #' @return
-#' This function returns a vector of population exposure values. 
+#' This function returns a vector of population exposure values.
 #' @import terra
 #' @import sf
+#' @import dplyr
 #' @export
 #' @author Arno Pauwels
 #' @note Experimental function
@@ -18,9 +21,27 @@
 prepare_exposure_data <-
   function(
     poll_grid,
-    geo_units
-  ){## calculate mean concentration in each geo unit
-    exp <- terra::extract(poll_grid, geo_units, fun = mean)
-    return(as.vector(exp[,2]))
+    geo_units,
+    population,
+    geo_id_aggregated
+  ){
+    ## extract mean concentration in each raw geo unit
+    poll_mean <- as.vector(terra::extract(poll_grid, geo_units, fun = mean)[,2])
+
+    exposure <- cbind(
+      geo_id_aggregated,
+      population,
+      poll_mean,
+      geo_units
+    )
+
+    ## calculate population-weighted mean concentration in each aggregated geo unit
+    exposure <- exposure |>
+      group_by(geo_id_aggregated) |>
+      mutate(poll_weighted = population/sum(population)*poll_mean) |>
+      summarise(exposure = sum(poll_weighted)) |>
+      st_drop_geometry()
+
+    return(exposure)
   }
 
