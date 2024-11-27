@@ -1242,6 +1242,9 @@ check_bestcost(result_list_bestcost = bestcost_pm_daly_lifetable_geluft,
 ### Single bhd
 
 ```{r comparison singlebhd_rr}
+
+
+
 # Test delta comparison function with fake values
 # DELTA
 
@@ -1267,6 +1270,26 @@ comparison_singlebhd_rr_delta <-
 # Check only if results stay the same overtime despite developments
 check_bestcost(result_list_bestcost = comparison_singlebhd_rr_delta ,
                result_vector_alternative = c(774, 409, 1127)) # Result on 16 May 2024
+
+
+# With same impact to test that there is no error.
+comparison_singlebhd_rr_delta_same_impact <-
+  healthiar::compare_health(
+    approach_comparison = "delta",
+    exp_central_1 = 8.85, 
+    exp_central_2 = 8.85,
+    cutoff_central = 5,    
+    bhd_central_1 = 25000,
+    bhd_central_2 = 25000,
+    rr_central = 1.118, 
+    rr_lower = 1.060, 
+    rr_upper = 1.179,
+    erf_increment = 10, 
+    erf_shape = "log_linear", 
+    info_1 = "PM2.5_mortality_2010",
+    info_2 = "PM2.5_mortality_2020")
+check_bestcost(result_list_bestcost = comparison_singlebhd_rr_delta_same_impact ,
+               result_vector_alternative = c(0, 0, 0)) # Result on 27 Nov 2024
 
 # With iteration
 comparison_singlebhd_rr_delta_geo <-
