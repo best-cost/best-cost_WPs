@@ -165,6 +165,10 @@ compare <-
       grep("_1|_2", names(formals(compare)), value = TRUE) |>
       gsub("_1|_2", "", x = _) |>
       unique()
+    #Add impact and pop_fraction
+    scenario_specific_arguments <-
+      c(scenario_specific_arguments,
+        "impact", "pop_fraction")
 
     # If the user choose "pif"  as comparison method
     # pif is additonally calculated

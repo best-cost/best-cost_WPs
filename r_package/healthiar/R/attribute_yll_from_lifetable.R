@@ -36,6 +36,7 @@ attribute_yll_from_lifetable <-
            corrected_discount_rate = NULL,
            min_age = NULL, max_age = NULL,
            info = NULL,
+           summary_uncertainty = NULL,
            duration_central = 100){
 
     output <-
@@ -63,7 +64,8 @@ attribute_yll_from_lifetable <-
         min_age = min_age, max_age = max_age,
         corrected_discount_rate = corrected_discount_rate,
         geo_id_raw = NULL, geo_id_aggregated = NULL,
-        info = info)
+        info = info,
+        summary_uncertainty = summary_uncertainty)
 
     return(output)
 

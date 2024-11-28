@@ -51,7 +51,7 @@ attribute_health <-
         erf_increment = erf_increment,
         erf_shape = erf_shape,
         erf_eq_central = erf_eq_central, erf_eq_lower = erf_eq_lower, erf_eq_upper = erf_eq_upper,
-        bhd_central = bhd_central, bhd_lower = bhd_lower, bhd_upper = bhd_lower,
+        bhd_central = bhd_central, bhd_lower = bhd_lower, bhd_upper = bhd_upper,
         approach_exposure = NULL,
         approach_newborns = NULL,
         first_age_pop = NULL, last_age_pop = NULL,

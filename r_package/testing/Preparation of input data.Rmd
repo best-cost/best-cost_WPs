@@ -440,11 +440,13 @@ check_bestcost <-
     unlist()
   
   # Obtain difference between the result of using bestcost and other source
-  difference_prop <- 
-    round(
-      (result_vector_bestcost - result_vector_alternative)/result_vector_alternative,
-      4)
-  difference_percent <- paste0(difference_prop*100, "%")
+  difference_prop <-
+    ifelse(result_vector_bestcost == result_vector_alternative, 
+           c(0, 0, 0),
+           (result_vector_bestcost - result_vector_alternative)/result_vector_alternative) |>
+    round(4)
+  difference_percent <-
+    paste0(difference_prop*100, "%")
   
   # Check difference between bestcost and alternative source
   # First the show the difference between bestcost results and alternative source
@@ -1198,6 +1200,6 @@ rm(list=setdiff(ls(),
                   "social_per_decile", 
                   "social_results"
                   )))
-# save.image(file = "../testing/input/data/input_data_for_testing_Rpackage.RData")
+save.image(file = "../testing/input/data/input_data_for_testing_Rpackage.RData")
 ```
 
