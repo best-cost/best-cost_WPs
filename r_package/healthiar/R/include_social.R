@@ -103,7 +103,7 @@ include_social <- function(output,
       # Pivot longer to prepare the data and have a column for parameter
       tidyr::pivot_longer(cols = contains("_"),
                           names_to = "parameter",
-                          values_to = "value") |>
+                          values_to = "difference_value") |>
       # Put column parameter first
       dplyr::select(parameter, everything()) |>
       # Order columns by parameter
@@ -112,8 +112,8 @@ include_social <- function(output,
       # for each parameter
       dplyr::group_by(parameter) |>
       dplyr::summarize(
-        first = first(value),
-        last = last(value)) |>
+        first = first(difference_value),
+        last = last(difference_value)) |>
       # Add the overall sums and means (not by quantile)
       dplyr::left_join(
         x = _,
@@ -137,16 +137,16 @@ include_social <- function(output,
     # Long instead of wide layout
       tidyr::pivot_longer(
         cols = contains("_"),
-        names_to = c("difference", "compared_with"),
-        values_to = "value",
+        names_to = c("difference_type", "difference_compared_with"),
+        values_to = "difference_value",
         names_sep = "_") |>
 
       dplyr::mutate(
         # Replace "quantile" with "bottom_quantile"
-        compared_with = gsub("quantile", "bottom_quantile", compared_with),
+        difference_compared_with = gsub("quantile", "bottom_quantile", difference_compared_with),
         # Flag attributable fraction
         comment =
-          ifelse(difference == "relative" & compared_with == "overall",
+          ifelse(difference_type == "relative" & difference_compared_with == "overall",
                  "Theoretical attributable fraction from deprivation",
                  ""))
 
