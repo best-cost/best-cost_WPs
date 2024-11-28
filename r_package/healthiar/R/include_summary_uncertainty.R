@@ -1010,7 +1010,7 @@ include_summary_uncertainty <- function(
         )
         )
 
-    res[["detailed"]][["uncertainty"]][["raw"]] <- impact_per_geo_unit
+    res[["detailed"]][["uncertainty"]][["detailed"]] <- impact_per_geo_unit
 
     ## CIs of impact aggregated over geo units
     ci <- impact_per_geo_unit |>
@@ -1027,7 +1027,7 @@ include_summary_uncertainty <- function(
 
   res[["detailed"]][["uncertainty"]][["main"]] <- ci
 
-  res[["detailed"]][["uncertainty"]][["dat"]] <- dat # to check interim results during development
+  res[["detailed"]][["uncertainty"]][["raw"]] <- dat # to check interim results during development
 
   return(res)
 
