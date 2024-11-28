@@ -46,7 +46,9 @@ get_impact <-
 
         impact_raw <- list(main = impact_raw_main)
 
-      } else if (unique(input$health_metric) %in% "yld_from_prevalence") {
+      } else if (unique(input$health_metric) %in% c("yld_prevalence_based_approach", "yld_incidence_based_approach")) {
+
+        if (unique(input$health_metric) %in% "yld_prevalence_based_approach"){
 
         # Add impact
         impact_raw_main <-
@@ -61,7 +63,24 @@ get_impact <-
 
         impact_raw <- list(main = impact_raw_main)
 
-        } else if (unique(input$health_metric) %in% c("deaths_from_lifetable",
+        } else if (unique(input$health_metric) %in% "yld_incidence_based_approach"){
+
+          # Add impact
+          impact_raw_main <-
+            # impact_raw_main |> # Line for commented out code above
+            input_with_risk_and_pop_fraction |>
+            dplyr::mutate(impact = pop_fraction * bhd) |>
+            dplyr::mutate(impact = impact * dw * duration)  |>
+            # Order columns
+            dplyr::select(exp_ci, bhd_ci, erf_ci,
+                          pop_fraction, impact,
+                          everything())
+
+          impact_raw <- list(main = impact_raw_main)
+
+        }
+
+      } else if (unique(input$health_metric) %in% c("deaths_from_lifetable",
                                                       "yll_from_lifetable",
                                                       "yld_from_lifetable")) {
           outcome_metric <-

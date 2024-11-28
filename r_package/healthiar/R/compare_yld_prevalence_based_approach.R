@@ -20,7 +20,7 @@
 #' @author Alberto Castro
 #' @note Experimental function
 #' @export
-compare_yld_from_prevalence <-
+compare_yld_prevalence_based_approach <-
   function(approach_multiexposure = NULL,
            approach_comparison = "delta",
            exp_central_1, exp_lower_1 = NULL, exp_upper_1 = NULL,
@@ -43,7 +43,7 @@ compare_yld_from_prevalence <-
       healthiar::compare(
         approach_multiexposure = approach_multiexposure,
         approach_comparison = approach_comparison,
-        health_metric = "yld_from_prevalence",
+        health_metric = "yld_prevalence_based_approach",
         approach_risk = "relative_risk",
         exp_central_1, exp_lower_1 = exp_lower_1, exp_upper_1 = exp_upper_1,
         exp_central_2, exp_lower_2 = exp_lower_2, exp_upper_2 = exp_upper_2,

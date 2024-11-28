@@ -1,6 +1,6 @@
-#' Determine years lived with disability (YLD) attributable to the incidence of a specific morbidity health outcome
+#' Determine years lived with disability (YLD) attributable to a specific morbidity health outcome using the prevalence-based approach
 
-#' @description Calculates the YLDs using a single value for baseline heath data, i.e. without life table. It provides as a result the mean as well as the lower and the higher bounds of the morbidity impact based on the confidence interval of the exposure-response function. Assumption: cases happen at the start of the year.
+#' @description Calculates the YLDs using a single value for baseline heath data, i.e. without life table. It provides as a result the mean as well as the lower and the higher bounds of the morbidity impact based on the confidence interval of the exposure-response function. Assumption: cases happen at the start of the year. Reference: https://doi.org/10.3961/jpmph.21.597
 #' @inheritParams attribute
 #'
 #' @return
@@ -18,7 +18,7 @@
 #' @author Axel Luyten
 #' @note Experimental function
 #' @export
-attribute_yld_from_prevalence <-
+attribute_yld_prevalence_based_approach <-
   function(approach_multiexposure = NULL,
            exp_central, exp_lower = NULL, exp_upper = NULL,
            prop_pop_exp = 1,
@@ -35,7 +35,7 @@ attribute_yld_from_prevalence <-
 
     output <-
       healthiar::attribute(
-        health_metric = "yld_from_prevalence",
+        health_metric = "yld_prevalence_based_approach",
         approach_risk = "relative_risk",
         approach_multiexposure = approach_multiexposure,
         exp_central = exp_central, exp_lower = exp_lower, exp_upper = exp_upper,

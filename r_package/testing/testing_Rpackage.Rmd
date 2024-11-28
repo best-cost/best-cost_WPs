@@ -537,8 +537,9 @@ bestcost_noise_ha_ar_geo <-
 
 ```{r YLD with single relative risk}
 
+## prevalence-based approach
 bestcost_pm_yld_singlebhd  <- 
-  healthiar::attribute_yld_from_prevalence(
+  healthiar::attribute_yld_prevalence_based_approach(
     exp_central = 8.85, 
     cutoff_central = 5,    
     bhd_central = 25000,
@@ -556,7 +557,26 @@ bestcost_pm_yld_singlebhd  <-
 check_bestcost(result_list_bestcost = bestcost_pm_yld_singlebhd ,
                result_vector_alternative = c(525, 277, 768)) # Result on 16 May 2024
 
-#View(bestcost_pm_yld_ci)
+## incidence-based approach
+bestcost_pm_yld_singlebhd_incidence_based  <- 
+  healthiar::attribute_yld_incidence_based_approach(
+    exp_central = 8.85, 
+    cutoff_central = 5,    
+    bhd_central = 25000,
+    rr_central = 1.118,
+    rr_lower = 1.060, 
+    rr_upper = 1.179,
+    erf_increment = 10, 
+    erf_shape = "log_linear", 
+    duration_central = 10,
+    dw_central = 0.5, dw_lower = 0.1, dw_upper = 10)
+
+# View(bestcost_pm_yld_singlebhd_incidence_based)
+
+# No study to compare bestcost results
+# Check only if results stay the same overtime despite developments
+check_bestcost(result_list_bestcost = bestcost_pm_yld_singlebhd_incidence_based ,
+               result_vector_alternative = c(525*10, 277*10, 768*10)) # Result on 16 May 2024
 ```
 
 ### Summary uncertainty
@@ -739,10 +759,10 @@ round(as.numeric(bestcost_noise_ihd_expDist_iteration_uncertainty[["detailed"]][
 
 
 
-```{r Summary uncertainty rr attribute_yld_from_prevalence, eval=FALSE, include=FALSE}
+```{r Summary uncertainty rr attribute_yld_prevalence_based_approach, eval=FALSE, include=FALSE}
 
 bestcost_pm_yld_singlebhd_with_summary_uncertainty  <- 
-  healthiar::attribute_yld_from_prevalence(
+  healthiar::attribute_yld_prevalence_based_approach(
     exp_central = 8.85, 
     exp_lower = airqplus_pm_copd$mean_concentration - 1,
     exp_upper = airqplus_pm_copd$mean_concentration + 1,
@@ -1449,7 +1469,7 @@ check_bestcost(result_list_bestcost = comparison_singlebhd_ar_delta_geo ,
 # DELTA
 # Test delta comparison function with fake values
 comparison_yld_singlebhd_rr_delta <-
-  healthiar::compare_yld_from_prevalence(
+  healthiar::compare_yld_prevalence_based_approach(
     approach_comparison = "delta",
     exp_central_1 = 8.85, 
     exp_central_2 = 6,
@@ -1478,7 +1498,7 @@ check_bestcost(result_list_bestcost = comparison_yld_singlebhd_rr_delta[["detail
 
 # Iteration
 comparison_yld_singlebhd_rr_delta_geo <-
-  healthiar::compare_yld_from_prevalence(
+  healthiar::compare_yld_prevalence_based_approach(
     approach_comparison = "delta",
     exp_central_1 = list(8.85, 8.0),
     exp_central_2 = list(6, 6.5),
@@ -1507,7 +1527,7 @@ check_bestcost(result_list_bestcost = comparison_yld_singlebhd_rr_delta_geo ,
 #PIF
 # Test pif comparison function with fake values
 comparison_yld_singlebhd_rr_pif <-
-  healthiar::compare_yld_from_prevalence(
+  healthiar::compare_yld_prevalence_based_approach(
     approach_comparison = "pif",
     exp_central_1 = 8.85,  
     exp_central_2 = 6,
@@ -1536,7 +1556,7 @@ check_bestcost(result_list_bestcost = comparison_yld_singlebhd_rr_pif[["detailed
 
 # Iteration
 comparison_yld_singlebhd_rr_pif_geo <-
-  healthiar::compare_yld_from_prevalence(
+  healthiar::compare_yld_prevalence_based_approach(
     approach_comparison = "pif",
     exp_central_1 = list(8.85, 8.0),
     exp_central_2 = list(6, 6.5),
