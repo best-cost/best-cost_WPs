@@ -106,7 +106,7 @@ include_summary_uncertainty <- function(
 
     )
 
-    # * Identify input variables with 95% uncertainty & simulate values #########
+    # * Simulate values for input variables #########
 
     # * * rr #####################################################################
 
@@ -375,7 +375,9 @@ include_summary_uncertainty <- function(
       # Goal: Generate a tibble with 1000 simulations per exposure category for each geo_id
 
       # Vectors needed for simulation of exposure values (exp_central, exp_lower, exp_upper & prop_pop_exp central)
-      # NOTE: exp central, lower & upper has to be compiled for each geo unit
+      # Pull exposures for all geo id's
+
+      # browser()
 
       exp_central <- res[["detailed"]][["raw"]] |>
         dplyr::filter(exp_ci == "central") |>
@@ -821,7 +823,21 @@ include_summary_uncertainty <- function(
 
     # Absolute risk ##############################################################
 
+    # * Simulate values for input variables ####################################
   } else if ( unique(res[["detailed"]][["raw"]]$approach_risk) == "absolute_risk" ) {
+
+    # Create (empty) tibble to store simulated values & results in
+    dat <- tibble::tibble(
+      row_id = 1:(n_sim*n_geo),
+      geo_id_raw = rep(1:n_geo, each = n_sim))
+
+
+    # * * exp ##################################################################
+
+    # Single geo unit ##########################################################
+
+    if ( (length(grep("lower", res[["detailed"]][["raw"]][["exp_ci"]])) > 0) &
+         ( max(dat$geo_id_raw) == 1 ) ) {
 
     # Vectors needed for simulation below
     exp_central <- res[["detailed"]][["raw"]] |>
@@ -844,12 +860,8 @@ include_summary_uncertainty <- function(
       dplyr::pull(pop_exp) |>
       base::unlist(x = _)
 
-    ## Simulate values #########################################################
-    # Create (empty) tibble to store simulated values & results in
-    dat <- tibble::tibble(
-      row_id = 1:(n_sim*n_geo),
-      geo_id_raw = rep(1:n_geo, each = n_sim)) |>
 
+    dat <- dat |>
       # Simulate 1000 exposure values (normal distribution) for each noise band
       # using the corresponding values of exp_lower & exp_upper
       dplyr::bind_cols(
@@ -864,23 +876,121 @@ include_summary_uncertainty <- function(
               rnorm(n_sim,
                     mean = exp_central[.x],
                     sd = (exp_upper[.x] - exp_lower[.x]) / (2 * 1.96)),
-            !!paste0("pop_", .x) := pop_exp[.x])) |>
+            !!paste0("pop_exp_", .x) := pop_exp[.x])) |>
           purrr::reduce(bind_cols))
 
+
+    # Multiple geo units #######################################################
+    } else if ( ( length(grep("lower", res[["detailed"]][["raw"]][["exp_ci"]])) > 0 ) &
+                  ( max(dat$geo_id_raw) > 1 ) ) {
+
+      # Vectors needed for simulation below
+      exp_central <- res[["detailed"]][["raw"]] |>
+        dplyr::filter(exp_ci == "central") |>
+        select(geo_id_raw, exposure_dimension, exp) |>
+        group_by(geo_id_raw) %>%
+        summarize(exp_central = list(exp), .groups = "drop")
+      exp_lower <- res[["detailed"]][["raw"]] |>
+        dplyr::filter(exp_ci == "lower") |>
+        select(geo_id_raw, exposure_dimension, exp) |>
+        group_by(geo_id_raw) %>%
+        summarize(exp_lower = list(exp), .groups = "drop")
+      exp_upper <- res[["detailed"]][["raw"]] |>
+        dplyr::filter(exp_ci == "upper") |>
+        select(geo_id_raw, exposure_dimension, exp) |>
+        group_by(geo_id_raw) %>%
+        summarize(exp_upper = list(exp), .groups = "drop")
+
+      dat_exp <- cbind(exp_central,
+                       exp_lower |> select(-geo_id_raw),
+                       exp_upper |> select(-geo_id_raw)
+      )
+
+      pop_exp <- res[["detailed"]][["raw"]] |>
+        dplyr::filter(exp_ci == "central") |>
+        select(geo_id_raw, pop_exp) |>
+        group_by(geo_id_raw) %>%
+        summarize(pop_exp = list(pop_exp), .groups = "drop")
+
+      # Create vectors of column names
+      exp_columns <- paste0("exp_", dat_exp |>
+                              filter(geo_id_raw == 1) |>
+                              pull(exp_central) |>
+                              unlist() |>
+                              seq_along())
+      pop_columns <- paste0("pop_exp_", dat_exp |>
+                               filter(geo_id_raw == 1) |>
+                               pull(exp_central) |>
+                               unlist() |>
+                               seq_along())
+
+      # Create empty tibble to be filled in loop below
+      # @ AC: sorry for the loop : P
+      dat_sim <- tibble(
+        geo_id_raw = numeric(0)  # Initialize geo_id_raw as numeric
+      ) |>
+        bind_cols(
+          set_names(rep(list(numeric(0)), length(exp_columns)), exp_columns),
+          set_names(rep(list(numeric(0)), length(pop_columns)), pop_columns)
+        )
+
+      for (i in exp_central$geo_id_raw){
+        # for (i in 1){ ## To test
+
+        temp <- tibble::tibble(
+          geo_id_raw = rep(i, times = n_sim)) |>
+          bind_cols(
+            purrr::map(
+              .x = seq_along(                      # .x will take the values 1, 2, ..., (nr. of exposure categories)
+                dat_exp |>
+                  dplyr::filter(geo_id_raw == i) |>
+                  dplyr::pull(exp_central) |>
+                  base::unlist(x = _)
+              ),
+              .f = ~ tibble::tibble(
+                !!paste0("exp_", .x) :=
+                  # For each exposure category generate n_sim simulated values
+                  rnorm(
+                    n_sim,
+                    mean = dat_exp |> filter(geo_id_raw == i) |> pull(exp_central) |> unlist(x = _) |> nth(.x) ,
+                    sd = ( dat_exp |> filter(geo_id_raw == i) |> pull(exp_upper) |> unlist(x = _) |> nth(.x) -
+                             dat_exp |> filter(geo_id_raw == i) |> pull(exp_lower) |> unlist(x = _) |> nth(.x) ) / (2 * 1.96) # Formula: exp_upper - exp_lower) / (2 * 1.96)
+                  ),
+                !!paste0("pop_exp_", .x) := pop_exp|> filter(geo_id_raw == i) |> pull(pop_exp) |> unlist(x = _) |> nth(.x)
+              )) |>
+              purrr::reduce(bind_cols)
+          )
+
+        dat_sim <- dat_sim |>
+          bind_rows(temp)
+
+      }
+
+
+      dat <- dat |>
+        bind_cols(dat_sim |> select(-geo_id_raw))
+
+      }
+
+
+    # * rr_conc ################################################################
+
     # Calculate risk for each noise band
+
     dat <- dat |>
       dplyr::mutate(
         dplyr::across(.cols = dplyr::starts_with("exp_"),
-                      .fns = ~ healthiar::get_risk(exp = .x, erf_eq = res[["main"]]$erf_eq |> dplyr::first(x = _)) / 100,
+                      .fns = ~ healthiar::get_risk(exp = .x, erf_eq = res[["detailed"]][["raw"]]$erf_eq |> dplyr::first(x = _)) / 100,
                       .names = "risk_{str_remove(.col, 'exp_')}")
       )
 
     ### Get impact ##############################################################
+
     # Calculate impact per noise band (impact_X = risk_X * pop_X)
     dat <- dat |>
       dplyr::mutate(
-        # Use purrr::map2 to iterate over corresponding "risk_" and "pop_" columns
-        dplyr::across(dplyr::starts_with("risk_"), ~ as.numeric(.x) * as.numeric(dat[[gsub("risk_", "pop_", dplyr::cur_column())]]),
+        # Iterate over corresponding "risk_" and "pop_" columns
+        dplyr::across(dplyr::starts_with("risk_"), ~ as.numeric(.x) * as.numeric(dat[[gsub("risk_", "pop_exp_", dplyr::cur_column())]]),
                       .names = "impact_{str_remove(.col, 'risk_')}")) |>
       # Sum impacts across noise bands to obtain total impact
       dplyr::mutate(impact_total = rowSums(across(starts_with("impact_"))))
