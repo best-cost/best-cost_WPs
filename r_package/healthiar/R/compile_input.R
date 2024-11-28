@@ -43,6 +43,7 @@ compile_input <-
            geo_id_aggregated = NULL,
            info = NULL,
            corrected_discount_rate = NULL,
+           population = population,
            # YLD
            duration_central = NULL, duration_lower = NULL, duration_upper = NULL,
            dw_central = NULL, dw_lower = NULL, dw_upper = NULL,
@@ -156,7 +157,7 @@ compile_input <-
         approach_multiexposure = rep(approach_multiexposure, each = length_exp_dist),
         approach_exposure = rep(approach_exposure, each = length_exp_dist),
         approach_newborns = rep(approach_newborns, each = length_exp_dist),
-
+        population = rep(unlist(population), each = length_exp_dist),
         # Second those variables with length = 1 (non-problematic)
         cutoff_central = cutoff_central,
         cutoff_lower = cutoff_lower,
@@ -353,11 +354,38 @@ compile_input <-
 
 
       # JOIN TIBBLES ###########################################################
-      # Join the input without and with lifetable variable into one tibble
-      input <-
-        dplyr::left_join(input_wo_lifetable,
-                         lifetable_with_pop,
-                         by = "geo_id_raw")
+        # Calculate total population for impacts per 100k inhab.
+        population <-
+          lifetable_with_pop_total %>%
+          dplyr::group_by(geo_id_raw) %>%
+          dplyr::summarize(population = sum(population, rm.na = TRUE))
+
+        # Join population
+
+
+        # Add population for impacts per 100k inhab.
+        #population_male <-
+        #  ifelse(is.list(population_midyear_male),
+        #         purrr::map(population_midyear_male, sum),
+        #         sum(population_midyear_male))
+
+        #population_female <-
+        #  ifelse(is.list(population_midyear_female),
+        #         purrr::map(population_midyear_female, sum),
+        #         sum(population_midyear_female))
+
+        #population <-
+        #  unlist(population_male + population_female)%>%
+        #  rep(each = length_exp_dist)
+
+
+        # Join the input without and with lifetable variable into one tibble
+        input <-
+          dplyr::left_join(input_wo_lifetable,
+                           lifetable_with_pop,
+                           by = "geo_id_raw") |>
+          dplyr::left_join(population,
+                           by = "geo_id_raw")
 
       } else {
       # If no lifetable, only use input_wo_lifetable

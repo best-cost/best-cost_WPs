@@ -22,6 +22,7 @@ attribute_health_ar <-
            erf_eq_central, erf_eq_lower = NULL, erf_eq_upper = NULL,
            geo_id_raw = NULL, geo_id_aggregated = NULL,
            info = NULL,
+           population = NULL,
            summary_uncertainty = NULL){
 
     output <-
@@ -49,6 +50,7 @@ attribute_health_ar <-
         duration_central = NULL,
         geo_id_raw = geo_id_raw , geo_id_aggregated = geo_id_aggregated,
         info = info,
+        population = population,
         summary_uncertainty = summary_uncertainty)
 
     return(output)

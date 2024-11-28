@@ -98,6 +98,7 @@ attribute <-
         info = info,
         health_metric = health_metric,
         approach_risk = approach_risk,
+        population = population,
         # YLD
         dw_central = dw_central, dw_lower = dw_lower, dw_upper = dw_upper,
         duration_central = duration_central, duration_lower = duration_lower, duration_upper = duration_upper,

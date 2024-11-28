@@ -34,6 +34,7 @@ compare_health <-
            erf_eq_central = NULL, erf_eq_lower = NULL, erf_eq_upper = NULL,
            bhd_central_1, bhd_lower_1 = NULL, bhd_upper_1 = NULL,
            bhd_central_2, bhd_lower_2 = NULL, bhd_upper_2 = NULL,
+           population_1 = NULL, population_2 = NULL,
            geo_id_raw = NULL,
            geo_id_aggregated = NULL,
            info_1 = NULL, info_2 = NULL){
@@ -75,6 +76,7 @@ compare_health <-
         duration_central = NULL,
         geo_id_raw = geo_id_raw,
         geo_id_aggregated = geo_id_aggregated,
+        population_1 = population_1, population_2 = population_2,
         info_1 = info_1 , info_2 = info_2)
 
 
