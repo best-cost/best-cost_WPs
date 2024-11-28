@@ -300,6 +300,7 @@ bestcost_pm_death <-
     erf_shape = "log_linear", 
     erf_increment = 10,
     bhd_central = as.list(social_data$MORTALITY_TOTAL),
+    population = social_data$POPULATION,
     geo_id_raw = social_data$CS01012020)
 
 # Then include social indicators of deprivation 
@@ -307,7 +308,6 @@ bestcost_pm_death_social_decile <-
   healthiar::include_social(output = bestcost_pm_death,
                             geo_id_raw = social_data$CS01012020,
                             deprivation_score = social_data$score,
-                            population = social_data$POPULATION,
                             n_quantile = 10,
                             approach = "quantile")
 
@@ -327,7 +327,6 @@ bestcost_pm_copd_geo_social_multiplicative <-
   healthiar::include_social(output = bestcost_pm_death,
                             geo_id_raw = social_data$CS01012020,
                             deprivation_score = social_data$score,
-                            population = social_data$POPULATION,
                             approach = "multiplicative")
 ```
 
