@@ -36,6 +36,7 @@ attribute_health <-
            geo_id_raw = NULL, geo_id_aggregated = NULL,
            summary_uncertainty = NULL,
            approach_multiexposure = NULL,
+           population = NULL,
            info = NULL){
 
     output <-
@@ -63,6 +64,7 @@ attribute_health <-
         duration_central = NULL,
         geo_id_raw = geo_id_raw , geo_id_aggregated = geo_id_aggregated,
         info = info,
+        population = population,
         summary_uncertainty = summary_uncertainty)
 
     return(output)

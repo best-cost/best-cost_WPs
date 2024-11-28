@@ -128,6 +128,23 @@ results_pm_copd <-
 # View(results_pm_copd)
 # View(results_pm_copd$main)
 # View(results_pm_copd$detailed$raw)
+
+
+# Now with population
+results_pm_copd_pop <-
+  healthiar::attribute(
+    exp_central = data$mean_concentration,                      # 8.85
+    cutoff_central = data$cut_off_value,                        # 5
+    bhd_central = data$prevalence,                              # 30747
+    bhd_lower = data$prevalence - 1000,                         # 29747
+    bhd_upper = data$prevalence + 1000,                         # 31747
+    rr_central = data$relative_risk,                            # 1.36
+    rr_lower = data$relative_risk_lower,                        # 1.124
+    rr_upper = data$relative_risk_upper,                        # 1.664
+    erf_increment = 10,                                           
+    erf_shape = "log_linear", 
+    info = "pm_copd_assessment_1",
+    population = 1E6)
 ```
 
 ```{r single exposure value}
@@ -159,12 +176,12 @@ check_bestcost(result_list_bestcost = bestcost_pm_copd,
 ```{r Screenshot for poster, eval=FALSE, include=FALSE}
 
 health_impact <- attribute(
-    exposure = 12.3,
-    baseline_health_data = 15000,
+    exp_central = 12.3,
+    bhd_central = 15000,
     rr_central = 1.04,
     rr_lower = 1.02,
     rr_upper = 1.06,
-    cutoff = 5,
+    cutoff_central = 5,
     erf_shape = "log_linear",
     info = "scenario_1")
 
@@ -187,7 +204,7 @@ bestcost_pm_copd_costs <-
 
 
 
-```{r single exposure value with multiple uncertainties, eval=FALSE, include=FALSE}
+```{r single exposure value with multiple uncertainties}
 
 # Assess attributable cases for multiple uncertainties at the same time
 # i.e. rr, bhd and exp
@@ -216,25 +233,28 @@ check_bestcost(result_list_bestcost = bestcost_pm_copd_multiple,
 
 
 # Assess iteration geographical sections keeping the multiple uncertainties
-system.time(bestcost_pm_copd_geo <-
-  healthiar::attribute_health(
-    exp_central = as.list(runif_with_seed(1E4, 8.0, 9.0, 1)),
-    exp_lower = as.list(runif_with_seed(1E4, 8.0, 9.0, 1)-0.1),
-    exp_upper = as.list(runif_with_seed(1E4, 8.0, 9.0, 1)+0.1),
-    cutoff_central = 5,   
-    bhd_central = as.list(runif_with_seed(1E4, 25000, 35000, 1)),
-    # bhd_lower = as.list(runif_with_seed(1E4, 25000, 35000, 1)),
-    bhd_lower = as.list(runif_with_seed(1E4, 20000, 30000, 1)),
-    # bhd_upper = as.list(runif_with_seed(1E4, 25000, 35000, 1)),
-    bhd_upper = 0,
-    rr_central = 1.369, 
-    rr_lower = 1.124,
-    rr_upper = 1.664,
-    erf_increment = 10, 
-    erf_shape = "log_linear", 
-    geo_id_raw = 1:1E4, 
-    geo_id_aggregated = rep("CH", 1E4),
-    info = "PM2.5_copd"))
+system.time(
+  bestcost_pm_copd_geo <-
+    healthiar::attribute_health(
+      exp_central = as.list(runif_with_seed(1E4, 8.0, 9.0, 1)),
+      exp_lower = as.list(runif_with_seed(1E4, 8.0, 9.0, 1)-0.1),
+      exp_upper = as.list(runif_with_seed(1E4, 8.0, 9.0, 1)+0.1),
+      cutoff_central = 5,   
+      bhd_central = as.list(runif_with_seed(1E4, 25000, 35000, 1)),
+      # bhd_lower = as.list(runif_with_seed(1E4, 25000, 35000, 1)),
+      bhd_lower = as.list(runif_with_seed(1E4, 20000, 30000, 1)),
+      # bhd_upper = as.list(runif_with_seed(1E4, 25000, 35000, 1)),
+      bhd_upper = 0,
+      rr_central = 1.369, 
+      rr_lower = 1.124,
+      rr_upper = 1.664,
+      erf_increment = 10, 
+      erf_shape = "log_linear", 
+      population = as.list(rep(1E6, 1E4)),
+      geo_id_raw = 1:1E4, 
+      geo_id_aggregated = rep("CH", 1E4),
+      info = "PM2.5_copd")
+  )
 
 # View(bestcost_pm_copd_geo)
 check_bestcost(result_list_bestcost = bestcost_pm_copd_geo,
@@ -280,6 +300,7 @@ bestcost_pm_death <-
     erf_shape = "log_linear", 
     erf_increment = 10,
     bhd_central = as.list(social_data$MORTALITY_TOTAL),
+    population = social_data$POPULATION,
     geo_id_raw = social_data$CS01012020)
 
 # Then include social indicators of deprivation 
@@ -287,7 +308,6 @@ bestcost_pm_death_social_decile <-
   healthiar::include_social(output = bestcost_pm_death,
                             geo_id_raw = social_data$CS01012020,
                             deprivation_score = social_data$score,
-                            population = social_data$POPULATION,
                             n_quantile = 10,
                             approach = "quantile")
 
@@ -307,7 +327,6 @@ bestcost_pm_copd_geo_social_multiplicative <-
   healthiar::include_social(output = bestcost_pm_death,
                             geo_id_raw = social_data$CS01012020,
                             deprivation_score = social_data$score,
-                            population = social_data$POPULATION,
                             approach = "multiplicative")
 ```
 

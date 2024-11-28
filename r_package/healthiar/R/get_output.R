@@ -92,6 +92,8 @@ get_output <-
           output[["detailed"]][["agg_geo"]]  <- output[["detailed"]][["agg_geo"]] |>
           dplyr::summarise(impact = sum(impact),
                            impact_rounded = round(impact),
+                           population = sum(population),
+                           impact_per_100k_inhab = impact/population,
                            .groups = "drop")
         } else {
           output[["detailed"]][["agg_geo"]]  <- output[["detailed"]][["agg_geo"]] |>

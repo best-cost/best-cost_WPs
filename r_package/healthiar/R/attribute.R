@@ -25,6 +25,7 @@
 #' @param dw_central,dw_lower,dw_upper \code{Numeric value} showing the disability weights (central estimate, lower and upper 95\% confidence intervals) associated with the morbidity health outcome
 #' @param duration_central,duration_lower,duration_upper \code{Numeric value} showing the central estimate of the disease duration and (optionally) the lower and upper bounds of the 95\% confidence interval.
 #' @param corrected_discount_rate \code{Numeric value} showing the discount rate for future years including correction from inflation rate
+#' @param population code{Vector} with numeric values referring to the population in the geographical unit
 #' @param geo_id_raw \code{Vector} showing the id code of the each geographic area considered in the assessment. If a vector is entered here, the data for each geographical area have to be provided as list in the corresponding arguments.
 #' @param geo_id_aggregated \code{Vector} showing the id code of the geographic area for which raw geo ids have to be aggregated. The vector has to have the same length as geo_id_raw. Therefore, geo_id_aggregated should have duplicated values for those geo_id_r
 #' @param info \code{String} or {data frame} showing additional information or id. The suffix "info" will be added to the column name. Default value = NULL.
@@ -67,6 +68,7 @@ attribute <-
            geo_id_raw = NULL,
            geo_id_aggregated = NULL,
            # Meta-information
+           population = NULL,
            summary_uncertainty = NULL,
            health_metric = "same_input_output",
            approach_multiexposure = NULL,
@@ -96,6 +98,7 @@ attribute <-
         info = info,
         health_metric = health_metric,
         approach_risk = approach_risk,
+        population = population,
         # YLD
         dw_central = dw_central, dw_lower = dw_lower, dw_upper = dw_upper,
         duration_central = duration_central, duration_lower = duration_lower, duration_upper = duration_upper,
@@ -113,11 +116,12 @@ attribute <-
     # Calculate the health impacts for each case (uncertainty, category, geo area...)
     impact_raw <-
       healthiar:::get_impact(input = input,
-                            year_of_analysis = year_of_analysis,
-                            min_age = min_age,
-                            max_age = max_age,
-                            corrected_discount_rate = corrected_discount_rate,
-                            pop_fraction_type = "paf")
+                             year_of_analysis = year_of_analysis,
+                             min_age = min_age,
+                             max_age = max_age,
+                             corrected_discount_rate = corrected_discount_rate,
+                             pop_fraction_type = "paf",
+                             population)
 
     # Get the main and detailed output by aggregating and/or filtering cases (rows)
     output <-

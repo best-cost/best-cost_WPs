@@ -24,7 +24,8 @@ get_impact <-
            min_age = NULL,
            max_age = NULL,
            corrected_discount_rate = NULL,
-           pop_fraction_type){
+           pop_fraction_type,
+           population = NULL){
 
     if(unique(input$approach_risk) == "relative_risk"){
       # Get pop_fraction and add to the input data frame
@@ -153,6 +154,18 @@ get_impact <-
       impact_raw[["main"]] <- impact_raw[["main"]] |>
         dplyr::mutate(impact_rounded = round(impact, 0))
     }
+
+    # Calculate impact per 100K inhab.
+
+    if("population" %in% colnames(impact_raw[["main"]])){
+      impact_raw[["main"]] <-
+        impact_raw[["main"]] |>
+        dplyr::mutate(
+          impact_per_100k_inhab = (impact / population) *1E5
+        )
+    }
+
+
 
     return(impact_raw)
 

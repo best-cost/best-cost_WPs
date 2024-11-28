@@ -28,6 +28,7 @@ compare_health_ar <-
            erf_eq_central, erf_eq_lower = NULL, erf_eq_upper = NULL,
            geo_id_raw = NULL,
            geo_id_aggregated = NULL,
+           population_1 = NULL, population_2 = NULL,
            info_1 = NULL, info_2 = NULL){
 
     output <-
@@ -64,6 +65,7 @@ compare_health_ar <-
         min_age = NULL, max_age = NULL,
         geo_id_raw = geo_id_raw,
         geo_id_aggregated = geo_id_aggregated,
+        population_1 = population_1, population_2 = population_2,
         info_1 = info_1, info_2 = info_2)
 
 

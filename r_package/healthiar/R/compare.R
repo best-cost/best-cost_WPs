@@ -68,6 +68,7 @@ compare <-
            erf_eq_central = NULL, erf_eq_lower = NULL, erf_eq_upper = NULL,
            bhd_central_1 = NULL, bhd_lower_1 = NULL, bhd_upper_1 = NULL,
            bhd_central_2 = NULL, bhd_lower_2 = NULL, bhd_upper_2 = NULL,
+           population_1 = NULL, population_2 = NULL,
            # Lifetable arguments
            approach_exposure_1 = NULL,
            approach_newborns_1 = NULL,
@@ -115,6 +116,7 @@ compare <-
         deaths_female = deaths_female_1,
         population_midyear_male = population_midyear_male_1,
         population_midyear_female = population_midyear_female_1,
+        population = population_1,
         year_of_analysis = year_of_analysis_1,
         min_age = min_age,
         max_age = max_age,
@@ -148,6 +150,7 @@ compare <-
         deaths_female = deaths_female_2,
         population_midyear_male = population_midyear_male_2,
         population_midyear_female = population_midyear_female_2,
+        population = population_2,
         year_of_analysis = year_of_analysis_2,
         min_age = min_age,
         max_age = max_age,
@@ -238,6 +241,7 @@ compare <-
           info = info_1,
           geo_id_raw = geo_id_raw,
           geo_id_aggregated = geo_id_aggregated,
+          population = population_1,
           # YLD
           dw_central = dw_central, dw_lower = dw_lower, dw_upper = dw_upper,
           duration_central = duration_central, duration_lower = duration_lower, duration_upper = duration_upper,
@@ -271,6 +275,7 @@ compare <-
           info = info_2,
           geo_id_raw = geo_id_raw,
           geo_id_aggregated = geo_id_aggregated,
+          population = population_2,
           # YLD
           dw_central = dw_central, dw_lower = dw_lower, dw_upper = dw_upper,
           duration_central = duration_central, duration_lower = duration_lower, duration_upper = duration_upper,
