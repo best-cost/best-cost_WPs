@@ -140,15 +140,30 @@ include_social <- function(output,
         names_to = c("difference_type", "difference_compared_with"),
         values_to = "difference_value",
         names_sep = "_") |>
-
+      # Change and add columns
       dplyr::mutate(
+        parameter_string =
+          dplyr::case_when(
+            grepl("exp_", parameter) ~ "Exposure",
+            grepl("bhd_", parameter) ~ "Baseline health data",
+            grepl("impact_", parameter) ~ "Impact",
+            grepl("pop_fraction_", parameter) ~ "Population attributable fraction"),
         # Replace "quantile" with "bottom_quantile"
         difference_compared_with = gsub("quantile", "bottom_quantile", difference_compared_with),
         # Flag attributable fraction
+        is_paf_from_deprivation = difference_type == "relative" & difference_compared_with == "overall",
+        attributable_to_deprivation =
+          ifelse(
+            is_paf_from_deprivation,
+            difference_value * overall,
+            NA),
+        # Add comment to clarify
         comment =
-          ifelse(difference_type == "relative" & difference_compared_with == "overall",
-                 "Theoretical attributable fraction from deprivation",
-                 ""))
+          ifelse(is_paf_from_deprivation,
+                 paste0( parameter_string, " attributable to deprivation"),
+                 "")) |>
+      # Remove columns that are not needed anymore
+      dplyr::select(-is_paf_from_deprivation, -parameter_string)
 
     output[["detailed"]][["social"]] <- social_results
 
