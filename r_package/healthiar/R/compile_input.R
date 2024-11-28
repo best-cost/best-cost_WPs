@@ -360,25 +360,6 @@ compile_input <-
           dplyr::group_by(geo_id_raw) %>%
           dplyr::summarize(population = sum(population, rm.na = TRUE))
 
-        # Join population
-
-
-        # Add population for impacts per 100k inhab.
-        #population_male <-
-        #  ifelse(is.list(population_midyear_male),
-        #         purrr::map(population_midyear_male, sum),
-        #         sum(population_midyear_male))
-
-        #population_female <-
-        #  ifelse(is.list(population_midyear_female),
-        #         purrr::map(population_midyear_female, sum),
-        #         sum(population_midyear_female))
-
-        #population <-
-        #  unlist(population_male + population_female)%>%
-        #  rep(each = length_exp_dist)
-
-
         # Join the input without and with lifetable variable into one tibble
         input <-
           dplyr::left_join(input_wo_lifetable,
