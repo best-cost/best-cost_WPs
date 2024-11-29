@@ -23,6 +23,7 @@
 compare_health <-
   function(approach_multiexposure = NULL,
            approach_comparison = "delta",
+           approach_risk = "relative_risk",
            exp_central_1, exp_lower_1 = NULL, exp_upper_1 = NULL,
            exp_central_2, exp_lower_2 = NULL, exp_upper_2 = NULL,
            prop_pop_exp_1 = 1,
@@ -46,7 +47,7 @@ compare_health <-
         approach_multiexposure = approach_multiexposure,
         approach_comparison = approach_comparison,
         health_metric = "same_input_output",
-        approach_risk = "relative_risk",
+        approach_risk = approach_risk,
         exp_central_1, exp_lower_1 = exp_lower_1, exp_upper_1 = exp_upper_1,
         exp_central_2, exp_lower_2 = exp_lower_2, exp_upper_2 = exp_upper_2,
         prop_pop_exp_1 = prop_pop_exp_1,
