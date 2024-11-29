@@ -30,7 +30,6 @@ compile_input <-
            approach_risk = NULL,
            exp_central, exp_lower = NULL, exp_upper = NULL,
            prop_pop_exp = NULL,
-           pop_exp = NULL,
            cutoff_central = NULL, cutoff_lower = NULL, cutoff_upper = NULL,
            rr_central, rr_lower = NULL, rr_upper = NULL,
            erf_increment = NULL,
@@ -174,8 +173,7 @@ compile_input <-
         exp_central = unlist(exp_central),
         exp_lower = unlist(exp_lower),
         exp_upper = unlist(exp_upper),
-        prop_pop_exp = unlist(prop_pop_exp),
-        pop_exp = unlist(pop_exp))
+        prop_pop_exp = unlist(prop_pop_exp))
 
       # Add erf data
     input_wo_lifetable <-
