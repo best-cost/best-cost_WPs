@@ -27,12 +27,12 @@ attribute_health <-
   function(exp_central,
            exp_lower = NULL, exp_upper = NULL,
            prop_pop_exp = 1,
-           cutoff_central, cutoff_lower = NULL, cutoff_upper = NULL,
+           cutoff_central = NULL, cutoff_lower = NULL, cutoff_upper = NULL,
            rr_central = NULL, rr_lower = NULL, rr_upper = NULL,
            erf_increment = NULL,
            erf_shape = NULL,
            erf_eq_central = NULL, erf_eq_lower = NULL, erf_eq_upper = NULL,
-           bhd_central, bhd_lower = NULL, bhd_upper = NULL,
+           bhd_central = NULL, bhd_lower = NULL, bhd_upper = NULL,
            geo_id_raw = NULL, geo_id_aggregated = NULL,
            summary_uncertainty = NULL,
            approach_multiexposure = NULL,
@@ -52,6 +52,7 @@ attribute_health <-
         erf_shape = erf_shape,
         erf_eq_central = erf_eq_central, erf_eq_lower = erf_eq_lower, erf_eq_upper = erf_eq_upper,
         bhd_central = bhd_central, bhd_lower = bhd_lower, bhd_upper = bhd_upper,
+        population = population,
         approach_exposure = NULL,
         approach_newborns = NULL,
         first_age_pop = NULL, last_age_pop = NULL,
@@ -63,7 +64,6 @@ attribute_health <-
         duration_central = NULL,
         geo_id_raw = geo_id_raw , geo_id_aggregated = geo_id_aggregated,
         info = info,
-        population = population,
         summary_uncertainty = summary_uncertainty)
 
     return(output)
