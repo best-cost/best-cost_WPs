@@ -1433,7 +1433,7 @@ comparison_singlebhd_rr_geo <-
 
 # Test delta comparison function with fake values
 # No PIF option in ar
-comparison_singlebhd_delta_ar <-
+comparison_singlebhd_ar_delta <-
   healthiar::compare_health(
     approach_risk = "absolute_risk",
     approach_comparison = "delta",
@@ -1462,6 +1462,7 @@ comparison_singlebhd_ar_delta_geo <-
     exp_central_1 = list(c(57.5, 62.5, 67.5, 72.5, 77.5), c(57, 62, 67, 72, 77)),# Fake values
     exp_central_2 = list(c(50, 55, 60, 65, 75), c(50.5, 55.5, 60.5, 65.5, 75.5)), # Fake values
     population_1 = list(945200, 929800),
+    population_2 = list(945200, 929800),
     prop_pop_exp_1 = list(c(387500, 286000, 191800, 72200, 7700)/945200, 
                           c(380000, 280000, 190800, 72000, 7000)/929800), # Fake values
     prop_pop_exp_2 = list(c(387500, 286000, 191800, 72200, 7700)/945200, 

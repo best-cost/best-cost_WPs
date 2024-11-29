@@ -12,13 +12,13 @@ compare_health_ar(
   exp_central_2,
   exp_lower_2 = NULL,
   exp_upper_2 = NULL,
-  pop_exp_1,
-  pop_exp_2,
   erf_eq_central,
   erf_eq_lower = NULL,
   erf_eq_upper = NULL,
   geo_id_raw = NULL,
   geo_id_aggregated = NULL,
+  population_1 = NULL,
+  population_2 = NULL,
   info_1 = NULL,
   info_2 = NULL
 )
@@ -29,10 +29,6 @@ compare_health_ar(
 \item{exp_central_1}{\code{Numeric value} showing the population-weighted mean exposure in ug/m3 or {vector} showing the exposure category in a exposure distribution in the scenario 1.}
 
 \item{exp_central_2}{\code{Numeric value} showing the population-weighted mean exposure in ug/m3 or {vector} showing the exposure category in a exposure distribution in the scenario 2.}
-
-\item{pop_exp_1}{\code{Numeric value} or {vector} showing the population exposed for each of the exposure categories for the scenario 1. The length of this input variable must be the same as "exp".}
-
-\item{pop_exp_2}{\code{Numeric value} or {vector} showing the population exposed for each of the exposure categories for the scenario 2. The length of this input variable must be the same as "exp".}
 
 \item{erf_eq_central, erf_eq_lower, erf_eq_upper}{Equation of the user-defined exposure-response function that puts the relative risk (y) in relation with exposure (x). If the function is provided as \code{string}, it can only contains one variable: x (exposure). E.g. "3+x+x^2". If the function is provided as a \code{function}, the object should have a function class. If only the values of the x-axis (exposure) and y axis (relative risk) of the dots in the exposure-response function are available, a cubic spline natural interpolation can be assumed to get the function using, e.g., \code{stats::splinefun(x, y, method="natural")}}
 
