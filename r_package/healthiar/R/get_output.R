@@ -43,6 +43,7 @@ get_output <-
         # Collapse the exposure categories to have only a vector
         dplyr::mutate(across(all_of(intersect(c(paste0("exp", c("", "_1", "_2")),
                                                 paste0("pop_exp", c("", "_1", "_2")),
+                                                paste0("prop_pop_exp", c("", "_1", "_2")),
                                                 "exposure_dimension"),
                                               names(output_last))),
                              ~ paste(collapse = ", ")))
@@ -53,8 +54,9 @@ get_output <-
         dplyr::group_by(
           across(all_of(setdiff(names(output[["detailed"]][["agg_exp_cat"]]),
                                 c("geo_id_raw",
-                                  "pop_exp",
                                   paste0("exp", c("", "_1", "_2")),
+                                  paste0("population", c("", "_1", "_2")),
+                                  paste0("prop_pop_exp", c("", "_1", "_2")),
                                   paste0("pop_exp", c("", "_1", "_2")),
                                   paste0("rr_conc", c("", "_1", "_2")),
                                   paste0("pop_fraction", c("", "_1", "_2")),
