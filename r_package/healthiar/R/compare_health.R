@@ -51,8 +51,6 @@ compare_health <-
         exp_central_2, exp_lower_2 = exp_lower_2, exp_upper_2 = exp_upper_2,
         prop_pop_exp_1 = prop_pop_exp_1,
         prop_pop_exp_2 = prop_pop_exp_2,
-        pop_exp_1 = NULL,
-        pop_exp_2 = NULL,
         cutoff_central = cutoff_central, cutoff_lower = NULL, cutoff_upper = NULL,,
         rr_central = rr_central, rr_lower = rr_lower, rr_upper = rr_upper,
         erf_increment = erf_increment,

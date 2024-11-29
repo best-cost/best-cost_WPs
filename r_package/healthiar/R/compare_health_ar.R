@@ -24,7 +24,6 @@ compare_health_ar <-
   function(approach_comparison = "delta",
            exp_central_1, exp_lower_1 = NULL, exp_upper_1 = NULL,
            exp_central_2, exp_lower_2 = NULL, exp_upper_2 = NULL,
-           pop_exp_1, pop_exp_2,
            erf_eq_central, erf_eq_lower = NULL, erf_eq_upper = NULL,
            geo_id_raw = NULL,
            geo_id_aggregated = NULL,
