@@ -524,6 +524,7 @@ niph_noise_ha_result <-
 # Obtain attributable cases using the bestcost package and input data from niph
 bestcost_noise_ha_ar <- 
   healthiar::attribute_health(
+    approach_risk = "absolute_risk",
     exp_central = niph_noise_ha_input$exposure_mean,
     # exp_lower = niph_noise_ha_input$exposure_mean - 1,
     # exp_upper = niph_noise_ha_input$exposure_mean + 1
@@ -542,6 +543,7 @@ check_bestcost(result_list_bestcost = bestcost_noise_ha_ar,
 # for multiple geo_sections
 bestcost_noise_ha_ar_geo <- 
   healthiar::attribute_health(
+    approach_risk = "absolute_risk",
     exp_central = list(runif_with_seed(5,8,10,1), 
                           runif_with_seed(5,8,10,2), 
                           runif_with_seed(5,8,10,3)),
@@ -808,6 +810,7 @@ niph_noise_ha_input <-
 # Internal get_ci function
 bestcost_noise_ha_ar_with_summary_uncertainty <- 
   healthiar::attribute_health(
+    approach_risk = "absolute_risk",
     exp_central = niph_noise_ha_input$exposure_mean,
     exp_lower = niph_noise_ha_input$exposure_mean - 1,
     exp_upper = niph_noise_ha_input$exposure_mean + 1,
@@ -1453,6 +1456,7 @@ check_bestcost(result_list_bestcost = comparison_singlebhd_ar_delta ,
 
 comparison_singlebhd_ar_delta_geo <-
   healthiar::compare_health_ar(
+    approach_risk = "absolute_risk",
     approach_comparison = "delta",
     exp_central_1 = list(c(57.5, 62.5, 67.5, 72.5, 77.5), c(57, 62, 67, 72, 77)),# Fake values
     exp_central_2 = list(c(50, 55, 60, 65, 75), c(50.5, 55.5, 60.5, 65.5, 75.5)), # Fake values
