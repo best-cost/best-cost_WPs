@@ -7,7 +7,6 @@
 #' @param approach_risk \code{String} showing the risk risk method. To choose between: "relative_risk" (default) or "absolute_risk".
 #' @param exp_central,exp_lower,exp_upper \code{Numeric values} of the exposure to the environmental stressor referring to the central estimate and (optionally) to lower and upper bound of the 95\% confidence interval. If only one value is provided, it will be assumed that it refers to population-weighted mean exposure in ug/m3. If a {vector} is provided, it will be assumed that it refers to the exposure categories (average exposure in the category) in a exposure distribution (this information is linked to the proportion of population exposed).
 #' @param prop_pop_exp \code{Numeric value} or {Numeric vector} Fraction (values between 0 & 1) of the total population exposed to (one or more) exposure categories, i.e., a exposure distribution, respectively. If a exposure distribution is used, the dimension of this input variable should be the same as "exp". By default, 1 for single exposure value will be assigned to this input variable assuming a single exposure value, but users can change this value.
-#' @param pop_exp \code{Numeric value} or {vector} showing the population exposed for each of the exposure categories. The length of this input variable must be the same as "exp".
 #' @param cutoff_central,cutoff_lower,cutoff,upper \code{Numeric value} showing the central exposure cut-off in ug/m3 and (optionally) the lower and upper bounds of the 95\% confidence interval. The cut-off level refers to the exposure level below which no health effects occur.
 #' @param rr_central,rr_lower,rr_upper \code{Numeric values} referring to the central estimate of the relative risk and the corresponding lower and upper 95\% confidence interval bounds.
 #' @param erf_increment \code{Numeric value} showing the increment of the exposure-response function in ug/m3 (usually 10 or 5).
@@ -50,7 +49,6 @@ attribute <-
            erf_increment = NULL, erf_shape = NULL,
            bhd_central = NULL, bhd_lower = NULL, bhd_upper = NULL,
            # Arguments for advanced use
-           pop_exp = NULL,
            prop_pop_exp = 1,
            erf_eq_central = NULL, erf_eq_lower = NULL, erf_eq_upper = NULL,
            # Lifetable arguments
@@ -86,7 +84,6 @@ attribute <-
         approach_multiexposure = approach_multiexposure,
         exp_central = exp_central, exp_lower = exp_lower, exp_upper = exp_upper,
         prop_pop_exp = prop_pop_exp,
-        pop_exp = pop_exp,
         cutoff_central = cutoff_central, cutoff_lower = cutoff_lower, cutoff_upper = cutoff_upper,
         rr_central = rr_central, rr_lower = rr_lower, rr_upper = rr_upper,
         erf_increment = erf_increment,
@@ -141,7 +138,6 @@ attribute <-
                erf_shape = erf_shape,
                erf_increment = erf_increment,
                erf_eq = erf_eq_central,
-               pop_exp = pop_exp,
                prop_pop_exp = prop_pop_exp,
                approach_risk = approach_risk,
                health_metric = health_metric
@@ -159,7 +155,6 @@ attribute <-
              erf_shape = erf_shape,
              erf_increment = erf_increment,
              erf_eq = erf_eq_central,
-             pop_exp = pop_exp,
              prop_pop_exp = prop_pop_exp,
              approach_risk = approach_risk,
              year_of_analysis = year_of_analysis,

@@ -18,7 +18,6 @@
 
 attribute_health_ar <-
   function(exp_central, exp_lower = NULL, exp_upper = NULL,
-           pop_exp,
            erf_eq_central, erf_eq_lower = NULL, erf_eq_upper = NULL,
            geo_id_raw = NULL, geo_id_aggregated = NULL,
            info = NULL,
@@ -32,7 +31,6 @@ attribute_health_ar <-
         approach_risk = "absolute_risk",
         exp_central = exp_central, exp_lower = exp_lower, exp_upper = exp_upper,
         prop_pop_exp = NULL,
-        pop_exp = pop_exp,
         cutoff_central = NULL, cutoff_lower = NULL, cutoff_upper = NULL,
         rr_central = NULL, rr_lower = NULL, rr_upper = NULL,
         erf_increment = NULL,
