@@ -43,7 +43,8 @@
 #' @export
 
 attribute <-
-  function(exp_central, exp_lower = NULL, exp_upper = NULL,
+  function(approach_risk = "relative_risk",
+           exp_central, exp_lower = NULL, exp_upper = NULL,
            cutoff_central, cutoff_lower = NULL, cutoff_upper = NULL,
            rr_central = NULL, rr_lower = NULL, rr_upper = NULL,
            erf_increment = NULL, erf_shape = NULL,
@@ -70,7 +71,6 @@ attribute <-
            summary_uncertainty = NULL,
            health_metric = "same_input_output",
            approach_multiexposure = NULL,
-           approach_risk = "relative_risk",
            info = NULL){
 
     # Check input data
@@ -81,6 +81,7 @@ attribute <-
     # Compile input data
     input <-
       healthiar::compile_input(
+        approach_risk = approach_risk,
         approach_multiexposure = approach_multiexposure,
         exp_central = exp_central, exp_lower = exp_lower, exp_upper = exp_upper,
         prop_pop_exp = prop_pop_exp,
@@ -94,7 +95,6 @@ attribute <-
         geo_id_aggregated = geo_id_aggregated,
         info = info,
         health_metric = health_metric,
-        approach_risk = approach_risk,
         population = population,
         # YLD
         dw_central = dw_central, dw_lower = dw_lower, dw_upper = dw_upper,
