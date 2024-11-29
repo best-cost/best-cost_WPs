@@ -40,13 +40,14 @@ get_output <-
         # not summing rounded results ("too rounded")
         dplyr::select(-all_of(intersect(paste0("impact_rounded", c("", "_1", "_2")),
                                         names(output_last)))) |>
+        dplyr::group_by(geo_id_raw) |>
         # Collapse the exposure categories to have only a vector
         dplyr::mutate(across(all_of(intersect(c(paste0("exp", c("", "_1", "_2")),
                                                 paste0("pop_exp", c("", "_1", "_2")),
                                                 paste0("prop_pop_exp", c("", "_1", "_2")),
                                                 "exposure_dimension"),
                                               names(output_last))),
-                             ~ paste(collapse = ", ")))
+                             ~ paste(., collapse = ", ")))
 
       output[["detailed"]][["agg_exp_cat"]] <-
         output[["detailed"]][["agg_exp_cat"]] |>
@@ -61,11 +62,12 @@ get_output <-
                                   paste0("rr_conc", c("", "_1", "_2")),
                                   paste0("pop_fraction", c("", "_1", "_2")),
                                   paste0("absolute_risk_as_percent", c("", "_1", "_2")),
-                                  paste0("impact", c("", "_1", "_2"))))))) |>
+                                  paste0("impact", c("", "_1", "_2")),
+                                  paste0("impact_per_100k_inhab", c("", "_1", "_2"))))))) |>
         dplyr::summarize(
           across(all_of(intersect(c(paste0("absolute_risk_as_percent", c("", "_1", "_2")),
                                     paste0("impact", c("", "_1", "_2")),
-                                    "impact_social", "population"),
+                                    "impact_social"),
                                   names(output[["detailed"]][["agg_exp_cat"]]))),
                  ~sum(.x, na.rm = TRUE)),
           .groups = "drop") |>
