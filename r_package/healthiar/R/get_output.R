@@ -63,7 +63,7 @@ get_output <-
         dplyr::summarize(
           across(all_of(intersect(c(paste0("absolute_risk_as_percent", c("", "_1", "_2")),
                                     paste0("impact", c("", "_1", "_2")),
-                                    "impact_social"),
+                                    "impact_social", "population"),
                                   names(output[["detailed"]][["agg_exp_cat"]]))),
                  ~sum(.x, na.rm = TRUE)),
           .groups = "drop") |>
@@ -88,19 +88,18 @@ get_output <-
                             "erf_ci", "exp_ci", "bhd_ci", "dw_ci"),
                           names(output_last)))))
 
-        if (!"impact_deprivation_weighted" %in% names(output_last)) {
+        if (!"population" %in% names(output_last)) {
+          output[["detailed"]][["agg_geo"]]  <- output[["detailed"]][["agg_geo"]] |>
+          dplyr::summarise(impact = sum(impact),
+                           impact_rounded = round(impact),
+                           .groups = "drop")
+
+        } else {
           output[["detailed"]][["agg_geo"]]  <- output[["detailed"]][["agg_geo"]] |>
           dplyr::summarise(impact = sum(impact),
                            impact_rounded = round(impact),
                            population = sum(population),
                            impact_per_100k_inhab = impact/population,
-                           .groups = "drop")
-        } else {
-          output[["detailed"]][["agg_geo"]]  <- output[["detailed"]][["agg_geo"]] |>
-          dplyr::summarise(impact = sum(impact),
-                           impact_rounded = round(impact),
-                           impact_deprivation_weighted = sum(impact_deprivation_weighted),
-                           impact_deprivation_weighted_rounded = round(impact_deprivation_weighted),
                            .groups = "drop")
         }
 
