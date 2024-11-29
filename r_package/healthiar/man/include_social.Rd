@@ -20,7 +20,7 @@ include_social(
 
 \item{deprivation_score}{\code{Vector} with numeric values showing the deprivation score (indicator of economic wealth) of the fine geographical area (it should match with those used in \code{attribute} or \code{compare})}
 
-\item{population}{code{Vector} with numeric values referring to the population in the geographical unit}
+\item{n_quantile}{code{Numeric value} referring the number of groups in the quantile}
 
 \item{n_quantile}{code{Numeric value} referring the number of groups in the quantile}
 

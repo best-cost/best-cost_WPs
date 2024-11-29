@@ -17,8 +17,6 @@ compare(
   exp_upper_2 = NULL,
   prop_pop_exp_1 = 1,
   prop_pop_exp_2 = 1,
-  pop_exp_1 = NULL,
-  pop_exp_2 = NULL,
   cutoff_central = NULL,
   cutoff_lower = NULL,
   cutoff_upper = NULL,
@@ -36,6 +34,8 @@ compare(
   bhd_central_2 = NULL,
   bhd_lower_2 = NULL,
   bhd_upper_2 = NULL,
+  population_1 = NULL,
+  population_2 = NULL,
   approach_exposure_1 = NULL,
   approach_newborns_1 = NULL,
   first_age_pop_1 = NULL,
@@ -79,10 +79,6 @@ compare(
 \item{prop_pop_exp_1}{\code{Numeric value} or {vector} showing the proportion of population exposed in the scenario 1. The value is a fraction, i.e. values between 0 and 1) for a single exposure value or for multiple categories, i.e., a exposure distribution, respectively. If a exposure distribution is used, the dimension of this input variable should be the same as "exp". By default, 1 for single exposure value will be assigned to this input variable assuming a single exposure value, but users can change this value.}
 
 \item{prop_pop_exp_2}{\code{Numeric value} or {vector} showing the proportion of population exposed in the scenario 2. The value is a fraction, i.e. values between 0 and 1) for a single exposure value or for multiple categories, i.e., a exposure distribution, respectively. If a exposure distribution is used, the dimension of this input variable should be the same as "exp". By default, 1 for single exposure value will be assigned to this input variable assuming a single exposure value, but users can change this value.}
-
-\item{pop_exp_1}{\code{Numeric value} or {vector} showing the population exposed for each of the exposure categories for the scenario 1. The length of this input variable must be the same as "exp".}
-
-\item{pop_exp_2}{\code{Numeric value} or {vector} showing the population exposed for each of the exposure categories for the scenario 2. The length of this input variable must be the same as "exp".}
 
 \item{rr_central, rr_lower, rr_upper}{\code{Numeric values} referring to the central estimate of the relative risk and the corresponding lower and upper 95\% confidence interval bounds.}
 
@@ -133,6 +129,10 @@ compare(
 \item{info_1}{\code{String} or {data frame} showing additional information or id of the scenario 1. The suffix "info" will be added to the column name. Default value = NULL.}
 
 \item{info_2}{\code{String} or {data frame} showing additional information or id of the scenario 1. The suffix "info" will be added to the column name. Default value = NULL.}
+
+\item{pop_exp_1}{\code{Numeric value} or {vector} showing the population exposed for each of the exposure categories for the scenario 1. The length of this input variable must be the same as "exp".}
+
+\item{pop_exp_2}{\code{Numeric value} or {vector} showing the population exposed for each of the exposure categories for the scenario 2. The length of this input variable must be the same as "exp".}
 
 \item{cutoff}{\code{Numeric value} showing the cut-off exposure in ug/m3 (i.e. the exposure level below which no health effects occur).}
 

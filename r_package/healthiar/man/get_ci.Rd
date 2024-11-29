@@ -30,8 +30,7 @@ get_ci(
   health_metric = NULL,
   min_age = NULL,
   max_age = NULL,
-  approach_exposure = NULL,
-  pop_exp = NULL
+  approach_exposure = NULL
 )
 }
 \arguments{
@@ -60,8 +59,6 @@ get_ci(
 \item{max_age}{\code{Numberic value} of the maximal age to be considered for infants/children (by default 0, i.e. below 1 year old).}
 
 \item{approach_exposure}{\code{String} showing whether air pollution is constant or only in one year. Options: "single_year" (default), "constant"}
-
-\item{pop_exp}{\code{Numeric value} or {vector} showing the population exposed for each of the exposure categories. The length of this input variable must be the same as "exp".}
 }
 \value{
 This function returns a Monte Carlo summary uncertainty for the attributable health impacts.

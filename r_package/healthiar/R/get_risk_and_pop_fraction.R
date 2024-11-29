@@ -134,12 +134,19 @@ get_risk_and_pop_fraction <-
       }
     }
 
+    likely_columns_to_group_input <-
+      c("geo_id_raw", "exposure_name", "exp_ci", "erf_ci", "cutoff_ci")
+
+    available_columns_to_group_input <-
+      likely_columns_to_group_input[likely_columns_to_group_input %in%
+                                      names(input_with_risk_and_pop_fraction)]
+
 
 
     input_with_risk_and_pop_fraction <- input_with_risk_and_pop_fraction |>
       # Calculate population (attributable or impact) fraction (PAF or PIF) ####
       # Group by exp_ci and cutoff_ci in case that there are different exposure or cutoff categories
-      dplyr::group_by(geo_id_raw, exposure_name, exp_ci, erf_ci, cutoff_ci)
+      dplyr::group_by(across(all_of(available_columns_to_group_input)))
       # Alternative coding if one of the grouping variables is NULL
       # dplyr::group_by(across(all_of(intersect(c("geo_id_raw", "exp_ci", "erf_ci"), names(input))))) |>
       # Alternative coding with if statement within group_by
