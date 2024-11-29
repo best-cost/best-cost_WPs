@@ -117,8 +117,7 @@ attribute <-
                              min_age = min_age,
                              max_age = max_age,
                              corrected_discount_rate = corrected_discount_rate,
-                             pop_fraction_type = "paf",
-                             population)
+                             pop_fraction_type = "paf")
 
     # Get the main and detailed output by aggregating and/or filtering cases (rows)
     output <-
