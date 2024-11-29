@@ -32,8 +32,7 @@ get_ci <- function(rr_central = NULL, rr_lower = NULL, rr_upper = NULL,
                    health_metric = NULL,
                    min_age = NULL,
                    max_age = NULL,
-                   approach_exposure = NULL,
-                   pop_exp = NULL) { # in absolute risk case
+                   approach_exposure = NULL) { # in absolute risk case
 
   user_options <- options()
   options(digits = 15) # Make sure that no rounding occurs

@@ -118,7 +118,8 @@ get_impact <-
       impact_raw_main <-
         input |>
         dplyr::mutate(
-          absolute_risk_as_percent = healthiar::get_risk(exp = exp, erf_eq = erf_eq) ,
+          absolute_risk_as_percent = healthiar::get_risk(exp = exp, erf_eq = erf_eq),
+          pop_exp = population * prop_pop_exp,
           impact = absolute_risk_as_percent/100 * pop_exp) |>
         dplyr::mutate(impact_rounded = round(impact, 0))
 
