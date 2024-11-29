@@ -517,6 +517,8 @@ include_summary_uncertainty <- function(
 
     # * * bhd ##################################################################
 
+    # browser()
+
     # * * * bhd CIs & single geo unit ##########################################
     if ( (length(grep("lower", results[["detailed"]][["raw"]][["bhd_ci"]])) > 0) &
       ( max(dat$geo_id_raw) == 1 ) ) {
@@ -959,7 +961,7 @@ include_summary_uncertainty <- function(
                       .names = "risk_{str_remove(.col, 'exp_')}")
       )
 
-    ### Get impact ##############################################################
+    # * Get impact ##############################################################
 
     ## Calculate impact per noise band
     ### impact_X = risk_X * pop_X

@@ -603,8 +603,7 @@ bestcost_pm_copd_with_summary_uncertainty <-
     rr_lower = 1.060, 
     rr_upper = 1.179,
     erf_increment = 10, 
-    erf_shape = "log_linear", 
-    summary_uncertainty = TRUE
+    erf_shape = "log_linear"
     )
 
 # View(bestcost_pm_copd_with_summary_uncertainty)
@@ -617,12 +616,9 @@ bestcost_pm_copd_extern_uncertainty <-
 # Comparison central +- 95% CIs & Monte-Carlo central, lower, upper estimates
 ## Central estimates
 print("Main estimates: ") ; bestcost_pm_copd_with_summary_uncertainty[["main"]][["impact_rounded"]]
-## Summary uncertainty from internal function (initial implementation)
-print("Summary uncertainty estimates (intern calculation): ")
-round(as.numeric(bestcost_pm_copd_with_summary_uncertainty[["detailed"]][["uncertainty"]][["intern"]]), digits = 0)
 ## With external uncertainty function (i.e. include_summary_uncertainty())
 print("Summary uncertainty estimates (extern uncertainty function): ")
-round(as.numeric(bestcost_pm_copd_extern_uncertainty[["detailed"]][["uncertainty"]][["main"]]), digits = 0)
+round(as.numeric(bestcost_pm_copd_extern_uncertainty[["uncertainty"]][["main"]]), digits = 0)
 # Results of internal Monte-Carlo summary uncertainty and extern Monte-Carlo summary uncertainty identical!
 ```
 
@@ -794,8 +790,7 @@ bestcost_pm_yld_singlebhd_with_summary_uncertainty  <-
     erf_increment = 10, 
     erf_shape = "log_linear", 
     # dw_central = 0.9, dw_lower = 0.88, dw_upper = 0.93,
-    dw_central = 0.5, dw_lower = 0.25, dw_upper = 0.75,
-    summary_uncertainty = NULL
+    dw_central = 0.5, dw_lower = 0.25, dw_upper = 0.75
     )
 
 bestcost_pm_yld_singlebhd_external_summary_uncertainty <- healthiar::include_summary_uncertainty(
@@ -805,14 +800,12 @@ bestcost_pm_yld_singlebhd_external_summary_uncertainty <- healthiar::include_sum
 # Comparison central +- 95% CIs & Monte-Carlo central, lower, upper estimates
 # View(bestcost_pm_yld_singlebhd_with_summary_uncertainty)
 print("Main estimates: ") ; bestcost_pm_yld_singlebhd_with_summary_uncertainty[["main"]][["impact_rounded"]]
-print("Summary uncertainty estimates (internal function): ")
-round(as.numeric(bestcost_pm_yld_singlebhd_with_summary_uncertainty[["detailed"]][["uncertainty"]][["intern"]]), digits = 0)
 print("Summary uncertainty estimates (external function): ")
-round(as.numeric(bestcost_pm_yld_singlebhd_external_summary_uncertainty[["detailed"]][["uncertainty"]][["main"]]), digits = 0)
+round(as.numeric(bestcost_pm_yld_singlebhd_external_summary_uncertainty[["uncertainty"]][["main"]]), digits = 0)
 # Results seem plausible
 ```
 
-```{r Summary uncertainty ar, eval=FALSE, include=FALSE}
+```{r Summary uncertainty ar}
 
 # Get data
 niph_noise_ha_input <- 
@@ -829,8 +822,7 @@ bestcost_noise_ha_ar_with_summary_uncertainty <-
     population = sum(niph_noise_ha_input$population_exposed_total),
     prop_pop_exp = niph_noise_ha_input$population_exposed_total/sum(niph_noise_ha_input$population_exposed_total), 
     erf_eq_central = "78.9270-3.1162*c+0.0342*c^2",
-    info = data.frame(pollutant = "road_noise", outcome = "highly_annoyance"),
-    summary_uncertainty = NULL
+    info = data.frame(pollutant = "road_noise", outcome = "highly_annoyance")
     )
 # View(bestcost_noise_ha_ar_with_summary_uncertainty)
 
@@ -841,9 +833,6 @@ bestcost_noise_ha_ar_external_uncertainty <- healthiar::include_summary_uncertai
 # Comparison central +- 95% CIs & Monte-Carlo central, lower, upper estimates
 print("Main estimate: ")
 bestcost_noise_ha_ar_with_summary_uncertainty[["main"]][["impact_rounded"]]
-# Internal uncertainty function
-print("Summary uncertainty central estimate (internal function): ")
-round(as.numeric(bestcost_noise_ha_ar_with_summary_uncertainty[["detailed"]][["uncertainty"]][["intern"]]), digits = 0)
 # External include_summary_uncertainty function
 print("Summary uncertainty estimates (extern uncertainty function): ")
 round(as.numeric(bestcost_noise_ha_ar_external_uncertainty[["uncertainty"]][["main"]]), digits = 0)
@@ -896,40 +885,6 @@ round(as.numeric(bestcost_noise_ha_ar_iteration_with_summary_uncertainty[["uncer
 # Results seem plausible
 ```
 
-
-```{r Summary uncertainty lifetable premature deaths}
-
-# Takes a couple of seconds to run
-bestcost_pm_deaths_lifetable_airqplus_with_summary_uncertainty <-
-  healthiar::attribute_deaths_from_lifetable(
-    approach_exposure = "single_year",
-    approach_newborns = "with_newborns",
-    exp_central = airqplus_pm_deaths_yll[["input"]]$mean_concentration, 
-    cutoff_central = airqplus_pm_deaths_yll[["input"]]$cut_off_value,
-    rr_central = airqplus_pm_deaths_yll[["input"]]$relative_risk,
-    rr_lower = airqplus_pm_deaths_yll[["input"]]$relative_risk_lower,
-    rr_upper = airqplus_pm_deaths_yll[["input"]]$relative_risk_upper,
-    erf_increment = 10, 
-    erf_shape = gsub("-", "_", airqplus_pm_deaths_yll[["input"]]$calculation_method),
-    first_age_pop = first(airqplus_pm_deaths_yll[["pop"]]$age_from...),
-    last_age_pop = last(airqplus_pm_deaths_yll[["pop"]]$age_from...),
-    deaths_male = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_male,
-    deaths_female = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_female,
-    population_midyear_male = airqplus_pm_deaths_yll[["pop"]]$midyear_population_male,
-    population_midyear_female = airqplus_pm_deaths_yll[["pop"]]$midyear_population_female, 
-    year_of_analysis =  airqplus_pm_deaths_yll[["input"]]$start_year, 
-    min_age = airqplus_pm_deaths_yll[["input"]]$apply_rr_from_age,
-    summary_uncertainty = TRUE)
-
-# View(bestcost_pm_deaths_lifetable_airqplus_with_summary_uncertainty)
-
-# Comparison central +- 95% CIs & Monte-Carlo central, lower, upper estimates
-print("Main estimate: ")
-bestcost_pm_deaths_lifetable_airqplus_with_summary_uncertainty[["main"]][["impact_rounded"]] 
-print("Summary uncertainty central estimate: ")
-round(as.numeric(bestcost_pm_deaths_lifetable_airqplus_with_summary_uncertainty[["detailed"]][["uncertainty"]][["intern"]] |> filter(sex == "total") |> select(-sex)), digits = 0)
-# Results seem plausible
-```
 
 
 ### Multiple exposure
@@ -1018,8 +973,7 @@ bestcost_pm_deaths_lifetable_airqplus <-
     population_midyear_male = airqplus_pm_deaths_yll[["pop"]]$midyear_population_male,
     population_midyear_female = airqplus_pm_deaths_yll[["pop"]]$midyear_population_female, 
     year_of_analysis =  airqplus_pm_deaths_yll[["input"]]$start_year, 
-    min_age = airqplus_pm_deaths_yll[["input"]]$apply_rr_from_age,
-    summary_uncertainty = TRUE)
+    min_age = airqplus_pm_deaths_yll[["input"]]$apply_rr_from_age)
 
 # View(bestcost_pm_deaths_lifetable_airqplus)
 

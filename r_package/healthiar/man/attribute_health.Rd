@@ -26,7 +26,6 @@ attribute_health(
   bhd_upper = NULL,
   geo_id_raw = NULL,
   geo_id_aggregated = NULL,
-  summary_uncertainty = NULL,
   approach_multiexposure = NULL,
   population = NULL,
   info = NULL

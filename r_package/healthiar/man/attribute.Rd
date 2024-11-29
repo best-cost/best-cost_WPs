@@ -45,7 +45,6 @@ attribute(
   geo_id_raw = NULL,
   geo_id_aggregated = NULL,
   population = NULL,
-  summary_uncertainty = NULL,
   health_metric = "same_input_output",
   approach_multiexposure = NULL,
   info = NULL
