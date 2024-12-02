@@ -27,12 +27,15 @@ get_impact <-
            pop_fraction_type,
            population = NULL){
 
+    # Relative risk ############################################################
+
     if(unique(input$approach_risk) == "relative_risk"){
       # Get pop_fraction and add to the input data frame
       input_with_risk_and_pop_fraction <-
         healthiar:::get_risk_and_pop_fraction(input = input,
                                              pop_fraction_type = pop_fraction_type)
 
+      # * Same input as output #################################################
       if(unique(input$health_metric) %in% "same_input_output") {
 
         # Get pop_fraction and add it to the input data frame
@@ -49,6 +52,8 @@ get_impact <-
 
       } else if (unique(input$health_metric) %in% c("yld_prevalence_based_approach", "yld_incidence_based_approach")) {
 
+        # * YLD prevalence-based approach ######################################
+
         if (unique(input$health_metric) %in% "yld_prevalence_based_approach"){
 
         # Add impact
@@ -64,7 +69,10 @@ get_impact <-
 
         impact_raw <- list(main = impact_raw_main)
 
+
         } else if (unique(input$health_metric) %in% "yld_incidence_based_approach"){
+
+          # * YLD incidence-based approach #####################################
 
           # Add impact
           impact_raw_main <-
@@ -81,14 +89,13 @@ get_impact <-
 
         }
 
+        # * Lifetable ##########################################################
       } else if (unique(input$health_metric) %in% c("deaths_from_lifetable",
                                                       "yll_from_lifetable",
                                                       "yld_from_lifetable")) {
           outcome_metric <-
             gsub("_from_lifetable", "", unique(input$health_metric))
 
-
-          # Get population impact ####
           pop_impact <-
             healthiar:::get_pop_impact(
               year_of_analysis = year_of_analysis,
@@ -129,11 +136,12 @@ get_impact <-
     }
 
 
-  # If not relative risk
-    }else if(unique(input$approach_risk) == "absolute_risk" &
+    # Absolute risk ############################################################
+
+    } else if(unique(input$approach_risk) == "absolute_risk" &
        unique(input$health_metric) == "same_input_output"){
 
-      # Calculate absolute risk for each exposure category ####
+      # * Calculate absolute risk for each exposure category ###################
       impact_raw_main <-
         input |>
         dplyr::mutate(
@@ -147,9 +155,10 @@ get_impact <-
     }
 
 
+    # Store results ############################################################
 
     # Note: column is called prop_pop_exp (rr case) or pop_exp (ar case)
-    # No iteration case
+    # * No iteration case ######################################################
     if ( ( unique(impact_raw[["main"]]$approach_risk) == "relative_risk" ) &
          ( unique(impact_raw[["main"]]$exposure_type) == "exposure_distribution" ) &
          ( !grepl("from_lifetable", impact_raw[["main"]]$health_metric[1]) ) &
@@ -170,6 +179,7 @@ get_impact <-
         )|>
         dplyr::mutate(exposure_type = input$exposure_type |> dplyr::first())
 
+      # * Iteration case #######################################################
     } else if ( ( unique(impact_raw[["main"]]$approach_risk) == "relative_risk" ) &
                 ( unique(impact_raw[["main"]]$exposure_type) == "exposure_distribution" ) &
                 ( !grepl("from_lifetable", impact_raw[["main"]]$health_metric[1]) ) &
@@ -206,8 +216,6 @@ get_impact <-
           impact_per_100k_inhab = (impact / population) *1E5
         )
     }
-
-
 
     return(impact_raw)
 

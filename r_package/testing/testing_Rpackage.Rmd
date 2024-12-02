@@ -601,7 +601,11 @@ bestcost_pm_yld_singlebhd_incidence_based  <-
 # No study to compare bestcost results
 # Check only if results stay the same overtime despite developments
 check_bestcost(result_list_bestcost = bestcost_pm_yld_singlebhd_incidence_based ,
-               result_vector_alternative = c(525*10, 277*10, 768*10)) # Result on 16 May 2024
+               result_vector_alternative = c(5254, 2773 ,7679)) # Result on 29 November 2024
+
+# NOTE 2 December 2024: due to rounding, the impacts with the incidence-based 
+# approach are not exactly 10 times higher (because duration is 10 times higher)
+#  as those using prevalence approach
 ```
 
 ### Summary uncertainty
