@@ -1,6 +1,6 @@
-#' Determine years lived with disability (YLD) attributable to the incidence of a specific morbidity health outcome
+#' Determine years lived with disability (YLD) attributable to  a specific morbidity health outcome using the incidence-based approach
 
-#' @description Calculates the YLDs using a single value for baseline heath data, i.e. without life table. It provides as a result the mean as well as the lower and the higher bounds of the morbidity impact based on the confidence interval of the exposure-response function. Assumption: cases happen at the start of the year.
+#' @description Calculates the YLDs using a single value for baseline heath data, i.e. without life table. It provides as a result the mean as well as the lower and the higher bounds of the morbidity impact based on the confidence interval of the exposure-response function. Assumption: cases happen at the start of the year. Reference: https://doi.org/10.3961/jpmph.21.597
 #' @inheritParams attribute
 #'
 #' @return
@@ -18,7 +18,7 @@
 #' @author Axel Luyten
 #' @note Experimental function
 #' @export
-attribute_yld_from_prevalence <-
+attribute_yld_incidence_based_approach <-
   function(approach_multiexposure = NULL,
            exp_central, exp_lower = NULL, exp_upper = NULL,
            prop_pop_exp = 1,
@@ -29,13 +29,14 @@ attribute_yld_from_prevalence <-
            erf_eq_central = NULL, erf_eq_lower = NULL, erf_eq_upper = NULL,
            bhd_central, bhd_lower = NULL, bhd_upper = NULL,
            dw_central, dw_lower = NULL, dw_upper = NULL,
+           duration_central, duration_lower = NULL, duration_upper = NULL,
            info = NULL,
            summary_uncertainty = NULL){
 
 
     output <-
       healthiar::attribute(
-        health_metric = "yld_from_prevalence",
+        health_metric = "yld_incidence_based_approach",
         approach_risk = "relative_risk",
         approach_multiexposure = approach_multiexposure,
         exp_central = exp_central, exp_lower = exp_lower, exp_upper = exp_upper,
@@ -52,7 +53,7 @@ attribute_yld_from_prevalence <-
         min_age = NULL, max_age = NULL,
         corrected_discount_rate = NULL,
         dw_central = dw_central, dw_lower = dw_lower, dw_upper = dw_upper,
-        duration_central = NULL,
+        duration_central = duration_central, duration_lower = duration_lower, duration_upper = duration_upper,
         geo_id_raw = NULL , geo_id_aggregated = NULL,
         info = info,
         summary_uncertainty = summary_uncertainty)
