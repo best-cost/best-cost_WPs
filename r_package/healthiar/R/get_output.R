@@ -149,7 +149,7 @@ get_output <-
         dplyr::filter(cutoff_ci %in% c("central"))}
 
     if(unique(impact_raw[["main"]]$health_metric) %in%
-       c("yld_prevalence_based_approach", "yld_incidence_based_approach", "yld_from_lifetable")) {
+       c("yld_from_prevalence", "yld_from_lifetable")) {
 
       output[["main"]] <- output[["main"]] |>
         dplyr::filter(dw_ci %in% "central")}
