@@ -52,7 +52,7 @@ get_ci(
 
 \item{year_of_analysis}{\code{Numeric value} of the year of analysis, which corresponds to the first year of the life table.}
 
-\item{health_metric}{\code{String} showing the change in outcome metric to assess attributable health impacts. To choose between "same_input_output" (default), "yld_prevalence_based_approach", "deaths_from_lifetable", "yll_from_lifetable", "yld_from_lifetable" and "daly_from_lifetable".}
+\item{health_metric}{\code{String} showing the change in outcome metric to assess attributable health impacts. To choose between "same_input_output" (default), "yld_from_prevalence", "deaths_from_lifetable", "yll_from_lifetable", "yld_from_lifetable" and "daly_from_lifetable".}
 
 \item{min_age}{\code{Numberic value} of the minimal age to be considered for adults (by default 30, i.e. 30+).}
 
