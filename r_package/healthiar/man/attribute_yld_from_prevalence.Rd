@@ -27,8 +27,7 @@ attribute_yld_from_prevalence(
   dw_central,
   dw_lower = NULL,
   dw_upper = NULL,
-  info = NULL,
-  summary_uncertainty = NULL
+  info = NULL
 )
 }
 \arguments{

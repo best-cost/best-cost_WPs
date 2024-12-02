@@ -39,7 +39,6 @@ attribute_yld_from_lifetable(
   duration_central,
   duration_lower = NULL,
   duration_upper = NULL,
-  summary_uncertainty = NULL,
   info = NULL
 )
 }

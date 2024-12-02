@@ -4,10 +4,10 @@
 \alias{include_summary_uncertainty}
 \title{Get Monte Carlo confidence intervals}
 \usage{
-include_summary_uncertainty(res, n_sim)
+include_summary_uncertainty(results, n_sim)
 }
 \arguments{
-\item{res}{\code{variable} in which the results of an attribute function is stored.}
+\item{results}{\code{variable} in which the results of an attribute function is stored.}
 
 \item{n_sim}{\code{numeric value} indicating the number of simulations to be performed.}
 }
