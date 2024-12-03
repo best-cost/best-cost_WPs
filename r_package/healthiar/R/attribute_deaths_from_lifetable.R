@@ -36,7 +36,6 @@ attribute_deaths_from_lifetable <-
            population_midyear_male, population_midyear_female,
            year_of_analysis,
            min_age = NULL, max_age = NULL,
-           summary_uncertainty = NULL,
            info = NULL){
 
     output <-
@@ -46,7 +45,6 @@ attribute_deaths_from_lifetable <-
         approach_multiexposure = approach_multiexposure,
         exp_central = exp_central, exp_lower = exp_lower, exp_upper = exp_upper,
         prop_pop_exp = prop_pop_exp,
-        pop_exp = NULL,
         cutoff_central = cutoff_central, cutoff_lower = cutoff_lower, cutoff_upper = cutoff_upper,
         rr_central = rr_central, rr_lower = rr_lower, rr_upper = rr_upper,
         erf_increment = erf_increment,
@@ -64,8 +62,7 @@ attribute_deaths_from_lifetable <-
         min_age = min_age, max_age = max_age,
         corrected_discount_rate = NULL,
         geo_id_raw = NULL, geo_id_aggregated = NULL,
-        info = info,
-        summary_uncertainty = summary_uncertainty)
+        info = info)
 
     return(output)
 

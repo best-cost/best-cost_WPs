@@ -5,6 +5,7 @@
 \title{Attributable health cases based on relative risk}
 \usage{
 attribute(
+  approach_risk = "relative_risk",
   exp_central,
   exp_lower = NULL,
   exp_upper = NULL,
@@ -19,7 +20,6 @@ attribute(
   bhd_central = NULL,
   bhd_lower = NULL,
   bhd_upper = NULL,
-  pop_exp = NULL,
   prop_pop_exp = 1,
   erf_eq_central = NULL,
   erf_eq_lower = NULL,
@@ -44,14 +44,15 @@ attribute(
   approach_newborns = NULL,
   geo_id_raw = NULL,
   geo_id_aggregated = NULL,
-  summary_uncertainty = NULL,
+  population = NULL,
   health_metric = "same_input_output",
   approach_multiexposure = NULL,
-  approach_risk = "relative_risk",
   info = NULL
 )
 }
 \arguments{
+\item{approach_risk}{\code{String} showing the risk risk method. To choose between: "relative_risk" (default) or "absolute_risk".}
+
 \item{exp_central, exp_lower, exp_upper}{\code{Numeric values} of the exposure to the environmental stressor referring to the central estimate and (optionally) to lower and upper bound of the 95\% confidence interval. If only one value is provided, it will be assumed that it refers to population-weighted mean exposure in ug/m3. If a {vector} is provided, it will be assumed that it refers to the exposure categories (average exposure in the category) in a exposure distribution (this information is linked to the proportion of population exposed).}
 
 \item{cutoff_central, cutoff_lower, cutoff, upper}{\code{Numeric value} showing the central exposure cut-off in ug/m3 and (optionally) the lower and upper bounds of the 95\% confidence interval. The cut-off level refers to the exposure level below which no health effects occur.}
@@ -63,8 +64,6 @@ attribute(
 \item{erf_shape}{\code{String} showing the shape of the exposure-response function to be assumed using the relative risk from the literature as support point. Options: "linear", log_linear", "linear_log", "log_log".}
 
 \item{bhd_central, bhd_lower, bhd_upper}{\code{Numeric value} showing the central estimate and (optionally) the lower bound and the upper bound of the confidence interval of the baseline health data (e.g. incidence of the health outcome in the population).}
-
-\item{pop_exp}{\code{Numeric value} or {vector} showing the population exposed for each of the exposure categories. The length of this input variable must be the same as "exp".}
 
 \item{prop_pop_exp}{\code{Numeric value} or {Numeric vector} Fraction (values between 0 & 1) of the total population exposed to (one or more) exposure categories, i.e., a exposure distribution, respectively. If a exposure distribution is used, the dimension of this input variable should be the same as "exp". By default, 1 for single exposure value will be assigned to this input variable assuming a single exposure value, but users can change this value.}
 
@@ -96,11 +95,11 @@ attribute(
 
 \item{geo_id_aggregated}{\code{Vector} showing the id code of the geographic area for which raw geo ids have to be aggregated. The vector has to have the same length as geo_id_raw. Therefore, geo_id_aggregated should have duplicated values for those geo_id_r}
 
+\item{population}{code{Vector} with numeric values referring to the population in the geographical unit}
+
 \item{health_metric}{\code{String} showing the change in outcome metric to assess attributable health impacts. To choose between "same_input_output" (default), "yld_from_prevalence", "deaths_from_lifetable", "yll_from_lifetable", "yld_from_lifetable" and "daly_from_lifetable".}
 
 \item{approach_multiexposure}{\code{String} showing the approach that has to be used in assessments with multiple exposures. To choose among: "additive", "multiplicative" or "combined".}
-
-\item{approach_risk}{\code{String} showing the risk risk method. To choose between: "relative_risk" (default) or "absolute_risk".}
 
 \item{info}{\code{String} or {data frame} showing additional information or id. The suffix "info" will be added to the column name. Default value = NULL.}
 }

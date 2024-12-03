@@ -12,7 +12,6 @@ compile_input(
   exp_lower = NULL,
   exp_upper = NULL,
   prop_pop_exp = NULL,
-  pop_exp = NULL,
   cutoff_central = NULL,
   cutoff_lower = NULL,
   cutoff_upper = NULL,
@@ -33,6 +32,7 @@ compile_input(
   geo_id_aggregated = NULL,
   info = NULL,
   corrected_discount_rate = NULL,
+  population = population,
   duration_central = NULL,
   duration_lower = NULL,
   duration_upper = NULL,
@@ -60,8 +60,6 @@ compile_input(
 
 \item{prop_pop_exp}{\code{Numeric value} or {Numeric vector} Fraction (values between 0 & 1) of the total population exposed to (one or more) exposure categories, i.e., a exposure distribution, respectively. If a exposure distribution is used, the dimension of this input variable should be the same as "exp". By default, 1 for single exposure value will be assigned to this input variable assuming a single exposure value, but users can change this value.}
 
-\item{pop_exp}{\code{Numeric value} or {vector} showing the population exposed for each of the exposure categories. The length of this input variable must be the same as "exp".}
-
 \item{rr_central, rr_lower, rr_upper}{\code{Numeric values} referring to the central estimate of the relative risk and the corresponding lower and upper 95\% confidence interval bounds.}
 
 \item{erf_increment}{\code{Numeric value} showing the increment of the exposure-response function in ug/m3 (usually 10 or 5).}
@@ -83,6 +81,8 @@ compile_input(
 \item{info}{\code{String} or {data frame} showing additional information or id. The suffix "info" will be added to the column name. Default value = NULL.}
 
 \item{corrected_discount_rate}{\code{Numeric value} showing the discount rate for future years including correction from inflation rate}
+
+\item{population}{code{Vector} with numeric values referring to the population in the geographical unit}
 
 \item{duration_central, duration_lower, duration_upper}{\code{Numeric value} showing the central estimate of the disease duration and (optionally) the lower and upper bounds of the 95\% confidence interval.}
 

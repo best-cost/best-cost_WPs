@@ -3,7 +3,6 @@
 #' @description Consider socio-economic aspects in the results
 #' @param output \code{List} produced by \code{healthiar::attribute()} or \code{healthiar::compare()} as results
 #' @param deprivation_score \code{Vector} with numeric values showing the deprivation score (indicator of economic wealth) of the fine geographical area (it should match with those used in \code{attribute} or \code{compare})
-#' @param population code{Vector} with numeric values referring to the population in the geographical unit
 #' @param n_quantile code{Numeric value} referring the number of groups in the quantile
 #' @param approach code{String} referring the approach to include the social aspects. To choose between "decile" and "multiplicative"
 #' @inheritParams attribute
@@ -16,7 +15,6 @@
 include_social <- function(output,
                            geo_id_raw,
                            deprivation_score,
-                           population,
                            n_quantile = 10, # by default: decile
                            approach = "quantile") {
 
@@ -28,8 +26,7 @@ include_social <- function(output,
     dplyr::left_join(
       x = _,
       y = dplyr::tibble(geo_id_raw = geo_id_raw,
-                        deprivation_score = deprivation_score,
-                        population = population),
+                        deprivation_score = deprivation_score),
       by = "geo_id_raw")
 
 

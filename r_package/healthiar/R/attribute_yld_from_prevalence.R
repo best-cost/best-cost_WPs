@@ -29,8 +29,7 @@ attribute_yld_from_prevalence <-
            erf_eq_central = NULL, erf_eq_lower = NULL, erf_eq_upper = NULL,
            bhd_central, bhd_lower = NULL, bhd_upper = NULL,
            dw_central, dw_lower = NULL, dw_upper = NULL,
-           info = NULL,
-           summary_uncertainty = NULL){
+           info = NULL){
 
 
     output <-
@@ -40,7 +39,6 @@ attribute_yld_from_prevalence <-
         approach_multiexposure = approach_multiexposure,
         exp_central = exp_central, exp_lower = exp_lower, exp_upper = exp_upper,
         prop_pop_exp = prop_pop_exp,
-        pop_exp = NULL,
         cutoff_central = cutoff_central, cutoff_lower = cutoff_lower, cutoff_upper = cutoff_upper,
         rr_central = rr_central, rr_lower = rr_lower, rr_upper = rr_upper,
         erf_increment = erf_increment,
@@ -55,8 +53,7 @@ attribute_yld_from_prevalence <-
         dw_central = dw_central, dw_lower = dw_lower, dw_upper = dw_upper,
         duration_central = NULL,
         geo_id_raw = NULL , geo_id_aggregated = NULL,
-        info = info,
-        summary_uncertainty = summary_uncertainty)
+        info = info)
 
 
     return(output)
