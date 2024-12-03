@@ -44,36 +44,60 @@ library(credentials)
 library(gitcreds)
 library(devtools)
 
-# Load bestcost package (either current version or installed version)
+## to make geo analysis
+library(terra)
+library(sf)
+
+# Load healthiar package (either current version or installed version)
 devtools::load_all(export_all = FALSE)
 
 # Load data
 load("../testing/input/data/input_data_for_testing_Rpackage.RData")
+
+# Unit meeting demo
+# data <- airqplus_pm_copd |> 
+#   mutate(prevalence = incidents_per_100_000_per_year/1E5*population_at_risk)
 ```
 
 
 
-```{r Alternative 1 to load bestcost: Install own package from github, eval=FALSE, include=FALSE}
+```{r Alternative 1 to load healthiar: Install own package from github, eval=FALSE, include=FALSE}
 # Install own package from github as suggested here: https://stackoverflow.com/a/71846333/6104907
-if(!"bestcost" %in% installed.packages()[, "Package"]){
+if(!"healthiar" %in% installed.packages()[, "Package"]){
   #gitcreds::gitcreds_set()
   #usethis::use_git_config(user.name = "YourName", user.email = "your@mail.com") # run if installation doesn't work
   credentials::set_github_pat() # paste github PAT if prompted
   devtools::install_github(repo = "best-cost/best-cost_WPs",
-                           subdir = "/r_package/bestcost",
+                           subdir = "/r_package/healthiar",
                            ref = "HEAD", # Branch name (by default "HEAD") as a string
                            force = TRUE)
 }
-library(bestcost)
+library(healthiar)
 ```
 
 
 
-```{r Alternative 2 to load bestcost: load zip from local source, eval=FALSE, include=FALSE}
-detach("package:bestcost", unload = TRUE) # detach bestcost
+```{r Alternative 2 to load healthiar: load zip from local source, eval=FALSE, include=FALSE}
+detach("package:healthiar", unload = TRUE) # detach healthiar
+# Package as .zip file
 devtools::build(binary = TRUE, path = "../testing/input/") # Save current state of package as .zip file (e.g. to directly test changes in functions)
-install.packages("../testing/input/bestcost_0.0.0.1.zip", repos=NULL, type='source') # Install package from source
-library(bestcost)
+install.packages("../testing/input/healthiar_0.0.0.1.zip", repos=NULL, type='source') # Install package from source
+
+
+# Package as .tar.gz file
+devtools::build(path = "../testing/input/") # Save current state of package as tar.gz file (e.g. to directly test changes in functions)
+install.packages("../testing/input/healthiar_0.0.0.1.tar.gz", repos=NULL, type='source') # Install package from source
+
+library(healthiar)
+```
+
+# Test prepare function
+
+```{r prepare_exposure_data, eval=FALSE, include=FALSE}
+
+# To be added
+# test <- prepare_exposure_data()
+
 ```
 
 # Calculate health impacts
@@ -82,12 +106,53 @@ library(bestcost)
 
 ### Single baseline health data
 
+
+```{r Demo unit meeting}
+
+# Calculate COPD cases attributable to PM exposure
+# results_pm_copd <-
+#   healthiar::attribute_health(
+#     exp_central = data$mean_concentration,                      # 8.85
+#     cutoff_central = data$cut_off_value,                        # 5
+#     bhd_central = data$prevalence,                              # 30747
+#     bhd_lower = data$prevalence - 1000,                         # 29747
+#     bhd_upper = data$prevalence + 1000,                         # 31747
+#     rr_central = data$relative_risk,                            # 1.36
+#     rr_lower = data$relative_risk_lower,                        # 1.124
+#     rr_upper = data$relative_risk_upper,                        # 1.664
+#     erf_increment = 10,                                           
+#     erf_shape = "log_linear", 
+#     info = "pm_copd_assessment_1")
+
+# Check results
+# View(results_pm_copd)
+# View(results_pm_copd$main)
+# View(results_pm_copd$detailed$raw)
+
+
+# Now with population
+# results_pm_copd_pop <-
+  # healthiar::attribute(
+  #   exp_central = data$mean_concentration,                      # 8.85
+  #   cutoff_central = data$cut_off_value,                        # 5
+  #   bhd_central = data$prevalence,                              # 30747
+  #   bhd_lower = data$prevalence - 1000,                         # 29747
+  #   bhd_upper = data$prevalence + 1000,                         # 31747
+  #   rr_central = data$relative_risk,                            # 1.36
+  #   rr_lower = data$relative_risk_lower,                        # 1.124
+  #   rr_upper = data$relative_risk_upper,                        # 1.664
+  #   erf_increment = 10,                                           
+  #   erf_shape = "log_linear", 
+  #   info = "pm_copd_assessment_1",
+  #   population = 1E6)
+```
+
 ```{r single exposure value}
 # Assess attributable cases using the AirQ+ export as input data
 bestcost_pm_copd <-
-  bestcost::attribute_health(
+  healthiar::attribute_health(
     exp_central = airqplus_pm_copd$mean_concentration,
-    cutoff = airqplus_pm_copd$cut_off_value,   
+    cutoff_central = airqplus_pm_copd$cut_off_value,
     bhd_central = airqplus_pm_copd$incidents_per_100_000_per_year/1E5*airqplus_pm_copd$population_at_risk,
     rr_central = airqplus_pm_copd$relative_risk, 
     rr_lower = airqplus_pm_copd$relative_risk_lower,
@@ -96,39 +161,61 @@ bestcost_pm_copd <-
     erf_shape = "log_linear", 
     info = paste0(airqplus_pm_copd$pollutant,"_", airqplus_pm_copd$evaluation_name))
 
-# Store the central, lower and upper estimate of the AirQ+ assessment
-airqplus_pm_copd_result <- 
-  airqplus_pm_copd %>%
-  dplyr::select(estimated_number_of_attributable_cases_central,
-                estimated_number_of_attributable_cases_lower,
-                estimated_number_of_attributable_cases_upper)%>%
-  unlist()
-
 # View(bestcost_pm_copd)
 
 check_bestcost(result_list_bestcost = bestcost_pm_copd,
-               result_vector_alternative = airqplus_pm_copd_result)
+               result_vector_alternative = airqplus_pm_copd_result <- 
+                 # Store the central, lower and upper estimate of the AirQ+ assessment
+                 airqplus_pm_copd |>
+                 dplyr::select(estimated_number_of_attributable_cases_central,
+                               estimated_number_of_attributable_cases_lower,
+                               estimated_number_of_attributable_cases_upper)|>
+                 unlist())
 ```
 
+```{r Screenshot for poster, eval=FALSE, include=FALSE}
+
+health_impact <- attribute(
+    exp_central = 12.3,
+    bhd_central = 15000,
+    rr_central = 1.04,
+    rr_lower = 1.02,
+    rr_upper = 1.06,
+    cutoff_central = 5,
+    erf_shape = "log_linear",
+    info = "scenario_1")
+
+health_impact <- attribute(
+    exposure = 12.3,
+    baseline_health_data = 15000,
+    rr_central = 1.04,
+    cutoff = 5,
+    erf_shape = "log_linear",
+    info = "PM2.5_scenario_1")
+
+```
 
 ```{r Monetize a simple case}
 # Monetize
 bestcost_pm_copd_costs <- 
-  bestcost::include_cost(output = bestcost_pm_copd, 
+  healthiar::include_cost(output = bestcost_pm_copd, 
                          valuation = 1000)
 ```
 
 
 
-```{r multiple single exposure value, eval=FALSE, include=FALSE}
+```{r single exposure value with multiple uncertainties}
+
 # Assess attributable cases for multiple uncertainties at the same time
 # i.e. rr, bhd and exp
 bestcost_pm_copd_multiple <-
-  bestcost::attribute_health(
+  healthiar::attribute_health(
     exp_central = airqplus_pm_copd$mean_concentration,
     exp_lower = 8,
     exp_upper = 9,
-    cutoff = airqplus_pm_copd$cut_off_value,   
+    cutoff_central = airqplus_pm_copd$cut_off_value, 
+    cutoff_lower = airqplus_pm_copd$cut_off_value - 1,
+    cutoff_upper = airqplus_pm_copd$cut_off_value + 1,
     bhd_central = airqplus_pm_copd$incidents_per_100_000_per_year/1E5*airqplus_pm_copd$population_at_risk,
     bhd_lower = 25000,
     bhd_upper = 35000,
@@ -139,36 +226,119 @@ bestcost_pm_copd_multiple <-
     erf_shape = "log_linear",
     info = paste0(airqplus_pm_copd$pollutant,"_", airqplus_pm_copd$evaluation_name))
 
+# View(bestcost_pm_copd_multiple)
+check_bestcost(result_list_bestcost = bestcost_pm_copd_multiple,
+               result_vector_alternative = c(3502, 1353, 5474)) # Results on 5 November 2024
+
+
 
 # Assess iteration geographical sections keeping the multiple uncertainties
-system.time(bestcost_pm_copd_geo <-
-  bestcost::attribute_health(
-    exp_central = as.list(runif_with_seed(1E4, 8.0, 9.0, 1)),
-    exp_lower = as.list(runif_with_seed(1E4, 8.0, 9.0, 1)-0.1),
-    exp_upper = as.list(runif_with_seed(1E4, 8.0, 9.0, 1)+0.1),
-    cutoff = 5,   
-    bhd_central = as.list(runif_with_seed(1E4, 25000, 35000, 1)),
-    bhd_lower = as.list(runif_with_seed(1E4, 25000, 35000, 1)),
-    bhd_upper = as.list(runif_with_seed(1E4, 25000, 35000, 1)),
+system.time(
+  bestcost_pm_copd_geo <-
+    healthiar::attribute_health(
+      exp_central = as.list(runif_with_seed(1E4, 8.0, 9.0, 1)),
+      exp_lower = as.list(runif_with_seed(1E4, 8.0, 9.0, 1)-0.1),
+      exp_upper = as.list(runif_with_seed(1E4, 8.0, 9.0, 1)+0.1),
+      cutoff_central = 5,   
+      bhd_central = as.list(runif_with_seed(1E4, 25000, 35000, 1)),
+      # bhd_lower = as.list(runif_with_seed(1E4, 25000, 35000, 1)),
+      bhd_lower = as.list(runif_with_seed(1E4, 20000, 30000, 1)),
+      # bhd_upper = as.list(runif_with_seed(1E4, 25000, 35000, 1)),
+      bhd_upper = 0,
+      rr_central = 1.369, 
+      rr_lower = 1.124,
+      rr_upper = 1.664,
+      erf_increment = 10, 
+      erf_shape = "log_linear", 
+      population = as.list(rep(1E6, 1E4)),
+      geo_id_raw = 1:1E4, 
+      geo_id_aggregated = rep("CH", 1E4),
+      info = "PM2.5_copd")
+  )
+
+# View(bestcost_pm_copd_geo)
+check_bestcost(result_list_bestcost = bestcost_pm_copd_geo,
+               result_vector_alternative = c(31460722, 12120764, 49312859)) # Results on 5 November 2024
+
+# Assess iteration geographical sections keeping the multiple uncertainties
+system.time(bestcost_pm_copd_geo_short <-
+  healthiar::attribute_health(
+    exp_central = as.list(runif_with_seed(1E1, 8.0, 9.0, 1)),
+    exp_lower = as.list(runif_with_seed(1E1, 8.0, 9.0, 1)-0.1),
+    exp_upper = as.list(runif_with_seed(1E1, 8.0, 9.0, 1)+0.1),
+    cutoff_central = 5,   
+    bhd_central = as.list(runif_with_seed(1E1, 25000, 35000, 1)),
+    bhd_lower = as.list(runif_with_seed(1E1, 25000, 35000, 1)),
+    bhd_upper = as.list(runif_with_seed(1E1, 25000, 35000, 1)),
     rr_central = 1.369, 
     rr_lower = 1.124,
     rr_upper = 1.664,
     erf_increment = 10, 
     erf_shape = "log_linear", 
-    geo_id_raw = 1:1E4, 
-    geo_id_aggregated = rep("CH", 1E4),
+    geo_id_raw = 1:1E1, 
+    geo_id_aggregated = rep("CH", 1E1),
     info = "PM2.5_copd"))
 
+# View(bestcost_pm_copd_geo_short)
+check_bestcost(result_list_bestcost = bestcost_pm_copd_geo_short,
+               result_vector_alternative = c(32449, 12508, 50836)) # Results on 5 November 2024
 ```
 
 
-```{r single exposure value and user-defined points for relative risk}
+
+
+
+```{r Social aspects in a simple case}
+# Take into account social aspects
+
+# First calculate attributable deahts based on total mortality as provide by Sciensano
+bestcost_pm_death <- 
+  healthiar::attribute_health(
+    exp_central = as.list(social_data$PM25_MEAN),
+    cutoff_central = 0,
+    rr_central = 1.08, # The data set contains the RR for the exposure but not per increment. Calculable as e.g. exp(log(1.038017)/(4.848199)*10) 
+    erf_shape = "log_linear", 
+    erf_increment = 10,
+    bhd_central = as.list(social_data$MORTALITY_TOTAL),
+    population = social_data$POPULATION,
+    geo_id_raw = social_data$CS01012020)
+
+# Then include social indicators of deprivation 
+bestcost_pm_death_social_decile <- 
+  healthiar::include_social(output = bestcost_pm_death,
+                            geo_id_raw = social_data$CS01012020,
+                            deprivation_score = social_data$score,
+                            n_quantile = 10,
+                            approach = "quantile")
+
+
+# Check that results did not change over time
+check_general(
+  a = bestcost_pm_death_social_decile[["detailed"]][["social"]]$difference_value,
+  # Results on 21 Nov 2024
+  b = c( 203.54994443, 0.25284914, 142.64936990, 0.15052568,
+         0.65578653, 0.05604937, 0.22984830, 0.01926640, 
+         22.52416423, 0.32236823, 14.5680866,0.17252793,
+         0.004598529, 0.053420096, 0.001606388, 0.018319205))
+
+
+
+bestcost_pm_copd_geo_social_multiplicative <- 
+  healthiar::include_social(output = bestcost_pm_death,
+                            geo_id_raw = social_data$CS01012020,
+                            deprivation_score = social_data$score,
+                            approach = "multiplicative")
+```
+
+
+```{r single exposure & user-defined points for relative risk using splinefun}
 
 # Assess attributable cases using the AirQ+ export as input data
-bestcost_pm_alri_erf_dots <-
-  bestcost::attribute_health(
+bestcost_pm_alri_erf_dots_splinefun <-
+  healthiar::attribute_health(
     exp_central = airqplus_pm_copd$mean_concentration,
-    cutoff = airqplus_pm_copd$cut_off_value,   
+    cutoff_central = airqplus_pm_copd$cut_off_value,
+    # cutoff_central = 0,
     bhd_central = airqplus_pm_copd$incidents_per_100_000_per_year/1E5*airqplus_pm_copd$population_at_risk,
     # GBD2019 ERF for PM and lower respiratory infections
     erf_eq_central = 
@@ -178,18 +348,50 @@ bestcost_pm_alri_erf_dots <-
         method = "natural"),
     info = paste0(airqplus_pm_copd$pollutant,"_", airqplus_pm_copd$evaluation_name))
 
+# View(bestcost_pm_alri_erf_dots_splinefun)
 
-#TODO: Make an automatic comparison to always check if the result is right
+# check_bestcost(result_list_bestcost = bestcost_pm_alri_erf_dots_splinefun,
+#                result_vector_alternative = c(2263)) # Results on 10 October 2024 (with cutoff = 0)
+check_bestcost(result_list_bestcost = bestcost_pm_alri_erf_dots_splinefun,
+               result_vector_alternative = c(1057)) # Results on 10 October 2024 (with cutoff = 5 = airqplus_pm_copd$cut_off_value)
 ```
+
+```{r single exposure & user-defined points for relative risk using approxfun}
+
+# Assess attributable cases using the AirQ+ export as input data
+bestcost_pm_alri_erf_dots_approxfun <-
+  healthiar::attribute_health(
+    exp_central = airqplus_pm_copd$mean_concentration,
+    cutoff_central = airqplus_pm_copd$cut_off_value,
+    # cutoff_central = 0,
+    bhd_central = airqplus_pm_copd$incidents_per_100_000_per_year/1E5*airqplus_pm_copd$population_at_risk,
+    # GBD2019 ERF for PM and lower respiratory infections
+    erf_eq_central = 
+      stats::approxfun(
+        x = c(600,500,400,300,200,150,130,110,90,70,50,30,25,20,15,10,5,0),
+        y = c(2.189,2.143,2.098,2.052,1.909,1.751,1.68,1.607,1.533,1.453,1.357,1.238,1.204,1.168,1.129,1.089,1.046,	1),
+        method = "linear"),
+    info = paste0(airqplus_pm_copd$pollutant,"_", airqplus_pm_copd$evaluation_name))
+
+# View(bestcost_pm_alri_erf_dots_approxfun)
+
+# check_bestcost(result_list_bestcost = bestcost_pm_alri_erf_dots_approxfun,
+#                result_vector_alternative = c(2254)) # Results on 10 October 2024 (with cutoff = 0)
+check_bestcost(result_list_bestcost = bestcost_pm_alri_erf_dots_approxfun,
+               result_vector_alternative = c(1052)) # Results on 10 October 2024 (with cutoff = 5 = airqplus_pm_copd$cut_off_value)
+```
+
 
 
 ```{r single exposure value and relative risk with monetization}
 
 # Assess attributable cases using the AirQ+ export as input data
 bestcost_pm_copd_1rr <-
-  bestcost::attribute_health(
+  healthiar::attribute_health(
     exp_central = airqplus_pm_copd$mean_concentration,
-    cutoff = airqplus_pm_copd$cut_off_value,   
+    cutoff_central = airqplus_pm_copd$cut_off_value,
+    cutoff_lower = airqplus_pm_copd$cut_off_value - 1,
+    cutoff_upper = airqplus_pm_copd$cut_off_value + 1,
     bhd_central = airqplus_pm_copd$incidents_per_100_000_per_year/1E5*airqplus_pm_copd$population_at_risk,
     rr_central = airqplus_pm_copd$relative_risk,
     erf_increment = 10, 
@@ -198,8 +400,8 @@ bestcost_pm_copd_1rr <-
 
 # Store the central, lower and upper estimate of the AirQ+ assessment
 airqplus_pm_copd_1rr_result <- 
-  airqplus_pm_copd %>%
-  dplyr::select(estimated_number_of_attributable_cases_central)%>%
+  airqplus_pm_copd |>
+  dplyr::select(estimated_number_of_attributable_cases_central)|>
   unlist()
 
 # View(bestcost_pm_copd_1rr)
@@ -209,11 +411,11 @@ check_bestcost(result_list_bestcost = bestcost_pm_copd,
 ```
 
 
-```{r exposure distribution}
+```{r exposure distribution with rr}
 
 # Extract rows that contain input data (others may contain results)
 niph_noise_ihd_input <- 
-  niph_noise_ihd_excel %>%
+  niph_noise_ihd_excel |>
   dplyr::filter(!is.na(niph_noise_ihd_excel$exposure_mean))
 
 # Extract results from excel table
@@ -221,26 +423,30 @@ niph_noise_ihd_input <-
 # so let's repeat the value three times to build 
 # the vector for lower and upper bound
 niph_noise_ihd_result <- 
-  niph_noise_ihd_excel %>%
-        dplyr::filter(exposure_category %in% "Total exposed")%>%
-        dplyr::select(daly)%>%
-        dplyr::pull() %>%
-  round(.)
+  niph_noise_ihd_excel |>
+        dplyr::filter(exposure_category %in% "Total exposed")|>
+        dplyr::select(daly)|>
+        dplyr::pull() |>
+  round()
 
 # Obtain attributable cases using the bestcost package and input data from niph
 bestcost_noise_ihd_expDist <- 
-  bestcost::attribute_health(
+  healthiar::attribute_health(
     exp_central = niph_noise_ihd_input$exposure_mean,
+    # exp_lower = niph_noise_ihd_input$exposure_mean - 2,
+    # exp_upper = niph_noise_ihd_input$exposure_mean + 2,
     prop_pop_exp = niph_noise_ihd_input$prop_exposed,
-    cutoff = min(niph_noise_ihd_input$exposure_mean), 
+    cutoff_central = min(niph_noise_ihd_input$exposure_mean), 
     bhd_central = niph_noise_ihd_input$gbd_daly[1],
     rr_central = 1.08,
+    # rr_lower = 1.08 - 0.02,
+    # rr_upper = 1.08 + 0.02,
     erf_increment = 10, 
     erf_shape = "log_linear",
     info = data.frame(pollutant = "road_noise", outcome = "YLD"))
 
+# View(bestcost_noise_ihd_expDist)
 
-#View(bestcost_noise_ihd_expDist)
 check_bestcost(result_list_bestcost = bestcost_noise_ihd_expDist,
                result_vector_alternative = niph_noise_ihd_result)
 
@@ -248,11 +454,11 @@ check_bestcost(result_list_bestcost = bestcost_noise_ihd_expDist,
 # Obtain attributable cases using the bestcost package
 # for multiple geo_sections
 bestcost_noise_ihd_expDist_geo <- 
-  bestcost::attribute_health(
+  healthiar::attribute_health(
     exp_central = list(runif_with_seed(5,8,10,1), 
                        runif_with_seed(5,8,10,2), 
                        runif_with_seed(5,8,10,3)),
-    cutoff = 5,
+    cutoff_central = 5,
     prop_pop_exp = list(runif_with_seed(5,0.1,1,1),
                         runif_with_seed(5,0.1,1,2), 
                         runif_with_seed(5,0.1,1,3)),
@@ -264,14 +470,44 @@ bestcost_noise_ihd_expDist_geo <-
     geo_id_aggregated = rep("ch", 3),
     info = data.frame(pollutant = "road_noise", outcome = "highly_annoyance"))
 
+# View(bestcost_noise_ihd_expDist_geo)
 ```
+
+```{r exposure distribution and user-defined points for relative risk}
+MRBRT_stroke <- readRDS(file = "../testing/input/MRBRT_stroke.RDS")
+pop_data <- readRDS(file = "../testing/input/pop_data.RDS")
+
+bestcost_pm_stroke_mr_brt <-
+  healthiar::attribute_health(
+    exp_central = pop_data$Concentration,
+    prop_pop_exp = pop_data$Viken,
+    cutoff_central = 5,
+    # cutoff_central = 0,
+    bhd_central = 4500,
+    erf_eq_central = 
+      stats::splinefun(
+        x = MRBRT_stroke$exposure,
+        y = MRBRT_stroke$mean,
+        method = "natural"))
+
+# View(bestcost_pm_stroke_niph)
+# print(bestcost_pm_stroke_niph$main[, c("pop_fraction", "impact_rounded")])
+
+# View(bestcost_pm_stroke_mr_brt)
+
+# check_bestcost(result_list_bestcost = bestcost_pm_stroke_mr_brt,
+#                result_vector_alternative = c(249)) # Results on 17 October 2024 (with cutoff = 0)
+check_bestcost(result_list_bestcost = bestcost_pm_stroke_mr_brt,
+               result_vector_alternative = c(32)) # Results on 17 October 2024 (with cutoff = 5 = airqplus_pm_copd$cut_off_value)
+```
+
 
 
 ```{r absolute risk}
 
 # Extract rows that contain input data (others may contain results)
 niph_noise_ha_input <- 
-  niph_noise_ha_excel %>%
+  niph_noise_ha_excel |>
   dplyr::filter(!is.na(niph_noise_ha_excel$exposure_mean))
 
 # Extract results from excel table
@@ -279,17 +515,21 @@ niph_noise_ha_input <-
 # so let's repeat the value three times to build 
 # the vector for lower and upper bound
 niph_noise_ha_result <- 
-  niph_noise_ha_excel %>%
-        dplyr::filter(exposure_category %in% "Total exposed")%>%
-        dplyr::select(number)%>%
-        dplyr::pull() %>%
-  round(.)
+  niph_noise_ha_excel |>
+        dplyr::filter(exposure_category %in% "Total exposed")|>
+        dplyr::select(number)|>
+        dplyr::pull() |>
+  round()
 
 # Obtain attributable cases using the bestcost package and input data from niph
 bestcost_noise_ha_ar <- 
-  bestcost::attribute_health_ar(
+  healthiar::attribute_health(
+    approach_risk = "absolute_risk",
     exp_central = niph_noise_ha_input$exposure_mean,
-    pop_exp = niph_noise_ha_input$population_exposed_total, 
+    # exp_lower = niph_noise_ha_input$exposure_mean - 1,
+    # exp_upper = niph_noise_ha_input$exposure_mean + 1
+    population = sum(niph_noise_ha_input$population_exposed_total), 
+    prop_pop_exp = niph_noise_ha_input$population_exposed_total/sum(niph_noise_ha_input$population_exposed_total),
     erf_eq_central = "78.9270-3.1162*c+0.0342*c^2",
     info = data.frame(pollutant = "road_noise", outcome = "highly_annoyance"))
 
@@ -302,13 +542,17 @@ check_bestcost(result_list_bestcost = bestcost_noise_ha_ar,
 # Obtain attributable cases using the bestcost package and input data from niph
 # for multiple geo_sections
 bestcost_noise_ha_ar_geo <- 
-  bestcost::attribute_health_ar(
+  healthiar::attribute_health(
+    approach_risk = "absolute_risk",
     exp_central = list(runif_with_seed(5,8,10,1), 
                           runif_with_seed(5,8,10,2), 
                           runif_with_seed(5,8,10,3)),
-    pop_exp = list(runif_with_seed(5,5E3,1E4,1), 
-                   runif_with_seed(5,5E3,1E4,2), 
-                   runif_with_seed(5,5E3,1E4,3)), 
+    population = list(runif_with_seed(1,5E3,1E4,1),
+                        runif_with_seed(1,5E3,1E4,2), 
+                        runif_with_seed(1,5E3,1E4,3)),
+    prop_pop_exp = list(runif_with_seed(5,0,1,1),
+                        runif_with_seed(5,0,1,2), 
+                        runif_with_seed(5,0,1,3)), 
     erf_eq_central = "78.9270-3.1162*c+0.0342*c^2",
     geo_id_raw = 1:3,
     info = data.frame(pollutant = "road_noise", outcome = "highly_annoyance"))
@@ -319,16 +563,17 @@ bestcost_noise_ha_ar_geo <-
 ```{r YLD with single relative risk}
 
 bestcost_pm_yld_singlebhd  <- 
-  bestcost::attribute_yld_from_prevalence(
+  healthiar::attribute_yld(
     exp_central = 8.85, 
-    cutoff = 5,    
+    cutoff_central = 5,    
     bhd_central = 25000,
     rr_central = 1.118,
     rr_lower = 1.060, 
     rr_upper = 1.179,
     erf_increment = 10, 
     erf_shape = "log_linear", 
-    dw_central = 0.5, dw_lower = 0.1, dw_upper = 10)
+    dw_central = 0.5, dw_lower = 0.1, dw_upper = 10,
+    duration_central = 1, duration_lower = 0.5, duration_upper = 10)
 
 # View(bestcost_pm_yld_singlebhd)
 
@@ -336,30 +581,321 @@ bestcost_pm_yld_singlebhd  <-
 # Check only if results stay the same overtime despite developments
 check_bestcost(result_list_bestcost = bestcost_pm_yld_singlebhd ,
                result_vector_alternative = c(525, 277, 768)) # Result on 16 May 2024
-
-# Summary uncertainty
-bestcost_pm_yld_ci <- get_ci(paf = bestcost_pm_yld_singlebhd$main$pop_fraction[1], # PAF central estimate
-                             bhd_central = bestcost_pm_yld_singlebhd$main$bhd[1],
-                             bhd_lower = 0.5 * bestcost_pm_yld_singlebhd$main$bhd[1],
-                             bhd_upper = 1.5 * bestcost_pm_yld_singlebhd$main$bhd[1],
-                             duration_central = 10,
-                             duration_lower = 5,
-                             duration_upper = 15,
-                             dw_central = 0.5,
-                             dw_lower = 0.25,
-                             dw_upper = 0.75)
-
-#View(bestcost_pm_yld_ci)
 ```
+
+### Summary uncertainty
+
+```{r Summary uncertainty rr single exposure attribute_health }
+
+bestcost_pm_copd_with_summary_uncertainty <- 
+  healthiar::attribute_health(
+    exp_central = 8.85, 
+    exp_lower = airqplus_pm_copd$mean_concentration - 1,
+    exp_upper = airqplus_pm_copd$mean_concentration + 1,
+    cutoff_central = 5,
+    cutoff_lower = airqplus_pm_copd$cut_off_value - 1,
+    cutoff_upper = airqplus_pm_copd$cut_off_value + 1,
+    bhd_central = airqplus_pm_copd$incidents_per_100_000_per_year/1E5*airqplus_pm_copd$population_at_risk,
+    bhd_lower = (airqplus_pm_copd$incidents_per_100_000_per_year/1E5*airqplus_pm_copd$population_at_risk) - 5000,
+    bhd_upper = (airqplus_pm_copd$incidents_per_100_000_per_year/1E5*airqplus_pm_copd$population_at_risk) + 5000,
+    rr_central = 1.118,
+    rr_lower = 1.060, 
+    rr_upper = 1.179,
+    erf_increment = 10, 
+    erf_shape = "log_linear"
+    )
+
+# View(bestcost_pm_copd_with_summary_uncertainty)
+
+bestcost_pm_copd_extern_uncertainty <-
+  healthiar::include_summary_uncertainty(
+    res = bestcost_pm_copd_with_summary_uncertainty,
+    n_sim = 100)
+
+# Comparison central +- 95% CIs & Monte-Carlo central, lower, upper estimates
+## Central estimates
+print("Main estimates: ") ; bestcost_pm_copd_with_summary_uncertainty[["main"]][["impact_rounded"]]
+## With external uncertainty function (i.e. include_summary_uncertainty())
+print("Summary uncertainty estimates (extern uncertainty function): ")
+round(as.numeric(bestcost_pm_copd_extern_uncertainty[["uncertainty"]][["main"]]), digits = 0)
+# Results of internal Monte-Carlo summary uncertainty and extern Monte-Carlo summary uncertainty identical!
+```
+
+```{r Summary uncertainty rr single exposure iteration}
+
+# Assess iteration geographical sections keeping the multiple uncertainties
+bestcost_pm_copd_geo_short <-
+  healthiar::attribute_health(
+    exp_central = as.list(runif_with_seed(1E1, 8.0, 9.0, 1)),
+    exp_lower = as.list(runif_with_seed(1E1, 8.0, 9.0, 1)-0.1),
+    exp_upper = as.list(runif_with_seed(1E1, 8.0, 9.0, 1)+0.1),
+    cutoff_central = 5,
+    # cutoff_lower = 4,
+    # cutoff_upper = 6,
+    bhd_central = as.list(runif_with_seed(1E1, 25000, 35000, 1)),
+    # bhd_lower = as.list(runif_with_seed(1E1, 20000, 30000, 1)),
+    # bhd_upper = as.list(runif_with_seed(1E1, 30000, 40000, 1)) ,
+    rr_central = 1.369, 
+    rr_lower = 1.124,
+    rr_upper = 1.664,
+    erf_increment = 10, 
+    erf_shape = "log_linear", 
+    geo_id_raw = 1:1E1, 
+    geo_id_aggregated = rep("CH", 1E1),
+    info = "PM2.5_copd")
+
+# View(bestcost_pm_copd_geo_short)
+check_bestcost(result_list_bestcost = bestcost_pm_copd_geo_short,
+               result_vector_alternative = c(32449, 12508, 50836)) # Results on 5 November 2024
+
+bestcost_pm_copd_geo_short_uncertainty <- 
+  healthiar::include_summary_uncertainty(
+    bestcost_pm_copd_geo_short,
+    n_sim = 100)
+
+# Comparison central +- 95% CIs & Monte-Carlo central, lower, upper estimates
+print("Main estimate: ") ; bestcost_pm_copd_geo_short[["main"]][["impact_rounded"]]
+print("Summary uncertainty estimates (extern uncertainty function): ")
+round(as.numeric(bestcost_pm_copd_geo_short_uncertainty[["uncertainty"]][["main"]]), digits = 0)
+# Results seem plausible
+```
+
+
+
+```{r Summary uncertainty rr & exposure distribution}
+
+# Data prep
+niph_noise_ihd_input <- 
+  niph_noise_ihd_excel |>
+  dplyr::filter(!is.na(niph_noise_ihd_excel$exposure_mean))
+niph_noise_ihd_result <- 
+  niph_noise_ihd_excel |>
+        dplyr::filter(exposure_category %in% "Total exposed")|>
+        dplyr::select(daly)|>
+        dplyr::pull() |>
+  round()
+
+# Obtain attributable cases using the bestcost package and input data from niph
+bestcost_noise_ihd_expDist <- 
+  healthiar::attribute_health(
+    exp_central = niph_noise_ihd_input$exposure_mean,
+    # exp_lower = niph_noise_ihd_input$exposure_mean - 2,
+    # exp_upper = niph_noise_ihd_input$exposure_mean + 2,
+    prop_pop_exp = niph_noise_ihd_input$prop_exposed,
+    cutoff_central = min(niph_noise_ihd_input$exposure_mean), 
+    bhd_central = niph_noise_ihd_input$gbd_daly[1],
+    rr_central = 1.08,
+    rr_lower = 1.08 - 0.02,
+    rr_upper = 1.08 + 0.02,
+    erf_increment = 10, 
+    erf_shape = "log_linear",
+    info = data.frame(pollutant = "road_noise", outcome = "YLD"))
+
+# View(bestcost_noise_ihd_expDist)
+
+# Calculate summary uncertainty
+bestcost_noise_ihd_expDist_extern_uncertainty <- include_summary_uncertainty(
+  bestcost_noise_ihd_expDist,
+    n_sim = 100)
+
+# Comparison central +- 95% CIs & Monte-Carlo central, lower, upper estimates
+print("Main estimate: ") ; bestcost_noise_ihd_expDist[["main"]][["impact_rounded"]]
+print("Summary uncertainty estimates (extern uncertainty function): ")
+round(as.numeric(bestcost_noise_ihd_expDist_extern_uncertainty[["uncertainty"]][["main"]]), digits = 0)
+# Results seem plausible
+```
+
+
+
+```{r Summary uncertainty rr exposure distribution iteration}
+# Data prep
+niph_noise_ihd_input <- 
+  niph_noise_ihd_excel |>
+  dplyr::filter(!is.na(niph_noise_ihd_excel$exposure_mean))
+niph_noise_ihd_result <- 
+  niph_noise_ihd_excel |>
+        dplyr::filter(exposure_category %in% "Total exposed")|>
+        dplyr::select(daly)|>
+        dplyr::pull() |>
+  round()
+
+# Obtain attributable cases using the bestcost package and input data from niph
+bestcost_noise_ihd_expDist_iteration <- 
+  healthiar::attribute_health(
+    exp_central = list(niph_noise_ihd_input$exposure_mean,
+                       niph_noise_ihd_input$exposure_mean + 5,
+                       niph_noise_ihd_input$exposure_mean + 10),
+    exp_lower = list(niph_noise_ihd_input$exposure_mean - 2,
+                     niph_noise_ihd_input$exposure_mean + 5 - 2,
+                     niph_noise_ihd_input$exposure_mean + 10 - 2),
+    exp_upper = list(niph_noise_ihd_input$exposure_mean + 2,
+                     niph_noise_ihd_input$exposure_mean + 5 + 2,
+                     niph_noise_ihd_input$exposure_mean + 10 + 2),
+    prop_pop_exp = list(niph_noise_ihd_input$prop_exposed,
+                        niph_noise_ihd_input$prop_exposed + 0.1,
+                        niph_noise_ihd_input$prop_exposed + 0.2),
+    cutoff_central = min(niph_noise_ihd_input$exposure_mean), 
+    bhd_central = list(niph_noise_ihd_input$gbd_daly[1], 
+                       niph_noise_ihd_input$gbd_daly[1] + 5000,
+                       niph_noise_ihd_input$gbd_daly[1] + 10000),
+    rr_central = 1.08,
+    # rr_lower = 1.08 - 0.02,
+    # rr_upper = 1.08 + 0.02,
+    erf_increment = 10, 
+    erf_shape = "log_linear",
+    geo_id_raw = 1:3, 
+    geo_id_aggregated = rep("CH", 3),
+    info = data.frame(pollutant = "road_noise", outcome = "YLD"))
+# View(bestcost_noise_ihd_expDist_iteration)
+
+bestcost_noise_ihd_expDist_iteration_uncertainty <- include_summary_uncertainty(
+  bestcost_noise_ihd_expDist_iteration,
+    n_sim = 100)
+# View(bestcost_noise_ihd_expDist_iteration_uncertainty)
+# Results are higher due to difference in PAF of categories 2 & 3
+
+# Check impacts per geo unit
+## Central estimates from attribte()
+round(as.numeric(bestcost_noise_ihd_expDist_iteration[["detailed"]][["raw"]] |> filter(erf_ci == "central") |> filter(exp_ci == "central") |> pull(impact_rounded)), digits = 0) 
+## Summary uncertainty estimates from include_summary_uncertainty()
+round(as.numeric(bestcost_noise_ihd_expDist_iteration_uncertainty[["uncertainty"]][["detailed"]][["geo_specific"]]$impact_central), digits = 0)
+# Results are higher due to difference in PAF of categories 2 & 3
+
+# Check aggregated impact
+print("Main estimate: ") ; bestcost_noise_ihd_expDist_iteration[["main"]][["impact_rounded"]]
+print("Summary uncertainty estimates (extern uncertainty function): ")
+round(as.numeric(bestcost_noise_ihd_expDist_iteration_uncertainty[["uncertainty"]][["main"]] |> pull(central_estimate)), digits = 0)
+# Aggregated results are higher due to difference in PAF of categories 2 & 3
+```
+
+
+
+```{r Summary uncertainty rr attribute_yld}
+
+bestcost_pm_yld_singlebhd_with_summary_uncertainty  <- 
+  healthiar::attribute_yld(
+    exp_central = 8.85, 
+    exp_lower = airqplus_pm_copd$mean_concentration - 1,
+    exp_upper = airqplus_pm_copd$mean_concentration + 1,
+    cutoff_central = 5,
+    cutoff_lower = airqplus_pm_copd$cut_off_value - 1,
+    cutoff_upper = airqplus_pm_copd$cut_off_value + 1,
+    bhd_central = airqplus_pm_copd$incidents_per_100_000_per_year/1E5*airqplus_pm_copd$population_at_risk,
+    bhd_lower = (airqplus_pm_copd$incidents_per_100_000_per_year/1E5*airqplus_pm_copd$population_at_risk) - 5000,
+    bhd_upper = (airqplus_pm_copd$incidents_per_100_000_per_year/1E5*airqplus_pm_copd$population_at_risk) + 5000,
+    rr_central = 1.118,
+    rr_lower = 1.060, 
+    rr_upper = 1.179,
+    erf_increment = 10, 
+    erf_shape = "log_linear", 
+    # dw_central = 0.9, dw_lower = 0.88, dw_upper = 0.93,
+    dw_central = 0.5, dw_lower = 0.25, dw_upper = 0.75,
+    duration_central = 1
+    )
+
+bestcost_pm_yld_singlebhd_external_summary_uncertainty <- healthiar::include_summary_uncertainty(
+  bestcost_pm_yld_singlebhd_with_summary_uncertainty,
+    n_sim = 100)
+
+# Comparison central +- 95% CIs & Monte-Carlo central, lower, upper estimates
+# View(bestcost_pm_yld_singlebhd_with_summary_uncertainty)
+print("Main estimates: ") ; bestcost_pm_yld_singlebhd_with_summary_uncertainty[["main"]][["impact_rounded"]]
+print("Summary uncertainty estimates (external function): ")
+round(as.numeric(bestcost_pm_yld_singlebhd_external_summary_uncertainty[["uncertainty"]][["main"]]), digits = 0)
+# Results seem plausible
+```
+
+```{r Summary uncertainty ar}
+
+# Get data
+niph_noise_ha_input <- 
+  niph_noise_ha_excel |>
+  dplyr::filter(!is.na(niph_noise_ha_excel$exposure_mean))
+
+# Internal get_ci function
+bestcost_noise_ha_ar_with_summary_uncertainty <- 
+  healthiar::attribute_health(
+    approach_risk = "absolute_risk",
+    exp_central = niph_noise_ha_input$exposure_mean,
+    exp_lower = niph_noise_ha_input$exposure_mean - 1,
+    exp_upper = niph_noise_ha_input$exposure_mean + 1,
+    population = sum(niph_noise_ha_input$population_exposed_total),
+    prop_pop_exp = niph_noise_ha_input$population_exposed_total/sum(niph_noise_ha_input$population_exposed_total), 
+    erf_eq_central = "78.9270-3.1162*c+0.0342*c^2",
+    info = data.frame(pollutant = "road_noise", outcome = "highly_annoyance")
+    )
+# View(bestcost_noise_ha_ar_with_summary_uncertainty)
+
+bestcost_noise_ha_ar_external_uncertainty <- healthiar::include_summary_uncertainty(
+  bestcost_noise_ha_ar_with_summary_uncertainty,
+  n_sim = 100)
+
+# Comparison central +- 95% CIs & Monte-Carlo central, lower, upper estimates
+print("Main estimate: ")
+bestcost_noise_ha_ar_with_summary_uncertainty[["main"]][["impact_rounded"]]
+# External include_summary_uncertainty function
+print("Summary uncertainty estimates (extern uncertainty function): ")
+round(as.numeric(bestcost_noise_ha_ar_external_uncertainty[["uncertainty"]][["main"]]), digits = 0)
+# Results seem plausible
+```
+
+```{r Summary uncertainty ar iteration}
+
+# Get data
+niph_noise_ha_input <- 
+  niph_noise_ha_excel |>
+  dplyr::filter(!is.na(niph_noise_ha_excel$exposure_mean))
+
+# Internal get_ci function
+bestcost_noise_ha_ar_iteration <- 
+  healthiar::attribute_health(
+    approach_risk = "absolute_risk",
+    exp_central = list(niph_noise_ha_input$exposure_mean,
+                       niph_noise_ha_input$exposure_mean + 5,
+                       niph_noise_ha_input$exposure_mean + 10),
+    exp_lower = list(niph_noise_ha_input$exposure_mean -2,
+                       niph_noise_ha_input$exposure_mean + 5 - 2,
+                       niph_noise_ha_input$exposure_mean + 10 - 2),
+    exp_upper = list(niph_noise_ha_input$exposure_mean + 2,
+                       niph_noise_ha_input$exposure_mean + 5 + 2,
+                       niph_noise_ha_input$exposure_mean + 10 + 2),
+    prop_pop_exp = list(niph_noise_ha_input$population_exposed_total, 
+                   niph_noise_ha_input$population_exposed_total + 0.1,
+                   niph_noise_ha_input$population_exposed_total + 0.2),
+    population = list(runif_with_seed(1,5E3,1E4,1),
+                        runif_with_seed(1,5E3,1E4,2), 
+                        runif_with_seed(1,5E3,1E4,3)),
+    erf_eq_central = "78.9270-3.1162*c+0.0342*c^2",
+    geo_id_raw = 1:3, 
+    geo_id_aggregated = rep("CH", 3),
+    info = data.frame(pollutant = "road_noise", outcome = "highly_annoyance"),
+    )
+# View(bestcost_noise_ha_ar_with_summary_uncertainty)
+
+bestcost_noise_ha_ar_iteration_with_summary_uncertainty <-
+  healthiar::include_summary_uncertainty(
+    res = bestcost_noise_ha_ar_iteration,
+    n_sim = 100)
+
+# Comparison central +- 95% CIs & Monte-Carlo central, lower, upper estimates
+# View(bestcost_pm_yld_singlebhd_with_summary_uncertainty)
+print("Main estimates: ") ; bestcost_noise_ha_ar_iteration_with_summary_uncertainty[["main"]][["impact_rounded"]]
+print("Summary uncertainty estimates (external function): ")
+round(as.numeric(bestcost_noise_ha_ar_iteration_with_summary_uncertainty[["uncertainty"]][["main"]]), digits = 0)
+# Results seem plausible
+```
+
+
+
 ### Multiple exposure
 
 ```{r additive approach}
 # Assess attributable cases using the BEST-COST task 1.4 report
 bestcost_pm_no2_mortality_additive <-
-  bestcost::attribute_health(
+  healthiar::attribute_health(
     approach_multiexposure = "additive",
     exp_central = c("pm2.5" = 8.1, "no2" =  10.9),
-    cutoff =  setNames(c(0, 0), c("pm2.5", "no2")),
+    cutoff_central =  setNames(c(0, 0), c("pm2.5", "no2")),
     bhd_central = 1000, # Fake data just to get a similar value (PAF) as in the T1.4 report
     rr_central = setNames(c(1.063, 1.031), c("pm2.5", "no2")),
     erf_increment = setNames(c(10, 10), c("pm2.5", "no2")), 
@@ -375,10 +911,10 @@ check_bestcost(result_list_bestcost = bestcost_pm_no2_mortality_additive,
 ```{r multiplicative approach}
 # Assess attributable cases using the BEST-COST task 1.4 report
 bestcost_pm_no2_mortality_multiplicative <-
-  bestcost::attribute_health(
+  healthiar::attribute_health(
     approach_multiexposure = "multiplicative",
     exp_central = c("pm2.5" = 8.1, "no2" =  10.9),
-    cutoff =  setNames(c(0, 0), c("pm2.5", "no2")),
+    cutoff_central =  setNames(c(0, 0), c("pm2.5", "no2")),
     bhd_central = 1000, # Fake data just to get a similar value (PAF) as in the T1.4 report
     rr_central = setNames(c(1.063, 1.031), c("pm2.5", "no2")),
     erf_increment = setNames(c(10, 10), c("pm2.5", "no2")), 
@@ -394,10 +930,10 @@ check_bestcost(result_list_bestcost = bestcost_pm_no2_mortality_multiplicative,
 ```{r combined approach}
 # Assess attributable cases using the BEST-COST task 1.4 report
 bestcost_pm_no2_mortality_multiplicative <-
-  bestcost::attribute_health(
+  healthiar::attribute_health(
     approach_multiexposure = "combined",
     exp_central = c("pm2.5" = 8.1, "no2" =  10.9),
-    cutoff =  setNames(c(0, 0), c("pm2.5", "no2")),
+    cutoff_central =  setNames(c(0, 0), c("pm2.5", "no2")),
     bhd_central = 1000, # Fake data just to get a similar value (PAF) as in the T1.4 report
     rr_central = setNames(c(1.063, 1.031), c("pm2.5", "no2")),
     erf_increment = setNames(c(10, 10), c("pm2.5", "no2")), 
@@ -420,11 +956,11 @@ check_bestcost(result_list_bestcost = bestcost_pm_no2_mortality_multiplicative,
 # and input data from an AirQ+ case
 
 bestcost_pm_deaths_lifetable_airqplus <-
-  bestcost::attribute_deaths_from_lifetable(
+  healthiar::attribute_deaths_from_lifetable(
     approach_exposure = "single_year",
     approach_newborns = "with_newborns",
     exp_central = airqplus_pm_deaths_yll[["input"]]$mean_concentration, 
-    cutoff = airqplus_pm_deaths_yll[["input"]]$cut_off_value,
+    cutoff_central = airqplus_pm_deaths_yll[["input"]]$cut_off_value,
     rr_central = airqplus_pm_deaths_yll[["input"]]$relative_risk,
     rr_lower = airqplus_pm_deaths_yll[["input"]]$relative_risk_lower,
     rr_upper = airqplus_pm_deaths_yll[["input"]]$relative_risk_upper,
@@ -451,10 +987,10 @@ check_bestcost(result_list_bestcost = bestcost_pm_deaths_lifetable_airqplus,
 
 # Calculate premature deaths using bestcost function
 bestcost_pm_deaths_lifetable_expDistribution <- 
-    bestcost::attribute_deaths_from_lifetable(
+    healthiar::attribute_deaths_from_lifetable(
       exp_central = c(8, 9, 10), # Fake data just for testing purposes
       prop_pop_exp = c(0.2, 0.3, 0.5), # Fake data just for testing purposes
-      cutoff = input_data_mortality$cutoff[2],   # PM2.5=5, NO2=10, i.e. WHO AQG 2021 
+      cutoff_central = input_data_mortality$cutoff[2],   # PM2.5=5, NO2=10, i.e. WHO AQG 2021 
       rr_central = airqplus_pm_deaths_yll[["input"]]$relative_risk,
       rr_lower = airqplus_pm_deaths_yll[["input"]]$relative_risk_lower,
       rr_upper = airqplus_pm_deaths_yll[["input"]]$relative_risk_upper,
@@ -486,11 +1022,11 @@ check_bestcost(result_list_bestcost = bestcost_pm_deaths_lifetable_expDistributi
 
 # Now with input data from the Swiss project GeLuft
 bestcost_pm_yll_exposure_single_year_lifetable_geluft <-
-  bestcost::attribute_yll_from_lifetable(
+  healthiar::attribute_yll_from_lifetable(
     approach_exposure = "single_year",
     exp_central = input_data_mortality$exp[2], #exp CH 2019
     prop_pop_exp = 1,
-    cutoff = input_data_mortality$cutoff[2], # WHO AQG 2021 
+    cutoff_central = input_data_mortality$cutoff[2], # WHO AQG 2021 
     rr_central = input_data_mortality[2,"rr_central"], 
     rr_lower = input_data_mortality[2,"rr_lower"], 
     rr_upper =input_data_mortality[2,"rr_upper"], 
@@ -519,11 +1055,11 @@ check_bestcost(result_list_bestcost = bestcost_pm_yll_exposure_single_year_lifet
 # Input data from an AirQ+ case
 
 bestcost_pm_yll_lifetable_airqplus <-
-  bestcost::attribute_yll_from_lifetable(
+  healthiar::attribute_yll_from_lifetable(
     approach_exposure = "constant",
     approach_newborns = "without_newborns",
     exp_central = airqplus_pm_deaths_yll[["input"]]$mean_concentration,
-    cutoff = airqplus_pm_deaths_yll[["input"]]$cut_off_value,
+    cutoff_central = airqplus_pm_deaths_yll[["input"]]$cut_off_value,
     rr_central = airqplus_pm_deaths_yll[["input"]]$relative_risk,
     rr_lower = airqplus_pm_deaths_yll[["input"]]$relative_risk_lower,
     rr_upper = airqplus_pm_deaths_yll[["input"]]$relative_risk_upper,
@@ -551,11 +1087,11 @@ check_bestcost(result_list_bestcost = bestcost_pm_yll_lifetable_airqplus,
 # Input data from an AirQ+ case
 
 bestcost_pm_yll_lifetable_airqplus_with_newborns <-
-  bestcost::attribute_yll_from_lifetable(
+  healthiar::attribute_yll_from_lifetable(
     approach_exposure = "constant",
     approach_newborns = "with_newborns",
     exp_central = airqplus_pm_deaths_yll[["input"]]$mean_concentration,
-    cutoff = airqplus_pm_deaths_yll[["input"]]$cut_off_value,
+    cutoff_central = airqplus_pm_deaths_yll[["input"]]$cut_off_value,
     rr_central = airqplus_pm_deaths_yll[["input"]]$relative_risk,
     rr_lower = airqplus_pm_deaths_yll[["input"]]$relative_risk_lower,
     rr_upper = airqplus_pm_deaths_yll[["input"]]$relative_risk_upper,
@@ -585,10 +1121,10 @@ check_bestcost(result_list_bestcost = bestcost_pm_yll_lifetable_airqplus_with_ne
 # with input data from the Swiss project GeLuft
 
 bestcost_pm_yll_lifetable_1rr_geluft <- 
-    bestcost::attribute_yll_from_lifetable(
+    healthiar::attribute_yll_from_lifetable(
       exp_central = input_data_mortality$exp[2], #exp CH 2019
       prop_pop_exp = 1,
-      cutoff = input_data_mortality$cutoff[2], 
+      cutoff_central = input_data_mortality$cutoff[2], 
       rr_central = input_data_mortality[2,"rr_central"], 
       erf_increment = 10, 
       erf_shape = "log_linear",
@@ -617,10 +1153,10 @@ check_bestcost(result_list_bestcost = bestcost_pm_yll_lifetable_1rr_geluft,
 # with exposure distribution (instead of population-weighted mean)
 
 bestcost_pm_yll_lifetable_expDistribution_geluft <- 
-    bestcost::attribute_yll_from_lifetable(
+    healthiar::attribute_yll_from_lifetable(
       exp_central = c(8, 9, 10), # Fake data just for testing purposes
       prop_pop_exp = c(0.2, 0.3, 0.5), # Fake data just for testing purposes
-      cutoff = input_data_mortality$cutoff[2], # WHO AQG 2021 
+      cutoff_central = input_data_mortality$cutoff[2], # WHO AQG 2021 
       rr_central = input_data_mortality[2,"rr_central"], 
       rr_lower = input_data_mortality[2,"rr_lower"], 
       rr_upper =input_data_mortality[2,"rr_upper"], 
@@ -661,7 +1197,7 @@ bestcost_pm_yld_lifetable_geluft  <-
     # exp_central = c(8, 9, 10), # Fake data. Deactivate to test exposure distribution.
     prop_pop_exp = 1,
     # prop_pop_exp = c(0.2, 0.3, 0.5), # Fake data. Deactivate to test exposure distribution.
-    cutoff = input_data_mortality$cutoff[2],
+    cutoff_central = input_data_mortality$cutoff[2],
     rr_central = input_data_mortality[2,"rr_central"], 
     rr_lower = input_data_mortality[2,"rr_lower"], 
     rr_upper = input_data_mortality[2,"rr_upper"], 
@@ -677,8 +1213,11 @@ bestcost_pm_yld_lifetable_geluft  <-
     year_of_analysis = 2019, 
     info = input_data_mortality$pollutant[2],
     min_age = input_data_mortality$min_age[2], # min_age = 20,
-    duration = 100, 
-    dw_central = 1, dw_lower = 0.1, dw_upper = 10)
+    duration_central = 100, 
+    duration_lower = 50, duration_upper = 100, 
+    # corrected_discount_rate = 0,
+    dw_central = 1 #, dw_lower = 0.1, dw_upper = 10
+)
 
 # View(bestcost_pm_yld_lifetable_geluft)
 
@@ -704,7 +1243,7 @@ bestcost_pm_daly_lifetable_geluft  <-
   attribute_daly_from_lifetable(
     exp_central = input_data_mortality$exp[2],
     prop_pop_exp = 1,
-    cutoff = input_data_mortality$cutoff[2],
+    cutoff_central = input_data_mortality$cutoff[2],
     rr_central = input_data_mortality[2,"rr_central"], 
     rr_lower = input_data_mortality[2,"rr_lower"], 
     rr_upper =input_data_mortality[2,"rr_upper"], 
@@ -719,7 +1258,7 @@ bestcost_pm_daly_lifetable_geluft  <-
     year_of_analysis = 2019, 
     info = input_data_mortality$pollutant[2],
     min_age = input_data_mortality$min_age[2], # min_age = 20,
-    duration = 100, 
+    duration_central = 100, 
     dw_central = 1)
 
 # The Swiss project GeLuft did not calculated the YLD, only YLL. 
@@ -740,15 +1279,18 @@ check_bestcost(result_list_bestcost = bestcost_pm_daly_lifetable_geluft,
 ### Single bhd
 
 ```{r comparison singlebhd_rr}
+
+
+
 # Test delta comparison function with fake values
 # DELTA
 
 comparison_singlebhd_rr_delta <-
-  bestcost::compare_health(
+  healthiar::compare_health(
     approach_comparison = "delta",
     exp_central_1 = 8.85, 
     exp_central_2 = 6,
-    cutoff = 5,    
+    cutoff_central = 5,    
     bhd_central_1 = 25000,
     bhd_central_2 = 25000,
     rr_central = 1.118, 
@@ -766,13 +1308,33 @@ comparison_singlebhd_rr_delta <-
 check_bestcost(result_list_bestcost = comparison_singlebhd_rr_delta ,
                result_vector_alternative = c(774, 409, 1127)) # Result on 16 May 2024
 
+
+# With same impact to test that there is no error.
+comparison_singlebhd_rr_delta_same_impact <-
+  healthiar::compare_health(
+    approach_comparison = "delta",
+    exp_central_1 = 8.85, 
+    exp_central_2 = 8.85,
+    cutoff_central = 5,    
+    bhd_central_1 = 25000,
+    bhd_central_2 = 25000,
+    rr_central = 1.118, 
+    rr_lower = 1.060, 
+    rr_upper = 1.179,
+    erf_increment = 10, 
+    erf_shape = "log_linear", 
+    info_1 = "PM2.5_mortality_2010",
+    info_2 = "PM2.5_mortality_2020")
+check_bestcost(result_list_bestcost = comparison_singlebhd_rr_delta_same_impact ,
+               result_vector_alternative = c(0, 0, 0)) # Result on 27 Nov 2024
+
 # With iteration
 comparison_singlebhd_rr_delta_geo <-
-  bestcost::compare_health(
+  healthiar::compare_health(
     approach_comparison = "delta",
     exp_central_1 = list(8.85, 8.0),
     exp_central_2 = list(6, 6.5),
-    cutoff = 5,    
+    cutoff_central = 5,    
     bhd_central_1 = list(25000, 20000),
     bhd_central_2 = list(25000, 20000),
     rr_central = 1.118, 
@@ -795,11 +1357,11 @@ check_bestcost(result_list_bestcost = comparison_singlebhd_rr_delta_geo ,
 #PIF
 # Test pif comparison function with fake values
 comparison_singlebhd_rr_pif <-
-  bestcost::compare(
+  healthiar::compare(
     approach_comparison = "pif",
     exp_central_1 = 8.85, 
     exp_central_2 = 6,
-    cutoff = 5,    
+    cutoff_central = 5,    
     bhd_central_1 = 25000,
     bhd_central_2 = 25000,
     rr_central = 1.118, 
@@ -819,11 +1381,11 @@ check_bestcost(result_list_bestcost = comparison_singlebhd_rr_pif ,
 
 # With iteration
 comparison_singlebhd_rr_pif_geo <-
-  bestcost::compare_health(
+  healthiar::compare_health(
     approach_comparison = "pif",
     exp_central_1 = list(8.85, 8.0),
     exp_central_2 = list(6, 6.5),
-    cutoff = 5,    
+    cutoff_central = 5,    
     bhd_central_1 = list(25000, 20000),
     bhd_central_2 = list(25000, 20000),
     rr_central = 1.118, 
@@ -848,7 +1410,7 @@ check_bestcost(result_list_bestcost = comparison_singlebhd_rr_pif_geo ,
 ```{r comparison singlebhd_rr geo iteration, eval=FALSE, include=FALSE}
 # Assess iteration in many geographical areas (geo_id) keeping the multiple uncertainties
 comparison_singlebhd_rr_geo <-
-  bestcost::compare_health(
+  healthiar::compare_health(
     approach_comparison = "delta",
     exp_central_1 = as.list(runif_with_seed(1E4, 8.0, 9.0, 1)),
     exp_lower_1 = as.list(runif_with_seed(1E4, 8.0, 9.0, 1)-0.1),
@@ -856,7 +1418,7 @@ comparison_singlebhd_rr_geo <-
     exp_central_2 = as.list(runif_with_seed(1E4, 8.0, 9.0, 2)),
     exp_lower_2 = as.list(runif_with_seed(1E4, 8.0, 9.0, 2)-0.1),
     exp_upper_2 = as.list(runif_with_seed(1E4, 8.0, 9.0, 2)+0.1),
-    cutoff = 5,   
+    cutoff_central = 5,   
     bhd_central_1 = as.list(runif_with_seed(1E4, 25000, 35000, 1)),
     bhd_lower_1 = as.list(runif_with_seed(1E4, 25000, 35000, 1)),
     bhd_upper_1 = as.list(runif_with_seed(1E4, 25000, 35000, 1)),
@@ -882,12 +1444,15 @@ comparison_singlebhd_rr_geo <-
 # Test delta comparison function with fake values
 # No PIF option in ar
 comparison_singlebhd_ar_delta <-
-  bestcost::compare_health_ar(
+  healthiar::compare_health(
+    approach_risk = "absolute_risk",
     approach_comparison = "delta",
     exp_central_1 = c(57.5, 62.5, 67.5, 72.5, 77.5),# Values as example provided by NIPH
     exp_central_2 = c(50, 55, 60, 65, 75), # Fake values
-    pop_exp_1 = c(387500, 286000, 191800, 72200, 7700), # Values as example provided by NIPH
-    pop_exp_2 = c(387500, 286000, 191800, 72200, 7700), # Fake values
+    population_1 = sum(c(387500, 286000, 191800, 72200, 7700)),
+    population_2 = sum(c(387500, 286000, 191800, 72200, 7700)),
+    prop_pop_exp_1 = c(387500, 286000, 191800, 72200, 7700)/sum(c(387500, 286000, 191800, 72200, 7700)), # Values as example provided by NIPH
+    prop_pop_exp_2 = c(387500, 286000, 191800, 72200, 7700)/sum(c(387500, 286000, 191800, 72200, 7700)), # Fake values
     erf_eq_central = "78.9270-3.1162*c+0.0342*c^2",
     info_1 = data.frame(pollutant = "road_noise", outcome = "highly_annoyance", year = 2020),
     info_2 = data.frame(pollutant = "road_noise", outcome = "highly_annoyance", year = 2022)
@@ -901,12 +1466,17 @@ check_bestcost(result_list_bestcost = comparison_singlebhd_ar_delta ,
                result_vector_alternative = c(62531)) # Result on 23 May 2024
 
 comparison_singlebhd_ar_delta_geo <-
-  bestcost::compare_health_ar(
+  healthiar::compare_health(
+    approach_risk = "absolute_risk",
     approach_comparison = "delta",
     exp_central_1 = list(c(57.5, 62.5, 67.5, 72.5, 77.5), c(57, 62, 67, 72, 77)),# Fake values
     exp_central_2 = list(c(50, 55, 60, 65, 75), c(50.5, 55.5, 60.5, 65.5, 75.5)), # Fake values
-    pop_exp_1 = list(c(387500, 286000, 191800, 72200, 7700), c(380000, 280000, 190800, 72000, 7000)), # Fake values
-    pop_exp_2 = list(c(387500, 286000, 191800, 72200, 7700), c(380000, 280000, 190800, 72000, 7000)), # Fake values
+    population_1 = list(945200, 929800),
+    population_2 = list(945200, 929800),
+    prop_pop_exp_1 = list(c(387500, 286000, 191800, 72200, 7700)/945200, 
+                          c(380000, 280000, 190800, 72000, 7000)/929800), # Fake values
+    prop_pop_exp_2 = list(c(387500, 286000, 191800, 72200, 7700)/945200, 
+                          c(380000, 280000, 190800, 72000, 7000)/929800), # Fake values
     erf_eq_central = "78.9270-3.1162*c+0.0342*c^2",
     info_1 = data.frame(pollutant = "road_noise", outcome = "highly_annoyance", year = 2020),
     info_2 = data.frame(pollutant = "road_noise", outcome = "highly_annoyance", year = 2022),
@@ -924,11 +1494,11 @@ check_bestcost(result_list_bestcost = comparison_singlebhd_ar_delta_geo ,
 # DELTA
 # Test delta comparison function with fake values
 comparison_yld_singlebhd_rr_delta <-
-  bestcost::compare_yld_from_prevalence(
+  healthiar::compare_yld(
     approach_comparison = "delta",
     exp_central_1 = 8.85, 
     exp_central_2 = 6,
-    cutoff = 5,    
+    cutoff_central = 5,    
     bhd_central_1 = 25000,
     bhd_central_2 = 25000,
     rr_central = 1.118,
@@ -937,6 +1507,7 @@ comparison_yld_singlebhd_rr_delta <-
     erf_increment = 10, 
     erf_shape = "log_linear", 
     dw_central = 0.5,
+    duration_central = 1,
     info_1 = "PM2.5_yld_before",
     info_2 = "PM2.5_yld_after")
 
@@ -953,11 +1524,11 @@ check_bestcost(result_list_bestcost = comparison_yld_singlebhd_rr_delta[["detail
 
 # Iteration
 comparison_yld_singlebhd_rr_delta_geo <-
-  bestcost::compare_yld_from_prevalence(
+  healthiar::compare_yld(
     approach_comparison = "delta",
     exp_central_1 = list(8.85, 8.0),
     exp_central_2 = list(6, 6.5),
-    cutoff = 5,    
+    cutoff_central = 5,    
     bhd_central_1 = 25000,
     bhd_central_2 = 25000,
     rr_central = 1.118,
@@ -966,6 +1537,7 @@ comparison_yld_singlebhd_rr_delta_geo <-
     erf_increment = 10, 
     erf_shape = "log_linear", 
     dw_central = 0.5,
+    duration_central = 1,
     info_1 = "PM2.5_yld_before",
     info_2 = "PM2.5_yld_after",
     geo_id_raw = c("a", "b"),
@@ -982,11 +1554,11 @@ check_bestcost(result_list_bestcost = comparison_yld_singlebhd_rr_delta_geo ,
 #PIF
 # Test pif comparison function with fake values
 comparison_yld_singlebhd_rr_pif <-
-  bestcost::compare_yld_from_prevalence(
+  healthiar::compare_yld(
     approach_comparison = "pif",
     exp_central_1 = 8.85,  
     exp_central_2 = 6,
-    cutoff = 5,    
+    cutoff_central = 5,    
     bhd_central_1 = 25000,
     bhd_central_2 = 25000,
     rr_central = 1.118,
@@ -995,6 +1567,7 @@ comparison_yld_singlebhd_rr_pif <-
     erf_increment = 10, 
     erf_shape = "log_linear", 
     dw_central = 0.5,
+    duration_central = 1,
     info_1 = "PM2.5_yld_before",
     info_2 = "PM2.5_yld_after")
 
@@ -1011,11 +1584,11 @@ check_bestcost(result_list_bestcost = comparison_yld_singlebhd_rr_pif[["detailed
 
 # Iteration
 comparison_yld_singlebhd_rr_pif_geo <-
-  bestcost::compare_yld_from_prevalence(
+  healthiar::compare_yld(
     approach_comparison = "pif",
     exp_central_1 = list(8.85, 8.0),
     exp_central_2 = list(6, 6.5),
-    cutoff = 5,    
+    cutoff_central = 5,    
     bhd_central_1 = 25000,
     bhd_central_2 = 25000,
     rr_central = 1.118,
@@ -1024,6 +1597,7 @@ comparison_yld_singlebhd_rr_pif_geo <-
     erf_increment = 10, 
     erf_shape = "log_linear", 
     dw_central = 0.5,
+    duration_central = 1,
     info_1 = "PM2.5_yld_before",
     info_2 = "PM2.5_yld_after",
     geo_id_raw = c("a", "b"),
@@ -1046,13 +1620,13 @@ check_bestcost(result_list_bestcost = comparison_yld_singlebhd_rr_pif_geo ,
 # DELTA
 
 comparison_deaths_lifetable_delta <-
-  bestcost::compare_deaths_from_lifetable(
+  healthiar::compare_deaths_from_lifetable(
     approach_comparison = "delta",
     exp_central_1 = 8.85, # Fake data just for testing purposes
     prop_pop_exp_1 = 1, # Fake data just for testing purposes
     exp_central_2 = 6, # Fake data just for testing purposes
     prop_pop_exp_2 = 1, # Fake data just for testing purposes
-    cutoff = 5,   # PM2.5=5, WHO AQG 2021 
+    cutoff_central = 5,   # PM2.5=5, WHO AQG 2021 
     rr_central = 1.118,
     rr_lower = 1.060,
     rr_upper = 1.179,
@@ -1090,11 +1664,11 @@ check_bestcost(result_list_bestcost = comparison_deaths_lifetable_delta[["detail
 
 # Iteration
 comparison_deaths_lifetable_delta_geo <-
-  bestcost::compare_deaths_from_lifetable(
+  healthiar::compare_deaths_from_lifetable(
     approach_comparison = "delta",
     exp_central_1 = list(8.85, 8.0),# Fake data just for testing purposes
     exp_central_2 = list(6, 6.5),# Fake data just for testing purposes
-    cutoff = 5,   # PM2.5=5, WHO AQG 2021 
+    cutoff_central = 5,   # PM2.5=5, WHO AQG 2021 
     rr_central = 1.118,
     rr_lower = 1.060,
     rr_upper = 1.179,
@@ -1130,23 +1704,28 @@ check_bestcost(result_list_bestcost = comparison_deaths_lifetable_delta_geo ,
 
 
 # Additionally check that it produces the first scenario produce the same results as above
-# comparison_deaths_lifetable_delta_geo[["detailed"]][["scenario_1"]][["detailed"]][["raw"]] %>%  dplyr::filter(., geo_id_raw %in% "a") %>% select(., impact)  %>% pull(.) == bestcost_pm_deaths_lifetable_geluft[["main"]]$impact 
-round(comparison_deaths_lifetable_delta_geo[["detailed"]][["scenario_1"]][["detailed"]][["raw"]] %>%  dplyr::filter(., geo_id_raw %in% "a") %>% select(., impact)  %>% pull(.), digits = 0) == round(bestcost_pm_deaths_lifetable_airqplus[["main"]]$impact)
+# comparison_deaths_lifetable_delta_geo[["detailed"]][["scenario_1"]][["detailed"]][["raw"]] |>  dplyr::filter(., geo_id_raw %in% "a") |> select(., impact)  |> pull(.) == bestcost_pm_deaths_lifetable_geluft[["main"]]$impact 
+round(comparison_deaths_lifetable_delta_geo[["detailed"]][["scenario_1"]][["detailed"]][["raw"]] |>  
+        dplyr::filter(geo_id_raw %in% "a") |> 
+        select(impact)  |> 
+        pull(), digits = 0) == 
+  round(bestcost_pm_deaths_lifetable_airqplus[["main"]]$impact)
 # Absolute differences
-abs(comparison_deaths_lifetable_delta_geo[["detailed"]][["scenario_1"]][["detailed"]][["raw"]] %>%  dplyr::filter(., geo_id_raw %in% "a") %>% select(., impact)  %>% pull(.) 
+abs(comparison_deaths_lifetable_delta_geo[["detailed"]][["scenario_1"]][["detailed"]][["raw"]] |>  
+      dplyr::filter(geo_id_raw %in% "a") |> select(impact)  |> pull() 
     - bestcost_pm_deaths_lifetable_airqplus[["main"]]$impact)
 # Absolute differences are negligeable (< 0.01, or < 0.0001%)
       
 
 # PIF
 comparison_deaths_lifetable_pif  <-
-  bestcost::compare_deaths_from_lifetable(
+  healthiar::compare_deaths_from_lifetable(
     approach_comparison = "pif",
     exp_central_1 = 8.85, # Fake data just for testing purposes
     prop_pop_exp_1 = 1, # Fake data just for testing purposes
     exp_central_2 = 6, # Fake data just for testing purposes
     prop_pop_exp_2 = 1, # Fake data just for testing purposes
-    cutoff = 5,   # PM2.5=5, WHO AQG 2021 
+    cutoff_central = 5,   # PM2.5=5, WHO AQG 2021 
     rr_central = 1.118,
     rr_lower = 1.060,
     rr_upper = 1.179,
@@ -1185,11 +1764,11 @@ check_bestcost(result_list_bestcost = comparison_deaths_lifetable_pif[["detailed
 
 # Iteration
 comparison_deaths_lifetable_pif_geo <-
-  bestcost::compare_deaths_from_lifetable(
+  healthiar::compare_deaths_from_lifetable(
     approach_comparison = "pif",
     exp_central_1 = list(8.85, 8.0),# Fake data just for testing purposes
     exp_central_2 = list(6, 6.5),# Fake data just for testing purposes
-    cutoff = 5,   # PM2.5=5, WHO AQG 2021 
+    cutoff_central = 5,   # PM2.5=5, WHO AQG 2021 
     rr_central = 1.118,
     rr_lower = 1.060,
     rr_upper = 1.179,
@@ -1230,13 +1809,13 @@ check_bestcost(result_list_bestcost = comparison_deaths_lifetable_pif_geo ,
 
 # DELTA 
 comparison_yll_lifetable_delta  <-
-  bestcost::compare_yll_from_lifetable(
+  healthiar::compare_yll_from_lifetable(
     approach_comparison = "delta",
     exp_central_1 = 8.85, # Fake data just for testing purposes
     prop_pop_exp_1 = 1, # Fake data just for testing purposes
     exp_central_2 = 6, # Fake data just for testing purposes
     prop_pop_exp_2 = 1, # Fake data just for testing purposes
-    cutoff = 5,   # PM2.5=5, WHO AQG 2021 
+    cutoff_central = 5,   # PM2.5=5, WHO AQG 2021 
     rr_central = 1.118,
     rr_lower = 1.060,
     rr_upper = 1.179,
@@ -1280,11 +1859,11 @@ check_bestcost(result_list_bestcost = comparison_yll_lifetable_delta[["detailed"
 
 # Iteration
 comparison_yll_lifetable_delta_geo <-
-  bestcost::compare_yll_from_lifetable(
+  healthiar::compare_yll_from_lifetable(
     approach_comparison = "delta",
     exp_central_1 = list(8.85, 8.0),# Fake data just for testing purposes
     exp_central_2 = list(6, 6.5),# Fake data just for testing purposes
-    cutoff = 5,   # PM2.5=5, WHO AQG 2021 
+    cutoff_central = 5,   # PM2.5=5, WHO AQG 2021 
     rr_central = 1.118,
     rr_lower = 1.060,
     rr_upper = 1.179,
@@ -1322,13 +1901,13 @@ check_bestcost(result_list_bestcost = comparison_yll_lifetable_delta_geo ,
 
 # PIF
 comparison_yll_lifetable_pif <-
-  bestcost::compare_yll_from_lifetable(
+  healthiar::compare_yll_from_lifetable(
     approach_comparison = "pif",
     exp_central_1 = 8.85, # Fake data just for testing purposes
     prop_pop_exp_1 = 1, # Fake data just for testing purposes
     exp_central_2 = 6, # Fake data just for testing purposes
     prop_pop_exp_2 = 1, # Fake data just for testing purposes
-    cutoff = 5,   # PM2.5=5, WHO AQG 2021 
+    cutoff_central = 5,   # PM2.5=5, WHO AQG 2021 
     rr_central = 1.118,
     rr_lower = 1.060,
     rr_upper = 1.179,
@@ -1369,11 +1948,11 @@ check_bestcost(result_list_bestcost = comparison_yll_lifetable_pif[["detailed"]]
 
 # Iteration
 comparison_yll_lifetable_pif_geo <-
-  bestcost::compare_yll_from_lifetable(
+  healthiar::compare_yll_from_lifetable(
     approach_comparison = "pif",
     exp_central_1 = list(8.85, 8.0),# Fake data just for testing purposes
     exp_central_2 = list(6, 6.5),# Fake data just for testing purposes
-    cutoff = 5,   # PM2.5=5, WHO AQG 2021 
+    cutoff_central = 5,   # PM2.5=5, WHO AQG 2021 
     rr_central = 1.118,
     rr_lower = 1.060,
     rr_upper = 1.179,
@@ -1414,13 +1993,13 @@ check_bestcost(result_list_bestcost = comparison_yll_lifetable_pif_geo ,
 
 # DELTA
 comparison_yld_lifetable_delta  <-
-  bestcost::compare_yld_from_lifetable(
+  healthiar::compare_yld_from_lifetable(
     approach_comparison = "delta",
     exp_central_1 = 8.85, # Fake data just for testing purposes
     prop_pop_exp_1 = 1, # Fake data just for testing purposes
     exp_central_2 = 6, # Fake data just for testing purposes
     prop_pop_exp_2 = 1, # Fake data just for testing purposes
-    cutoff = 5,   # PM2.5=5, WHO AQG 2021 
+    cutoff_central = 5,   # PM2.5=5, WHO AQG 2021 
     rr_central = 1.118,
     rr_lower = 1.060,
     rr_upper = 1.179,
@@ -1443,7 +2022,7 @@ comparison_yld_lifetable_delta  <-
     info_1 = input_data_mortality$pollutant[2],
     info_2 = input_data_mortality$pollutant[2], 
     min_age = 20,
-    duration = 100,
+    duration_central = 100,
     dw_central = 1)
 
 # View(comparison_yld_lifetable_delta)
@@ -1460,11 +2039,11 @@ check_bestcost(result_list_bestcost = comparison_yld_lifetable_delta[["detailed"
 
 # Iteration
 comparison_yld_lifetable_delta_geo <-
-  bestcost::compare_yld_from_lifetable(
+  healthiar::compare_yld_from_lifetable(
     approach_comparison = "delta",
     exp_central_1 = list(8.85, 8.0),# Fake data just for testing purposes
     exp_central_2 = list(6, 6.5),# Fake data just for testing purposes
-    cutoff = 5,   # PM2.5=5, WHO AQG 2021 
+    cutoff_central = 5,   # PM2.5=5, WHO AQG 2021 
     rr_central = 1.118,
     rr_lower = 1.060,
     rr_upper = 1.179,
@@ -1489,7 +2068,7 @@ comparison_yld_lifetable_delta_geo <-
     min_age = 20,
     geo_id_raw = c("a", "b"),
     geo_id_aggregated = rep("ch", 2),
-    duration = 100,
+    duration_central = 100,
     dw_central = 1)
 
 # View(comparison_yld_lifetable_delta_geo)
@@ -1502,13 +2081,13 @@ check_bestcost(result_list_bestcost = comparison_yld_lifetable_delta_geo ,
 
 # PIF
 comparison_yld_lifetable_pif <-
-  bestcost::compare_yld_from_lifetable(
+  healthiar::compare_yld_from_lifetable(
     approach_comparison = "pif",
     exp_central_1 = 8.85, # Fake data just for testing purposes
     prop_pop_exp_1 = 1, # Fake data just for testing purposes
     exp_central_2 = 6, # Fake data just for testing purposes
     prop_pop_exp_2 = 1, # Fake data just for testing purposes
-    cutoff = 5,   # PM2.5=5, WHO AQG 2021 
+    cutoff_central = 5,   # PM2.5=5, WHO AQG 2021 
     rr_central = 1.118,
     rr_lower = 1.060,
     rr_upper = 1.179,
@@ -1531,7 +2110,7 @@ comparison_yld_lifetable_pif <-
     info_1 = NULL,
     info_2 = NULL, 
     min_age = 20,
-    duration = 100,
+    duration_central = 100,
     dw_central = 1)
 
 # View(comparison_yld_lifetable_pif)
@@ -1548,11 +2127,11 @@ check_bestcost(result_list_bestcost = comparison_yld_lifetable_pif[["detailed"]]
 
 # Iteration
 comparison_yld_lifetable_pif_geo <-
-  bestcost::compare_yld_from_lifetable(
+  healthiar::compare_yld_from_lifetable(
     approach_comparison = "pif",
     exp_central_1 = list(8.85, 8.0),# Fake data just for testing purposes
     exp_central_2 = list(6, 6.5),# Fake data just for testing purposes
-    cutoff = 5,   # PM2.5=5, WHO AQG 2021 
+    cutoff_central = 5,   # PM2.5=5, WHO AQG 2021 
     rr_central = 1.118,
     rr_lower = 1.060,
     rr_upper = 1.179,
@@ -1577,7 +2156,7 @@ comparison_yld_lifetable_pif_geo <-
     min_age = 20,
     geo_id_raw = c("a", "b"),
     geo_id_aggregated = rep("ch", 2),
-    duration = 100,
+    duration_central = 100,
     dw_central = 1)
 
 # View(comparison_yld_lifetable_pif_geo)
@@ -1595,13 +2174,13 @@ check_bestcost(result_list_bestcost = comparison_yld_lifetable_pif_geo ,
 
 # DELTA
 comparison_daly_lifetable_delta  <-
-  bestcost::compare_daly_from_lifetable(
+  healthiar::compare_daly_from_lifetable(
     approach_comparison = "delta",
     exp_central_1 = 8.85, # Fake data just for testing purposes
     prop_pop_exp_1 = 1, # Fake data just for testing purposes
     exp_central_2 = 6, # Fake data just for testing purposes
     prop_pop_exp_2 = 1, # Fake data just for testing purposes
-    cutoff = 5, # PM2.5=5, WHO AQG 2021 
+    cutoff_central = 5, # PM2.5=5, WHO AQG 2021 
     rr_central = 1.118,
     rr_lower = 1.060,
     rr_upper = 1.179,
@@ -1624,7 +2203,7 @@ comparison_daly_lifetable_delta  <-
     info_1 = input_data_mortality$pollutant[2],
     info_2 = input_data_mortality$pollutant[2], 
     min_age = 20,
-    duration = 100,
+    duration_central = 100,
     dw_central = 1)
 
 # View(comparison_daly_lifetable_delta)
@@ -1641,11 +2220,11 @@ check_bestcost(result_list_bestcost = comparison_daly_lifetable_delta[["detailed
 
 # Iteration
 comparison_daly_lifetable_delta_geo <-
-  bestcost::compare_daly_from_lifetable(
+  healthiar::compare_daly_from_lifetable(
     approach_comparison = "delta",
     exp_central_1 = list(8.85, 8.0),# Fake data just for testing purposes
     exp_central_2 = list(6, 6.5),# Fake data just for testing purposes
-    cutoff = 5,   # PM2.5=5, WHO AQG 2021 
+    cutoff_central = 5,   # PM2.5=5, WHO AQG 2021 
     rr_central = 1.118,
     rr_lower = 1.060,
     rr_upper = 1.179,
@@ -1670,7 +2249,7 @@ comparison_daly_lifetable_delta_geo <-
     min_age = 20,
     geo_id_raw = c("a", "b"),
     geo_id_aggregated = rep("ch", 2),
-    duration = 100,
+    duration_central = 100,
     dw_central = 1)
 
 # View(comparison_daly_lifetable_delta_geo)
@@ -1683,13 +2262,13 @@ check_bestcost(result_list_bestcost = comparison_daly_lifetable_delta_geo ,
 
 # PIF
 comparison_daly_lifetable_pif <-
-  bestcost::compare_daly_from_lifetable(
+  healthiar::compare_daly_from_lifetable(
     approach_comparison = "pif",
     exp_central_1 = 8.85, # Fake data just for testing purposes
     prop_pop_exp_1 = 1, # Fake data just for testing purposes
     exp_central_2 = 6, # Fake data just for testing purposes
     prop_pop_exp_2 = 1, # Fake data just for testing purposes
-    cutoff = 5,   # PM2.5=5, WHO AQG 2021 
+    cutoff_central = 5,   # PM2.5=5, WHO AQG 2021 
     rr_central = 1.118,
     rr_lower = 1.060,
     rr_upper = 1.179,
@@ -1712,7 +2291,7 @@ comparison_daly_lifetable_pif <-
     info_1 = NULL,
     info_2 = NULL, 
     min_age = 20,
-    duration = 100,
+    duration_central = 100,
     dw_central = 1)
 
 # View(comparison_daly_lifetable_pif)
@@ -1729,11 +2308,11 @@ check_bestcost(result_list_bestcost = comparison_daly_lifetable_pif[["detailed"]
 
 # Iteration
 comparison_daly_lifetable_pif_geo <-
-  bestcost::compare_daly_from_lifetable(
+  healthiar::compare_daly_from_lifetable(
     approach_comparison = "pif",
     exp_central_1 = list(8.85, 8.0),# Fake data just for testing purposes
     exp_central_2 = list(6, 6.5),# Fake data just for testing purposes
-    cutoff = 5,   # PM2.5=5, WHO AQG 2021 
+    cutoff_central = 5,   # PM2.5=5, WHO AQG 2021 
     rr_central = 1.118,
     rr_lower = 1.060,
     rr_upper = 1.179,
@@ -1758,7 +2337,7 @@ comparison_daly_lifetable_pif_geo <-
     min_age = 20,
     geo_id_raw = c("a", "b"),
     geo_id_aggregated = rep("ch", 2),
-    duration = 100,
+    duration_central = 100,
     dw_central = 1)
 
 # View(comparison_daly_lifetable_pif_geo)
