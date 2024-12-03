@@ -129,7 +129,8 @@ include_social <- function(output,
       # Remove rows that are not relevant in the output
       dplyr::filter(parameter %in%
                       c("exp_mean", "bhd_rate",
-                        "pop_fraction_mean",
+                        # Deactivated (not sure if interpretable)
+                        # "pop_fraction_mean",
                         "impact_rate")) |>
     # Long instead of wide layout
       tidyr::pivot_longer(
@@ -141,26 +142,29 @@ include_social <- function(output,
       dplyr::mutate(
         parameter_string =
           dplyr::case_when(
-            grepl("exp_", parameter) ~ "Exposure",
-            grepl("bhd_", parameter) ~ "Baseline health data",
-            grepl("impact_", parameter) ~ "Impact",
-            grepl("pop_fraction_", parameter) ~ "Population attributable fraction"),
+            grepl("exp_", parameter) ~ "exposure",
+            grepl("bhd_", parameter) ~ "baseline health data",
+            # Deactivated (not sure if interpretable)
+            #grepl("pop_fraction_", parameter) ~ "population attributable fraction",
+            grepl("impact_", parameter) ~ "impact"),
         # Replace "quantile" with "bottom_quantile"
-        difference_compared_with = gsub("quantile", "bottom_quantile", difference_compared_with),
+        difference_compared_with =
+          gsub("quantile", "bottom_quantile", difference_compared_with),
         # Flag attributable fraction
-        is_paf_from_deprivation = difference_type == "relative" & difference_compared_with == "overall",
-        attributable_to_deprivation =
-          ifelse(
-            is_paf_from_deprivation,
-            difference_value * overall,
-            NA),
+        is_paf_from_deprivation =
+          difference_type == "relative" & difference_compared_with == "overall",
+        is_attributable_from_deprivation =
+          difference_type == "absolute" & difference_compared_with == "overall",
         # Add comment to clarify
         comment =
-          ifelse(is_paf_from_deprivation,
-                 paste0( parameter_string, " attributable to deprivation"),
-                 "")) |>
+          dplyr::case_when(
+            is_paf_from_deprivation ~
+              paste0("It can be interpreted as fraction attributable to deprivation"),
+            is_attributable_from_deprivation ~
+              paste0("It can be interpreted as ", parameter_string, " attributable to deprivation"))) |>
       # Remove columns that are not needed anymore
-      dplyr::select(-is_paf_from_deprivation, -parameter_string)
+      dplyr::select(-is_paf_from_deprivation, -is_attributable_from_deprivation,
+                    -parameter_string)
 
     output[["social_detailed"]] <- social_results
 
