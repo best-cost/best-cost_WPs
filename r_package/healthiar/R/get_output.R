@@ -149,10 +149,15 @@ get_output <-
         dplyr::filter(cutoff_ci %in% c("central"))}
 
     if(unique(impact_raw[["main"]]$health_metric) %in%
-       c("yld_from_prevalence", "yld_from_lifetable")) {
+       c("yld", "yld_from_lifetable")) {
 
       output[["main"]] <- output[["main"]] |>
         dplyr::filter(dw_ci %in% "central")}
+
+    if("duration_ci" %in% names(output[["main"]])) {
+
+      output[["main"]] <- output[["main"]] |>
+        dplyr::filter(duration_ci %in% c("central"))}
 
     # Order columns ############################################################
     # putting first (on the left) those that determine different results across rows
