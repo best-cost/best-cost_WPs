@@ -20,7 +20,7 @@
 #' @author Alberto Castro
 #' @note Experimental function
 #' @export
-compare_yld_from_prevalence <-
+compare_yld <-
   function(approach_multiexposure = NULL,
            approach_comparison = "delta",
            exp_central_1, exp_lower_1 = NULL, exp_upper_1 = NULL,
@@ -35,6 +35,7 @@ compare_yld_from_prevalence <-
            bhd_central_1, bhd_lower_1 = NULL, bhd_upper_1 = NULL,
            bhd_central_2, bhd_lower_2 = NULL, bhd_upper_2 = NULL,
            dw_central, dw_lower = NULL, dw_upper = NULL,
+           duration_central, duration_lower = NULL, duration_upper = NULL,
            geo_id_raw = NULL,
            geo_id_aggregated = NULL,
            info_1 = NULL, info_2 = NULL){
@@ -43,7 +44,7 @@ compare_yld_from_prevalence <-
       healthiar::compare(
         approach_multiexposure = approach_multiexposure,
         approach_comparison = approach_comparison,
-        health_metric = "yld_from_prevalence",
+        health_metric = "yld",
         approach_risk = "relative_risk",
         exp_central_1, exp_lower_1 = exp_lower_1, exp_upper_1 = exp_upper_1,
         exp_central_2, exp_lower_2 = exp_lower_2, exp_upper_2 = exp_upper_2,
@@ -57,7 +58,7 @@ compare_yld_from_prevalence <-
         bhd_central_1 = bhd_central_1, bhd_lower_1 = bhd_lower_1, bhd_upper_1 = bhd_upper_1,
         bhd_central_2 = bhd_central_2, bhd_lower_2 = bhd_lower_2, bhd_upper_2 = bhd_upper_2,
         dw_central = dw_central, dw_lower = dw_lower, dw_upper = dw_upper,
-        duration_central = NULL,
+        duration_central = duration_central, duration_lower = duration_lower, duration_upper = duration_upper,
         first_age_pop_1 = NULL, last_age_pop_1 = NULL,
         population_midyear_male_1 = NULL, population_midyear_female_1 = NULL,
         year_of_analysis_1 = NULL,

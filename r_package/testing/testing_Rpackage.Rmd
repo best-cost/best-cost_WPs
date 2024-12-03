@@ -131,20 +131,20 @@ library(healthiar)
 
 
 # Now with population
-results_pm_copd_pop <-
-  healthiar::attribute(
-    exp_central = data$mean_concentration,                      # 8.85
-    cutoff_central = data$cut_off_value,                        # 5
-    bhd_central = data$prevalence,                              # 30747
-    bhd_lower = data$prevalence - 1000,                         # 29747
-    bhd_upper = data$prevalence + 1000,                         # 31747
-    rr_central = data$relative_risk,                            # 1.36
-    rr_lower = data$relative_risk_lower,                        # 1.124
-    rr_upper = data$relative_risk_upper,                        # 1.664
-    erf_increment = 10,                                           
-    erf_shape = "log_linear", 
-    info = "pm_copd_assessment_1",
-    population = 1E6)
+# results_pm_copd_pop <-
+  # healthiar::attribute(
+  #   exp_central = data$mean_concentration,                      # 8.85
+  #   cutoff_central = data$cut_off_value,                        # 5
+  #   bhd_central = data$prevalence,                              # 30747
+  #   bhd_lower = data$prevalence - 1000,                         # 29747
+  #   bhd_upper = data$prevalence + 1000,                         # 31747
+  #   rr_central = data$relative_risk,                            # 1.36
+  #   rr_lower = data$relative_risk_lower,                        # 1.124
+  #   rr_upper = data$relative_risk_upper,                        # 1.664
+  #   erf_increment = 10,                                           
+  #   erf_shape = "log_linear", 
+  #   info = "pm_copd_assessment_1",
+  #   population = 1E6)
 ```
 
 ```{r single exposure value}
@@ -563,7 +563,7 @@ bestcost_noise_ha_ar_geo <-
 ```{r YLD with single relative risk}
 
 bestcost_pm_yld_singlebhd  <- 
-  healthiar::attribute_yld_from_prevalence(
+  healthiar::attribute_yld(
     exp_central = 8.85, 
     cutoff_central = 5,    
     bhd_central = 25000,
@@ -572,7 +572,8 @@ bestcost_pm_yld_singlebhd  <-
     rr_upper = 1.179,
     erf_increment = 10, 
     erf_shape = "log_linear", 
-    dw_central = 0.5, dw_lower = 0.1, dw_upper = 10)
+    dw_central = 0.5, dw_lower = 0.1, dw_upper = 10,
+    duration_central = 1, duration_lower = 0.5, duration_upper = 10)
 
 # View(bestcost_pm_yld_singlebhd)
 
@@ -580,8 +581,6 @@ bestcost_pm_yld_singlebhd  <-
 # Check only if results stay the same overtime despite developments
 check_bestcost(result_list_bestcost = bestcost_pm_yld_singlebhd ,
                result_vector_alternative = c(525, 277, 768)) # Result on 16 May 2024
-
-#View(bestcost_pm_yld_ci)
 ```
 
 ### Summary uncertainty
@@ -771,10 +770,10 @@ round(as.numeric(bestcost_noise_ihd_expDist_iteration_uncertainty[["uncertainty"
 
 
 
-```{r Summary uncertainty rr attribute_yld_from_prevalence}
+```{r Summary uncertainty rr attribute_yld}
 
 bestcost_pm_yld_singlebhd_with_summary_uncertainty  <- 
-  healthiar::attribute_yld_from_prevalence(
+  healthiar::attribute_yld(
     exp_central = 8.85, 
     exp_lower = airqplus_pm_copd$mean_concentration - 1,
     exp_upper = airqplus_pm_copd$mean_concentration + 1,
@@ -790,7 +789,8 @@ bestcost_pm_yld_singlebhd_with_summary_uncertainty  <-
     erf_increment = 10, 
     erf_shape = "log_linear", 
     # dw_central = 0.9, dw_lower = 0.88, dw_upper = 0.93,
-    dw_central = 0.5, dw_lower = 0.25, dw_upper = 0.75
+    dw_central = 0.5, dw_lower = 0.25, dw_upper = 0.75,
+    duration_central = 1
     )
 
 bestcost_pm_yld_singlebhd_external_summary_uncertainty <- healthiar::include_summary_uncertainty(
@@ -1494,7 +1494,7 @@ check_bestcost(result_list_bestcost = comparison_singlebhd_ar_delta_geo ,
 # DELTA
 # Test delta comparison function with fake values
 comparison_yld_singlebhd_rr_delta <-
-  healthiar::compare_yld_from_prevalence(
+  healthiar::compare_yld(
     approach_comparison = "delta",
     exp_central_1 = 8.85, 
     exp_central_2 = 6,
@@ -1507,6 +1507,7 @@ comparison_yld_singlebhd_rr_delta <-
     erf_increment = 10, 
     erf_shape = "log_linear", 
     dw_central = 0.5,
+    duration_central = 1,
     info_1 = "PM2.5_yld_before",
     info_2 = "PM2.5_yld_after")
 
@@ -1523,7 +1524,7 @@ check_bestcost(result_list_bestcost = comparison_yld_singlebhd_rr_delta[["detail
 
 # Iteration
 comparison_yld_singlebhd_rr_delta_geo <-
-  healthiar::compare_yld_from_prevalence(
+  healthiar::compare_yld(
     approach_comparison = "delta",
     exp_central_1 = list(8.85, 8.0),
     exp_central_2 = list(6, 6.5),
@@ -1536,6 +1537,7 @@ comparison_yld_singlebhd_rr_delta_geo <-
     erf_increment = 10, 
     erf_shape = "log_linear", 
     dw_central = 0.5,
+    duration_central = 1,
     info_1 = "PM2.5_yld_before",
     info_2 = "PM2.5_yld_after",
     geo_id_raw = c("a", "b"),
@@ -1552,7 +1554,7 @@ check_bestcost(result_list_bestcost = comparison_yld_singlebhd_rr_delta_geo ,
 #PIF
 # Test pif comparison function with fake values
 comparison_yld_singlebhd_rr_pif <-
-  healthiar::compare_yld_from_prevalence(
+  healthiar::compare_yld(
     approach_comparison = "pif",
     exp_central_1 = 8.85,  
     exp_central_2 = 6,
@@ -1565,6 +1567,7 @@ comparison_yld_singlebhd_rr_pif <-
     erf_increment = 10, 
     erf_shape = "log_linear", 
     dw_central = 0.5,
+    duration_central = 1,
     info_1 = "PM2.5_yld_before",
     info_2 = "PM2.5_yld_after")
 
@@ -1581,7 +1584,7 @@ check_bestcost(result_list_bestcost = comparison_yld_singlebhd_rr_pif[["detailed
 
 # Iteration
 comparison_yld_singlebhd_rr_pif_geo <-
-  healthiar::compare_yld_from_prevalence(
+  healthiar::compare_yld(
     approach_comparison = "pif",
     exp_central_1 = list(8.85, 8.0),
     exp_central_2 = list(6, 6.5),
@@ -1594,6 +1597,7 @@ comparison_yld_singlebhd_rr_pif_geo <-
     erf_increment = 10, 
     erf_shape = "log_linear", 
     dw_central = 0.5,
+    duration_central = 1,
     info_1 = "PM2.5_yld_before",
     info_2 = "PM2.5_yld_after",
     geo_id_raw = c("a", "b"),
