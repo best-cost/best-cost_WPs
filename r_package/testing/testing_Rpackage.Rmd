@@ -199,7 +199,7 @@ health_impact <- attribute(
 # Monetize
 bestcost_pm_copd_costs <- 
   healthiar::include_cost(output = bestcost_pm_copd, 
-                         valuation = 1000)
+                          valuation = 1000)
 ```
 
 
