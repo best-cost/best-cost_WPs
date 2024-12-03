@@ -162,8 +162,15 @@ include_social <- function(output,
       # Remove columns that are not needed anymore
       dplyr::select(-is_paf_from_deprivation, -parameter_string)
 
-    output[["detailed"]][["social"]] <- social_results
+    output[["social_detailed"]] <- social_results
 
+    output[["social_main"]] <-
+      social_results |>
+      # Keep only impact as parameter
+      # This is the most relevant result.
+      # The other paramenters can be stored in detailed
+      # (just in case some users have interest on this)
+      dplyr::filter(parameter == "impact_rate")
 
 
 
