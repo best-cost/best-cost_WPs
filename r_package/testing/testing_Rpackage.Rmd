@@ -321,13 +321,6 @@ check_general(
          22.52416423, 0.32236823, 14.5680866,0.17252793,
          0.004598529, 0.053420096, 0.001606388, 0.018319205))
 
-
-
-bestcost_pm_copd_geo_social_multiplicative <- 
-  healthiar::include_social(output = bestcost_pm_death,
-                            geo_id_raw = social_data$CS01012020,
-                            deprivation_score = social_data$score,
-                            approach = "multiplicative")
 ```
 
 

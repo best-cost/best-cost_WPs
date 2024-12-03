@@ -21,7 +21,7 @@ include_social(
 
 \item{n_quantile}{code{Numeric value} referring the number of groups in the quantile}
 
-\item{approach}{code{String} referring the approach to include the social aspects. To choose between "decile" and "multiplicative"}
+\item{approach}{code{String} referring the approach to include the social aspects. To choose between "quantile" and ?}
 }
 \value{
 Description of the return value.
