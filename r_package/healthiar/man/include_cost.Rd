@@ -4,7 +4,7 @@
 \alias{include_cost}
 \title{include_cost}
 \usage{
-include_cost(output, valuation)
+include_cost(output, valuation, corrected_discount_rate = NULL)
 }
 \arguments{
 \item{output}{\code{List} produced by \code{healthiar::attribute()} or \code{healthiar::compare()} as results}
