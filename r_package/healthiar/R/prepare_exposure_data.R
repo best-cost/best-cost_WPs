@@ -26,7 +26,12 @@ prepare_exposure_data <-
     geo_id_aggregated
   ){
     ## extract mean concentration in each raw geo unit
-    poll_mean <- as.vector(terra::extract(poll_grid, geo_units, fun = mean)[,2])
+    poll_mean <- terra::extract(poll_grid, geo_units, fun = mean)[, 2]
+
+    none_aggregated_exposure <- cbind(
+      geo_id_aggregated,
+      poll_mean
+    )
 
     exposure <- cbind(
       geo_id_aggregated,
@@ -39,9 +44,21 @@ prepare_exposure_data <-
     exposure <- exposure |>
       group_by(geo_id_aggregated) |>
       mutate(poll_weighted = population/sum(population)*poll_mean) |>
-      summarise(exposure = sum(poll_weighted)) |>
+      summarise(exposure_value = sum(poll_weighted)) |>
+      mutate(exposure_type = 'Population-weighted mean concentration') |>
       st_drop_geometry()
 
-    return(exposure)
+    ## build output list
+    main <- as.list(exposure)
+
+    raw <- as.list(none_aggregated_exposure)
+
+    detailed <- list(raw)
+    names(detailed) <- 'raw'
+
+    output <- list(main, detailed)
+    names(output) <- c('main', 'detailed')
+
+    return(output)
   }
 
