@@ -12,7 +12,6 @@ compile_input(
   exp_lower = NULL,
   exp_upper = NULL,
   prop_pop_exp = NULL,
-  pop_exp = NULL,
   cutoff_central = NULL,
   cutoff_lower = NULL,
   cutoff_upper = NULL,
@@ -33,6 +32,7 @@ compile_input(
   geo_id_aggregated = NULL,
   info = NULL,
   corrected_discount_rate = NULL,
+  population = population,
   duration_central = NULL,
   duration_lower = NULL,
   duration_upper = NULL,
@@ -50,7 +50,7 @@ compile_input(
 )
 }
 \arguments{
-\item{health_metric}{\code{String} showing the change in outcome metric to assess attributable health impacts. To choose between "same_input_output" (default), "yld_from_prevalence", "deaths_from_lifetable", "yll_from_lifetable", "yld_from_lifetable" and "daly_from_lifetable".}
+\item{health_metric}{\code{String} showing the change in outcome metric to assess attributable health impacts. To choose between "same_input_output" (default), "yld", "deaths_from_lifetable", "yll_from_lifetable", "yld_from_lifetable" and "daly_from_lifetable".}
 
 \item{approach_multiexposure}{\code{String} showing the approach that has to be used in assessments with multiple exposures. To choose among: "additive", "multiplicative" or "combined".}
 
@@ -59,8 +59,6 @@ compile_input(
 \item{exp_central, exp_lower, exp_upper}{\code{Numeric values} of the exposure to the environmental stressor referring to the central estimate and (optionally) to lower and upper bound of the 95\% confidence interval. If only one value is provided, it will be assumed that it refers to population-weighted mean exposure in ug/m3. If a {vector} is provided, it will be assumed that it refers to the exposure categories (average exposure in the category) in a exposure distribution (this information is linked to the proportion of population exposed).}
 
 \item{prop_pop_exp}{\code{Numeric value} or {Numeric vector} Fraction (values between 0 & 1) of the total population exposed to (one or more) exposure categories, i.e., a exposure distribution, respectively. If a exposure distribution is used, the dimension of this input variable should be the same as "exp". By default, 1 for single exposure value will be assigned to this input variable assuming a single exposure value, but users can change this value.}
-
-\item{pop_exp}{\code{Numeric value} or {vector} showing the population exposed for each of the exposure categories. The length of this input variable must be the same as "exp".}
 
 \item{rr_central, rr_lower, rr_upper}{\code{Numeric values} referring to the central estimate of the relative risk and the corresponding lower and upper 95\% confidence interval bounds.}
 
@@ -83,6 +81,8 @@ compile_input(
 \item{info}{\code{String} or {data frame} showing additional information or id. The suffix "info" will be added to the column name. Default value = NULL.}
 
 \item{corrected_discount_rate}{\code{Numeric value} showing the discount rate for future years including correction from inflation rate}
+
+\item{population}{code{Vector} with numeric values referring to the population in the geographical unit}
 
 \item{duration_central, duration_lower, duration_upper}{\code{Numeric value} showing the central estimate of the disease duration and (optionally) the lower and upper bounds of the 95\% confidence interval.}
 

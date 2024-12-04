@@ -40,12 +40,14 @@ get_output <-
         # not summing rounded results ("too rounded")
         dplyr::select(-all_of(intersect(paste0("impact_rounded", c("", "_1", "_2")),
                                         names(output_last)))) |>
+        dplyr::group_by(geo_id_raw) |>
         # Collapse the exposure categories to have only a vector
         dplyr::mutate(across(all_of(intersect(c(paste0("exp", c("", "_1", "_2")),
                                                 paste0("pop_exp", c("", "_1", "_2")),
+                                                paste0("prop_pop_exp", c("", "_1", "_2")),
                                                 "exposure_dimension"),
                                               names(output_last))),
-                             ~ paste(collapse = ", ")))
+                             ~ paste(., collapse = ", ")))
 
       output[["detailed"]][["agg_exp_cat"]] <-
         output[["detailed"]][["agg_exp_cat"]] |>
@@ -53,13 +55,15 @@ get_output <-
         dplyr::group_by(
           across(all_of(setdiff(names(output[["detailed"]][["agg_exp_cat"]]),
                                 c("geo_id_raw",
-                                  "pop_exp",
                                   paste0("exp", c("", "_1", "_2")),
+                                  paste0("population", c("", "_1", "_2")),
+                                  paste0("prop_pop_exp", c("", "_1", "_2")),
                                   paste0("pop_exp", c("", "_1", "_2")),
                                   paste0("rr_conc", c("", "_1", "_2")),
                                   paste0("pop_fraction", c("", "_1", "_2")),
                                   paste0("absolute_risk_as_percent", c("", "_1", "_2")),
-                                  paste0("impact", c("", "_1", "_2"))))))) |>
+                                  paste0("impact", c("", "_1", "_2")),
+                                  paste0("impact_per_100k_inhab", c("", "_1", "_2"))))))) |>
         dplyr::summarize(
           across(all_of(intersect(c(paste0("absolute_risk_as_percent", c("", "_1", "_2")),
                                     paste0("impact", c("", "_1", "_2")),
@@ -88,17 +92,18 @@ get_output <-
                             "erf_ci", "exp_ci", "bhd_ci", "dw_ci"),
                           names(output_last)))))
 
-        if (!"impact_deprivation_weighted" %in% names(output_last)) {
+        if (!"population" %in% names(output_last)) {
           output[["detailed"]][["agg_geo"]]  <- output[["detailed"]][["agg_geo"]] |>
           dplyr::summarise(impact = sum(impact),
                            impact_rounded = round(impact),
                            .groups = "drop")
+
         } else {
           output[["detailed"]][["agg_geo"]]  <- output[["detailed"]][["agg_geo"]] |>
           dplyr::summarise(impact = sum(impact),
                            impact_rounded = round(impact),
-                           impact_deprivation_weighted = sum(impact_deprivation_weighted),
-                           impact_deprivation_weighted_rounded = round(impact_deprivation_weighted),
+                           population = sum(population),
+                           impact_per_100k_inhab = impact/population,
                            .groups = "drop")
         }
 
@@ -144,10 +149,15 @@ get_output <-
         dplyr::filter(cutoff_ci %in% c("central"))}
 
     if(unique(impact_raw[["main"]]$health_metric) %in%
-       c("yld_from_prevalence", "yld_from_lifetable")) {
+       c("yld", "yld_from_lifetable")) {
 
       output[["main"]] <- output[["main"]] |>
         dplyr::filter(dw_ci %in% "central")}
+
+    if("duration_ci" %in% names(output[["main"]])) {
+
+      output[["main"]] <- output[["main"]] |>
+        dplyr::filter(duration_ci %in% c("central"))}
 
     # Order columns ############################################################
     # putting first (on the left) those that determine different results across rows

@@ -3,11 +3,10 @@
 #' @description
 #' Calculates the health impacts, mortality or morbidity, of an environmental stressor using a single value for baseline heath data, i.e. without life table. It provides as a result the mean as well as the lower and the higher bound of the impact based on the confidence interval of the concentration-response function.
 #' @param approach_multiexposure \code{String} showing the approach that has to be used in assessments with multiple exposures. To choose among: "additive", "multiplicative" or "combined".
-#' @param health_metric \code{String} showing the change in outcome metric to assess attributable health impacts. To choose between "same_input_output" (default), "yld_from_prevalence", "deaths_from_lifetable", "yll_from_lifetable", "yld_from_lifetable" and "daly_from_lifetable".
+#' @param health_metric \code{String} showing the change in outcome metric to assess attributable health impacts. To choose between "same_input_output" (default), "yld", "deaths_from_lifetable", "yll_from_lifetable", "yld_from_lifetable" and "daly_from_lifetable".
 #' @param approach_risk \code{String} showing the risk risk method. To choose between: "relative_risk" (default) or "absolute_risk".
 #' @param exp_central,exp_lower,exp_upper \code{Numeric values} of the exposure to the environmental stressor referring to the central estimate and (optionally) to lower and upper bound of the 95\% confidence interval. If only one value is provided, it will be assumed that it refers to population-weighted mean exposure in ug/m3. If a {vector} is provided, it will be assumed that it refers to the exposure categories (average exposure in the category) in a exposure distribution (this information is linked to the proportion of population exposed).
 #' @param prop_pop_exp \code{Numeric value} or {Numeric vector} Fraction (values between 0 & 1) of the total population exposed to (one or more) exposure categories, i.e., a exposure distribution, respectively. If a exposure distribution is used, the dimension of this input variable should be the same as "exp". By default, 1 for single exposure value will be assigned to this input variable assuming a single exposure value, but users can change this value.
-#' @param pop_exp \code{Numeric value} or {vector} showing the population exposed for each of the exposure categories. The length of this input variable must be the same as "exp".
 #' @param cutoff_central,cutoff_lower,cutoff,upper \code{Numeric value} showing the central exposure cut-off in ug/m3 and (optionally) the lower and upper bounds of the 95\% confidence interval. The cut-off level refers to the exposure level below which no health effects occur.
 #' @param rr_central,rr_lower,rr_upper \code{Numeric values} referring to the central estimate of the relative risk and the corresponding lower and upper 95\% confidence interval bounds.
 #' @param erf_increment \code{Numeric value} showing the increment of the exposure-response function in ug/m3 (usually 10 or 5).
@@ -25,6 +24,7 @@
 #' @param dw_central,dw_lower,dw_upper \code{Numeric value} showing the disability weights (central estimate, lower and upper 95\% confidence intervals) associated with the morbidity health outcome
 #' @param duration_central,duration_lower,duration_upper \code{Numeric value} showing the central estimate of the disease duration and (optionally) the lower and upper bounds of the 95\% confidence interval.
 #' @param corrected_discount_rate \code{Numeric value} showing the discount rate for future years including correction from inflation rate
+#' @param population code{Vector} with numeric values referring to the population in the geographical unit
 #' @param geo_id_raw \code{Vector} showing the id code of the each geographic area considered in the assessment. If a vector is entered here, the data for each geographical area have to be provided as list in the corresponding arguments.
 #' @param geo_id_aggregated \code{Vector} showing the id code of the geographic area for which raw geo ids have to be aggregated. The vector has to have the same length as geo_id_raw. Therefore, geo_id_aggregated should have duplicated values for those geo_id_r
 #' @param info \code{String} or {data frame} showing additional information or id. The suffix "info" will be added to the column name. Default value = NULL.
@@ -43,13 +43,13 @@
 #' @export
 
 attribute <-
-  function(exp_central, exp_lower = NULL, exp_upper = NULL,
+  function(approach_risk = "relative_risk",
+           exp_central, exp_lower = NULL, exp_upper = NULL,
            cutoff_central, cutoff_lower = NULL, cutoff_upper = NULL,
            rr_central = NULL, rr_lower = NULL, rr_upper = NULL,
            erf_increment = NULL, erf_shape = NULL,
            bhd_central = NULL, bhd_lower = NULL, bhd_upper = NULL,
            # Arguments for advanced use
-           pop_exp = NULL,
            prop_pop_exp = 1,
            erf_eq_central = NULL, erf_eq_lower = NULL, erf_eq_upper = NULL,
            # Lifetable arguments
@@ -67,10 +67,9 @@ attribute <-
            geo_id_raw = NULL,
            geo_id_aggregated = NULL,
            # Meta-information
-           summary_uncertainty = NULL,
+           population = NULL,
            health_metric = "same_input_output",
            approach_multiexposure = NULL,
-           approach_risk = "relative_risk",
            info = NULL){
 
     # Check input data
@@ -81,10 +80,10 @@ attribute <-
     # Compile input data
     input <-
       healthiar::compile_input(
+        approach_risk = approach_risk,
         approach_multiexposure = approach_multiexposure,
         exp_central = exp_central, exp_lower = exp_lower, exp_upper = exp_upper,
         prop_pop_exp = prop_pop_exp,
-        pop_exp = pop_exp,
         cutoff_central = cutoff_central, cutoff_lower = cutoff_lower, cutoff_upper = cutoff_upper,
         rr_central = rr_central, rr_lower = rr_lower, rr_upper = rr_upper,
         erf_increment = erf_increment,
@@ -95,7 +94,7 @@ attribute <-
         geo_id_aggregated = geo_id_aggregated,
         info = info,
         health_metric = health_metric,
-        approach_risk = approach_risk,
+        population = population,
         # YLD
         dw_central = dw_central, dw_lower = dw_lower, dw_upper = dw_upper,
         duration_central = duration_central, duration_lower = duration_lower, duration_upper = duration_upper,
@@ -113,60 +112,15 @@ attribute <-
     # Calculate the health impacts for each case (uncertainty, category, geo area...)
     impact_raw <-
       healthiar:::get_impact(input = input,
-                            year_of_analysis = year_of_analysis,
-                            min_age = min_age,
-                            max_age = max_age,
-                            corrected_discount_rate = corrected_discount_rate,
-                            pop_fraction_type = "paf")
+                             year_of_analysis = year_of_analysis,
+                             min_age = min_age,
+                             max_age = max_age,
+                             corrected_discount_rate = corrected_discount_rate,
+                             pop_fraction_type = "paf")
 
     # Get the main and detailed output by aggregating and/or filtering cases (rows)
     output <-
       healthiar:::get_output(impact_raw)
-
-    # Get summary uncertainty
-
-    ## RR & absolute risk case
-    if (!is.null(summary_uncertainty) & !grepl("from_lifetable", health_metric)) {
-
-      output[["detailed"]][["uncertainty"]] <-
-        healthiar::get_ci(rr_central = rr_central, rr_lower = rr_lower, rr_upper = rr_upper,
-               exp_central = exp_central, exp_lower = exp_lower, exp_upper = exp_upper,
-               cutoff_central = cutoff_central, cutoff_lower = cutoff_lower, cutoff_upper = cutoff_upper,
-               bhd_central = bhd_central, bhd_lower = bhd_lower, bhd_upper = bhd_upper,
-               dw_central = dw_central, dw_lower = dw_lower, dw_upper = dw_upper,
-               erf_shape = erf_shape,
-               erf_increment = erf_increment,
-               erf_eq = erf_eq_central,
-               pop_exp = pop_exp,
-               prop_pop_exp = prop_pop_exp,
-               approach_risk = approach_risk,
-               health_metric = health_metric
-        )
-    }
-
-    ## Lifetable case
-    if (!is.null(summary_uncertainty) & grepl("from_lifetable", health_metric)) {
-      output[["detailed"]][["uncertainty"]] <-
-        healthiar::get_ci(rr_central = rr_central, rr_lower = rr_lower, rr_upper = rr_upper,
-             exp_central = exp_central, exp_lower = exp_lower, exp_upper = exp_upper,
-             cutoff_central = cutoff_central, cutoff_lower = cutoff_lower, cutoff_upper = cutoff_upper,
-             bhd_central = bhd_central, bhd_lower = bhd_lower, bhd_upper = bhd_upper,
-             dw_central = dw_central, dw_lower = dw_lower, dw_upper = dw_upper,
-             erf_shape = erf_shape,
-             erf_increment = erf_increment,
-             erf_eq = erf_eq_central,
-             pop_exp = pop_exp,
-             prop_pop_exp = prop_pop_exp,
-             approach_risk = approach_risk,
-             year_of_analysis = year_of_analysis,
-             input = input,
-             health_metric = health_metric,
-             min_age = min_age,
-             max_age = max_age,
-             approach_exposure = output$main$approach_exposure[1]
-      )
-    }
-
 
     return(output)
   }
