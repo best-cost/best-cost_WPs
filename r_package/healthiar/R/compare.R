@@ -32,6 +32,7 @@
 #' @param dw_central,dw_lower,dw_upper Three \code{Numeric value} showing the disability weights (central estimate, lower and upper 95% confidence intervals) associated with the morbidity health outcome
 #' @param duration \code{Numeric value} showing the disease duration
 #' @param corrected_discount_rate \code{Numeric value} showing the discount rate for future years including correction from inflation rate
+#' @param approach_discount \code{String} referring to the assumed equation for the discount factor.Per default: "exponential". Otherwise: "hyperbolic_harvey_1986" or "hyperbolic_mazur_1987".
 #' @param geo_id_raw \code{Vector} showing the id code of the each geographic area considered in the assessment. If a vector is entered here, the data for each geographical area have to be provided as list in the corresponding arguments.
 #' @param info_1 \code{String} or {data frame} showing additional information or id of the scenario 1. The suffix "info" will be added to the column name. Default value = NULL.
 #' @param info_2 \code{String} or {data frame} showing additional information or id of the scenario 1. The suffix "info" will be added to the column name. Default value = NULL.
@@ -86,6 +87,7 @@ compare <-
            dw_central = NULL, dw_lower = NULL, dw_upper = NULL,
            duration_central = NULL, duration_lower = NULL, duration_upper = NULL,
            corrected_discount_rate = NULL,
+           approach_discount = "exponential",
            # Iteration
            geo_id_raw = NULL,
            geo_id_aggregated = NULL,
@@ -118,6 +120,7 @@ compare <-
         min_age = min_age,
         max_age = max_age,
         corrected_discount_rate = corrected_discount_rate,
+        approach_discount = approach_discount ,
         dw_central = dw_central, dw_lower = dw_lower, dw_upper = dw_upper,
         geo_id_raw = geo_id_raw,
         geo_id_aggregated = geo_id_aggregated,
@@ -151,6 +154,7 @@ compare <-
         min_age = min_age,
         max_age = max_age,
         corrected_discount_rate = corrected_discount_rate,
+        approach_discount = approach_discount ,
         dw_central = dw_central, dw_lower = dw_lower, dw_upper = dw_upper,
         duration_central = duration_central, duration_lower = duration_lower, duration_upper = duration_upper,
         geo_id_raw = geo_id_raw,
@@ -249,7 +253,10 @@ compare <-
           deaths_male = deaths_male_1,
           deaths_female = deaths_female_1,
           population_midyear_male = population_midyear_male_1,
-          population_midyear_female =  population_midyear_female_1)
+          population_midyear_female =  population_midyear_female_1,
+          # Discount
+          corrected_discount_rate = corrected_discount_rate,
+          approach_discount = approach_discount)
 
       # Compile input data of scenario 2
       input_2 <-
@@ -283,7 +290,10 @@ compare <-
           deaths_male = deaths_male_2,
           deaths_female = deaths_female_2,
           population_midyear_male = population_midyear_male_2,
-          population_midyear_female =  population_midyear_female_2)
+          population_midyear_female =  population_midyear_female_2,
+          # Discount
+          corrected_discount_rate = corrected_discount_rate,
+          approach_discount = approach_discount)
 
       # Identify the arguments scenario specific arguments excluding bhd
       # This will be used for the exceptions in the joining columns
@@ -320,6 +330,7 @@ compare <-
           min_age = min_age,
           max_age = max_age,
           corrected_discount_rate = corrected_discount_rate,
+          approach_discount = approach_discount,
           pop_fraction_type = "pif")
       }
 
