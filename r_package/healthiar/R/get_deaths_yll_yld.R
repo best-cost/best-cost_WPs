@@ -32,7 +32,8 @@ get_deaths_yll_yld <-
            min_age = NULL,
            max_age = NULL,
            input_with_risk_and_pop_fraction,
-           corrected_discount_rate = NULL){
+           corrected_discount_rate = NULL,
+           approach_discount = NULL){
 
     impact_detailed <- pop_impact |>
       dplyr::mutate(
@@ -196,8 +197,7 @@ get_deaths_yll_yld <-
     # If a value for corrected_discount_rate was provided by the user,
     # apply discount
     if( !is.null(corrected_discount_rate) ){
-    # if(corrected_discount_rate != 0) {
-      discount_factor <- corrected_discount_rate + 1
+      # if(corrected_discount_rate != 0) {
 
       impact_detailed <-
         impact_detailed |>
@@ -205,17 +205,34 @@ get_deaths_yll_yld <-
           impact_nest = purrr::pmap(
             list(.x = lifeyears_nest, .y = last_year + 1, .z = impact_nest),
             function(.x, .y, .z){
+
               ## Calculate total, discounted life years (single value) per sex & ci ####
               .x <-
                 .x |>
                 # Convert year to numeric
-                dplyr::mutate(year = as.numeric(year)) |>
+                dplyr::mutate(year = as.numeric(year),
+                              time_period = year - year_of_analysis,
+                              corrected_discount_rate = {{corrected_discount_rate}},
+                              approach_discount = {{approach_discount}}) |>
+
                 # Calculate discount rate for each year
                 dplyr::mutate(
-                  discount = 1/(discount_factor^(year-(year_of_analysis+1)))) |>
+                  discount_factor =
+                    ifelse(
+                      {{approach_discount}} == "exponential",
+                      1/((1 + corrected_discount_rate) ^ time_period),
+                      ifelse({{approach_discount}} == "hyperbolic_harvey_1986",
+                             1/((1 + time_period) ^ corrected_discount_rate),
+                             ifelse({{approach_discount}} == "hyperbolic_mazur_1987",
+                                    1/(1 + corrected_discount_rate * time_period),
+                                    NA)))
+                  )|>
                 # Calculate life years discounted
                 dplyr::mutate(
-                  discounted_impact = impact * discount)
+                  discounted_impact = impact * discount_factor)
+
+
+
 
               # If yll or yld
               if(outcome_metric %in% c("yll", "yld")){
