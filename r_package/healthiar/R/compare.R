@@ -177,22 +177,22 @@ compare <-
       # Identify the columns that are to be used to join impact_raw_1 and _2
       joining_columns_output <-
         healthiar:::find_joining_columns(
-          df1 = impact_raw_1[["detailed"]][["raw"]],
-          df2 = impact_raw_2[["detailed"]][["raw"]],
+          df1 = impact_raw_1[["health_detailed"]][["raw"]],
+          df2 = impact_raw_2[["health_detailed"]][["raw"]],
           except = scenario_specific_arguments)
 
         # Merge the result tables by common columns
         impact_raw_main <-
           dplyr::left_join(
-            impact_raw_1[["detailed"]][["raw"]],
-            impact_raw_2[["detailed"]][["raw"]],
+            impact_raw_1[["health_detailed"]][["raw"]],
+            impact_raw_2[["health_detailed"]][["raw"]],
             by = joining_columns_output,
             suffix = c("_1", "_2")) |>
           # Calculate the delta (difference) between scenario 1 and 2
           dplyr::mutate(impact = impact_1 - impact_2,
                         impact_rounded = round(impact, 0))
 
-        impact_raw <- list(main =  impact_raw_main)
+        impact_raw <- list(health_main =  impact_raw_main)
     }
 
 
@@ -331,8 +331,8 @@ compare <-
       output <-
         healthiar:::get_output(impact_raw = impact_raw)
 
-      output[["detailed"]][["scenario_1"]] <- impact_raw_1
-      output[["detailed"]][["scenario_2"]] <- impact_raw_2
+      output[["health_detailed"]][["scenario_1"]] <- impact_raw_1
+      output[["health_detailed"]][["scenario_2"]] <- impact_raw_2
 
 
 

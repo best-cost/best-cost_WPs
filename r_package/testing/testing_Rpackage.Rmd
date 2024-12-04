@@ -314,20 +314,10 @@ bestcost_pm_death_social_decile <-
 
 # Check that results did not change over time
 check_general(
-  a = bestcost_pm_death_social_decile[["detailed"]][["social"]]$difference_value,
+  a = bestcost_pm_death_social_decile[["social_main"]]$difference_value,
   # Results on 21 Nov 2024
-  b = c( 203.54994443, 0.25284914, 142.64936990, 0.15052568,
-         0.65578653, 0.05604937, 0.22984830, 0.01926640, 
-         22.52416423, 0.32236823, 14.5680866,0.17252793,
-         0.004598529, 0.053420096, 0.001606388, 0.018319205))
+  b = c(22.52416423, 0.32236823, 14.5680866,0.17252793))
 
-
-
-bestcost_pm_copd_geo_social_multiplicative <- 
-  healthiar::include_social(output = bestcost_pm_death,
-                            geo_id_raw = social_data$CS01012020,
-                            deprivation_score = social_data$score,
-                            approach = "multiplicative")
 ```
 
 
@@ -614,10 +604,10 @@ bestcost_pm_copd_extern_uncertainty <-
 
 # Comparison central +- 95% CIs & Monte-Carlo central, lower, upper estimates
 ## Central estimates
-print("Main estimates: ") ; bestcost_pm_copd_with_summary_uncertainty[["main"]][["impact_rounded"]]
+print("Main estimates: ") ; bestcost_pm_copd_with_summary_uncertainty[["health_main"]][["impact_rounded"]]
 ## With external uncertainty function (i.e. include_summary_uncertainty())
 print("Summary uncertainty estimates (extern uncertainty function): ")
-round(as.numeric(bestcost_pm_copd_extern_uncertainty[["uncertainty"]][["main"]]), digits = 0)
+round(as.numeric(bestcost_pm_copd_extern_uncertainty[["uncertainty"]][["health_main"]]), digits = 0)
 # Results of internal Monte-Carlo summary uncertainty and extern Monte-Carlo summary uncertainty identical!
 ```
 
@@ -654,9 +644,9 @@ bestcost_pm_copd_geo_short_uncertainty <-
     n_sim = 100)
 
 # Comparison central +- 95% CIs & Monte-Carlo central, lower, upper estimates
-print("Main estimate: ") ; bestcost_pm_copd_geo_short[["main"]][["impact_rounded"]]
+print("Main estimate: ") ; bestcost_pm_copd_geo_short[["health_main"]][["impact_rounded"]]
 print("Summary uncertainty estimates (extern uncertainty function): ")
-round(as.numeric(bestcost_pm_copd_geo_short_uncertainty[["uncertainty"]][["main"]]), digits = 0)
+round(as.numeric(bestcost_pm_copd_geo_short_uncertainty[["uncertainty"]][["health_main"]]), digits = 0)
 # Results seem plausible
 ```
 
@@ -699,9 +689,9 @@ bestcost_noise_ihd_expDist_extern_uncertainty <- include_summary_uncertainty(
     n_sim = 100)
 
 # Comparison central +- 95% CIs & Monte-Carlo central, lower, upper estimates
-print("Main estimate: ") ; bestcost_noise_ihd_expDist[["main"]][["impact_rounded"]]
+print("Main estimate: ") ; bestcost_noise_ihd_expDist[["health_main"]][["impact_rounded"]]
 print("Summary uncertainty estimates (extern uncertainty function): ")
-round(as.numeric(bestcost_noise_ihd_expDist_extern_uncertainty[["uncertainty"]][["main"]]), digits = 0)
+round(as.numeric(bestcost_noise_ihd_expDist_extern_uncertainty[["uncertainty"]][["health_main"]]), digits = 0)
 # Results seem plausible
 ```
 
@@ -756,15 +746,15 @@ bestcost_noise_ihd_expDist_iteration_uncertainty <- include_summary_uncertainty(
 
 # Check impacts per geo unit
 ## Central estimates from attribte()
-round(as.numeric(bestcost_noise_ihd_expDist_iteration[["detailed"]][["raw"]] |> filter(erf_ci == "central") |> filter(exp_ci == "central") |> pull(impact_rounded)), digits = 0) 
+round(as.numeric(bestcost_noise_ihd_expDist_iteration[["health_detailed"]][["raw"]] |> filter(erf_ci == "central") |> filter(exp_ci == "central") |> pull(impact_rounded)), digits = 0) 
 ## Summary uncertainty estimates from include_summary_uncertainty()
-round(as.numeric(bestcost_noise_ihd_expDist_iteration_uncertainty[["uncertainty"]][["detailed"]][["geo_specific"]]$impact_central), digits = 0)
+round(as.numeric(bestcost_noise_ihd_expDist_iteration_uncertainty[["uncertainty"]][["health_detailed"]][["geo_specific"]]$impact_central), digits = 0)
 # Results are higher due to difference in PAF of categories 2 & 3
 
 # Check aggregated impact
-print("Main estimate: ") ; bestcost_noise_ihd_expDist_iteration[["main"]][["impact_rounded"]]
+print("Main estimate: ") ; bestcost_noise_ihd_expDist_iteration[["health_main"]][["impact_rounded"]]
 print("Summary uncertainty estimates (extern uncertainty function): ")
-round(as.numeric(bestcost_noise_ihd_expDist_iteration_uncertainty[["uncertainty"]][["main"]] |> pull(central_estimate)), digits = 0)
+round(as.numeric(bestcost_noise_ihd_expDist_iteration_uncertainty[["uncertainty_main"]] |> pull(central_estimate)), digits = 0)
 # Aggregated results are higher due to difference in PAF of categories 2 & 3
 ```
 
@@ -799,9 +789,9 @@ bestcost_pm_yld_singlebhd_external_summary_uncertainty <- healthiar::include_sum
 
 # Comparison central +- 95% CIs & Monte-Carlo central, lower, upper estimates
 # View(bestcost_pm_yld_singlebhd_with_summary_uncertainty)
-print("Main estimates: ") ; bestcost_pm_yld_singlebhd_with_summary_uncertainty[["main"]][["impact_rounded"]]
+print("Main estimates: ") ; bestcost_pm_yld_singlebhd_with_summary_uncertainty[["health_main"]][["impact_rounded"]]
 print("Summary uncertainty estimates (external function): ")
-round(as.numeric(bestcost_pm_yld_singlebhd_external_summary_uncertainty[["uncertainty"]][["main"]]), digits = 0)
+round(as.numeric(bestcost_pm_yld_singlebhd_external_summary_uncertainty[["uncertainty"]][["health_main"]]), digits = 0)
 # Results seem plausible
 ```
 
@@ -832,10 +822,10 @@ bestcost_noise_ha_ar_external_uncertainty <- healthiar::include_summary_uncertai
 
 # Comparison central +- 95% CIs & Monte-Carlo central, lower, upper estimates
 print("Main estimate: ")
-bestcost_noise_ha_ar_with_summary_uncertainty[["main"]][["impact_rounded"]]
+bestcost_noise_ha_ar_with_summary_uncertainty[["health_main"]][["impact_rounded"]]
 # External include_summary_uncertainty function
 print("Summary uncertainty estimates (extern uncertainty function): ")
-round(as.numeric(bestcost_noise_ha_ar_external_uncertainty[["uncertainty"]][["main"]]), digits = 0)
+round(as.numeric(bestcost_noise_ha_ar_external_uncertainty[["uncertainty"]][["health_main"]]), digits = 0)
 # Results seem plausible
 ```
 
@@ -879,9 +869,9 @@ bestcost_noise_ha_ar_iteration_with_summary_uncertainty <-
 
 # Comparison central +- 95% CIs & Monte-Carlo central, lower, upper estimates
 # View(bestcost_pm_yld_singlebhd_with_summary_uncertainty)
-print("Main estimates: ") ; bestcost_noise_ha_ar_iteration_with_summary_uncertainty[["main"]][["impact_rounded"]]
+print("Main estimates: ") ; bestcost_noise_ha_ar_iteration_with_summary_uncertainty[["health_main"]][["impact_rounded"]]
 print("Summary uncertainty estimates (external function): ")
-round(as.numeric(bestcost_noise_ha_ar_iteration_with_summary_uncertainty[["uncertainty"]][["main"]]), digits = 0)
+round(as.numeric(bestcost_noise_ha_ar_iteration_with_summary_uncertainty[["uncertainty"]][["health_main"]]), digits = 0)
 # Results seem plausible
 ```
 
@@ -1519,8 +1509,8 @@ check_bestcost(result_list_bestcost = comparison_yld_singlebhd_rr_delta ,
                result_vector_alternative = c(387, 205, 564)) # Result on 16 May 2024
 
 # Additionally check that the first scenario produces the same results as above
-check_bestcost(result_list_bestcost = comparison_yld_singlebhd_rr_delta[["detailed"]][["scenario_1"]] ,
-               result_vector_alternative = bestcost_pm_yld_singlebhd[["main"]]$impact_rounded) 
+check_bestcost(result_list_bestcost = comparison_yld_singlebhd_rr_delta[["health_detailed"]][["scenario_1"]] ,
+               result_vector_alternative = bestcost_pm_yld_singlebhd[["health_main"]]$impact_rounded) 
 
 # Iteration
 comparison_yld_singlebhd_rr_delta_geo <-
@@ -1579,8 +1569,8 @@ check_bestcost(result_list_bestcost = comparison_yld_singlebhd_rr_pif ,
                result_vector_alternative = c(391,206,573)) # Result on 16 May 2024
 
 # Additionally check that the first scenario produces the same results as above
-check_bestcost(result_list_bestcost = comparison_yld_singlebhd_rr_pif[["detailed"]][["scenario_1"]] ,
-               result_vector_alternative = bestcost_pm_yld_singlebhd[["main"]]$impact_rounded) 
+check_bestcost(result_list_bestcost = comparison_yld_singlebhd_rr_pif[["health_detailed"]][["scenario_1"]] ,
+               result_vector_alternative = bestcost_pm_yld_singlebhd[["health_main"]]$impact_rounded) 
 
 # Iteration
 comparison_yld_singlebhd_rr_pif_geo <-
@@ -1659,8 +1649,8 @@ check_bestcost(result_list_bestcost = comparison_deaths_lifetable_delta,
                result_vector_alternative = c(1915, 1013, 2795 )) # Result on 20 August 2024
 
 # Additionally check that it produces the first scenario produce the same results as above
-check_bestcost(result_list_bestcost = comparison_deaths_lifetable_delta[["detailed"]][["scenario_1"]] ,
-               result_vector_alternative = bestcost_pm_deaths_lifetable_airqplus[["main"]]$impact_rounded)  
+check_bestcost(result_list_bestcost = comparison_deaths_lifetable_delta[["health_detailed"]][["scenario_1"]] ,
+               result_vector_alternative = bestcost_pm_deaths_lifetable_airqplus[["health_main"]]$impact_rounded)  
 
 # Iteration
 comparison_deaths_lifetable_delta_geo <-
@@ -1704,16 +1694,16 @@ check_bestcost(result_list_bestcost = comparison_deaths_lifetable_delta_geo ,
 
 
 # Additionally check that it produces the first scenario produce the same results as above
-# comparison_deaths_lifetable_delta_geo[["detailed"]][["scenario_1"]][["detailed"]][["raw"]] |>  dplyr::filter(., geo_id_raw %in% "a") |> select(., impact)  |> pull(.) == bestcost_pm_deaths_lifetable_geluft[["main"]]$impact 
-round(comparison_deaths_lifetable_delta_geo[["detailed"]][["scenario_1"]][["detailed"]][["raw"]] |>  
+# comparison_deaths_lifetable_delta_geo[["health_detailed"]][["scenario_1"]][["health_detailed"]][["raw"]] |>  dplyr::filter(., geo_id_raw %in% "a") |> select(., impact)  |> pull(.) == bestcost_pm_deaths_lifetable_geluft[["health_main"]]$impact 
+round(comparison_deaths_lifetable_delta_geo[["health_detailed"]][["scenario_1"]][["health_detailed"]][["raw"]] |>  
         dplyr::filter(geo_id_raw %in% "a") |> 
         select(impact)  |> 
         pull(), digits = 0) == 
-  round(bestcost_pm_deaths_lifetable_airqplus[["main"]]$impact)
+  round(bestcost_pm_deaths_lifetable_airqplus[["health_main"]]$impact)
 # Absolute differences
-abs(comparison_deaths_lifetable_delta_geo[["detailed"]][["scenario_1"]][["detailed"]][["raw"]] |>  
+abs(comparison_deaths_lifetable_delta_geo[["health_detailed"]][["scenario_1"]][["health_detailed"]][["raw"]] |>  
       dplyr::filter(geo_id_raw %in% "a") |> select(impact)  |> pull() 
-    - bestcost_pm_deaths_lifetable_airqplus[["main"]]$impact)
+    - bestcost_pm_deaths_lifetable_airqplus[["health_main"]]$impact)
 # Absolute differences are negligeable (< 0.01, or < 0.0001%)
       
 
@@ -1758,8 +1748,8 @@ check_bestcost(result_list_bestcost = comparison_deaths_lifetable_pif ,
                result_vector_alternative = c(1935, 1018, 2837 )) # Result on 20 August 2024
 
 # Additionally check that scenario produce the same results as above
-check_bestcost(result_list_bestcost = comparison_deaths_lifetable_pif[["detailed"]][["scenario_1"]],
-               result_vector_alternative = bestcost_pm_deaths_lifetable_airqplus[["main"]]$impact_rounded)  # AirQ+ result
+check_bestcost(result_list_bestcost = comparison_deaths_lifetable_pif[["health_detailed"]][["scenario_1"]],
+               result_vector_alternative = bestcost_pm_deaths_lifetable_airqplus[["health_main"]]$impact_rounded)  # AirQ+ result
 
 
 # Iteration
@@ -1853,9 +1843,9 @@ check_bestcost(result_list_bestcost = comparison_yll_lifetable_delta,
 
 
 # Additionally check that it producesthe first scenario produce the same results as above
-check_bestcost(result_list_bestcost = comparison_yll_lifetable_delta[["detailed"]][["scenario_1"]] ,
-               # result_vector_alternative = bestcost_pm_yll_lifetable_geluft[["main"]]$impact_rounded) # OLD GeLuft variable
-               result_vector_alternative = bestcost_pm_yll_exposure_single_year_lifetable_geluft[["main"]]$impact_rounded) # AirQ+ results
+check_bestcost(result_list_bestcost = comparison_yll_lifetable_delta[["health_detailed"]][["scenario_1"]] ,
+               # result_vector_alternative = bestcost_pm_yll_lifetable_geluft[["health_main"]]$impact_rounded) # OLD GeLuft variable
+               result_vector_alternative = bestcost_pm_yll_exposure_single_year_lifetable_geluft[["health_main"]]$impact_rounded) # AirQ+ results
 
 # Iteration
 comparison_yll_lifetable_delta_geo <-
@@ -1942,9 +1932,9 @@ check_bestcost(result_list_bestcost = comparison_yll_lifetable_pif ,
                result_vector_alternative = c(21698, 11354, 31978 )) # Result on 20 August 2024
 
 # Additionally check that it producesthe first scenario produce the same results as above
-check_bestcost(result_list_bestcost = comparison_yll_lifetable_pif[["detailed"]][["scenario_1"]],
-               # result_vector_alternative = bestcost_pm_yll_lifetable_geluft[["main"]]$impact_rounded) # OLD GeLuft variable
-               result_vector_alternative = bestcost_pm_yll_exposure_single_year_lifetable_geluft[["main"]]$impact_rounded)
+check_bestcost(result_list_bestcost = comparison_yll_lifetable_pif[["health_detailed"]][["scenario_1"]],
+               # result_vector_alternative = bestcost_pm_yll_lifetable_geluft[["health_main"]]$impact_rounded) # OLD GeLuft variable
+               result_vector_alternative = bestcost_pm_yll_exposure_single_year_lifetable_geluft[["health_main"]]$impact_rounded)
 
 # Iteration
 comparison_yll_lifetable_pif_geo <-
@@ -2034,8 +2024,8 @@ check_bestcost(result_list_bestcost = comparison_yld_lifetable_delta ,
                result_vector_alternative = c(21644, 11340, 31860)) # Result on 20 August 2024
 
 # Additionally check that it producesthe first scenario produce the same results as above
-check_bestcost(result_list_bestcost = comparison_yld_lifetable_delta[["detailed"]][["scenario_1"]] ,
-               result_vector_alternative = bestcost_pm_yld_lifetable_geluft[["main"]]$impact_rounded) 
+check_bestcost(result_list_bestcost = comparison_yld_lifetable_delta[["health_detailed"]][["scenario_1"]] ,
+               result_vector_alternative = bestcost_pm_yld_lifetable_geluft[["health_main"]]$impact_rounded) 
 
 # Iteration
 comparison_yld_lifetable_delta_geo <-
@@ -2122,8 +2112,8 @@ check_bestcost(result_list_bestcost = comparison_yld_lifetable_pif ,
                result_vector_alternative = c(21698, 11354, 31978)) # Result on 20 August 2024
 
 # Additionally check that the first scenario produce the same results as above
-check_bestcost(result_list_bestcost = comparison_yld_lifetable_pif[["detailed"]][["scenario_1"]],
-               result_vector_alternative = bestcost_pm_yld_lifetable_geluft[["main"]]$impact_rounded)
+check_bestcost(result_list_bestcost = comparison_yld_lifetable_pif[["health_detailed"]][["scenario_1"]],
+               result_vector_alternative = bestcost_pm_yld_lifetable_geluft[["health_main"]]$impact_rounded)
 
 # Iteration
 comparison_yld_lifetable_pif_geo <-
@@ -2215,8 +2205,8 @@ check_bestcost(result_list_bestcost = comparison_daly_lifetable_delta ,
                result_vector_alternative = c(43288, 22679, 63720)) # Result on 20 August 2024
 
 # Additionally check that it producesthe first scenario produce the same results as above
-check_bestcost(result_list_bestcost = comparison_daly_lifetable_delta[["detailed"]][["scenario_1"]] ,
-               result_vector_alternative = bestcost_pm_daly_lifetable_geluft[["main"]]$impact_rounded) 
+check_bestcost(result_list_bestcost = comparison_daly_lifetable_delta[["health_detailed"]][["scenario_1"]] ,
+               result_vector_alternative = bestcost_pm_daly_lifetable_geluft[["health_main"]]$impact_rounded) 
 
 # Iteration
 comparison_daly_lifetable_delta_geo <-
@@ -2303,8 +2293,8 @@ check_bestcost(result_list_bestcost = comparison_daly_lifetable_pif ,
                result_vector_alternative = c(43396, 22708, 63957 )) # Result on 20 August 2024
 
 # Additionally check that the first scenario produce the same results as above
-check_bestcost(result_list_bestcost = comparison_daly_lifetable_pif[["detailed"]][["scenario_1"]],
-               result_vector_alternative = bestcost_pm_daly_lifetable_geluft[["main"]]$impact_rounded)
+check_bestcost(result_list_bestcost = comparison_daly_lifetable_pif[["health_detailed"]][["scenario_1"]],
+               result_vector_alternative = bestcost_pm_daly_lifetable_geluft[["health_main"]]$impact_rounded)
 
 # Iteration
 comparison_daly_lifetable_pif_geo <-

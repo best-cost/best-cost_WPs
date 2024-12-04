@@ -4,7 +4,7 @@
 #' @param output \code{List} produced by \code{healthiar::attribute()} or \code{healthiar::compare()} as results
 #' @param deprivation_score \code{Vector} with numeric values showing the deprivation score (indicator of economic wealth) of the fine geographical area (it should match with those used in \code{attribute} or \code{compare})
 #' @param n_quantile code{Numeric value} referring the number of groups in the quantile
-#' @param approach code{String} referring the approach to include the social aspects. To choose between "decile" and "multiplicative"
+#' @param approach code{String} referring the approach to include the social aspects. To choose between "quantile" and ?
 #' @inheritParams attribute
 #'
 #' @return Description of the return value.
@@ -22,7 +22,7 @@ include_social <- function(output,
 
   output_social <-
     # Add deprivation score to detailed output
-    output[["detailed"]][["raw"]] |>
+    output[["health_detailed"]][["raw"]] |>
     dplyr::left_join(
       x = _,
       y = dplyr::tibble(geo_id_raw = geo_id_raw,
@@ -129,7 +129,8 @@ include_social <- function(output,
       # Remove rows that are not relevant in the output
       dplyr::filter(parameter %in%
                       c("exp_mean", "bhd_rate",
-                        "pop_fraction_mean",
+                        # Deactivated (not sure if interpretable)
+                        # "pop_fraction_mean",
                         "impact_rate")) |>
     # Long instead of wide layout
       tidyr::pivot_longer(
@@ -141,49 +142,40 @@ include_social <- function(output,
       dplyr::mutate(
         parameter_string =
           dplyr::case_when(
-            grepl("exp_", parameter) ~ "Exposure",
-            grepl("bhd_", parameter) ~ "Baseline health data",
-            grepl("impact_", parameter) ~ "Impact",
-            grepl("pop_fraction_", parameter) ~ "Population attributable fraction"),
+            grepl("exp_", parameter) ~ "exposure",
+            grepl("bhd_", parameter) ~ "baseline health data",
+            # Deactivated (not sure if interpretable)
+            #grepl("pop_fraction_", parameter) ~ "population attributable fraction",
+            grepl("impact_", parameter) ~ "impact"),
         # Replace "quantile" with "bottom_quantile"
-        difference_compared_with = gsub("quantile", "bottom_quantile", difference_compared_with),
+        difference_compared_with =
+          gsub("quantile", "bottom_quantile", difference_compared_with),
         # Flag attributable fraction
-        is_paf_from_deprivation = difference_type == "relative" & difference_compared_with == "overall",
-        attributable_to_deprivation =
-          ifelse(
-            is_paf_from_deprivation,
-            difference_value * overall,
-            NA),
+        is_paf_from_deprivation =
+          difference_type == "relative" & difference_compared_with == "overall",
+        is_attributable_from_deprivation =
+          difference_type == "absolute" & difference_compared_with == "overall",
         # Add comment to clarify
         comment =
-          ifelse(is_paf_from_deprivation,
-                 paste0( parameter_string, " attributable to deprivation"),
-                 "")) |>
+          dplyr::case_when(
+            is_paf_from_deprivation ~
+              paste0("It can be interpreted as fraction attributable to deprivation"),
+            is_attributable_from_deprivation ~
+              paste0("It can be interpreted as ", parameter_string, " attributable to deprivation"))) |>
       # Remove columns that are not needed anymore
-      dplyr::select(-is_paf_from_deprivation, -parameter_string)
+      dplyr::select(-is_paf_from_deprivation, -is_attributable_from_deprivation,
+                    -parameter_string)
 
-    output[["detailed"]][["social"]] <- social_results
+    output[["social_detailed"]] <- social_results
 
+    output[["social_main"]] <-
+      social_results |>
+      # Keep only impact as parameter
+      # This is the most relevant result.
+      # The other paramenters can be stored in detailed
+      # (just in case some users have interest on this)
+      dplyr::filter(parameter == "impact_rate")
 
-
-
-    if(approach == "multiplicative"){
-      # Re-calculate output with the social aspects inside using output_raw
-
-      output_social <-
-        output_social |>
-        dplyr::mutate(impact_social =
-                        as.numeric(impact) * as.numeric(deprivation_score),
-                      .after = impact) |>
-        dplyr::mutate(impact_rounded_social =
-                        round(impact_social),
-                      .after = impact_rounded_social)
-
-      # Based on the new output_raw that includes social aspects
-      # Recalculate output
-      output <- healthiar:::get_output(list(main = output_social))
-
-    }
 
 
   }
