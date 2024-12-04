@@ -26,14 +26,14 @@ get_output <-
     output <-
       impact_raw
 
-    output[["detailed"]][["raw"]] <- impact_raw[["main"]]
+    output[["health_detailed"]][["raw"]] <- impact_raw[["health_main"]]
 
-    output_last <- output[["main"]]
+    output_last <- output[["health_main"]]
 
 
-    if(unique(impact_raw[["main"]]$approach_risk) == "absolute_risk") {
+    if(unique(impact_raw[["health_main"]]$approach_risk) == "absolute_risk") {
 
-      output[["detailed"]][["agg_exp_cat"]] <-
+      output[["health_detailed"]][["agg_exp_cat"]] <-
         output_last |>
         # Remove all impact rounded because
         # we have to round final results
@@ -49,11 +49,11 @@ get_output <-
                                               names(output_last))),
                              ~ paste(., collapse = ", ")))
 
-      output[["detailed"]][["agg_exp_cat"]] <-
-        output[["detailed"]][["agg_exp_cat"]] |>
+      output[["health_detailed"]][["agg_exp_cat"]] <-
+        output[["health_detailed"]][["agg_exp_cat"]] |>
         # Sum columns to summarize
         dplyr::group_by(
-          across(all_of(setdiff(names(output[["detailed"]][["agg_exp_cat"]]),
+          across(all_of(setdiff(names(output[["health_detailed"]][["agg_exp_cat"]]),
                                 c("geo_id_raw",
                                   paste0("exp", c("", "_1", "_2")),
                                   paste0("population", c("", "_1", "_2")),
@@ -68,14 +68,14 @@ get_output <-
           across(all_of(intersect(c(paste0("absolute_risk_as_percent", c("", "_1", "_2")),
                                     paste0("impact", c("", "_1", "_2")),
                                     "impact_social"),
-                                  names(output[["detailed"]][["agg_exp_cat"]]))),
+                                  names(output[["health_detailed"]][["agg_exp_cat"]]))),
                  ~sum(.x, na.rm = TRUE)),
           .groups = "drop") |>
         # Round impact
         dplyr::mutate(impact_rounded = round(impact, 0))
 
 
-      output_last <- output[["detailed"]][["agg_exp_cat"]]
+      output_last <- output[["health_detailed"]][["agg_exp_cat"]]
 
     }
 
@@ -83,7 +83,7 @@ get_output <-
     # only if geo_id_aggregated is defined
     if("geo_id_aggregated" %in% names(output_last)){
 
-      output[["detailed"]][["agg_geo"]]  <-
+      output[["health_detailed"]][["agg_geo"]]  <-
         output_last |>
         # Group by higher geo level
         dplyr::group_by(across(all_of(intersect(
@@ -93,13 +93,13 @@ get_output <-
                           names(output_last)))))
 
         if (!"population" %in% names(output_last)) {
-          output[["detailed"]][["agg_geo"]]  <- output[["detailed"]][["agg_geo"]] |>
+          output[["health_detailed"]][["agg_geo"]]  <- output[["health_detailed"]][["agg_geo"]] |>
           dplyr::summarise(impact = sum(impact),
                            impact_rounded = round(impact),
                            .groups = "drop")
 
         } else {
-          output[["detailed"]][["agg_geo"]]  <- output[["detailed"]][["agg_geo"]] |>
+          output[["health_detailed"]][["agg_geo"]]  <- output[["health_detailed"]][["agg_geo"]] |>
           dplyr::summarise(impact = sum(impact),
                            impact_rounded = round(impact),
                            population = sum(population),
@@ -108,15 +108,15 @@ get_output <-
         }
 
 
-      output_last <- output[["detailed"]][["agg_geo"]]
+      output_last <- output[["health_detailed"]][["agg_geo"]]
 
     }
 
     # Aggregate results across pollutants (exposures)
     # if approach_multiexposure == "additive"
-    if(length(unique(impact_raw[["main"]]$exposure_name)) > 1){
+    if(length(unique(impact_raw[["health_main"]]$exposure_name)) > 1){
 
-      output[["detailed"]][["agg_exp_names"]]  <-
+      output[["health_detailed"]][["agg_exp_names"]]  <-
         output_last |>
         dplyr::mutate(
           exposure_name = paste(unique(exposure_name), collapse = ", ")) |>
@@ -128,35 +128,35 @@ get_output <-
                          impact_rounded = round(impact),
                          .groups = "drop")
 
-      output_last <- output[["detailed"]][["agg_exp_names"]]
+      output_last <- output[["health_detailed"]][["agg_exp_names"]]
 
 
     }
 
     # Keep only exp_ci = central and bhd_ci = central in main output ###########
-    output[["main"]] <-
+    output[["health_main"]] <-
       output_last |>
       dplyr::filter(exp_ci %in% c("central"))
 
-    if("bhd_ci" %in% names(output[["main"]])) {
+    if("bhd_ci" %in% names(output[["health_main"]])) {
 
-      output[["main"]] <- output[["main"]] |>
+      output[["health_main"]] <- output[["health_main"]] |>
         dplyr::filter(bhd_ci %in% c("central"))}
 
-    if("cutoff_ci" %in% names(output[["main"]])) {
+    if("cutoff_ci" %in% names(output[["health_main"]])) {
 
-      output[["main"]] <- output[["main"]] |>
+      output[["health_main"]] <- output[["health_main"]] |>
         dplyr::filter(cutoff_ci %in% c("central"))}
 
-    if(unique(impact_raw[["main"]]$health_metric) %in%
+    if(unique(impact_raw[["health_main"]]$health_metric) %in%
        c("yld", "yld_from_lifetable")) {
 
-      output[["main"]] <- output[["main"]] |>
+      output[["health_main"]] <- output[["health_main"]] |>
         dplyr::filter(dw_ci %in% "central")}
 
-    if("duration_ci" %in% names(output[["main"]])) {
+    if("duration_ci" %in% names(output[["health_main"]])) {
 
-      output[["main"]] <- output[["main"]] |>
+      output[["health_main"]] <- output[["health_main"]] |>
         dplyr::filter(duration_ci %in% c("central"))}
 
     # Order columns ############################################################

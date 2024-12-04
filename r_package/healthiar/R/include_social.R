@@ -22,7 +22,7 @@ include_social <- function(output,
 
   output_social <-
     # Add deprivation score to detailed output
-    output[["detailed"]][["raw"]] |>
+    output[["health_detailed"]][["raw"]] |>
     dplyr::left_join(
       x = _,
       y = dplyr::tibble(geo_id_raw = geo_id_raw,

@@ -48,7 +48,7 @@ get_impact <-
                         pop_fraction, impact,
                         everything())
 
-        impact_raw <- list(main = impact_raw_main)
+        impact_raw <- list(health_main = impact_raw_main)
 
         # * YLD ################################################################
       } else if (unique(input$health_metric) %in% "yld") {
@@ -64,7 +64,7 @@ get_impact <-
                         pop_fraction, impact,
                         everything())
 
-        impact_raw <- list(main = impact_raw_main)
+        impact_raw <- list(health_main = impact_raw_main)
 
         # * Lifetable ##########################################################
         } else if (unique(input$health_metric) %in% c("deaths_from_lifetable",
@@ -129,7 +129,7 @@ get_impact <-
           impact = absolute_risk_as_percent/100 * pop_exp) |>
         dplyr::mutate(impact_rounded = round(impact, 0))
 
-      impact_raw <- list(main = impact_raw_main)
+      impact_raw <- list(health_main = impact_raw_main)
 
     }
 
@@ -138,12 +138,12 @@ get_impact <-
 
     # Note: column is called prop_pop_exp (rr case) or pop_exp (ar case)
     # * Single geo unit ########################################################
-    if ( ( unique(impact_raw[["main"]]$approach_risk) == "relative_risk" ) &
-         ( unique(impact_raw[["main"]]$exposure_type) == "exposure_distribution" ) &
-         ( !grepl("from_lifetable", impact_raw[["main"]]$health_metric[1]) ) &
-         ( max(impact_raw[["main"]]$geo_id_raw) == 1 ) ) {
+    if ( ( unique(impact_raw[["health_main"]]$approach_risk) == "relative_risk" ) &
+         ( unique(impact_raw[["health_main"]]$exposure_type) == "exposure_distribution" ) &
+         ( !grepl("from_lifetable", impact_raw[["health_main"]]$health_metric[1]) ) &
+         ( max(impact_raw[["health_main"]]$geo_id_raw) == 1 ) ) {
 
-      impact_raw[["main"]] <- impact_raw[["main"]] |>
+      impact_raw[["health_main"]] <- impact_raw[["health_main"]] |>
         dplyr::select(-c(exp, prop_pop_exp, exposure_dimension)) |>
         dplyr::left_join(
           x = _,
@@ -160,12 +160,12 @@ get_impact <-
 
       # * Multiple geo units####################################################
 
-    } else if ( ( unique(impact_raw[["main"]]$approach_risk) == "relative_risk" ) &
-                ( unique(impact_raw[["main"]]$exposure_type) == "exposure_distribution" ) &
-                ( !grepl("from_lifetable", impact_raw[["main"]]$health_metric[1]) ) &
-                ( max(impact_raw[["main"]]$geo_id_raw) > 1 ) ) {
+    } else if ( ( unique(impact_raw[["health_main"]]$approach_risk) == "relative_risk" ) &
+                ( unique(impact_raw[["health_main"]]$exposure_type) == "exposure_distribution" ) &
+                ( !grepl("from_lifetable", impact_raw[["health_main"]]$health_metric[1]) ) &
+                ( max(impact_raw[["health_main"]]$geo_id_raw) > 1 ) ) {
 
-      impact_raw[["main"]] <- impact_raw[["main"]] |>
+      impact_raw[["health_main"]] <- impact_raw[["health_main"]] |>
         dplyr::select(-c(exp, prop_pop_exp, exposure_dimension)) |>
         dplyr::left_join(
           x = _,
@@ -182,16 +182,16 @@ get_impact <-
 
     }
 
-    if ( ( unique(impact_raw[["main"]]$approach_risk) == "relative_risk" ) ) {
-      impact_raw[["main"]] <- impact_raw[["main"]] |>
+    if ( ( unique(impact_raw[["health_main"]]$approach_risk) == "relative_risk" ) ) {
+      impact_raw[["health_main"]] <- impact_raw[["health_main"]] |>
         dplyr::mutate(impact_rounded = round(impact, 0))
     }
 
     # Calculate impact per 100K inhab.
 
-    if("population" %in% colnames(impact_raw[["main"]])){
-      impact_raw[["main"]] <-
-        impact_raw[["main"]] |>
+    if("population" %in% colnames(impact_raw[["health_main"]])){
+      impact_raw[["health_main"]] <-
+        impact_raw[["health_main"]] |>
         dplyr::mutate(
           impact_per_100k_inhab = (impact / population) *1E5
         )

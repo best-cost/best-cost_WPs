@@ -33,7 +33,7 @@ include_cost <- function(output,
 
   # Apply the function in main and detailed results
   output[["cost_main"]] <-
-    add_monetized_impact(output[["main"]]) |>
+    add_monetized_impact(output[["health_main"]]) |>
     # Keep only relevant columns for monetization
     dplyr::select(
       # The columns containing "_ci" are the uncertainties that define the rows
@@ -43,7 +43,7 @@ include_cost <- function(output,
       any_of(relevant_columns))
 
   output[["cost_detailed"]]<-
-    add_monetized_impact(output[["detailed"]][["raw"]]) |>
+    add_monetized_impact(output[["health_detailed"]][["raw"]]) |>
     # Keep only relevant columns for monetization
     dplyr::select(any_of(relevant_columns), contains("_ci"))
 
