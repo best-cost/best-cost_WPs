@@ -1833,7 +1833,9 @@ comparison_yll_lifetable_delta  <-
     year_of_analysis_2 = 2019, 
     info_1 = input_data_mortality$pollutant[2],
     info_2 = input_data_mortality$pollutant[2], 
-    min_age = 20)
+    min_age = 20,
+    corrected_discount_rate = 0.01,
+    approach_discount = "exponential")
 
 # View(comparison_yll_lifetable_delta)
 
