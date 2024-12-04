@@ -1030,7 +1030,9 @@ bestcost_pm_yll_exposure_single_year_lifetable_geluft <-
     deaths_female = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_female,
     year_of_analysis = 2019, 
     info = input_data_mortality$pollutant[2], 
-    min_age = if(is.na(input_data_mortality$min_age[2])) NULL else input_data_mortality$min_age[2])
+    min_age = if(is.na(input_data_mortality$min_age[2])) NULL else input_data_mortality$min_age[2],
+    approach_discount = "exponential", #Alternatives: "hyperbolic_harvey_1986" "hyperbolic_mazur_1987",
+    corrected_discount_rate = 0)
 
 check_bestcost(result_list_bestcost = bestcost_pm_yll_exposure_single_year_lifetable_geluft,
                result_vector_alternative = c(29274.89,	15328.16,	43118.30)) # AirQ+ approach result
@@ -1205,7 +1207,7 @@ bestcost_pm_yld_lifetable_geluft  <-
     min_age = input_data_mortality$min_age[2], # min_age = 20,
     duration_central = 100, 
     duration_lower = 50, duration_upper = 100, 
-    # corrected_discount_rate = 0,
+    corrected_discount_rate = 0,
     dw_central = 1 #, dw_lower = 0.1, dw_upper = 10
 )
 
