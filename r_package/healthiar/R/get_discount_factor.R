@@ -1,6 +1,6 @@
 #' Get discount factor
 
-#' @description Get discount factor based on discount rate (already corrected for inflaction)
+#' @description Get discount factor based on discount rate (already corrected for inflation)
 #' @inheritParams attribute
 #' @param time_period \code{Numeric value} referring to the period of time to be considered in the discounting.
 #' @author Alberto Castro
