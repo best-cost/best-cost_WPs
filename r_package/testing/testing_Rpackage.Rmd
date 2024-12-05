@@ -209,6 +209,15 @@ bestcost_pm_copd_cost_discount <-
                           time_period = 5,
                           valuation = 1000)
 
+# Monetize with all arguments (including discount)
+bestcost_pm_copd_cost_discount_single_value <- 
+  healthiar::include_cost(health_impact = 2E4, 
+                          approach_discount = "exponential",
+                          corrected_discount_rate = 0.03,
+                          time_period = 20,
+                          valuation = 1)
+# According to ChatGPT, the result should be 14877. 5 Dec 2024
+
 ```
 
 

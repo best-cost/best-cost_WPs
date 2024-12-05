@@ -11,7 +11,8 @@
 #' # Example of how to use the function
 #' function_name(param1 = value1, param2 = value2)
 #' @export
-include_cost <- function(output,
+include_cost <- function(output = NULL,
+                         health_impact = NULL,
                          valuation,
                          corrected_discount_rate = NULL,
                          time_period = 1,
@@ -60,7 +61,7 @@ include_cost <- function(output,
           .after = impact) |>
         # Round costs
         dplyr::mutate(cost_rounded = round(cost),
-                      .after = impact_rounded)
+                      .after = cost)
     }
 
   # Identify the relevant columns for monetization that are in the output
@@ -69,23 +70,37 @@ include_cost <- function(output,
       "impact", "valuation", "corrected_discount_rate",
       "cost_without_discount", "cost", "cost_rounded")
 
+  if(!is.null(output) & is.null(health_impact)){
+    # Duplicate output to work with costs
+    cost_output <-
+      output
 
-  # Apply the function in main and detailed results
-  output[["cost_main"]] <-
-    add_monetized_impact(output[["health_main"]]) |>
-    # Keep only relevant columns for monetization
-    dplyr::select(
-      # The columns containing "_ci" are the uncertainties that define the rows
-      contains("_ci"),
-      # Use any_of() instead of all_of() because depending on the calculation pathway
-      # there might not be any of the relevant_columns
-      any_of(relevant_columns))
+    # Apply the function in main and detailed results
+    cost_output[["cost_main"]] <-
+      add_monetized_impact(output[["health_main"]]) |>
+      # Keep only relevant columns for monetization
+      dplyr::select(
+        # The columns containing "_ci" are the uncertainties that define the rows
+        contains("_ci"),
+        # Use any_of() instead of all_of() because depending on the calculation pathway
+        # there might not be any of the relevant_columns
+        any_of(relevant_columns))
 
-  output[["cost_detailed"]]<-
-    add_monetized_impact(output[["health_detailed"]][["raw"]]) |>
-    # Keep only relevant columns for monetization
-    dplyr::select(any_of(relevant_columns), contains("_ci"))
+    cost_output[["cost_detailed"]]<-
+      add_monetized_impact(output[["health_detailed"]][["raw"]]) |>
+      # Keep only relevant columns for monetization
+      dplyr::select(any_of(relevant_columns), contains("_ci"))
+  }
 
-  return(output)
+  else if(!is.null(health_impact) & is.null(output)){
+    # Apply the function in main and detailed results
+    cost_output <-
+      add_monetized_impact(data.frame(impact = health_impact))
+  }
+
+
+
+
+  return(cost_output)
 
 }
