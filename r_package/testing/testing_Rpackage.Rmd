@@ -196,10 +196,18 @@ health_impact <- attribute(
 ```
 
 ```{r Monetize a simple case}
-# Monetize
+# Monetize only with valuation
 bestcost_pm_copd_costs <- 
   healthiar::include_cost(output = bestcost_pm_copd, 
                           valuation = 1000)
+
+# Monetize with all arguments (including discount)
+bestcost_pm_copd_cost_discount <- 
+  healthiar::include_cost(output = bestcost_pm_copd, 
+                          approach_discount = "exponential",
+                          corrected_discount_rate = 0.01,
+                          valuation = 1000)
+
 ```
 
 
