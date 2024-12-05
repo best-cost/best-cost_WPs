@@ -206,6 +206,7 @@ bestcost_pm_copd_cost_discount <-
   healthiar::include_cost(output = bestcost_pm_copd, 
                           approach_discount = "exponential",
                           corrected_discount_rate = 0.01,
+                          time_period = 5,
                           valuation = 1000)
 
 ```

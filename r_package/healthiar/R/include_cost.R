@@ -37,11 +37,11 @@ include_cost <- function(output,
               any(is.null({{corrected_discount_rate}}),
                   is.null({{time_period}}),
                   is.null({{approach_discount}})),
+              1,
               healthiar::get_discount_factor(
                 corrected_discount_rate = corrected_discount_rate,
                 time_period = time_period,
-                approach_discount = approach_discount),
-              1),
+                approach_discount = approach_discount)),
           # Add column for valuation
           valuation = valuation,
           # Calculate monetized impact
