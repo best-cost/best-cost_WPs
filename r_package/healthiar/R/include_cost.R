@@ -12,7 +12,8 @@
 #' @export
 include_cost <- function(output,
                          valuation,
-                         corrected_discount_rate = NULL) {
+                         corrected_discount_rate = NULL,
+                         time_period = NULL) {
 
   # Define a function to add the monetized impacts (rounded and not rounded)
   add_monetized_impact <-
