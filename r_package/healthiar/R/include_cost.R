@@ -53,12 +53,13 @@ include_cost <- function(output,
           # Calculate monetized impact
           # Sum across the different discount factors
           # (one for each year of the period)
-          # The default value 1 for time period enables that the caculation below
+          # The default value 1 for time period enables that the calculation below
           # is not affected if no discount is demanded by the user
-          impact_monetized = sum(impact/time_period * discount_factor) * valuation,
+          cost_without_discount = impact * valuation,
+          cost = sum(impact/time_period * discount_factor) * valuation,
           .after = impact) |>
         # Round costs
-        dplyr::mutate(impact_rounded_monetized = round(impact_monetized),
+        dplyr::mutate(cost_rounded = round(cost),
                       .after = impact_rounded)
     }
 
@@ -66,7 +67,7 @@ include_cost <- function(output,
   relevant_columns <-
     c("info", "geo_id_raw", "geo_id_aggregated",
       "impact", "valuation", "corrected_discount_rate",
-      "impact_monetized", "impact_rounded_monetized")
+      "cost_without_discount", "cost", "cost_rounded")
 
 
   # Apply the function in main and detailed results
