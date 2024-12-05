@@ -14,7 +14,7 @@
 include_cost <- function(output,
                          valuation,
                          corrected_discount_rate = NULL,
-                         time_period = NULL,
+                         time_period = 1,
                          approach_discount = NULL) {
 
   # Define a function to add the monetized impacts (rounded and not rounded)
@@ -26,27 +26,38 @@ include_cost <- function(output,
         dplyr::mutate(corrected_discount_rate = {{corrected_discount_rate}},
                       time_period = {{time_period}},
                       approach_discount = {{approach_discount}}) |>
+        # rowwise() because time_period becomes a vecto below 1:time_period
+        # otherwise vectors from columns and vectors from time_period cannot be digested
+        # better step by step
+        dplyr::rowwise() |>
         # Calculate discount factor
-        # If any of the columns "time_period" and "approach_discount" are not present
-        # it is because their argument are NULL
-        # So no discount (i.e. discount_factor=1)
-        #dplyr::rowwise() |>
+        # If any arguments "corrected_discount_rate" and "approach_discount" are NULL,
+        # no discount (i.e. discount_factor=1)
         dplyr::mutate(
           discount_factor =
             ifelse(
               any(is.null({{corrected_discount_rate}}),
-                  is.null({{time_period}}),
                   is.null({{approach_discount}})),
+              # If no corrected_discount_rate is provided,
+              # then assume discount_factor = 1
+              # This does not change the results
               1,
+              # If there is a corrected_discount_rate,
+              # apply the function get_discount_factor()
               healthiar::get_discount_factor(
                 corrected_discount_rate = corrected_discount_rate,
-                time_period = time_period,
+                time_period = 1:time_period,
                 approach_discount = approach_discount)),
           # Add column for valuation
           valuation = valuation,
           # Calculate monetized impact
-          impact_monetized = impact * discount_factor * valuation,
+          # Sum across the different discount factors
+          # (one for each year of the period)
+          # The default value 1 for time period enables that the caculation below
+          # is not affected if no discount is demanded by the user
+          impact_monetized = sum(impact/time_period * discount_factor) * valuation,
           .after = impact) |>
+        # Round costs
         dplyr::mutate(impact_rounded_monetized = round(impact_monetized),
                       .after = impact_rounded)
     }
