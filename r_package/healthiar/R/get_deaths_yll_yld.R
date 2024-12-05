@@ -218,14 +218,18 @@ get_deaths_yll_yld <-
                 # Calculate discount rate for each year
                 dplyr::mutate(
                   discount_factor =
-                    ifelse(
-                      {{approach_discount}} == "exponential",
-                      1/((1 + corrected_discount_rate) ^ time_period),
-                      ifelse({{approach_discount}} == "hyperbolic_harvey_1986",
-                             1/((1 + time_period) ^ corrected_discount_rate),
-                             ifelse({{approach_discount}} == "hyperbolic_mazur_1987",
-                                    1/(1 + corrected_discount_rate * time_period),
-                                    NA)))
+                    healthiar::get_discount_factor(
+                      corrected_discount_rate = corrected_discount_rate,
+                      time_period = time_period,
+                      approach_discount = approach_discount)
+                    # ifelse(
+                    #   {{approach_discount}} == "exponential",
+                    #   1/((1 + corrected_discount_rate) ^ time_period),
+                    #   ifelse({{approach_discount}} == "hyperbolic_harvey_1986",
+                    #          1/((1 + time_period) ^ corrected_discount_rate),
+                    #          ifelse({{approach_discount}} == "hyperbolic_mazur_1987",
+                    #                 1/(1 + corrected_discount_rate * time_period),
+                    #                 NA)))
                   )|>
                 # Calculate life years discounted
                 dplyr::mutate(
