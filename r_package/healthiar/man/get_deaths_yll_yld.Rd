@@ -8,6 +8,7 @@ get_deaths_yll_yld(
   outcome_metric,
   pop_impact,
   year_of_analysis,
+  time_horizon,
   min_age = NULL,
   max_age = NULL,
   input_with_risk_and_pop_fraction,
@@ -17,23 +18,15 @@ get_deaths_yll_yld(
 \arguments{
 \item{outcome_metric}{\code{String} with the metric of the health outcome to be assessed. Options: "deaths", "yll" or "yld".}
 
-\item{pop_impact}{\code{Data frame} with projected population impact over time}
+\item{year_of_analysis}{\code{Numeric value} of the year of analysis, which corresponds to the first year of the life table.}
 
-\item{year_of_analysis}{\code{Numeric value} of the year of analysis, which corresponds to the first year of the life table,}
+\item{time_horizon}{\code{Numeric value} corresponding to time horizon (number of years) for which the impacts should be considered. For example, would be 10 if one is interested in the impacts of an intervention during the next 10 years.}
 
-\item{input_with_risk_and_pop_fraction}{\code{Data frame} with meta-information such as input data, additional information and intermediate results.}
+\item{min_age}{\code{Numberic value} of the minimal age to be considered for adults (by default 30, i.e. 30+).}
 
-\item{corrected_discount_rate}{\code{Numeric value}  with the annual discount rate as proportion (i.e. 0.1 instead of 10\%). It can be calculated as (1+discount_rate_beforeCorrection/1+rate_of_increase)-1}
+\item{max_age}{\code{Numberic value} of the maximal age to be considered for infants/children (by default 0, i.e. below 1 year old).}
 
-\item{age_min}{\code{Numeric value}  with the minimal age to be considered for adults (by default 30, i.e. 30+),}
-
-\item{age_max}{\code{Numeric value}  with the maximal age to be considered for infants/children (by default 0, i.e. below 1 years old)}
-
-\item{first_age_pop}{\code{Numeric value} starting age of the youngest age group from population and life table data}
-
-\item{last_age_pop}{\code{Numeric value} ending age of the oldest age group from population and life table data}
-
-\item{duration}{\code{Numeric value} showing the duration (in years) of the morbidity health outcome}
+\item{corrected_discount_rate}{\code{Numeric value} showing the discount rate for future years including correction from inflation rate}
 }
 \value{
 This function returns a \code{List}

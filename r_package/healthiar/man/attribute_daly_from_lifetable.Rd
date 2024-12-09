@@ -39,6 +39,7 @@ attribute_daly_from_lifetable(
   duration_central,
   duration_lower = NULL,
   duration_upper = NULL,
+  time_horizon = NULL,
   info = NULL
 )
 }
@@ -78,6 +79,8 @@ attribute_daly_from_lifetable(
 \item{dw_central, dw_lower, dw_upper}{\code{Numeric value} showing the disability weights (central estimate, lower and upper 95\% confidence intervals) associated with the morbidity health outcome}
 
 \item{duration_central, duration_lower, duration_upper}{\code{Numeric value} showing the central estimate of the disease duration and (optionally) the lower and upper bounds of the 95\% confidence interval.}
+
+\item{time_horizon}{\code{Numeric value} corresponding to time horizon (number of years) for which the impacts should be considered. For example, would be 10 if one is interested in the impacts of an intervention during the next 10 years.}
 
 \item{info}{\code{String} or {data frame} showing additional information or id. The suffix "info" will be added to the column name. Default value = NULL.}
 }

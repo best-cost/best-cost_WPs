@@ -42,6 +42,7 @@ attribute(
   corrected_discount_rate = NULL,
   approach_exposure = NULL,
   approach_newborns = NULL,
+  time_horizon = NULL,
   geo_id_raw = NULL,
   geo_id_aggregated = NULL,
   population = NULL,
@@ -90,6 +91,8 @@ attribute(
 \item{approach_exposure}{\code{String} showing whether air pollution is constant or only in one year. Options: "single_year" (default), "constant"}
 
 \item{approach_newborns}{\code{String} showing whether newborns are considered in the years after the year of analysis. Options: "without_newborns" (default), "with_newborns"}
+
+\item{time_horizon}{\code{Numeric value} corresponding to time horizon (number of years) for which the impacts should be considered. For example, would be 10 if one is interested in the impacts of an intervention during the next 10 years.}
 
 \item{geo_id_raw}{\code{Vector} showing the id code of the each geographic area considered in the assessment. If a vector is entered here, the data for each geographical area have to be provided as list in the corresponding arguments.}
 
