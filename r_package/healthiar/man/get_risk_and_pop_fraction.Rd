@@ -8,6 +8,8 @@ get_risk_and_pop_fraction(input, pop_fraction_type)
 }
 \arguments{
 \item{input}{\code{Data frame} with the input data}
+
+\item{pop_fraction_type}{\code{String} indicating the type of the population fraction. Options: "paf" or "pif"}
 }
 \value{
 This function returns a \code{data.frame} with the input data adding a column for the population attributable fraction

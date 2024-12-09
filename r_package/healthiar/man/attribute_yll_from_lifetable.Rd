@@ -34,7 +34,8 @@ attribute_yll_from_lifetable(
   min_age = NULL,
   max_age = NULL,
   info = NULL,
-  duration_central = 100
+  duration_central = NULL,
+  time_horizon = NULL
 )
 }
 \arguments{
@@ -71,6 +72,8 @@ attribute_yll_from_lifetable(
 \item{max_age}{\code{Numberic value} of the maximal age to be considered for infants/children (by default 0, i.e. below 1 year old).}
 
 \item{info}{\code{String} or {data frame} showing additional information or id. The suffix "info" will be added to the column name. Default value = NULL.}
+
+\item{time_horizon}{\code{Numeric value} corresponding to time horizon (number of years) for which the impacts should be considered. For example, would be 10 if one is interested in the impacts of an intervention during the next 10 years.}
 }
 \value{
 TBD. E.g. This function returns a \code{data.frame} with one row for each value of the

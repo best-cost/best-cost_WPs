@@ -6,17 +6,20 @@
 \usage{
 get_pop_impact(
   year_of_analysis,
+  time_horizon,
   input_with_risk_and_pop_fraction,
   outcome_metric,
   min_age
 )
 }
 \arguments{
-\item{year_of_analysis}{\code{Numeric value} of the year of analysis, which corresponds to the first year of the life table}
+\item{year_of_analysis}{\code{Numeric value} of the year of analysis, which corresponds to the first year of the life table.}
 
-\item{input_with_risk_and_pop_fraction}{\code{Tibble} showing the input data and the PAF (population attributable fraction) or PIF (population impact fraction)}
+\item{time_horizon}{\code{Numeric value} corresponding to time horizon (number of years) for which the impacts should be considered. For example, would be 10 if one is interested in the impacts of an intervention during the next 10 years.}
 
 \item{outcome_metric}{\code{String} to define the outcome metric. Choose between "death", "yll" and "yld"}
+
+\item{min_age}{\code{Numberic value} of the minimal age to be considered for adults (by default 30, i.e. 30+).}
 }
 \value{
 This function returns a \code{data.frame} with one row for each value of the
