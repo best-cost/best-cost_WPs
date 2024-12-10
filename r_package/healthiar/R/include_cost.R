@@ -12,7 +12,7 @@
 #' function_name(param1 = value1, param2 = value2)
 #' @export
 include_cost <- function(output = NULL,
-                         health_impact = NULL,
+                         impact = NULL,
                          valuation,
                          corrected_discount_rate = NULL,
                          time_period = 1,
@@ -70,7 +70,7 @@ include_cost <- function(output = NULL,
       "impact", "valuation", "corrected_discount_rate",
       "cost_without_discount", "cost", "cost_rounded")
 
-  if(!is.null(output) & is.null(health_impact)){
+  if(!is.null(output) & is.null(impact)){
     # Duplicate output to work with costs
     cost_output <-
       output
@@ -92,10 +92,10 @@ include_cost <- function(output = NULL,
       dplyr::select(any_of(relevant_columns), contains("_ci"))
   }
 
-  else if(!is.null(health_impact) & is.null(output)){
+  else if(!is.null(impact) & is.null(output)){
     # Apply the function in main and detailed results
     cost_output <-
-      add_monetized_impact(data.frame(impact = health_impact))
+      add_monetized_impact(data.frame(impact = impact))
   }
 
 
