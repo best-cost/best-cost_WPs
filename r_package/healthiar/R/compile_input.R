@@ -41,7 +41,6 @@ compile_input <-
            geo_id_raw = NULL,
            geo_id_aggregated = NULL,
            info = NULL,
-           corrected_discount_rate = NULL,
            population = population,
            # YLD
            duration_central = NULL, duration_lower = NULL, duration_upper = NULL,
@@ -51,7 +50,10 @@ compile_input <-
            approach_newborns = NULL,
            first_age_pop = NULL, last_age_pop = NULL,
            population_midyear_male = NULL, population_midyear_female = NULL,
-           deaths_male = NULL, deaths_female = NULL){
+           deaths_male = NULL, deaths_female = NULL,
+           # Discounting
+           corrected_discount_rate = NULL,
+           approach_discount = NULL){
 
     # Check input data
     # stopifnot(exprs = {
@@ -168,6 +170,7 @@ compile_input <-
         dw_lower = dw_lower,
         dw_upper = dw_upper,
         corrected_discount_rate = corrected_discount_rate,
+        approach_discount = approach_discount,
 
         # Finally, those variables that are multi-dimensional (exposure distribution)
         exp_central = unlist(exp_central),

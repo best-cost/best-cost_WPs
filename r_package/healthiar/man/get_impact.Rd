@@ -11,6 +11,7 @@ get_impact(
   min_age = NULL,
   max_age = NULL,
   corrected_discount_rate = NULL,
+  approach_discount = NULL,
   pop_fraction_type,
   population = NULL
 )

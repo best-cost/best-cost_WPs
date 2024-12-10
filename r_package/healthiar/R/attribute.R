@@ -25,6 +25,7 @@
 #' @param dw_central,dw_lower,dw_upper \code{Numeric value} showing the disability weights (central estimate, lower and upper 95\% confidence intervals) associated with the morbidity health outcome
 #' @param duration_central,duration_lower,duration_upper \code{Numeric value} showing the central estimate of the disease duration and (optionally) the lower and upper bounds of the 95\% confidence interval.
 #' @param corrected_discount_rate \code{Numeric value} showing the discount rate for future years including correction from inflation rate
+#' @param approach_discount \code{String} referring to the assumed equation for the discount factor. Per default: "exponential". Otherwise: "hyperbolic_harvey_1986" or "hyperbolic_mazur_1987".
 #' @param population code{Vector} with numeric values referring to the population in the geographical unit
 #' @param geo_id_raw \code{Vector} showing the id code of the each geographic area considered in the assessment. If a vector is entered here, the data for each geographical area have to be provided as list in the corresponding arguments.
 #' @param geo_id_aggregated \code{Vector} showing the id code of the geographic area for which raw geo ids have to be aggregated. The vector has to have the same length as geo_id_raw. Therefore, geo_id_aggregated should have duplicated values for those geo_id_r
@@ -61,7 +62,6 @@ attribute <-
            year_of_analysis = NULL,
            dw_central = NULL, dw_lower = NULL, dw_upper = NULL,
            duration_central = NULL, duration_lower = NULL, duration_upper = NULL,
-           corrected_discount_rate = NULL,
            approach_exposure = NULL,
            approach_newborns = NULL,
            time_horizon = NULL,
@@ -72,7 +72,10 @@ attribute <-
            population = NULL,
            health_metric = "same_input_output",
            approach_multiexposure = NULL,
-           info = NULL){
+           info = NULL,
+           # Discounting
+           corrected_discount_rate = NULL,
+           approach_discount = "exponential"){
 
     # Check input data
     #stopifnot(exprs = {
@@ -108,7 +111,10 @@ attribute <-
         population_midyear_male = population_midyear_male,
         population_midyear_female =  population_midyear_female,
         deaths_male = deaths_male,
-        deaths_female = deaths_female)
+        deaths_female = deaths_female,
+        # Discounting
+        corrected_discount_rate = corrected_discount_rate,
+        approach_discount = approach_discount)
 
 
     # Calculate the health impacts for each case (uncertainty, category, geo area...)
@@ -119,6 +125,7 @@ attribute <-
                              min_age = min_age,
                              max_age = max_age,
                              corrected_discount_rate = corrected_discount_rate,
+                             approach_discount = approach_discount,
                              pop_fraction_type = "paf")
 
     # Get the main and detailed output by aggregating and/or filtering cases (rows)

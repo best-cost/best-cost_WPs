@@ -26,6 +26,7 @@ get_impact <-
            min_age = NULL,
            max_age = NULL,
            corrected_discount_rate = NULL,
+           approach_discount = NULL,
            pop_fraction_type,
            population = NULL){
 
@@ -34,7 +35,7 @@ get_impact <-
       # Get pop_fraction and add to the input data frame
       input_with_risk_and_pop_fraction <-
         healthiar:::get_risk_and_pop_fraction(input = input,
-                                             pop_fraction_type = pop_fraction_type)
+                                              pop_fraction_type = pop_fraction_type)
 
       # * Same input as output #################################################
 
@@ -93,6 +94,7 @@ get_impact <-
               min_age = min_age,
               max_age = max_age,
               corrected_discount_rate = corrected_discount_rate,
+              approach_discount = approach_discount,
               input_with_risk_and_pop_fraction = input_with_risk_and_pop_fraction)
 
     } else if (unique(input$health_metric) %in% "daly_from_lifetable"){
