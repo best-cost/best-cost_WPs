@@ -1054,10 +1054,11 @@ bestcost_pm_yll_exposure_single_year_lifetable_geluft <-
     approach_discount = "exponential", #Alternatives: "hyperbolic_harvey_1986" "hyperbolic_mazur_1987",
     corrected_discount_rate = 0)
 
+# View(bestcost_pm_yll_exposure_single_year_lifetable_geluft)
+
 check_bestcost(result_list_bestcost = bestcost_pm_yll_exposure_single_year_lifetable_geluft,
                result_vector_alternative = c(29274.89,	15328.16,	43118.30)) # AirQ+ approach result
                # result_vector_alternative = c(27742, 14641, 40542)) # GeLuft approach result
-
 
 # Now with input data from the Swiss project GeLuft and discounted
 bestcost_pm_yll_exposure_single_year_lifetable_geluft_discounted <-
@@ -1086,9 +1087,36 @@ bestcost_pm_yll_exposure_single_year_lifetable_geluft_discounted <-
 
 check_bestcost(result_list_bestcost = bestcost_pm_yll_exposure_single_year_lifetable_geluft,
                result_vector_alternative = c(26493, 13877, 39006)) # Results obtained on 5 Dec 2024
-
 ```
 
+```{r YLL lifetable from SINGLE YEAR exposure and 10 year time horizon}
+
+# Now with input data from the Swiss project GeLuft
+bestcost_pm_yll_exposure_single_year_lifetable_geluft_with_time_horizon <-
+  healthiar::attribute_yll_from_lifetable(
+    approach_exposure = "single_year",
+    exp_central = input_data_mortality$exp[2], #exp CH 2019
+    prop_pop_exp = 1,
+    cutoff_central = input_data_mortality$cutoff[2], # WHO AQG 2021 
+    rr_central = input_data_mortality[2,"rr_central"], 
+    rr_lower = input_data_mortality[2,"rr_lower"], 
+    rr_upper =input_data_mortality[2,"rr_upper"], 
+    erf_increment = 10, 
+    erf_shape = "log_linear",
+    first_age_pop = 0,
+    last_age_pop = 99,
+    population_midyear_male = lifetable_withPopulation[["male"]]$population, 
+    population_midyear_female = lifetable_withPopulation[["female"]]$population, 
+    deaths_male = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_male,
+    deaths_female = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_female,
+    year_of_analysis = 2019, 
+    info = input_data_mortality$pollutant[2], 
+    min_age = if(is.na(input_data_mortality$min_age[2])) NULL else input_data_mortality$min_age[2],
+    time_horizon = 10)
+
+check_bestcost(result_list_bestcost = bestcost_pm_yll_exposure_single_year_lifetable_geluft_with_time_horizon,
+               result_vector_alternative = c(17052,	8955,	25040)) # Results for 10 year time horizon on 2024-12-09
+```
 
 
 ```{r YLL lifetable from CONSTANT exposure and NO NEWBORNS}
@@ -1252,6 +1280,7 @@ bestcost_pm_yld_lifetable_geluft  <-
     population_midyear_male = lifetable_withPopulation[["male"]]$population, 
     population_midyear_female = lifetable_withPopulation[["female"]]$population,
     year_of_analysis = 2019, 
+    time_horizon = 100,
     info = input_data_mortality$pollutant[2],
     min_age = input_data_mortality$min_age[2], # min_age = 20,
     duration_central = 100, 

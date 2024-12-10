@@ -37,7 +37,8 @@ attribute_yll_from_lifetable <-
            approach_discount = NULL,
            min_age = NULL, max_age = NULL,
            info = NULL,
-           duration_central = 100){
+           duration_central = NULL,
+           time_horizon = NULL){
 
     output <-
       healthiar::attribute(
@@ -64,6 +65,7 @@ attribute_yll_from_lifetable <-
         corrected_discount_rate = corrected_discount_rate,
         approach_discount = approach_discount,
         geo_id_raw = NULL, geo_id_aggregated = NULL,
+        time_horizon = time_horizon,
         info = info)
 
     return(output)

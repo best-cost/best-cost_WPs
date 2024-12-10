@@ -29,6 +29,7 @@ attribute_daly_from_lifetable <-
            min_age = NULL, max_age = NULL,
            dw_central, dw_lower = NULL, dw_upper = NULL,
            duration_central, duration_lower = NULL, duration_upper = NULL,
+           time_horizon = NULL,
            info = NULL){
 
     output<-
@@ -56,6 +57,7 @@ attribute_daly_from_lifetable <-
         approach_discount = approach_discount,
         dw_central = dw_central, dw_lower = dw_lower, dw_upper = dw_upper,
         duration_central = duration_central, duration_lower = duration_lower, duration_upper = duration_upper,
+        time_horizon = time_horizon,
         geo_id_raw = NULL , geo_id_aggregated = NULL,
         info = info)
 

@@ -1,6 +1,7 @@
 #' Attributable health cases based on relative risk
 
 #' @description Calculates the health impacts for each uncertainty and geo area.
+#' @inheritParams attribute
 #' @param input \code{Data frame} containing all input data.
 #' @return
 #' TBD. E.g. This function returns a \code{data.frame} with one row for each value of the
@@ -21,6 +22,7 @@
 get_impact <-
   function(input,
            year_of_analysis = NULL,
+           time_horizon = NULL,
            min_age = NULL,
            max_age = NULL,
            corrected_discount_rate = NULL,
@@ -77,6 +79,7 @@ get_impact <-
           pop_impact <-
             healthiar:::get_pop_impact(
               year_of_analysis = year_of_analysis,
+              time_horizon = time_horizon,
               input_with_risk_and_pop_fraction = input_with_risk_and_pop_fraction,
               outcome_metric = outcome_metric,
               min_age = min_age)
@@ -87,6 +90,7 @@ get_impact <-
               outcome_metric = outcome_metric,
               pop_impact = pop_impact,
               year_of_analysis = year_of_analysis,
+              time_horizon = time_horizon,
               min_age = min_age,
               max_age = max_age,
               corrected_discount_rate = corrected_discount_rate,
@@ -98,6 +102,7 @@ get_impact <-
       pop_impact <-
         healthiar:::get_pop_impact(
           year_of_analysis = year_of_analysis,
+          time_horizon = time_horizon,
           input_with_risk_and_pop_fraction = input_with_risk_and_pop_fraction,
           outcome_metric = "daly",
           min_age = min_age)
@@ -108,6 +113,7 @@ get_impact <-
           outcome_metric = outcome_metric,
           pop_impact = pop_impact,
           year_of_analysis = year_of_analysis,
+          time_horizon = time_horizon,
           min_age = min_age,
           max_age = max_age,
           corrected_discount_rate = corrected_discount_rate,

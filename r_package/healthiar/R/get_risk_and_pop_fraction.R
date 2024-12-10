@@ -2,6 +2,7 @@
 
 #' @description Calculates the population attributable fraction (PAF) based on the input data and puts the results in additional columns joined to the input data frame.
 #' @param input \code{Data frame} with the input data
+#' @param pop_fraction_type \code{String} indicating the type of the population fraction. Options: "paf" or "pif"
 #' @return
 #' This function returns a \code{data.frame} with the input data adding a column for the population attributable fraction
 #' Moreover, the data frame includes columns such as:
