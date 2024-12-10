@@ -29,6 +29,8 @@ get_impact(
 
 \item{corrected_discount_rate}{\code{Numeric value} showing the discount rate for future years including correction from inflation rate}
 
+\item{approach_discount}{\code{String} referring to the assumed equation for the discount factor. Per default: "exponential". Otherwise: "hyperbolic_harvey_1986" or "hyperbolic_mazur_1987".}
+
 \item{population}{code{Vector} with numeric values referring to the population in the geographical unit}
 }
 \value{
