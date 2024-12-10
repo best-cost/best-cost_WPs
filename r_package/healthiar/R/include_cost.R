@@ -2,9 +2,12 @@
 
 #' @description Monetize health impacts
 #'
-#' @param output \code{List} produced by \code{healthiar::attribute()} or \code{healthiar::compare()} as results
+#' @param output \code{List} produced by \code{healthiar::attribute()} or \code{healthiar::compare()} as results.
+#' @param impact \code{Numberic value} referring to the health impacts to be monetized (without attribute function).
+#' @param valuation \code{Numberic value} referring to unit value of a health impact
 #' @param time_period \code{Numeric value} referring to the period of time to be considered in the discounting.
 #' @param valuation \code{Numeric value} showing the value of statistical life which will be used in the health impact monetization
+#' @inheritParams attribute
 #'
 #' @return Description of the return value.
 #' @examples
