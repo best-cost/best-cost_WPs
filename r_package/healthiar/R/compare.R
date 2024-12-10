@@ -87,7 +87,7 @@ compare <-
            dw_central = NULL, dw_lower = NULL, dw_upper = NULL,
            duration_central = NULL, duration_lower = NULL, duration_upper = NULL,
            corrected_discount_rate = NULL,
-           approach_discount = "exponential",
+           approach_discount = NULL,
            # Iteration
            geo_id_raw = NULL,
            geo_id_aggregated = NULL,

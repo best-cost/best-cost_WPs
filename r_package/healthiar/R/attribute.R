@@ -75,7 +75,7 @@ attribute <-
            info = NULL,
            # Discounting
            corrected_discount_rate = NULL,
-           approach_discount = "exponential"){
+           approach_discount = NULL){
 
     # Check input data
     #stopifnot(exprs = {
