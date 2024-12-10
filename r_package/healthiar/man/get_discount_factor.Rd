@@ -14,7 +14,7 @@ get_discount_factor(corrected_discount_rate, time_period, approach_discount)
 \item{approach_discount}{\code{String} referring to the assumed equation for the discount factor. Per default: "exponential". Otherwise: "hyperbolic_harvey_1986" or "hyperbolic_mazur_1987".}
 }
 \description{
-Get discount factor based on discount rate (already corrected for inflaction)
+Get discount factor based on discount rate (already corrected for inflation)
 }
 \note{
 Experimental function

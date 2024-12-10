@@ -5,16 +5,26 @@
 \title{include_cost}
 \usage{
 include_cost(
-  output,
+  output = NULL,
+  impact = NULL,
   valuation,
   corrected_discount_rate = NULL,
-  time_period = NULL
+  time_period = 1,
+  approach_discount = NULL
 )
 }
 \arguments{
-\item{output}{\code{List} produced by \code{healthiar::attribute()} or \code{healthiar::compare()} as results}
+\item{output}{\code{List} produced by \code{healthiar::attribute()} or \code{healthiar::compare()} as results.}
+
+\item{impact}{\code{Numberic value} referring to the health impacts to be monetized (without attribute function).}
 
 \item{valuation}{\code{Numeric value} showing the value of statistical life which will be used in the health impact monetization}
+
+\item{corrected_discount_rate}{\code{Numeric value} showing the discount rate for future years including correction from inflation rate}
+
+\item{time_period}{\code{Numeric value} referring to the period of time to be considered in the discounting.}
+
+\item{approach_discount}{\code{String} referring to the assumed equation for the discount factor. Per default: "exponential". Otherwise: "hyperbolic_harvey_1986" or "hyperbolic_mazur_1987".}
 }
 \value{
 Description of the return value.
