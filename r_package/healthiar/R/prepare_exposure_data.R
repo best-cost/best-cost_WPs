@@ -27,12 +27,15 @@ prepare_exposure_data <-
   ){
     ## extract mean concentration in each raw geo unit
     poll_mean <- terra::extract(poll_grid, geo_units, fun = mean)[, 2]
-
-    none_aggregated_exposure <- cbind(
-      geo_id_aggregated,
-      poll_mean
+    ## create table of non-aggregated exposure for raw output
+    non_aggregated_exposure <- as.data.frame(
+      cbind(
+        geo_id_aggregated,
+        population,
+        poll_mean
+      )
     )
-
+    ## create table to calculate pop-weighted exposure
     exposure <- cbind(
       geo_id_aggregated,
       population,
@@ -50,8 +53,7 @@ prepare_exposure_data <-
 
     ## build output list
     main <- as.list(exposure)
-
-    raw <- as.list(none_aggregated_exposure)
+    raw <- as.list(non_aggregated_exposure)
 
     detailed <- list(raw)
     names(detailed) <- 'raw'

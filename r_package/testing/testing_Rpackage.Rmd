@@ -94,13 +94,23 @@ library(healthiar)
 # Test prepare function
 
 ```{r prepare_exposure_data}
-## test using pollution and geo data for Brussels
-bxl_pm25 <- terra::rast("./data/prepare/pm25_brussels_region_2020.tif") # saving the grid to the .RData file and then loading it afterwards does not work for some reason
+## test using pollution and geo data for Brussels (bxl)
+grid_bxl_pm25 <- terra::rast("./data/prepare/pm25_brussels_region_2020.tif") # saving the grid to the .RData file and then loading it afterwards does not work for some reason
 exposure <- prepare_exposure_data(
-    poll_grid = bxl_pm25,
-    geo_units = bxl_sect_pop[, c('geometry')],
-    population = sf::st_drop_geometry(bxl_sect_pop$population),
-    geo_id_aggregated = sf::st_drop_geometry(bxl_sect_pop$mun_id)
+    poll_grid = grid_bxl_pm25,
+    geo_units = sf_bxl_pop[, c('geom')],
+    population = sf::st_drop_geometry(sf_bxl_pop$population),
+    geo_id_aggregated = sf::st_drop_geometry(sf_bxl_pop$mun_id)
+)
+
+## test using netCDF file with air pollution data for Europe
+grid_eur_airpoll <- terra::rast("./data/prepare/sce0.nc") # same issue as with the bxl grid
+sf_bxl_pop_trnsf <- st_transform(sf_bxl_pop, st_crs(grid_eur_airpoll)) # transform crs of bxl geodata to crs of netcdf
+exposure2 <- prepare_exposure_data(
+    poll_grid = grid_eur_airpoll$SURF_ug_PM25_rh50, # netcdf file contains layers for multiple pollutants, use $ to select pollutant
+    geo_units = sf_bxl_pop_trnsf[, c('geom')],
+    population = sf::st_drop_geometry(sf_bxl_pop$population),
+    geo_id_aggregated = sf::st_drop_geometry(sf_bxl_pop$mun_id)
 )
 ```
 
