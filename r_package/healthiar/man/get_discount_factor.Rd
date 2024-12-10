@@ -4,7 +4,11 @@
 \alias{get_discount_factor}
 \title{Get discount factor}
 \usage{
-get_discount_factor(corrected_discount_rate, time_period, approach_discount)
+get_discount_factor(
+  corrected_discount_rate,
+  time_period,
+  approach_discount = "exponential"
+)
 }
 \arguments{
 \item{corrected_discount_rate}{\code{Numeric value} showing the discount rate for future years including correction from inflation rate}
