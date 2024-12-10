@@ -11,15 +11,28 @@ get_discount_factor <-
   function(corrected_discount_rate,
            time_period,
            approach_discount){
+    # If no corrected_discount_rate is provided,
+    # then assume discount_factor = 1
+    # This does not change the results
 
-    discount_factor <-
-      ifelse(
-        approach_discount == "exponential",
-        1/((1 + corrected_discount_rate) ^ time_period),
-        ifelse(approach_discount == "hyperbolic_harvey_1986",
-               1/((1 + time_period) ^ corrected_discount_rate),
-               ifelse(approach_discount == "hyperbolic_mazur_1987",
-                      1/(1 + corrected_discount_rate * time_period),
-                      NA)))
+    if(any(is.null(corrected_discount_rate),
+           is.null(approach_discount))){
 
+      discount_factor <- 1
+    } else{
+      # If there is a corrected_discount_rate,
+      # apply the function get_discount_factor()
+
+
+      discount_factor <-
+        ifelse(
+          approach_discount == "exponential",
+          1/((1 + corrected_discount_rate) ^ time_period),
+          ifelse(approach_discount == "hyperbolic_harvey_1986",
+                 1/((1 + time_period) ^ corrected_discount_rate),
+                 ifelse(approach_discount == "hyperbolic_mazur_1987",
+                        1/(1 + corrected_discount_rate * time_period),
+                        NA)))
+
+    }
   }

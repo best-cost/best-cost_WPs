@@ -43,19 +43,10 @@ include_cost <- function(output = NULL,
         # no discount (i.e. discount_factor=1)
         dplyr::mutate(
           discount_factor =
-            ifelse(
-              any(is.null({{corrected_discount_rate}}),
-                  is.null({{approach_discount}})),
-              # If no corrected_discount_rate is provided,
-              # then assume discount_factor = 1
-              # This does not change the results
-              1,
-              # If there is a corrected_discount_rate,
-              # apply the function get_discount_factor()
-              healthiar::get_discount_factor(
-                corrected_discount_rate = corrected_discount_rate,
-                time_period = year,
-                approach_discount = approach_discount)))
+            healthiar::get_discount_factor(
+              corrected_discount_rate = corrected_discount_rate,
+              time_period = year,
+              approach_discount = approach_discount))
 
       sum_of_discount_factors <-
         df_with_discount_factor |>
