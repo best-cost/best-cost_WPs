@@ -28,8 +28,9 @@ include_cost <- function(output = NULL,
         df |>
         # Add columns for input data in the table
         dplyr::mutate(corrected_discount_rate = {{corrected_discount_rate}},
-                      time_period = {{time_period}},
                       approach_discount = {{approach_discount}}) |>
+        dplyr::cross_join(x = _,
+                          y = dplyr::tibble(year = 1:time_period)) |>
         # rowwise() because time_period becomes a vecto below 1:time_period
         # otherwise vectors from columns and vectors from time_period cannot be digested
         # better step by step
@@ -50,8 +51,14 @@ include_cost <- function(output = NULL,
               # apply the function get_discount_factor()
               healthiar::get_discount_factor(
                 corrected_discount_rate = corrected_discount_rate,
-                time_period = 1:time_period,
-                approach_discount = approach_discount)),
+                time_period = year,
+                approach_discount = approach_discount))) |>
+          # Sum across years of time period
+          # The grouping id here is the impact
+          dplyr::group_by(impact) |>
+          dplyr::summarise(discount_factor = sum(discount_factor),
+                           .groups = "keep") |>
+          dplyr::mutate(
           # Add column for valuation
           valuation = valuation,
           # Calculate monetized impact
@@ -62,6 +69,7 @@ include_cost <- function(output = NULL,
           cost_without_discount = impact * valuation,
           cost = sum(impact/time_period * discount_factor) * valuation,
           .after = impact) |>
+
         # Round costs
         dplyr::mutate(cost_rounded = round(cost),
                       .after = cost)
