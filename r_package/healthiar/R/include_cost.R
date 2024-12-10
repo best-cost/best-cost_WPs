@@ -24,13 +24,16 @@ include_cost <- function(output = NULL,
   # Define a function to add the monetized impacts (rounded and not rounded)
   add_monetized_impact <-
     function(df){
-      df_with_cost <-
+      df_with_input <-
         df |>
         # Add columns for input data in the table
         dplyr::mutate(corrected_discount_rate = {{corrected_discount_rate}},
-                      approach_discount = {{approach_discount}}) |>
-        dplyr::cross_join(x = _,
-                          y = dplyr::tibble(year = 1:time_period)) |>
+                      time_period = {{time_period}},
+                      approach_discount = {{approach_discount}})
+
+      df_with_discount_factor <-
+        dplyr::cross_join(x = df_with_input,
+                          y = dplyr::tibble(year = 1:{{time_period}})) |>
         # rowwise() because time_period becomes a vecto below 1:time_period
         # otherwise vectors from columns and vectors from time_period cannot be digested
         # better step by step
@@ -52,23 +55,34 @@ include_cost <- function(output = NULL,
               healthiar::get_discount_factor(
                 corrected_discount_rate = corrected_discount_rate,
                 time_period = year,
-                approach_discount = approach_discount))) |>
+                approach_discount = approach_discount)))
+
+      sum_of_discount_factors <-
+        df_with_discount_factor |>
           # Sum across years of time period
           # The grouping id here is the impact
           dplyr::group_by(impact) |>
-          dplyr::summarise(discount_factor = sum(discount_factor),
-                           .groups = "keep") |>
-          dplyr::mutate(
-          # Add column for valuation
-          valuation = valuation,
-          # Calculate monetized impact
-          # Sum across the different discount factors
-          # (one for each year of the period)
-          # The default value 1 for time period enables that the calculation below
-          # is not affected if no discount is demanded by the user
-          cost_without_discount = impact * valuation,
-          cost = sum(impact/time_period * discount_factor) * valuation,
-          .after = impact) |>
+          dplyr::summarise(discount_factor_overtime = sum(discount_factor),
+                           .groups = "keep")
+
+      df_with_cost <-
+        # Join the sum of discount factors with the original data
+        dplyr::left_join(
+          df_with_input,
+          sum_of_discount_factors,
+          by = "impact" ) |>
+        # Add columns
+        dplyr::mutate(
+        # Add column for valuation
+        valuation = valuation,
+        # Calculate monetized impact
+        # Sum across the different discount factors
+        # (one for each year of the period)
+        # The default value 1 for time period enables that the calculation below
+        # is not affected if no discount is demanded by the user
+        cost_without_discount = impact * valuation,
+        cost = sum(impact/time_period * discount_factor_overtime) * valuation,
+        .after = impact) |>
 
         # Round costs
         dplyr::mutate(cost_rounded = round(cost),
