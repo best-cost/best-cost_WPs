@@ -49,7 +49,7 @@ attribute(
   approach_multiexposure = NULL,
   info = NULL,
   corrected_discount_rate = NULL,
-  approach_discount = "exponential"
+  approach_discount = NULL
 )
 }
 \arguments{
