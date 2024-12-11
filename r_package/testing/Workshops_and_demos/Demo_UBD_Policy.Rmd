@@ -1,0 +1,233 @@
+---
+title: "Demo_UBD_Policy"
+author: "Axel Luyten"
+output: html_document
+---
+
+```{r}
+library(healthiar)
+library(dplyr)
+
+load("../testing/input/data/input_data_for_testing_Rpackage.RData")
+
+# cat(paste(
+#   "Impact attributable to PM2.5 exposure: ",
+#   as.numeric(impact_pm_copd[["health_main"]]$impact_rounded[1]),
+#   sep = "\n"
+#   ))
+
+# print(impact_pm_copd[["health_main"]]$impact_rounded[1])
+
+airqplus_pm_copd <- airqplus_pm_copd |> 
+  mutate(incidence = incidents_per_100_000_per_year/1E5*population_at_risk)
+
+## Rename data variables
+data_pm_copd <- airqplus_pm_copd
+rm(airqplus_pm_copd)
+data_pm_copd <- data_pm_copd |> select(mean_concentration, cut_off_value, incidence, relative_risk, relative_risk_lower, relative_risk_upper)
+
+data_lifetable <- input_data_mortality
+
+data_deaths <- airqplus_pm_deaths_yll
+
+## Remove not needed variables
+rm(list=setdiff(ls(), 
+                c("data_pm_copd",
+                  "data_lifetable",
+                  "lifetable_withPopulation",
+                  "data_deaths"
+                ))
+   )
+                  
+```
+
+
+# Population-weighted mean exposure and (simple) relative risk
+
+```{r}
+data_pm_copd
+```
+
+
+```{r}
+
+impact_pm_copd <- 
+  attribute_health(
+    exp_central = data_pm_copd$mean_concentration,         ## 8.85 um / m3
+    cutoff_central = data_pm_copd$cut_off_value,           ## 5 ug / m3
+    bhd_central = data_pm_copd$incidence,                  ## 30747
+    rr_central = data_pm_copd$relative_risk,               ## 1.369
+    rr_lower = data_pm_copd$relative_risk_lower,           ## 1.124
+    rr_upper = data_pm_copd$relative_risk_upper,           ## 1.664
+    erf_increment = 10, 
+    erf_shape = "log_linear", 
+    info = paste0("assessment_1_pm_copd")
+  )
+
+impact_pm_copd[["health_main"]]
+
+# View(impact_pm_copd)
+```
+
+
+
+# Multiple input uncertainties & exposure-response function from GBD2019
+
+```{r}
+
+impact_pm_copd_gbd <- 
+  attribute_health(
+    exp_central = data_pm_copd$mean_concentration,         ## 8.85 um / m3
+    cutoff_central = data_pm_copd$cut_off_value,           ## 5 ug / m3
+    bhd_central = data_pm_copd$incidence,                  ## 30747
+    rr_central = data_pm_copd$relative_risk,               ## 1.369
+    erf_increment = 10, 
+    erf_shape = "log_linear",
+    
+    ## Exposure-response function from GBD2019
+    erf_eq_central = stats::splinefun(
+      x = c(0, 5, 10, 15, 20, 25, 30, 50, 70, 90, 110, 130, 150, 200, 300, 400, 500, 600),
+      y = c(1.000,1.046,1.089,1.129,1.168,1.204,1.238,1.357,1.453,1.533,1.607,1.680,1.751,1.909,2.052,2.098,2.143,2.189),
+      method = "natural"
+    ),
+    
+    ## Confidence intervals of input data
+    exp_lower = data_pm_copd$mean_concentration - 1,
+    exp_upper = data_pm_copd$mean_concentration + 1,
+    cutoff_lower = data_pm_copd$cut_off_value - 1,
+    cutoff_upper = data_pm_copd$cut_off_value + 1,
+    bhd_lower = data_pm_copd$incidence - 5000,
+    bhd_upper = data_pm_copd$incidence + 5000,
+    info = paste0("assessment_2_pm_copd")
+  )
+
+impact_pm_copd_gbd[["health_main"]]
+
+impact_pm_copd_gbd[["health_detailed"]][["raw"]]
+
+```
+
+# Lifetable approach: years of life lost (YLL)
+
+The healthiar package follows the lifetable approach used in AirQ+, but provides
+additional options
+
+```{r}
+
+impact_lifetable <-
+  attribute_yll_from_lifetable(
+    exp_central = data_lifetable$exp[2],                   ## Exposure CH 2019
+    cutoff_central = data_lifetable$cutoff[2],
+    rr_central = data_lifetable[2,"rr_central"], 
+    rr_lower = data_lifetable[2,"rr_lower"], 
+    rr_upper =data_lifetable[2,"rr_upper"], 
+    erf_increment = 10, 
+    erf_shape = "log_linear",
+    
+    ## Approach specifications
+    approach_exposure = "single_year",
+    approach_newborns = "without_newborns",
+    year_of_analysis = 2019, 
+    min_age = 20, max_age = 99,
+    
+    ## Lifetable data
+    first_age_pop = 0, last_age_pop = 99,
+    population_midyear_male = lifetable_withPopulation[["male"]]$population, 
+    population_midyear_female = lifetable_withPopulation[["female"]]$population, 
+    deaths_male = data_deaths[["pop"]]$number_of_deaths_male,
+    deaths_female = data_deaths[["pop"]]$number_of_deaths_female
+    )
+
+## Total YLL impact
+impact_lifetable[["health_main"]]$impact_rounded[1]
+
+## YLL per year
+impact_lifetable[["health_detailed"]][["step_by_step_from_lifetable"]]$lifeyears_nest[3]$total_NA_1_central_central_central
+
+## YLL per year and age group
+impact_lifetable[["health_detailed"]][["step_by_step_from_lifetable"]]$yll_nest[3]$total_NA_1_central_central_central
+```
+
+
+# Iteration over multiple geo units
+
+Impacts can be calculated for multiple geo units (e.g. municipalities) and 
+aggregated at a higher level (e.g. region)
+
+Population-weighted mean exposure can be calculated from shape files 
+(containing municipality borders) and raster air pollution data 
+(e.g. netCDF files) and then used for impact calculation
+
+
+```{r}
+
+impact_iteration <- 
+  attribute_health(
+    exp_central = as.list(rnorm(100, mean = data_pm_copd$mean_concentration, sd = 2)),         
+    exp_lower = as.list(rnorm(100, mean = data_pm_copd$mean_concentration - 1, sd = 2)),         
+    exp_upper = as.list(rnorm(100, mean = data_pm_copd$mean_concentration + 1, sd = 2)),
+    cutoff_central = data_pm_copd$cut_off_value,
+    bhd_central = as.list(rnorm(100, mean = data_pm_copd$incidence, sd = 200)),
+    rr_central = data_pm_copd$relative_risk,               
+    rr_lower = data_pm_copd$relative_risk_lower,           
+    rr_upper = data_pm_copd$relative_risk_upper,           
+    erf_increment = 10, 
+    erf_shape = "log_linear",
+    ## geo ID's
+    geo_id_raw = 1:1E2, 
+    geo_id_aggregated = rep("CH", 1E2),
+  )
+
+## Aggregated impact
+impact_iteration[["health_main"]]
+
+## Impact per geo unit
+impact_iteration[["health_detailed"]][["raw"]] |> filter(erf_ci == "central") |>  filter(exp_ci == "central")
+```
+
+# Monetize health impacts
+
+Discounting using exponential and hyperbolic methods is implemented
+
+```{r}
+
+impact_pm_copd_monetized <-
+  include_cost(
+    output = impact_pm_copd,
+    valuation = 10000,                                     # Value of life year (VOLY)
+    approach_discount = "exponential",
+    corrected_discount_rate = 0.03,
+    time_period = 20
+  )
+
+## Monetized results are added in a new "folder" to existing results 
+# View(impact_pm_copd_monetized)
+
+## Monetized impact
+impact_pm_copd_monetized[["cost_main"]]
+
+```
+
+# Monte Carlo simulation
+
+```{r}
+
+impact_pm_copd_monetized_with_uncertainty <-
+  include_summary_uncertainty(
+    results = impact_pm_copd_monetized,
+    n_sim = 1000
+    )
+
+## Summary uncertainty confidence intervals added in new "folder"
+# View(impact_pm_copd_monetized_with_uncertainty)
+
+## Summary uncertainty
+print("Main estimates: ")
+impact_pm_copd_monetized_with_uncertainty[["health_main"]][["impact_rounded"]]
+print("Estimates from summary uncertainty:")
+round(as.numeric(impact_pm_copd_monetized_with_uncertainty[["uncertainty_main"]]))
+
+## Detailed Monte Carlo simulation results
+impact_pm_copd_monetized_with_uncertainty[["uncertainty_detailed"]][["raw"]]
+
+```
