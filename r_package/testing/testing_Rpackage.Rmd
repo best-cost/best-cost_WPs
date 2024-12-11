@@ -216,7 +216,7 @@ bestcost_pm_copd_cost_discount_single_value <-
                           corrected_discount_rate = 0.03,
                           time_period = 20,
                           valuation = 1)
-check_general(bestcost_pm_copd_cost_discount_single_value$cost_rounded,
+check_general(bestcost_pm_copd_cost_discount_single_value$cost_discounted_rounded,
               14877)
 # According to ChatGPT, the result should be 14877. 5 Dec 2024
 
