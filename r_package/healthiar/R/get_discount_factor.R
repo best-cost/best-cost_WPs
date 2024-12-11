@@ -10,7 +10,7 @@
 get_discount_factor <-
   function(corrected_discount_rate,
            time_period,
-           approach_discount){
+           approach_discount = "exponential"){
     # If no corrected_discount_rate is provided,
     # then assume discount_factor = 1
     # This does not change the results

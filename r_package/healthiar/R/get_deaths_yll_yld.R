@@ -237,11 +237,11 @@ get_deaths_yll_yld <-
             function(.x, .y, .z){
 
               ## Calculate total, discounted life years (single value) per sex & ci ####
-              .x <-
+              lifeyear_nest_with_discount <-
                 .x |>
                 # Convert year to numeric
                 dplyr::mutate(year = as.numeric(year),
-                              time_period = year - year_of_analysis,
+                              time_period = year - {{year_of_analysis}},
                               corrected_discount_rate = {{corrected_discount_rate}},
                               approach_discount = {{approach_discount}}) |>
 
@@ -251,16 +251,7 @@ get_deaths_yll_yld <-
                     healthiar::get_discount_factor(
                       corrected_discount_rate = corrected_discount_rate,
                       time_period = time_period,
-                      approach_discount = approach_discount)
-                    # ifelse(
-                    #   {{approach_discount}} == "exponential",
-                    #   1/((1 + corrected_discount_rate) ^ time_period),
-                    #   ifelse({{approach_discount}} == "hyperbolic_harvey_1986",
-                    #          1/((1 + time_period) ^ corrected_discount_rate),
-                    #          ifelse({{approach_discount}} == "hyperbolic_mazur_1987",
-                    #                 1/(1 + corrected_discount_rate * time_period),
-                    #                 NA)))
-                  )|>
+                      approach_discount = approach_discount))|>
                 # Calculate life years discounted
 
                 dplyr::mutate(
@@ -269,22 +260,26 @@ get_deaths_yll_yld <-
               ## If yll or yld
               if(outcome_metric %in% c("yll", "yld")){
 
-                .x <- .x |>
+                lifeyear_nest_with_discount <-
                   ## Filter for the relevant years
-                  dplyr::filter(.data = _, year < .y)
+                  dplyr::filter(.data = lifeyear_nest_with_discount,
+                                year < .y) |>
                   ## Sum among years to obtain the total impact (single value)
                   dplyr::summarise(impact = sum(discounted_impact), .groups = "drop")
               }
 
+
               ## Add a column to indicate that the impact is discounted
-              .x <- .x |>
+              lifeyear_nest_with_discount <-
+                lifeyear_nest_with_discount |>
                 dplyr::mutate(discounted = TRUE)
 
               ## Bind rows to have both discounted and not discounted
-              x_with_and_without_discount <-
-                dplyr::bind_rows(.z, .x)
+              lifeyear_nest_with_and_without_discount <-
+                dplyr::bind_rows(.z,
+                                 lifeyear_nest_with_discount)
 
-              return(x_with_and_without_discount)
+              return(lifeyear_nest_with_and_without_discount)
 
             }
           )
