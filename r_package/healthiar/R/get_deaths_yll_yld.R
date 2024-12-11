@@ -31,7 +31,7 @@ get_deaths_yll_yld <-
     # browser()
 
     # Determine default time horizon for YLL/YLD if not specified ##############
-    if ( ( (outcome_metric == "yll") | (outcome_metric == "yld") )  &
+    if ( {{outcome_metric}} %in% c("yll", "yld")  &
          is.null(time_horizon) ) {
 
         time_horizon <- input_with_risk_and_pop_fraction %>%
@@ -46,6 +46,7 @@ get_deaths_yll_yld <-
     # Filter for relevant ages
     impact_detailed <- pop_impact |>
       dplyr::mutate(
+        outcome_metric = {{outcome_metric}},
         lifeyears_nest =
           purrr::map(
             .x =  pop_impact_nest,
@@ -54,7 +55,7 @@ get_deaths_yll_yld <-
             # Set values in upper triangle to NA ###############################
             ## NOTE: also removes newborns values
 
-            if( outcome_metric == "deaths" ) {
+            if({{outcome_metric}} == "deaths" ) {
 
               .x <- .x |>
               dplyr::mutate(
@@ -71,7 +72,8 @@ get_deaths_yll_yld <-
                        ~ {mat <- as.matrix(.x)
                        mat[upper.tri(mat, diag = FALSE)] <- NA
                        return(mat)}))
-                }
+            }
+
 
             # Filter for relevant ages #########################################
             # use {{}} to refer to the argument and avoid warnings
@@ -88,7 +90,7 @@ get_deaths_yll_yld <-
 
             # Calculate YLL/YLD impact per year ################################
 
-            if ( outcome_metric %in% c("yll", "yld") ) {
+            if ({{outcome_metric}} %in% c("yll", "yld") ) {
 
               .x <- .x |>
                 dplyr::select(contains("population_")) |>
@@ -114,7 +116,7 @@ get_deaths_yll_yld <-
     # YLD ######################################################################
 
     ## Determine year- and age specific YLD
-    if ( outcome_metric %in% "yld" ) {
+    if ({{outcome_metric}} %in% "yld" ) {
 
       impact_detailed <- impact_detailed |>
         dplyr::mutate(yll_nest =
@@ -151,7 +153,7 @@ get_deaths_yll_yld <-
       impact_detailed <- impact_detailed |>
         # Store in new column "impact_nest"
         dplyr::mutate(
-          impact_nest = purrr::map(
+          impact = purrr::map(
             .x = lifeyears_nest,
             function(.x){
 
@@ -161,14 +163,16 @@ get_deaths_yll_yld <-
               return(.x)
             }
           )
-        )
+        ) |>
+        dplyr::mutate(impact = as.numeric(impact))
+
+
     }
 
     # Store total, not discounted YLL/YLD in YOA in column impact_nest #########
     ## Single number
 
-    if ( (outcome_metric == "yll") |
-         (outcome_metric == "yld") ) {
+    if ( {{outcome_metric}} %in% c("yll", "yld")){
 
       impact_detailed <- impact_detailed |>
 
@@ -199,7 +203,7 @@ get_deaths_yll_yld <-
             #   }
 
             # If yll or yld
-            if(outcome_metric %in% c("yld", "yll")){
+            if({{outcome_metric}} %in% c("yld", "yll")){
 
               .x <-
                 .x |>
@@ -215,8 +219,39 @@ get_deaths_yll_yld <-
             }
           }
         )
-      )
+      ) |>
+        dplyr::mutate(
+          impact_for_discounting_nest = impact_nest
+        ) |>
+        ## Unnest the obtained impacts to integrate them the main tibble
+        ## Impact saved in column impact
+        tidyr::unnest(impact_nest)
+
     }
+
+
+    # Assign ID ###################################
+
+    ## Create ID for the rows (will be used below)
+    id_columns <-
+      c("sex",
+        "exposure_name",
+        "geo_id_raw",
+        "erf_ci", "bhd_ci", "exp_ci", "dw_ci", "cutoff_ci", "duration_ci")
+
+    id_columns_in_df <-
+      id_columns[id_columns %in% names(impact_detailed)]
+
+    id <-
+      purrr::pmap_chr(impact_detailed[id_columns_in_df],
+                      ~paste(..., sep = "_"))
+
+    ## Name rows with the ids for better overview in Environment
+    impact_detailed <-
+      impact_detailed  |>
+      dplyr::mutate(across(contains("_nest"),
+                           ~set_names(.x,
+                                      id)))
 
 
 
@@ -232,8 +267,8 @@ get_deaths_yll_yld <-
 
         ## Calculate total, discounted life years (single value) per sex & ci
         dplyr::mutate(
-          impact_nest = purrr::pmap(
-            list(.x = lifeyears_nest, .y = last_year + 1, .z = impact_nest),
+          impact_with_discount_nest = purrr::pmap(
+            list(.x = lifeyears_nest, .y = last_year + 1, .z = impact_for_discounting_nest),
             function(.x, .y, .z){
 
               ## Calculate total, discounted life years (single value) per sex & ci ####
@@ -258,7 +293,7 @@ get_deaths_yll_yld <-
                   discounted_impact = impact * discount_factor)
 
               ## If yll or yld
-              if(outcome_metric %in% c("yll", "yld")){
+              if({{outcome_metric}} %in% c("yll", "yld")){
 
                 lifeyear_nest_with_discount <-
                   ## Filter for the relevant years
@@ -283,23 +318,18 @@ get_deaths_yll_yld <-
 
             }
           )
-        )
-      }
+        )|>
+        # Remove column impact to avoid duplication
+        dplyr::select(-impact, -discounted) |>
+        ## Unnest the obtained impacts to integrate them the main tibble
+        ## Impact saved in column impact
+        tidyr::unnest(impact_with_discount_nest)
 
-    # Last preparation of the detailed results #################################
-    impact_detailed <-
-      impact_detailed |>
-      ## Unnest the obtained impacts to integrated them the main tibble
-      ## Impact saved in column impact
-      tidyr::unnest(impact_nest) |>
-      # Add  metric
-      dplyr::mutate(
-        outcome_metric = outcome_metric)
 
-    if(outcome_metric == "deaths"){
-      impact_detailed <- impact_detailed |>
-      dplyr::rename(impact = impact_nest)
+
     }
+
+
 
 
 
@@ -307,52 +337,32 @@ get_deaths_yll_yld <-
 
     ## ONLY if not a lifetable calculation, which already have a "total" row
 
-    if ( FALSE == grepl("from_lifetable", unique(impact_detailed$health_metric) ) ) { # Is TRUE only for non-lifetable calculations
+    #if ( FALSE == grepl("from_lifetable", unique(impact_detailed$health_metric) ) ) { # Is TRUE only for non-lifetable calculations
 
-    impact_detailed_total <-
-      impact_detailed |>
-      ## Sum across sex adding total
-      dplyr::group_by(.,
-                      across(-c(sex, impact, contains("nest"))))|>
-                      # If everything runs smoothly wihtout this lines, delete
-                      # across(all_of(intersect(c("geo_id_raw", "geo_id_aggregated",
-                      #                           "discounted", "erf_ci"),
-                      #                         names(.))))) |>
-      dplyr::summarise(.,
-                       across(.cols = c(impact), sum),
-                       across(sex, ~"total"),
-                       across(contains("nest"), ~list("total")),
-                    .groups = "drop")
+    #impact_detailed_total <-
+    #  impact_detailed |>
+    #  ## Sum across sex adding total
+    #  dplyr::group_by(.,
+    #                  across(-c(sex, impact, contains("nest"))))|>
+    #                  # If everything runs smoothly wihtout this lines, delete
+    #                  # across(all_of(intersect(c("geo_id_raw", "geo_id_aggregated",
+    #                  #                           "discounted", "erf_ci"),
+    #                  #                         names(.))))) |>
+    #  dplyr::summarise(.,
+    #                   across(.cols = c(impact), sum),
+    #                   across(sex, ~"total"),
+    #                   across(contains("nest"), ~list("total")),
+    #                .groups = "drop")
+    #
+    ### Bind the rows of impact_detailed and the totals
+    #impact_detailed <-
+    #  dplyr::bind_rows(impact_detailed, impact_detailed_total)
+    #}
 
-    ## Bind the rows of impact_detailed and the totals
-    impact_detailed <-
-      dplyr::bind_rows(impact_detailed, impact_detailed_total)
-
-    }
-
-    ## Create ID for the rows (will be used below)
-    id_columns <-
-      c("sex",
-        "exposure_name",
-        "geo_id_raw",
-        "erf_ci", "bhd_ci", "exp_ci", "dw_ci", "cutoff_ci", "duration_ci")
-
-    id_columns_in_df <-
-      id_columns[id_columns %in% names(impact_detailed)]
-
-    id <-
-      purrr::pmap_chr(impact_detailed[id_columns_in_df],
-                      ~paste(..., sep = "_"))
-
-    ## Name rows with the ids for better overview in Environment
-    impact_detailed <-
-      impact_detailed  |>
-      dplyr::mutate(across(contains("_nest"),
-                           ~set_names(.x,
-                                      id)))
 
 
     # Get main results from detailed results ###################################
+
 
     impact_main <-
       impact_detailed |>

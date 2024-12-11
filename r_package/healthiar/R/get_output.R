@@ -30,7 +30,6 @@ get_output <-
 
     output_last <- output[["health_main"]]
 
-
     if(unique(impact_raw[["health_main"]]$approach_risk) == "absolute_risk") {
 
       output[["health_detailed"]][["agg_exp_cat"]] <-
