@@ -195,32 +195,6 @@ health_impact <- attribute(
 
 ```
 
-```{r Monetize a simple case}
-# Monetize only with valuation
-bestcost_pm_copd_costs <- 
-  healthiar::include_cost(output = bestcost_pm_copd, 
-                          valuation = 1000)
-
-# Monetize with all arguments (including discount)
-bestcost_pm_copd_cost_discount <- 
-  healthiar::include_cost(output = bestcost_pm_copd, 
-                          discount_shape = "exponential",
-                          corrected_discount_rate = 0.01,
-                          time_period = 5,
-                          valuation = 1000)
-
-# Monetize with all arguments (including discount)
-bestcost_pm_copd_cost_discount_single_value <- 
-  healthiar::include_cost(impact = 2E4, 
-                          discount_shape = "exponential",
-                          corrected_discount_rate = 0.03,
-                          time_period = 20,
-                          valuation = 1)
-check_general(bestcost_pm_copd_cost_discount_single_value$cost_discounted_rounded,
-              14877)
-# According to ChatGPT, the result should be 14877. 5 Dec 2024
-
-```
 
 
 
@@ -2390,6 +2364,48 @@ comparison_daly_lifetable_pif_geo <-
 check_bestcost(result_list_bestcost = comparison_daly_lifetable_pif_geo ,
                # result_vector_alternative = c(31601*2, 16613*2, 46359*2)) # Result on 26 June 2024
                result_vector_alternative = c(66275, 34671, 97702)) # Result on 20 August 2024
+
+```
+# Cost
+
+```{r Monetize a simple case}
+# Monetize only with valuation
+bestcost_pm_copd_costs <- 
+  healthiar::include_cost(output = bestcost_pm_copd, 
+                          valuation = 1000)
+
+
+
+# Monetize with all arguments (including discount)
+bestcost_pm_copd_cost_discount <- 
+  healthiar::include_cost(approach_discount = "direct",
+                          output = bestcost_pm_copd, 
+                          discount_shape = "exponential",
+                          corrected_discount_rate = 0.01,
+                          time_period = 5,
+                          valuation = 1000)
+
+# Monetize with all arguments (including discount)
+bestcost_pm_copd_cost_discount_single_value <- 
+  healthiar::include_cost(approach_discount = "direct",
+                          impact = 2E4, 
+                          discount_shape = "exponential",
+                          corrected_discount_rate = 0.03,
+                          time_period = 20,
+                          valuation = 1)
+check_general(bestcost_pm_copd_cost_discount_single_value$cost_discounted_rounded,
+              14877)
+# According to ChatGPT, the result should be 14877. 5 Dec 2024
+
+
+
+bestcost_pm_yll_exposure_single_year_lifetable_geluft_discount <- 
+  healthiar::include_cost(approach_discount = "indirect",
+                          output = bestcost_pm_yll_exposure_single_year_lifetable_geluft, 
+                          discount_shape = "exponential",
+                          corrected_discount_rate = 0.01,
+                          time_period = 5,
+                          valuation = 1000)
 
 ```
 
