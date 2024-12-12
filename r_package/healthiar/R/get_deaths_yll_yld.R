@@ -212,8 +212,7 @@ get_deaths_yll_yld <-
                 dplyr::filter(.data = _, year < .y) |>
 
                 ## Sum impact
-                dplyr::summarise(impact = sum(impact, na.rm = TRUE)) |>
-                dplyr::mutate(discounted = FALSE)
+                dplyr::summarise(impact = sum(impact, na.rm = TRUE))
 
               return(.x)
             }

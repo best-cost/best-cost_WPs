@@ -2393,19 +2393,21 @@ bestcost_pm_copd_cost_discount_single_value <-
                           corrected_discount_rate = 0.03,
                           time_period = 20,
                           valuation = 1)
-check_general(bestcost_pm_copd_cost_discount_single_value$cost_discounted_rounded,
+check_general(bestcost_pm_copd_cost_discount_single_value$cost_rounded,
               14877)
 # According to ChatGPT, the result should be 14877. 5 Dec 2024
 
 
 
-bestcost_pm_yll_exposure_single_year_lifetable_geluft_discount <- 
+bestcost_pm_yll_lifetable_geluft_discount <- 
   healthiar::include_cost(approach_discount = "indirect",
                           output = bestcost_pm_yll_exposure_single_year_lifetable_geluft, 
-                          discount_shape = "exponential",
+                          discount_shape = "hyperbolic_harvey_1986",
                           corrected_discount_rate = 0.01,
-                          time_period = 5,
-                          valuation = 1000)
+                          valuation = 1)
+
+check_general(bestcost_pm_yll_lifetable_geluft_discount[["cost_main"]]$cost_rounded,
+              c(26493, 13877, 39006))
 
 ```
 
