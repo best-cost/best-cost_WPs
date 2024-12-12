@@ -5,6 +5,7 @@
 \title{include_cost}
 \usage{
 include_cost(
+  approach_discount = "direct",
   output = NULL,
   impact = NULL,
   valuation,
@@ -14,6 +15,8 @@ include_cost(
 )
 }
 \arguments{
+\item{approach_discount}{\code{String} referring to the method to be used for the discounting choosing between the default "direct" (after obtaining the health impacts) and the alternative "indirect" (before the health impacts).}
+
 \item{output}{\code{List} produced by \code{healthiar::attribute()} or \code{healthiar::compare()} as results.}
 
 \item{impact}{\code{Numberic value} referring to the health impacts to be monetized (without attribute function).}
