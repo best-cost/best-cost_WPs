@@ -49,7 +49,7 @@ compare_yll_from_lifetable(
   dw_upper = NULL,
   duration_central = 100,
   corrected_discount_rate = NULL,
-  approach_discount = NULL,
+  discount_shape = NULL,
   min_age = NULL,
   max_age = NULL,
   geo_id_raw = NULL,
@@ -109,7 +109,7 @@ compare_yll_from_lifetable(
 
 \item{corrected_discount_rate}{\code{Numeric value} showing the discount rate for future years including correction from inflation rate}
 
-\item{approach_discount}{\code{String} referring to the assumed equation for the discount factor.Per default: "exponential". Otherwise: "hyperbolic_harvey_1986" or "hyperbolic_mazur_1987".}
+\item{discount_shape}{\code{String} referring to the assumed equation for the discount factor.Per default: "exponential". Otherwise: "hyperbolic_harvey_1986" or "hyperbolic_mazur_1987".}
 
 \item{min_age}{\code{Numberic value} of the minimal age to be considered for adults (by default 30, i.e. 30+).}
 

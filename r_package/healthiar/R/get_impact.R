@@ -26,7 +26,7 @@ get_impact <-
            min_age = NULL,
            max_age = NULL,
            corrected_discount_rate = NULL,
-           approach_discount = NULL,
+           discount_shape = NULL,
            pop_fraction_type,
            population = NULL){
 
@@ -94,7 +94,7 @@ get_impact <-
               min_age = min_age,
               max_age = max_age,
               corrected_discount_rate = corrected_discount_rate,
-              approach_discount = approach_discount,
+              discount_shape = discount_shape,
               input_with_risk_and_pop_fraction = input_with_risk_and_pop_fraction)
 
     } else if (unique(input$health_metric) %in% "daly_from_lifetable"){

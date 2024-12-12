@@ -26,7 +26,7 @@ get_deaths_yll_yld <-
            max_age = NULL,
            input_with_risk_and_pop_fraction,
            corrected_discount_rate = NULL,
-           approach_discount = NULL){
+           discount_shape = NULL){
 
     # browser()
 
@@ -278,7 +278,7 @@ get_deaths_yll_yld <-
                 dplyr::mutate(year = as.numeric(year),
                               time_period = year - {{year_of_analysis}},
                               corrected_discount_rate = {{corrected_discount_rate}},
-                              approach_discount = {{approach_discount}}) |>
+                              discount_shape = {{discount_shape}}) |>
 
                 # Calculate discount rate for each year
                 dplyr::mutate(
@@ -286,7 +286,7 @@ get_deaths_yll_yld <-
                     healthiar::get_discount_factor(
                       corrected_discount_rate = corrected_discount_rate,
                       time_period = time_period,
-                      approach_discount = approach_discount))|>
+                      discount_shape = discount_shape))|>
                 # Calculate life years discounted
 
                 dplyr::mutate(

@@ -19,7 +19,7 @@ include_cost <- function(output = NULL,
                          valuation,
                          corrected_discount_rate = NULL,
                          time_period = 1,
-                         approach_discount = NULL) {
+                         discount_shape = NULL) {
 
 
   # Identify the relevant columns for monetization that are in the output
@@ -39,7 +39,7 @@ include_cost <- function(output = NULL,
                                        valuation = valuation,
                                        corrected_discount_rate = corrected_discount_rate,
                                        time_period = time_period,
-                                       approach_discount = approach_discount) |>
+                                       discount_shape = discount_shape) |>
       # Keep only relevant columns for monetization
       dplyr::select(
         # The columns containing "_ci" are the uncertainties that define the rows
@@ -53,7 +53,7 @@ include_cost <- function(output = NULL,
                                        valuation = valuation,
                                        corrected_discount_rate = corrected_discount_rate,
                                        time_period = time_period,
-                                       approach_discount = approach_discount) |>
+                                       discount_shape = discount_shape) |>
       # Keep only relevant columns for monetization
       dplyr::select(any_of(relevant_columns), contains("_ci"))
   }
@@ -65,7 +65,7 @@ include_cost <- function(output = NULL,
                                        valuation = valuation,
                                        corrected_discount_rate = corrected_discount_rate,
                                        time_period = time_period,
-                                       approach_discount = approach_discount)
+                                       discount_shape = discount_shape)
   }
 
 

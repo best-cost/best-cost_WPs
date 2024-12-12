@@ -25,7 +25,7 @@
 #' @param dw_central,dw_lower,dw_upper \code{Numeric value} showing the disability weights (central estimate, lower and upper 95\% confidence intervals) associated with the morbidity health outcome
 #' @param duration_central,duration_lower,duration_upper \code{Numeric value} showing the central estimate of the disease duration and (optionally) the lower and upper bounds of the 95\% confidence interval.
 #' @param corrected_discount_rate \code{Numeric value} showing the discount rate for future years including correction from inflation rate
-#' @param approach_discount \code{String} referring to the assumed equation for the discount factor. Per default: "exponential". Otherwise: "hyperbolic_harvey_1986" or "hyperbolic_mazur_1987".
+#' @param discount_shape \code{String} referring to the assumed equation for the discount factor. Per default: "exponential". Otherwise: "hyperbolic_harvey_1986" or "hyperbolic_mazur_1987".
 #' @param population code{Vector} with numeric values referring to the population in the geographical unit
 #' @param geo_id_raw \code{Vector} showing the id code of the each geographic area considered in the assessment. If a vector is entered here, the data for each geographical area have to be provided as list in the corresponding arguments.
 #' @param geo_id_aggregated \code{Vector} showing the id code of the geographic area for which raw geo ids have to be aggregated. The vector has to have the same length as geo_id_raw. Therefore, geo_id_aggregated should have duplicated values for those geo_id_r
@@ -75,7 +75,7 @@ attribute <-
            info = NULL,
            # Discounting
            corrected_discount_rate = NULL,
-           approach_discount = NULL){
+           discount_shape = NULL){
 
     # Check input data
     #stopifnot(exprs = {
@@ -114,7 +114,7 @@ attribute <-
         deaths_female = deaths_female,
         # Discounting
         corrected_discount_rate = corrected_discount_rate,
-        approach_discount = approach_discount)
+        discount_shape = discount_shape)
 
 
     # Calculate the health impacts for each case (uncertainty, category, geo area...)
@@ -125,7 +125,7 @@ attribute <-
                              min_age = min_age,
                              max_age = max_age,
                              corrected_discount_rate = corrected_discount_rate,
-                             approach_discount = approach_discount,
+                             discount_shape = discount_shape,
                              pop_fraction_type = "paf")
 
     # Get the main and detailed output by aggregating and/or filtering cases (rows)

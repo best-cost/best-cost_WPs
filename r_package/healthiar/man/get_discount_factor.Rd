@@ -7,7 +7,7 @@
 get_discount_factor(
   corrected_discount_rate,
   time_period,
-  approach_discount = "exponential"
+  discount_shape = "exponential"
 )
 }
 \arguments{
@@ -15,7 +15,7 @@ get_discount_factor(
 
 \item{time_period}{\code{Numeric value} referring to the period of time to be considered in the discounting.}
 
-\item{approach_discount}{\code{String} referring to the assumed equation for the discount factor. Per default: "exponential". Otherwise: "hyperbolic_harvey_1986" or "hyperbolic_mazur_1987".}
+\item{discount_shape}{\code{String} referring to the assumed equation for the discount factor. Per default: "exponential". Otherwise: "hyperbolic_harvey_1986" or "hyperbolic_mazur_1987".}
 }
 \description{
 Get discount factor based on discount rate (already corrected for inflation)

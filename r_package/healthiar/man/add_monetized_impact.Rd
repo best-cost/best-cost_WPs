@@ -9,7 +9,7 @@ add_monetized_impact(
   valuation,
   corrected_discount_rate,
   time_period,
-  approach_discount
+  discount_shape
 )
 }
 \arguments{
@@ -21,7 +21,7 @@ add_monetized_impact(
 
 \item{time_period}{\code{Numeric value} referring to the period of time to be considered in the discounting.}
 
-\item{approach_discount}{\code{String} referring to the assumed equation for the discount factor. Per default: "exponential". Otherwise: "hyperbolic_harvey_1986" or "hyperbolic_mazur_1987".}
+\item{discount_shape}{\code{String} referring to the assumed equation for the discount factor. Per default: "exponential". Otherwise: "hyperbolic_harvey_1986" or "hyperbolic_mazur_1987".}
 
 \item{impact}{\code{Numberic value} referring to the health impacts to be monetized (without attribute function).}
 }

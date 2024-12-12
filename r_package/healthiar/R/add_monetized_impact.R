@@ -18,7 +18,7 @@ add_monetized_impact  <- function(df,
                                   valuation,
                                   corrected_discount_rate,
                                   time_period,
-                                  approach_discount) {
+                                  discount_shape) {
 
   df_with_input <-
     df |>
@@ -27,7 +27,7 @@ add_monetized_impact  <- function(df,
     # with the same name
     dplyr::mutate(corrected_discount_rate = {{corrected_discount_rate}},
                   time_period = {{time_period}},
-                  approach_discount = {{approach_discount}})
+                  discount_shape = {{discount_shape}})
 
   df_with_discount_factor <-
     dplyr::cross_join(x = df_with_input,
@@ -37,14 +37,14 @@ add_monetized_impact  <- function(df,
     # better step by step
     dplyr::rowwise() |>
     # Calculate discount factor
-    # If any arguments "corrected_discount_rate" and "approach_discount" are NULL,
+    # If any arguments "corrected_discount_rate" and "discount_shape" are NULL,
     # no discount (i.e. discount_factor=1)
     dplyr::mutate(
       discount_factor =
         healthiar::get_discount_factor(
           corrected_discount_rate = corrected_discount_rate,
           time_period = year,
-          approach_discount = approach_discount))
+          discount_shape = discount_shape))
 
   sum_of_discount_factors <-
     df_with_discount_factor |>

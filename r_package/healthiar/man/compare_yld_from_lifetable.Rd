@@ -53,7 +53,7 @@ compare_yld_from_lifetable(
   duration_lower = NULL,
   duration_upper = NULL,
   corrected_discount_rate = NULL,
-  approach_discount = NULL,
+  discount_shape = NULL,
   geo_id_raw = NULL,
   geo_id_aggregated = NULL,
   info_1 = NULL,
@@ -115,7 +115,7 @@ compare_yld_from_lifetable(
 
 \item{corrected_discount_rate}{\code{Numeric value} showing the discount rate for future years including correction from inflation rate}
 
-\item{approach_discount}{\code{String} referring to the assumed equation for the discount factor.Per default: "exponential". Otherwise: "hyperbolic_harvey_1986" or "hyperbolic_mazur_1987".}
+\item{discount_shape}{\code{String} referring to the assumed equation for the discount factor.Per default: "exponential". Otherwise: "hyperbolic_harvey_1986" or "hyperbolic_mazur_1987".}
 
 \item{geo_id_raw}{\code{Vector} showing the id code of the each geographic area considered in the assessment. If a vector is entered here, the data for each geographical area have to be provided as list in the corresponding arguments.}
 

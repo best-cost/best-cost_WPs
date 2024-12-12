@@ -47,7 +47,7 @@ compile_input(
   deaths_male = NULL,
   deaths_female = NULL,
   corrected_discount_rate = NULL,
-  approach_discount = NULL
+  discount_shape = NULL
 )
 }
 \arguments{
@@ -99,7 +99,7 @@ compile_input(
 
 \item{corrected_discount_rate}{\code{Numeric value} showing the discount rate for future years including correction from inflation rate}
 
-\item{approach_discount}{\code{String} referring to the assumed equation for the discount factor. Per default: "exponential". Otherwise: "hyperbolic_harvey_1986" or "hyperbolic_mazur_1987".}
+\item{discount_shape}{\code{String} referring to the assumed equation for the discount factor. Per default: "exponential". Otherwise: "hyperbolic_harvey_1986" or "hyperbolic_mazur_1987".}
 }
 \value{
 This function returns a \code{data.frame} with all input data together

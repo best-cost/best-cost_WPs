@@ -10,7 +10,7 @@ include_cost(
   valuation,
   corrected_discount_rate = NULL,
   time_period = 1,
-  approach_discount = NULL
+  discount_shape = NULL
 )
 }
 \arguments{
@@ -24,7 +24,7 @@ include_cost(
 
 \item{time_period}{\code{Numeric value} referring to the period of time to be considered in the discounting.}
 
-\item{approach_discount}{\code{String} referring to the assumed equation for the discount factor. Per default: "exponential". Otherwise: "hyperbolic_harvey_1986" or "hyperbolic_mazur_1987".}
+\item{discount_shape}{\code{String} referring to the assumed equation for the discount factor. Per default: "exponential". Otherwise: "hyperbolic_harvey_1986" or "hyperbolic_mazur_1987".}
 }
 \value{
 Description of the return value.
