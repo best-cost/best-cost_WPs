@@ -48,7 +48,7 @@ compare_yll_from_lifetable <-
            dw_central = NULL, dw_lower = NULL, dw_upper = NULL,
            duration_central = 100,
            corrected_discount_rate = NULL,
-           approach_discount = NULL,
+           discount_shape = NULL,
            min_age = NULL, max_age = NULL,
            geo_id_raw = NULL,
            geo_id_aggregated = NULL,
@@ -90,7 +90,7 @@ compare_yll_from_lifetable <-
         dw_central = dw_central, dw_lower = dw_lower, dw_upper = dw_upper,
         duration_central = duration_central,
         corrected_discount_rate = corrected_discount_rate,
-        approach_discount = approach_discount,
+        discount_shape = discount_shape,
         geo_id_raw = geo_id_raw,
         geo_id_aggregated = geo_id_aggregated,
         info_1 = info_1 , info_2 = info_2)

@@ -5,15 +5,18 @@
 \title{include_cost}
 \usage{
 include_cost(
+  approach_discount = "direct",
   output = NULL,
   impact = NULL,
   valuation,
   corrected_discount_rate = NULL,
   time_period = 1,
-  approach_discount = NULL
+  discount_shape = NULL
 )
 }
 \arguments{
+\item{approach_discount}{\code{String} referring to the method to be used for the discounting choosing between the default "direct" (after obtaining the health impacts) and the alternative "indirect" (before the health impacts).}
+
 \item{output}{\code{List} produced by \code{healthiar::attribute()} or \code{healthiar::compare()} as results.}
 
 \item{impact}{\code{Numberic value} referring to the health impacts to be monetized (without attribute function).}
@@ -24,7 +27,7 @@ include_cost(
 
 \item{time_period}{\code{Numeric value} referring to the period of time to be considered in the discounting.}
 
-\item{approach_discount}{\code{String} referring to the assumed equation for the discount factor. Per default: "exponential". Otherwise: "hyperbolic_harvey_1986" or "hyperbolic_mazur_1987".}
+\item{discount_shape}{\code{String} referring to the assumed equation for the discount factor. Per default: "exponential". Otherwise: "hyperbolic_harvey_1986" or "hyperbolic_mazur_1987".}
 }
 \value{
 Description of the return value.

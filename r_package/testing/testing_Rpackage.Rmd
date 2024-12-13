@@ -201,32 +201,6 @@ check_bestcost(result_list_bestcost = bestcost_pm_copd,
 
 
 
-```{r Monetize a simple case}
-# Monetize only with valuation
-bestcost_pm_copd_costs <- 
-  healthiar::include_cost(output = bestcost_pm_copd, 
-                          valuation = 1000)
-
-# Monetize with all arguments (including discount)
-bestcost_pm_copd_cost_discount <- 
-  healthiar::include_cost(output = bestcost_pm_copd, 
-                          approach_discount = "exponential",
-                          corrected_discount_rate = 0.01,
-                          time_period = 5,
-                          valuation = 1000)
-
-# Monetize with all arguments (including discount)
-bestcost_pm_copd_cost_discount_single_value <- 
-  healthiar::include_cost(impact = 2E4, 
-                          approach_discount = "exponential",
-                          corrected_discount_rate = 0.03,
-                          time_period = 20,
-                          valuation = 1)
-check_general(bestcost_pm_copd_cost_discount_single_value$cost_discounted_rounded,
-              14877)
-# According to ChatGPT, the result should be 14877. 5 Dec 2024
-
-```
 
 
 
@@ -1056,9 +1030,7 @@ bestcost_pm_yll_exposure_single_year_lifetable_geluft <-
     deaths_female = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_female,
     year_of_analysis = 2019, 
     info = input_data_mortality$pollutant[2], 
-    min_age = if(is.na(input_data_mortality$min_age[2])) NULL else input_data_mortality$min_age[2],
-    approach_discount = "exponential", #Alternatives: "hyperbolic_harvey_1986" "hyperbolic_mazur_1987",
-    corrected_discount_rate = 0)
+    min_age = if(is.na(input_data_mortality$min_age[2])) NULL else input_data_mortality$min_age[2])
 
 check_bestcost(result_list_bestcost = bestcost_pm_yll_exposure_single_year_lifetable_geluft,
                result_vector_alternative = c(29274.89,	15328.16,	43118.30)) # AirQ+ approach result
@@ -1086,11 +1058,11 @@ bestcost_pm_yll_exposure_single_year_lifetable_geluft_discounted <-
     year_of_analysis = 2019, 
     info = input_data_mortality$pollutant[2], 
     min_age = if(is.na(input_data_mortality$min_age[2])) NULL else input_data_mortality$min_age[2],
-    approach_discount = "hyperbolic_harvey_1986", 
+    discount_shape = "exponential", 
     #Alternatives: "exponential", "hyperbolic_harvey_1986" "hyperbolic_mazur_1987",
     corrected_discount_rate = 0.01)
 
-check_bestcost(result_list_bestcost = bestcost_pm_yll_exposure_single_year_lifetable_geluft,
+check_bestcost(result_list_bestcost = bestcost_pm_yll_exposure_single_year_lifetable_geluft_discounted,
                result_vector_alternative = c(26493, 13877, 39006)) # Results obtained on 5 Dec 2024
 
 ```
@@ -1888,9 +1860,7 @@ comparison_yll_lifetable_delta  <-
     year_of_analysis_2 = 2019, 
     info_1 = input_data_mortality$pollutant[2],
     info_2 = input_data_mortality$pollutant[2], 
-    min_age = 20,
-    corrected_discount_rate = 0.01,
-    approach_discount = "exponential")
+    min_age = 20)
 
 # View(comparison_yll_lifetable_delta)
 
@@ -2396,6 +2366,52 @@ comparison_daly_lifetable_pif_geo <-
 check_bestcost(result_list_bestcost = comparison_daly_lifetable_pif_geo ,
                # result_vector_alternative = c(31601*2, 16613*2, 46359*2)) # Result on 26 June 2024
                result_vector_alternative = c(66275, 34671, 97702)) # Result on 20 August 2024
+
+```
+# Cost
+
+```{r Monetize a simple case}
+# Monetize only with valuation
+bestcost_pm_copd_costs <- 
+  healthiar::include_cost(output = bestcost_pm_copd, 
+                          valuation = 1000)
+
+
+
+# Monetize with all arguments (including discount)
+bestcost_pm_copd_cost_discount <- 
+  healthiar::include_cost(approach_discount = "direct",
+                          output = bestcost_pm_copd, 
+                          discount_shape = "exponential",
+                          corrected_discount_rate = 0.01,
+                          time_period = 5,
+                          valuation = 1000)
+
+# Monetize with all arguments (including discount)
+bestcost_pm_copd_cost_discount_single_value <- 
+  healthiar::include_cost(approach_discount = "direct",
+                          impact = 2E4, 
+                          discount_shape = "exponential",
+                          corrected_discount_rate = 0.03,
+                          time_period = 20,
+                          valuation = 1)
+check_general(bestcost_pm_copd_cost_discount_single_value$cost_rounded,
+              14877)
+# According to ChatGPT, the result should be 14877. 5 Dec 2024
+
+
+
+# Discounting without valuation (=1)
+bestcost_pm_yll_lifetable_geluft_discount <- 
+  healthiar::include_cost(approach_discount = "indirect",
+                          output = bestcost_pm_yll_exposure_single_year_lifetable_geluft, 
+                          discount_shape = "exponential",
+                          corrected_discount_rate = 0.01,
+                          valuation = 1)
+
+check_general(bestcost_pm_yll_lifetable_geluft_discount[["cost_main"]]$cost_rounded,
+              c(26493, 13877, 39006))
+# Result on 13 Dec 2025. Same result as discouting in attribute() (deprecated).
 
 ```
 

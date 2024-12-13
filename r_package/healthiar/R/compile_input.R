@@ -53,7 +53,7 @@ compile_input <-
            deaths_male = NULL, deaths_female = NULL,
            # Discounting
            corrected_discount_rate = NULL,
-           approach_discount = NULL){
+           discount_shape = NULL){
 
     # Check input data
     # stopifnot(exprs = {
@@ -170,7 +170,7 @@ compile_input <-
         dw_lower = dw_lower,
         dw_upper = dw_upper,
         corrected_discount_rate = corrected_discount_rate,
-        approach_discount = approach_discount,
+        discount_shape = discount_shape,
 
         # Finally, those variables that are multi-dimensional (exposure distribution)
         exp_central = unlist(exp_central),

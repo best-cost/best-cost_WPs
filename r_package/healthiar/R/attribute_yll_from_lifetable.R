@@ -34,7 +34,7 @@ attribute_yll_from_lifetable <-
            deaths_male = NULL, deaths_female = NULL,
            year_of_analysis,
            corrected_discount_rate = NULL,
-           approach_discount = NULL,
+           discount_shape = NULL,
            min_age = NULL, max_age = NULL,
            info = NULL,
            duration_central = NULL,
@@ -63,7 +63,7 @@ attribute_yll_from_lifetable <-
         year_of_analysis = year_of_analysis,
         min_age = min_age, max_age = max_age,
         corrected_discount_rate = corrected_discount_rate,
-        approach_discount = approach_discount,
+        discount_shape = discount_shape,
         geo_id_raw = NULL, geo_id_aggregated = NULL,
         time_horizon = time_horizon,
         info = info)

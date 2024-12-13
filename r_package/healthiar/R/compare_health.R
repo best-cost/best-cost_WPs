@@ -71,7 +71,7 @@ compare_health <-
         year_of_analysis_2 = NULL,
         min_age = NULL, max_age = NULL,
         corrected_discount_rate = NULL,
-        approach_discount = NULL,
+        discount_shape = NULL,
         dw_central = NULL, dw_lower = NULL, dw_upper = NULL,
         duration_central = NULL,
         geo_id_raw = geo_id_raw,
