@@ -42,7 +42,7 @@ include_cost <- function(approach_discount = "direct",
 
       # Output will be adapted according to costs
       #TODO The names health are kept just provisionally until we adapt get_output()
-      output[["health_main"]] <-
+      impact_detailed <-
         output[["health_detailed"]][["step_by_step_from_lifetable"]] |>
 
         ## Calculate total, discounted life years (single value) per sex & ci
@@ -57,11 +57,13 @@ include_cost <- function(approach_discount = "direct",
                 .x |>
                 # Convert year to numeric
                 dplyr::mutate(year = as.numeric(year),
-                              time_period = ifelse(is.null({{time_period}}),
-                                                   year - {{year_of_analysis}},
-                                                   {time_period}),
+                              # Ignore user defined time_period
+                              # Here the difference between year of analysis and
+                              # last year of mortality data is to be used
+                              time_period = year - {{year_of_analysis}},
                               corrected_discount_rate = {{corrected_discount_rate}},
-                              discount_shape = {{discount_shape}}) |>
+                              discount_shape = {{discount_shape}})|>
+
 
                 # Calculate discount rate for each year
                 dplyr::mutate(
@@ -69,7 +71,8 @@ include_cost <- function(approach_discount = "direct",
                     healthiar::get_discount_factor(
                       corrected_discount_rate = corrected_discount_rate,
                       time_period = time_period,
-                      discount_shape = discount_shape))|>
+                      discount_shape = discount_shape)) |>
+
                 # Calculate life years discounted
 
                 dplyr::mutate(
@@ -77,9 +80,11 @@ include_cost <- function(approach_discount = "direct",
                   impact_after_discount = impact * discount_factor,
                   impact = impact_after_discount)
 
+
               ## If yll or yld
 
               if({{outcome_metric}} %in% c("yll", "yld")){
+
 
                 lifeyear_nest_with_and_without_discount <-
                   ## Filter for the relevant years
@@ -120,13 +125,31 @@ include_cost <- function(approach_discount = "direct",
 
       # Calculate impact per 100K inhab.
 
-      if("population" %in% colnames(output)){
-        output <-
-          output |>
+      if("population" %in% colnames(impact_detailed)){
+        impact_detailed <-
+          impact_detailed |>
           dplyr::mutate(
             impact_per_100k_inhab = (impact / population) *1E5
           )
       }
+
+
+      #TODO Attention! This this is a copy paste of the last part of get_deaths_yll_yld()
+      # This only provisionally here
+      # Ideally this code below should be part of get_output so that no duplication is needed
+      impact_main <-
+        impact_detailed |>
+        dplyr::select(-contains("nest"))|>
+        dplyr::filter(sex %in% "total")
+
+      if ("duration_ci" %in% names(impact_main)){impact_main <- impact_main |> dplyr::filter(duration_ci %in% "central")}
+      if ("dw_ci" %in% names(impact_main)){impact_main <- impact_main |> dplyr::filter(dw_ci %in% "central")}
+
+      ## Classify results in main and detailed
+      output <- list(health_main = impact_main,
+                     health_detailed = list(step_by_step_from_lifetable = impact_detailed))
+
+      ##Until here in get_deaths_yll_yld
 
 
 
@@ -149,6 +172,7 @@ include_cost <- function(approach_discount = "direct",
     # This means applying the discount after obtaining the attributable health impact
     } else if(approach_discount == "direct"){
 
+
       # Duplicate output to work with costs
       output_cost <-
         output
@@ -158,14 +182,14 @@ include_cost <- function(approach_discount = "direct",
         healthiar:::add_monetized_impact(df = output[["health_main"]],
                                          valuation = valuation,
                                          corrected_discount_rate = corrected_discount_rate,
-                                         time_period = time_period,
+                                         time_period = {{time_period}},
                                          discount_shape = discount_shape)
 
       output_cost[["cost_detailed"]]<-
         healthiar:::add_monetized_impact(df = output[["health_detailed"]][["raw"]],
                                          valuation = valuation,
                                          corrected_discount_rate = corrected_discount_rate,
-                                         time_period = time_period,
+                                         time_period = {{time_period}},
                                          discount_shape = discount_shape)
     }
 
@@ -198,6 +222,8 @@ include_cost <- function(approach_discount = "direct",
     # Using user input ####
     # If the user only provide a number of the impact (not based on output of attribute)
     }else if(!is.null(impact) & is.null(output)){
+
+
       # The approach cannot be indirect
       # Apply the function in main and detailed results
       output_cost <-

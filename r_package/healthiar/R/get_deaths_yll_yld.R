@@ -212,7 +212,8 @@ get_deaths_yll_yld <-
                 dplyr::filter(.data = _, year < .y) |>
 
                 ## Sum impact
-                dplyr::summarise(impact = sum(impact, na.rm = TRUE))
+                dplyr::summarise(impact = sum(impact, na.rm = TRUE))|>
+                dplyr::mutate(discounted = FALSE)
 
               return(.x)
             }
@@ -289,7 +290,8 @@ get_deaths_yll_yld <-
                 # Calculate life years discounted
 
                 dplyr::mutate(
-                  discounted_impact = impact * discount_factor)
+                  impact_after_discount = impact * discount_factor)
+
 
               ## If yll or yld
               if({{outcome_metric}} %in% c("yll", "yld")){
@@ -299,7 +301,7 @@ get_deaths_yll_yld <-
                   dplyr::filter(.data = lifeyear_nest_with_discount,
                                 year < .y) |>
                   ## Sum among years to obtain the total impact (single value)
-                  dplyr::summarise(impact = sum(discounted_impact), .groups = "drop")
+                  dplyr::summarise(impact = sum(impact_after_discount), .groups = "drop")
               }
 
 
@@ -319,7 +321,7 @@ get_deaths_yll_yld <-
           )
         )|>
         # Remove column impact to avoid duplication
-        dplyr::select(-impact, -discounted) |>
+        dplyr::select(-any_of(c("impact", "discounted"))) |>
         ## Unnest the obtained impacts to integrate them the main tibble
         ## Impact saved in column impact
         tidyr::unnest(impact_with_discount_nest)
