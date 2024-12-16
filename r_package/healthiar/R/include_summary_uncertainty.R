@@ -24,8 +24,6 @@ include_summary_uncertainty <- function(
     n_sim
     ) {
 
-  browser()
-
   ## SCRIPT STRUCTURE
   ## For each variable with a confidence interval a distribution is fitted, and
   ## then n_sim values are simulated based on the distribution.
@@ -1067,9 +1065,10 @@ include_summary_uncertainty <- function(
       dat <- dat |>
         bind_cols(dat_sim |> select(-geo_id_raw))
 
-      # * * * no exp CI's, both single and multiple geo unit case ##############
+      # * * * no exp CI's & single geo unit case ###############################
     } else if (
-      ( !length(grep("lower", results[["health_detailed"]][["raw"]][["exp_ci"]])) > 0 )
+      ( !length(grep("lower", results[["health_detailed"]][["raw"]][["exp_ci"]])) > 0 ) &
+      ( max(dat$geo_id_raw) == 1  )
     ) {
 
 
@@ -1109,8 +1108,88 @@ include_summary_uncertainty <- function(
               !!paste0("exp_", .x) := exp_central[.x],
               !!paste0("pop_exp_", .x) := pop_exp[.x])) |>
             purrr::reduce(bind_cols))
-      }
 
+      # * * * no exp CI's & multiple geo unit case #############################
+    }  else if (
+    ( !length(grep("lower", results[["health_detailed"]][["raw"]][["exp_ci"]])) > 0 ) &
+    ( max(dat$geo_id_raw) > 1 )
+    ) {
+
+    ## Create exp and prop_exp vectors
+    exp_central <- results[["health_detailed"]][["raw"]] |>
+      dplyr::filter(exp_ci == "central") |>
+      (\(x) if ("duration_ci" %in% colnames(x)) filter(x, duration_ci == "central") else x)() |>
+      (\(x) if ("dw_ci" %in% colnames(x)) filter(x, dw_ci == "central") else x)() |>
+      dplyr::filter(erf_ci == "central") |>
+      select(geo_id_raw, exposure_dimension, exp) |>
+      group_by(geo_id_raw) %>%
+      summarize(exp_central = list(exp), .groups = "drop")
+
+    pop_exp <- results[["health_detailed"]][["raw"]] |>
+      dplyr::filter(exp_ci == "central") |>
+      (\(x) if ("duration_ci" %in% colnames(x)) filter(x, duration_ci == "central") else x)() |>
+      (\(x) if ("dw_ci" %in% colnames(x)) filter(x, dw_ci == "central") else x)() |>
+      dplyr::filter(erf_ci == "central") |>
+      select(geo_id_raw, pop_exp) |>
+      group_by(geo_id_raw) %>%
+      summarize(pop_exp = list(pop_exp), .groups = "drop")
+
+    ## Create vectors of column names
+    exp_columns <- paste0("exp_", exp_central |>
+                            filter(geo_id_raw == 1) |>
+                            pull(exp_central) |>
+                            unlist() |>
+                            seq_along())
+    pop_columns <- paste0("pop_exp_", exp_central |>
+                            filter(geo_id_raw == 1) |>
+                            pull(exp_central) |>
+                            unlist() |>
+                            seq_along())
+
+    ## Create empty tibble to be filled in loop below
+    ## @ AC: sorry for the loop (again) : P
+    dat_sim <- tibble(
+      geo_id_raw = numeric(0)  # Initialize geo_id_raw as numeric
+    ) |>
+      bind_cols(
+        set_names(rep(list(numeric(0)), length(exp_columns)), exp_columns),
+        set_names(rep(list(numeric(0)), length(pop_columns)), pop_columns)
+      )
+
+    for (i in exp_central$geo_id_raw){
+
+      ## Create temp tibble to store simulated values in
+      temp <- tibble::tibble(
+        geo_id_raw = rep(i, times = n_sim)) |>
+        bind_cols(
+          purrr::map(
+            # .x will take the values 1, 2, ..., (nr. of exposure categories)
+            .x = seq_along(
+              exp_central |>
+                dplyr::filter(geo_id_raw == i) |>
+                dplyr::pull(exp_central) |>
+                base::unlist(x = _)
+            ),
+            .f = ~ tibble::tibble(
+              !!paste0("exp_", .x) := exp_central |> filter(geo_id_raw == i) |> pull(exp_central) |> unlist(x = _) |> nth(.x),
+              !!paste0("pop_exp_", .x) := pop_exp |> filter(geo_id_raw == i) |> pull(pop_exp) |> unlist(x = _) |> nth(.x)
+            )) |>
+            purrr::reduce(bind_cols)
+        )
+
+      ## Add simulated values of current iteration to dat_sim tabble
+      dat_sim <- dat_sim |>
+        bind_rows(temp)
+
+    }
+
+    # browser()
+
+    # Add simulated values of all geo units to dat tibble
+    dat <- dat |>
+      bind_cols(dat_sim |> select(-geo_id_raw))
+
+    }
 
     # * * dw ###################################################################
 
@@ -1163,16 +1242,15 @@ include_summary_uncertainty <- function(
       #                               dw_central = dw_central,
       #                               vector_dw_ci = vector_dw_ci))
 
-      # * * * No dw CIs, both single and multiple geo unit case ##################
-    } else if ( ("dw" %in% names(results[["health_detailed"]][["raw"]])) &
-                ( max(dat$geo_id_raw) == 1 ) ) {
+      # * * * No dw CIs, both single and multiple geo unit case ################
+    } else if ( ("dw" %in% names(results[["health_detailed"]][["raw"]])) ) {
       dat <- dat |>
         dplyr::mutate(dw = results[["health_detailed"]][["raw"]] |>
                         dplyr::filter(dw_ci == "central") |>
                         dplyr::pull(dw) |>
                         dplyr::first())
 
-      # * * * No dw inputted, both single and multiple geo unit case #############
+      # * * * No dw inputted, both single and multiple geo unit case ###########
     } else if ( !( "dw" %in% names(results[["health_detailed"]][["raw"]]) ) ) {
 
       dat <- dat |>
@@ -1180,8 +1258,10 @@ include_summary_uncertainty <- function(
 
     }
 
+    # * * erf_eq #################################################################
 
-    # * rr_conc ################################################################
+    # * * * No erf_eq CI's, both single and multiple geo unit case ###############
+    if ( length(grep("lower", results[["health_detailed"]][["raw"]][["erf_ci"]])) == 0 ) {
 
     ## Calculate risk for each noise band
     dat <- dat |>
@@ -1191,9 +1271,54 @@ include_summary_uncertainty <- function(
                       .names = "risk_{str_remove(.col, 'exp_')}")
       )
 
-    # * Get impact #############################################################
+    # * * * erf_eq CI's & multiple geo unit case ##################
+    } else if ( length(grep("lower", results[["health_detailed"]][["raw"]][["erf_ci"]])) > 0 ){
 
-    # browser()
+
+      ## For each exp category, create 3 risk columns: e.g. risk_1_central, risk_1_lower, risk_1_upper & add to dat
+      ### For the columns risk_..._central use the erf_eq_central, for risk_..._lower use the erf_eq_lower, ...
+
+      ## Calculate risk estimates for each exposure band
+      test <- dat |>
+        ### Central risk estimates
+        dplyr::mutate(
+          dplyr::across(.cols = dplyr::starts_with("exp_"),
+                        .fns = ~ healthiar::get_risk(exp = .x, erf_eq = results[["health_detailed"]][["raw"]] |> filter(erf_ci == "central") |> pull(erf_eq) |> first()) / 100,
+                        .names = "risk_central_{str_remove(.col, 'exp_')}")
+        ) |>
+        ### Lower risk estimates
+        dplyr::mutate(
+          dplyr::across(.cols = dplyr::starts_with("exp_"),
+                        .fns = ~ healthiar::get_risk(exp = .x, erf_eq = results[["health_detailed"]][["raw"]] |> filter(erf_ci == "lower") |> pull(erf_eq) |> first()) / 100,
+                        .names = "risk_lower_{str_remove(.col, 'exp_')}")
+        ) |>
+        ### Upper risk estimates
+        dplyr::mutate(
+          dplyr::across(.cols = dplyr::starts_with("exp_"),
+                        .fns = ~ healthiar::get_risk(exp = .x, erf_eq = results[["health_detailed"]][["raw"]] |> filter(erf_ci == "upper") |> pull(erf_eq) |> first()) / 100,
+                        .names = "risk_upper_{str_remove(.col, 'exp_')}")
+        )
+
+      ## Trial code
+      # risk_central <- results[["health_detailed"]][["raw"]] |>
+      #   dplyr::filter(erf_ci == "central") |>
+      #   (\(x) if ("duration_ci" %in% colnames(x)) filter(x, duration_ci == "central") else x)() |>
+      #   (\(x) if ("dw_ci" %in% colnames(x)) filter(x, dw_ci == "central") else x)() |>
+      #   dplyr::filter(exp_ci == "central") |>
+      #   select(geo_id_raw, erf_ci, exposure_dimension, exp, erf_eq) |>
+      #   group_by(geo_id_raw) |>
+      #   dplyr::mutate(risk_central = healthiar::get_risk(exp = exp, erf_eq = erf_eq))
+
+
+      ## For each noise band for each row fit a normal distribution using the risk_..._... columns and simulate 1 value (for that specific row)
+      # code to be added ...
+
+    }
+
+
+
+
+    # * Get impact #############################################################
 
     ## Calculate impact per noise band
     ### impact_X = risk_X * pop_X * dw
