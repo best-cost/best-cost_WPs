@@ -331,37 +331,6 @@ get_deaths_yll_yld <-
     }
 
 
-
-
-
-    # Obtain total rows (sum across sex) #######################################
-
-    ## ONLY if not a lifetable calculation, which already have a "total" row
-
-    #if ( FALSE == grepl("from_lifetable", unique(impact_detailed$health_metric) ) ) { # Is TRUE only for non-lifetable calculations
-
-    #impact_detailed_total <-
-    #  impact_detailed |>
-    #  ## Sum across sex adding total
-    #  dplyr::group_by(.,
-    #                  across(-c(sex, impact, contains("nest"))))|>
-    #                  # If everything runs smoothly wihtout this lines, delete
-    #                  # across(all_of(intersect(c("geo_id_raw", "geo_id_aggregated",
-    #                  #                           "discounted", "erf_ci"),
-    #                  #                         names(.))))) |>
-    #  dplyr::summarise(.,
-    #                   across(.cols = c(impact), sum),
-    #                   across(sex, ~"total"),
-    #                   across(contains("nest"), ~list("total")),
-    #                .groups = "drop")
-    #
-    ### Bind the rows of impact_detailed and the totals
-    #impact_detailed <-
-    #  dplyr::bind_rows(impact_detailed, impact_detailed_total)
-    #}
-
-
-
     # Get main results from detailed results ###################################
 
 
