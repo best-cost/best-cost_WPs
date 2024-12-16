@@ -334,57 +334,7 @@ get_deaths_yll_yld <-
 
 
 
-    # Obtain total rows (sum across sex) #######################################
-
-    ## ONLY if not a lifetable calculation, which already have a "total" row
-
-    #if ( FALSE == grepl("from_lifetable", unique(impact_detailed$health_metric) ) ) { # Is TRUE only for non-lifetable calculations
-
-    #impact_detailed_total <-
-    #  impact_detailed |>
-    #  ## Sum across sex adding total
-    #  dplyr::group_by(.,
-    #                  across(-c(sex, impact, contains("nest"))))|>
-    #                  # If everything runs smoothly wihtout this lines, delete
-    #                  # across(all_of(intersect(c("geo_id_raw", "geo_id_aggregated",
-    #                  #                           "discounted", "erf_ci"),
-    #                  #                         names(.))))) |>
-    #  dplyr::summarise(.,
-    #                   across(.cols = c(impact), sum),
-    #                   across(sex, ~"total"),
-    #                   across(contains("nest"), ~list("total")),
-    #                .groups = "drop")
-    #
-    ### Bind the rows of impact_detailed and the totals
-    #impact_detailed <-
-    #  dplyr::bind_rows(impact_detailed, impact_detailed_total)
-    #}
-
-
-
-    # Get main results from detailed results ###################################
-
-
-    impact_main <-
-      impact_detailed |>
-      dplyr::select(-contains("nest"))|>
-      dplyr::filter(sex %in% "total")
-
-    if ("duration_ci" %in% names(impact_main)){impact_main <- impact_main |> dplyr::filter(duration_ci %in% "central")}
-    if ("dw_ci" %in% names(impact_main)){impact_main <- impact_main |> dplyr::filter(dw_ci %in% "central")}
-
-    if (!is.null(corrected_discount_rate)) {
-      impact_main <- impact_main |>
-        dplyr::filter(discounted %in% TRUE)
-    }
-
-    ## Classify results in main and detailed
-    output <- list(health_main = impact_main,
-                   health_detailed = list(step_by_step_from_lifetable = impact_detailed))
-
-
-
-    return(output)
+    return(impact_detailed)
 
 
   }

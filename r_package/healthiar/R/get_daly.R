@@ -50,27 +50,21 @@ get_daly <-
     # Remove impact (it can never be a joining column)
     joining_columns_yll_yld <-
       healthiar:::find_joining_columns(
-        df1 = impact_yll_yld_raw[["yll"]][["health_main"]],
-        df2 = impact_yll_yld_raw[["yld"]][["health_main"]],
+        df1 = impact_yll_yld_raw[["yll"]],
+        df2 = impact_yll_yld_raw[["yld"]],
         except = "impact")
 
     # New table containing yll and yld results
-    impact_daly_main_raw <-
+    impact_raw <-
       # Join yll and yld tables
-      dplyr::full_join(impact_yll_yld_raw[["yll"]][["health_main"]],
-                       impact_yll_yld_raw[["yld"]][["health_main"]],
+      dplyr::full_join(impact_yll_yld_raw[["yll"]],
+                       impact_yll_yld_raw[["yld"]],
                        by = joining_columns_yll_yld,
                        suffix = c("_yll", "_yld")) |>
       # Sum yll and yld
       dplyr::mutate(impact = impact_yll + impact_yld)
 
-    # Create compile main and detailed results
-    impact_raw <- list(
-      health_main = impact_daly_main_raw,
-      health_detailed = list(impact_yll_yld_raw = impact_yll_yld_raw)
-    )
-
-    return(impact_raw)
+   return(impact_raw)
 
 
   }
