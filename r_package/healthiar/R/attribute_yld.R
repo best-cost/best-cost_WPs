@@ -19,15 +19,17 @@
 #' @note Experimental function
 #' @export
 attribute_yld <-
-  function(approach_multiexposure = NULL,
+  function(approach_risk = "relative_risk",
+           approach_multiexposure = NULL,
            exp_central, exp_lower = NULL, exp_upper = NULL,
            prop_pop_exp = 1,
-           cutoff_central, cutoff_lower = NULL, cutoff_upper = NULL,
+           cutoff_central = NULL, cutoff_lower = NULL, cutoff_upper = NULL,
            rr_central = NULL, rr_lower = NULL, rr_upper = NULL,
            erf_increment,
            erf_shape,
            erf_eq_central = NULL, erf_eq_lower = NULL, erf_eq_upper = NULL,
-           bhd_central, bhd_lower = NULL, bhd_upper = NULL,
+           bhd_central = NULL, bhd_lower = NULL, bhd_upper = NULL,
+           population = NULL,
            dw_central, dw_lower = NULL, dw_upper = NULL,
            duration_central, duration_lower = NULL, duration_upper = NULL,
            info = NULL){
@@ -36,10 +38,11 @@ attribute_yld <-
     output <-
       healthiar::attribute(
         health_metric = "yld",
-        approach_risk = "relative_risk",
+        approach_risk = approach_risk,
         approach_multiexposure = approach_multiexposure,
         exp_central = exp_central, exp_lower = exp_lower, exp_upper = exp_upper,
         prop_pop_exp = prop_pop_exp,
+        population = population,
         cutoff_central = cutoff_central, cutoff_lower = cutoff_lower, cutoff_upper = cutoff_upper,
         rr_central = rr_central, rr_lower = rr_lower, rr_upper = rr_upper,
         erf_increment = erf_increment,
