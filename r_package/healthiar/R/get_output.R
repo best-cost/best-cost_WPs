@@ -21,16 +21,49 @@
 get_output <-
   function(impact_raw){
 
-    # Store output so far
-    # The main will change below that we give a first value
-    output <-
-      impact_raw
 
-    output[["health_detailed"]][["raw"]] <- impact_raw[["health_main"]]
 
-    output_last <- output[["health_main"]]
 
-    if(unique(impact_raw[["health_main"]]$approach_risk) == "absolute_risk") {
+    # Get main results from detailed results ###################################
+
+    if(grepl("lifetable", unique(impact_raw$health_metric))){
+      impact_main <-
+        impact_raw |>
+        dplyr::select(-contains("nest"))|>
+        dplyr::filter(sex %in% "total")
+
+      if ("duration_ci" %in% names(impact_main)){impact_main <- impact_main |> dplyr::filter(duration_ci %in% "central")}
+      if ("dw_ci" %in% names(impact_main)){impact_main <- impact_main |> dplyr::filter(dw_ci %in% "central")}
+
+      # Only needed for attribute with discount
+      #TODO To be deleted as soon as we remove attribute with discount
+      if ("corrected_discount_rate" %in% names(impact_raw)) {
+        impact_main <- impact_main |>
+          dplyr::filter(discounted %in% TRUE)
+      }
+
+      ## Classify results in main and detailed
+      output <-
+        list(health_main = impact_main,
+             health_detailed = list(raw = impact_raw))
+
+
+    } else {
+
+      # Store output so far
+      # The main will change below that we give a first value
+      output <-
+        list(health_main = impact_raw,
+             health_detailed = list(raw = impact_raw))}
+
+    # Keep the last version
+      output_last <- output[["health_main"]]
+
+
+
+    # Absolute risk ############
+
+    if(unique(impact_raw$approach_risk) == "absolute_risk") {
 
       output[["health_detailed"]][["agg_exp_cat"]] <-
         output_last |>
@@ -113,7 +146,7 @@ get_output <-
 
     # Aggregate results across pollutants (exposures)
     # if approach_multiexposure == "additive"
-    if(length(unique(impact_raw[["health_main"]]$exposure_name)) > 1){
+    if(length(unique(impact_raw$exposure_name)) > 1){
 
       output[["health_detailed"]][["agg_exp_names"]]  <-
         output_last |>
@@ -147,7 +180,7 @@ get_output <-
       output[["health_main"]] <- output[["health_main"]] |>
         dplyr::filter(cutoff_ci %in% c("central"))}
 
-    if(unique(impact_raw[["health_main"]]$health_metric) %in%
+    if(unique(impact_raw$health_metric) %in%
        c("yld", "yld_from_lifetable")) {
 
       output[["health_main"]] <- output[["health_main"]] |>
