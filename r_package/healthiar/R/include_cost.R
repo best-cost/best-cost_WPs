@@ -35,7 +35,7 @@ include_cost <- function(approach_discount = "direct",
     if(approach_discount == "indirect"){
 
       outcome_metric <-
-        unique(output[["health_detailed"]][["step_by_step_from_lifetable"]]$outcome_metric)
+        unique(output[["health_detailed"]][["raw"]]$outcome_metric)
 
       # Store the original data (they refer to health)
       output_health <- output
@@ -43,7 +43,7 @@ include_cost <- function(approach_discount = "direct",
       # Output will be adapted according to costs
       #TODO The names health are kept just provisionally until we adapt get_output()
       impact_detailed <-
-        output[["health_detailed"]][["step_by_step_from_lifetable"]] |>
+        output[["health_detailed"]][["raw"]] |>
 
         ## Calculate total, discounted life years (single value) per sex & ci
         dplyr::mutate(
@@ -134,28 +134,9 @@ include_cost <- function(approach_discount = "direct",
       }
 
 
-      #TODO Attention! This this is a copy paste of the last part of get_deaths_yll_yld()
-      # This only provisionally here
-      # Ideally this code below should be part of get_output so that no duplication is needed
-      impact_main <-
-        impact_detailed |>
-        dplyr::select(-contains("nest"))|>
-        dplyr::filter(sex %in% "total")
-
-      if ("duration_ci" %in% names(impact_main)){impact_main <- impact_main |> dplyr::filter(duration_ci %in% "central")}
-      if ("dw_ci" %in% names(impact_main)){impact_main <- impact_main |> dplyr::filter(dw_ci %in% "central")}
-
-      ## Classify results in main and detailed
-      output <- list(health_main = impact_main,
-                     health_detailed = list(step_by_step_from_lifetable = impact_detailed))
-
-      ##Until here in get_deaths_yll_yld
-
-
-
       # Get the main and detailed output by aggregating and/or filtering cases (rows)
       output_cost <-
-        healthiar:::get_output(output) |>
+        healthiar:::get_output(impact_detailed) |>
         # Rename the list elements (not anymore health but health including cost)
         setNames(c("cost_main", "cost_detailed"))
 
