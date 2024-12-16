@@ -621,7 +621,7 @@ bestcost_pm_copd_extern_uncertainty <-
 print("Main estimates: ") ; bestcost_pm_copd_with_summary_uncertainty[["health_main"]][["impact_rounded"]]
 ## With external uncertainty function (i.e. include_summary_uncertainty())
 print("Summary uncertainty estimates (extern uncertainty function): ")
-round(as.numeric(bestcost_pm_copd_extern_uncertainty[["uncertainty"]][["health_main"]]), digits = 0)
+round(as.numeric(bestcost_pm_copd_extern_uncertainty[["uncertainty_main"]]), digits = 0)
 # Results of internal Monte-Carlo summary uncertainty and extern Monte-Carlo summary uncertainty identical!
 ```
 
@@ -660,7 +660,7 @@ bestcost_pm_copd_geo_short_uncertainty <-
 # Comparison central +- 95% CIs & Monte-Carlo central, lower, upper estimates
 print("Main estimate: ") ; bestcost_pm_copd_geo_short[["health_main"]][["impact_rounded"]]
 print("Summary uncertainty estimates (extern uncertainty function): ")
-round(as.numeric(bestcost_pm_copd_geo_short_uncertainty[["uncertainty"]][["health_main"]]), digits = 0)
+round(as.numeric(bestcost_pm_copd_geo_short_uncertainty[["uncertainty_main"]]), digits = 0)
 # Results seem plausible
 ```
 
@@ -705,7 +705,7 @@ bestcost_noise_ihd_expDist_extern_uncertainty <- include_summary_uncertainty(
 # Comparison central +- 95% CIs & Monte-Carlo central, lower, upper estimates
 print("Main estimate: ") ; bestcost_noise_ihd_expDist[["health_main"]][["impact_rounded"]]
 print("Summary uncertainty estimates (extern uncertainty function): ")
-round(as.numeric(bestcost_noise_ihd_expDist_extern_uncertainty[["uncertainty"]][["health_main"]]), digits = 0)
+round(as.numeric(bestcost_noise_ihd_expDist_extern_uncertainty[["uncertainty_main"]]), digits = 0)
 # Results seem plausible
 ```
 
@@ -762,7 +762,7 @@ bestcost_noise_ihd_expDist_iteration_uncertainty <- include_summary_uncertainty(
 ## Central estimates from attribte()
 round(as.numeric(bestcost_noise_ihd_expDist_iteration[["health_detailed"]][["raw"]] |> filter(erf_ci == "central") |> filter(exp_ci == "central") |> pull(impact_rounded)), digits = 0) 
 ## Summary uncertainty estimates from include_summary_uncertainty()
-round(as.numeric(bestcost_noise_ihd_expDist_iteration_uncertainty[["uncertainty"]][["health_detailed"]][["geo_specific"]]$impact_central), digits = 0)
+round(as.numeric(bestcost_noise_ihd_expDist_iteration_uncertainty[["uncertainty_detailed"]][["geo_specific"]]$impact_central), digits = 0)
 # Results are higher due to difference in PAF of categories 2 & 3
 
 # Check aggregated impact
@@ -805,7 +805,7 @@ bestcost_pm_yld_singlebhd_external_summary_uncertainty <- healthiar::include_sum
 # View(bestcost_pm_yld_singlebhd_with_summary_uncertainty)
 print("Main estimates: ") ; bestcost_pm_yld_singlebhd_with_summary_uncertainty[["health_main"]][["impact_rounded"]]
 print("Summary uncertainty estimates (external function): ")
-round(as.numeric(bestcost_pm_yld_singlebhd_external_summary_uncertainty[["uncertainty"]][["health_main"]]), digits = 0)
+round(as.numeric(bestcost_pm_yld_singlebhd_external_summary_uncertainty[["uncertainty_main"]]), digits = 0)
 # Results seem plausible
 ```
 
@@ -839,7 +839,7 @@ print("Main estimate: ")
 bestcost_noise_ha_ar_with_summary_uncertainty[["health_main"]][["impact_rounded"]]
 # External include_summary_uncertainty function
 print("Summary uncertainty estimates (extern uncertainty function): ")
-round(as.numeric(bestcost_noise_ha_ar_external_uncertainty[["uncertainty"]][["health_main"]]), digits = 0)
+round(as.numeric(bestcost_noise_ha_ar_external_uncertainty[["uncertainty_main"]]), digits = 0)
 # Results seem plausible
 ```
 
@@ -885,10 +885,41 @@ bestcost_noise_ha_ar_iteration_with_summary_uncertainty <-
 # View(bestcost_pm_yld_singlebhd_with_summary_uncertainty)
 print("Main estimates: ") ; bestcost_noise_ha_ar_iteration_with_summary_uncertainty[["health_main"]][["impact_rounded"]]
 print("Summary uncertainty estimates (external function): ")
-round(as.numeric(bestcost_noise_ha_ar_iteration_with_summary_uncertainty[["uncertainty"]][["health_main"]]), digits = 0)
+round(as.numeric(bestcost_noise_ha_ar_iteration_with_summary_uncertainty[["uncertainty_main"]]), digits = 0)
 # Results seem plausible
 ```
 
+```{r Summary uncertainty ar YLD}
+
+# Get data
+niph_noise_ha_input <- 
+  niph_noise_ha_excel |>
+  dplyr::filter(!is.na(niph_noise_ha_excel$exposure_mean))
+
+# YLD case for absolute risk
+bestcost_noise_ha_ar <- 
+  healthiar::attribute_yld(
+    approach_risk = "absolute_risk",
+    exp_central = niph_noise_ha_input$exposure_mean,
+    population = sum(niph_noise_ha_input$population_exposed_total), 
+    prop_pop_exp = niph_noise_ha_input$population_exposed_total/sum(niph_noise_ha_input$population_exposed_total),
+    erf_eq_central = "78.9270-3.1162*c+0.0342*c^2",
+    dw_central = 0.5, dw_lower = 0.25, dw_upper = 0.75,
+    duration_central = 1, duration_lower = 0.1, duration_upper = 10,
+    info = data.frame(pollutant = "road_noise", outcome = "highly_annoyance"))
+
+bestcost_noise_ha_ar_external_uncertainty <- healthiar::include_summary_uncertainty(
+  bestcost_noise_ha_ar,
+  n_sim = 100)
+
+# Comparison central +- 95% CIs & Monte-Carlo central, lower, upper estimates
+print("Main estimate: ")
+bestcost_noise_ha_ar[["health_main"]][["impact_rounded"]]
+# External include_summary_uncertainty function
+print("Summary uncertainty estimates (extern uncertainty function): ")
+round(as.numeric(bestcost_noise_ha_ar_external_uncertainty[["uncertainty_main"]]), digits = 0)
+# Results seem plausible
+```
 
 
 ### Multiple exposure
