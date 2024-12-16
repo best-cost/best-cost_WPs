@@ -121,8 +121,8 @@ get_impact <-
 
     } else if (
       unique(input$approach_risk) == "absolute_risk" &
-      unique(input$health_metric) == "same_input_output"
-      ){
+      ( unique(input$health_metric) == "same_input_output" | unique(input$health_metric) == "yld" )
+      ) {
 
       # Calculate absolute risk for each exposure category
       impact_raw <-
@@ -132,6 +132,18 @@ get_impact <-
           pop_exp = population * prop_pop_exp,
           impact = absolute_risk_as_percent/100 * pop_exp) |>
         dplyr::mutate(impact_rounded = round(impact, 0))
+
+      # * YLD ##################################################################
+
+      if ( unique(input$health_metric) == "yld" ) {
+
+        impact_raw_main <-
+          impact_raw_main |>
+          dplyr::mutate(impact = impact * dw * duration)
+
+      }
+
+      impact_raw <- list(health_main = impact_raw_main)
 
     }
 

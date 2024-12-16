@@ -147,6 +147,32 @@ library(healthiar)
   #   population = 1E6)
 ```
 
+
+
+```{r Screenshot for poster, eval=FALSE, include=FALSE}
+
+health_impact <- attribute(
+    exp_central = 12.3,
+    bhd_central = 15000,
+    rr_central = 1.04,
+    rr_lower = 1.02,
+    rr_upper = 1.06,
+    cutoff_central = 5,
+    erf_shape = "log_linear",
+    info = "scenario_1")
+
+health_impact <- attribute(
+    exposure = 12.3,
+    baseline_health_data = 15000,
+    rr_central = 1.04,
+    cutoff = 5,
+    erf_shape = "log_linear",
+    info = "PM2.5_scenario_1")
+
+```
+
+
+
 ```{r single exposure value}
 # Assess attributable cases using the AirQ+ export as input data
 bestcost_pm_copd <-
@@ -173,27 +199,7 @@ check_bestcost(result_list_bestcost = bestcost_pm_copd,
                  unlist())
 ```
 
-```{r Screenshot for poster, eval=FALSE, include=FALSE}
 
-health_impact <- attribute(
-    exp_central = 12.3,
-    bhd_central = 15000,
-    rr_central = 1.04,
-    rr_lower = 1.02,
-    rr_upper = 1.06,
-    cutoff_central = 5,
-    erf_shape = "log_linear",
-    info = "scenario_1")
-
-health_impact <- attribute(
-    exposure = 12.3,
-    baseline_health_data = 15000,
-    rr_central = 1.04,
-    cutoff = 5,
-    erf_shape = "log_linear",
-    info = "PM2.5_scenario_1")
-
-```
 
 
 
@@ -522,6 +528,20 @@ bestcost_noise_ha_ar <-
 check_bestcost(result_list_bestcost = bestcost_noise_ha_ar,
                result_vector_alternative = niph_noise_ha_result)
 
+# YLD case for absolute risk
+bestcost_noise_ha_ar <- 
+  healthiar::attribute_yld(
+    approach_risk = "absolute_risk",
+    exp_central = niph_noise_ha_input$exposure_mean,
+    population = sum(niph_noise_ha_input$population_exposed_total), 
+    prop_pop_exp = niph_noise_ha_input$population_exposed_total/sum(niph_noise_ha_input$population_exposed_total),
+    erf_eq_central = "78.9270-3.1162*c+0.0342*c^2",
+    dw_central = 0.5, dw_lower = 0.1, dw_upper = 10,
+    duration_central = 1, duration_lower = 0.1, duration_upper = 10,
+    info = data.frame(pollutant = "road_noise", outcome = "highly_annoyance"))
+
+check_bestcost(result_list_bestcost = bestcost_noise_ha_ar,
+               result_vector_alternative = niph_noise_ha_result/2)
 
 # Obtain attributable cases using the bestcost package and input data from niph
 # for multiple geo_sections
