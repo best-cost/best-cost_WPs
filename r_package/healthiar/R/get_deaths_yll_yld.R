@@ -331,29 +331,10 @@ get_deaths_yll_yld <-
     }
 
 
-    # Get main results from detailed results ###################################
-
-
-    impact_main <-
-      impact_detailed |>
-      dplyr::select(-contains("nest"))|>
-      dplyr::filter(sex %in% "total")
-
-    if ("duration_ci" %in% names(impact_main)){impact_main <- impact_main |> dplyr::filter(duration_ci %in% "central")}
-    if ("dw_ci" %in% names(impact_main)){impact_main <- impact_main |> dplyr::filter(dw_ci %in% "central")}
-
-    if (!is.null(corrected_discount_rate)) {
-      impact_main <- impact_main |>
-        dplyr::filter(discounted %in% TRUE)
-    }
-
-    ## Classify results in main and detailed
-    output <- list(health_main = impact_main,
-                   health_detailed = list(step_by_step_from_lifetable = impact_detailed))
 
 
 
-    return(output)
+    return(impact_detailed)
 
 
   }
