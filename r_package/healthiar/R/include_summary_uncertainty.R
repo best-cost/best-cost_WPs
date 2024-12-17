@@ -476,6 +476,8 @@ include_summary_uncertainty <- function(
       ( max(dat$geo_id_raw) > 1 )
       ) {
 
+      # browser()
+
       ## Generate a tibble with 1000 simulations per exposure category for each geo_id
 
       ## Vectors needed for simulation of exposure values (exp_central, exp_lower, exp_upper & prop_pop_exp central)
@@ -1271,50 +1273,51 @@ include_summary_uncertainty <- function(
                       .names = "risk_{str_remove(.col, 'exp_')}")
       )
 
-    # * * * erf_eq CI's & multiple geo unit case ##################
+    # * * * erf_eq CI's & multiple geo unit case ###############################
     } else if ( length(grep("lower", results[["health_detailed"]][["raw"]][["erf_ci"]])) > 0 ){
 
-
-      ## For each exp category, create 3 risk columns: e.g. risk_1_central, risk_1_lower, risk_1_upper & add to dat
-      ### For the columns risk_..._central use the erf_eq_central, for risk_..._lower use the erf_eq_lower, ...
+      ## For each exp category, create 3 risk (ri) columns: e.g. ri_1_central, ri_1_lower, ri_1_upper & add to dat
+      ### For the columns ri_..._central use the erf_eq_central, for ri_..._lower use the erf_eq_lower, ...
 
       ## Calculate risk estimates for each exposure band
-      test <- dat |>
+      dat <- dat |>
         ### Central risk estimates
         dplyr::mutate(
           dplyr::across(.cols = dplyr::starts_with("exp_"),
                         .fns = ~ healthiar::get_risk(exp = .x, erf_eq = results[["health_detailed"]][["raw"]] |> filter(erf_ci == "central") |> pull(erf_eq) |> first()) / 100,
-                        .names = "risk_central_{str_remove(.col, 'exp_')}")
+                        .names = "ri_central_{str_remove(.col, 'exp_')}")
         ) |>
         ### Lower risk estimates
         dplyr::mutate(
           dplyr::across(.cols = dplyr::starts_with("exp_"),
                         .fns = ~ healthiar::get_risk(exp = .x, erf_eq = results[["health_detailed"]][["raw"]] |> filter(erf_ci == "lower") |> pull(erf_eq) |> first()) / 100,
-                        .names = "risk_lower_{str_remove(.col, 'exp_')}")
+                        .names = "ri_lower_{str_remove(.col, 'exp_')}")
         ) |>
         ### Upper risk estimates
         dplyr::mutate(
           dplyr::across(.cols = dplyr::starts_with("exp_"),
                         .fns = ~ healthiar::get_risk(exp = .x, erf_eq = results[["health_detailed"]][["raw"]] |> filter(erf_ci == "upper") |> pull(erf_eq) |> first()) / 100,
-                        .names = "risk_upper_{str_remove(.col, 'exp_')}")
+                        .names = "ri_upper_{str_remove(.col, 'exp_')}")
         )
 
-      ## Trial code
-      # risk_central <- results[["health_detailed"]][["raw"]] |>
-      #   dplyr::filter(erf_ci == "central") |>
-      #   (\(x) if ("duration_ci" %in% colnames(x)) filter(x, duration_ci == "central") else x)() |>
-      #   (\(x) if ("dw_ci" %in% colnames(x)) filter(x, dw_ci == "central") else x)() |>
-      #   dplyr::filter(exp_ci == "central") |>
-      #   select(geo_id_raw, erf_ci, exposure_dimension, exp, erf_eq) |>
-      #   group_by(geo_id_raw) |>
-      #   dplyr::mutate(risk_central = healthiar::get_risk(exp = exp, erf_eq = erf_eq))
-
-
       ## For each noise band for each row fit a normal distribution using the risk_..._... columns and simulate 1 value (for that specific row)
-      # code to be added ...
-
+      ## Corresponding ri_central_..., ri_lower_... and ri_upper_... columns are used
+      dat <- dat |>
+        rowwise() |>
+        mutate(
+          dplyr::across(
+            .cols = dplyr::starts_with("ri_central_"),
+            .fns = ~ rnorm(
+            1, # Only 1 simulation
+            mean = .x,
+            sd = ( dat[[gsub("ri_central_", "ri_upper_", dplyr::cur_column())]] -
+                     dat[[gsub("ri_central_", "ri_lower_", dplyr::cur_column())]] ) / (2 * 1.96) # Formula: exp_upper - exp_lower) / (2 * 1.96)
+          ),
+          .names = "risk_{str_remove(.col, 'ri_central_')}"
+        )
+        ) |>
+        ungroup()
     }
-
 
 
 
