@@ -1321,7 +1321,7 @@ include_summary_uncertainty <- function(
 
 
 
-    # * Get impact #############################################################
+    # * Get impact AR pathway ##################################################
 
     ## Calculate impact per noise band
     ### impact_X = risk_X * pop_X * dw
@@ -1354,6 +1354,8 @@ include_summary_uncertainty <- function(
 
   # * Multiple geo units ###################################################
   } else if ( max(dat$geo_id_raw) > 1 ) {
+
+    # browser()
 
     ## CIs of impact per geo unit
     impact_per_geo_unit <- dat |>

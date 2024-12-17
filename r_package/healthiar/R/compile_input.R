@@ -113,11 +113,13 @@ compile_input <-
             exposure_name = names(erf_eq_central),
             erf_eq_central = list(erf_eq_central))}
 
-        # If a confidence interval for the erf is provided, add the erf columns
-        if (!is.null(erf_eq_lower) & !is.null(erf_eq_upper)){
-            dplyr::mutate(
-              erf_eq_lower = list(erf_eq_lower),
-              erf_eq_upper = list(erf_eq_upper))}
+    # If a confidence interval for the erf is provided, add the erf columns
+    ## NOTE: commented out on 2024-12-16
+    # if (!is.null(erf_eq_lower) & !is.null(erf_eq_upper)){
+    #
+    #     dplyr::mutate(
+    #       erf_eq_lower = list(erf_eq_lower),
+    #       erf_eq_upper = list(erf_eq_upper))}
 
     # If there exist no column with name "exposure_name" because the vectors were not named,
     # then the column has to be added as NA
