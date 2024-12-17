@@ -5,12 +5,13 @@
 \title{Determine years lived with disability (YLD) attributable to the incidence of a specific morbidity health outcome}
 \usage{
 attribute_yld(
+  approach_risk = "relative_risk",
   approach_multiexposure = NULL,
   exp_central,
   exp_lower = NULL,
   exp_upper = NULL,
   prop_pop_exp = 1,
-  cutoff_central,
+  cutoff_central = NULL,
   cutoff_lower = NULL,
   cutoff_upper = NULL,
   rr_central = NULL,
@@ -21,9 +22,10 @@ attribute_yld(
   erf_eq_central = NULL,
   erf_eq_lower = NULL,
   erf_eq_upper = NULL,
-  bhd_central,
+  bhd_central = NULL,
   bhd_lower = NULL,
   bhd_upper = NULL,
+  population = NULL,
   dw_central,
   dw_lower = NULL,
   dw_upper = NULL,
@@ -34,6 +36,8 @@ attribute_yld(
 )
 }
 \arguments{
+\item{approach_risk}{\code{String} showing the risk risk method. To choose between: "relative_risk" (default) or "absolute_risk".}
+
 \item{approach_multiexposure}{\code{String} showing the approach that has to be used in assessments with multiple exposures. To choose among: "additive", "multiplicative" or "combined".}
 
 \item{exp_central, exp_lower, exp_upper}{\code{Numeric values} of the exposure to the environmental stressor referring to the central estimate and (optionally) to lower and upper bound of the 95\% confidence interval. If only one value is provided, it will be assumed that it refers to population-weighted mean exposure in ug/m3. If a {vector} is provided, it will be assumed that it refers to the exposure categories (average exposure in the category) in a exposure distribution (this information is linked to the proportion of population exposed).}
@@ -49,6 +53,8 @@ attribute_yld(
 \item{erf_eq_central, erf_eq_lower, erf_eq_upper}{\code{String} or \code{function} referring to the equation of the user-defined exposure-response function. If a \code{string} is entered, the function must contains only one variable: x (exposure). E.g. "3+x+x^2". If a \code{function} is entered, it has to have a function class. If only the values of the x-axis (exposure) and y axis (relative risk) of the dots in the exposure-response function are available, a cubic spline natural interpolation can be assumed to get the function using, e.g., \code{stats::splinefun(x, y, method="natural")}}
 
 \item{bhd_central, bhd_lower, bhd_upper}{\code{Numeric value} showing the central estimate and (optionally) the lower bound and the upper bound of the confidence interval of the baseline health data (e.g. incidence of the health outcome in the population).}
+
+\item{population}{code{Vector} with numeric values referring to the population in the geographical unit}
 
 \item{dw_central, dw_lower, dw_upper}{\code{Numeric value} showing the disability weights (central estimate, lower and upper 95\% confidence intervals) associated with the morbidity health outcome}
 
