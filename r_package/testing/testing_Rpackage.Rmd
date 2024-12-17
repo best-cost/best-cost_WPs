@@ -311,10 +311,12 @@ bestcost_pm_death_social_decile <-
                             n_quantile = 10,
                             approach = "quantile")
 
+# View(bestcost_pm_death_social_decile)
 
 # Check that results did not change over time
 check_general(
-  a = bestcost_pm_death_social_decile[["social_main"]]$difference_value,
+  # a = bestcost_pm_death_social_decile[["social_main"]]$difference_value,
+  a = bestcost_pm_death_social_decile[["social_main"]][["original_layout"]]$difference_value,
   # Results on 21 Nov 2024
   b = c(22.52416423, 0.32236823, 14.5680866,0.17252793))
 

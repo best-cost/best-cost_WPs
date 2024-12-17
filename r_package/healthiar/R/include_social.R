@@ -7,7 +7,8 @@
 #' @param approach code{String} referring the approach to include the social aspects. To choose between "quantile" and ?
 #' @inheritParams attribute
 #'
-#' @return Description of the return value.
+#' @return Returns the impact (absolute and relative) theoretically attributable to the difference in the social indicator (e.g. degree of deprivation) between the quantiles.
+#'
 #' @examples
 #' # Example of how to use the function
 #' function_name(param1 = value1, param2 = value2)
@@ -127,6 +128,29 @@ include_social <- function(output,
         relative_overall = absolute_overall / overall)
 
 
+    ## Prepare main output table
+
+    ### ALTERNATIVE
+    social_results_alt <-
+      social_calculation |>
+      ## Filter for relevant rows
+      dplyr::filter(
+        parameter %in% c("exp_mean",
+                         "bhd_rate",
+                         "pop_fraction_mean",
+                         "impact_rate")) |>
+      dplyr::rename(
+        first_quantile = first,
+        last_quantile = last,
+        first_minus_last = absolute_quantile,
+        first_minus_last_then_divided_by_overall = relative_quantile,
+        overall_minus_last = absolute_overall,
+        overall_minus_last_then_divided_by_overall = relative_overall
+        )
+
+
+
+    ### ORIGINAL
     social_results <-
       social_calculation |>
       ## Filter for relevant rows
@@ -168,15 +192,19 @@ include_social <- function(output,
       dplyr::select(-is_paf_from_deprivation, -is_attributable_from_deprivation,
                     -parameter_string)
 
-    output[["social_main"]] <-
+    output[["social_main"]][["original_layout"]] <-
       social_results |>
       ## Keep only impact as parameter
       ## This is the most relevant result.
       ## The other paramenters can be stored in detailed
       ## (just in case some users have interest on this)
       dplyr::filter(parameter == "impact_rate")
+    output[["social_main"]][["alternative_layout"]] <-
+      social_results_alt |>
+      dplyr::filter(parameter == "impact_rate")
 
     output[["social_detailed"]][["results_detailed"]] <- social_results
+    output[["social_detailed"]][["results_detailed_alternative_layout"]] <- social_results_alt
     output[["social_detailed"]][["overview_quantiles"]] <- output_social_by_quantile
 
   }
