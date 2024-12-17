@@ -2,7 +2,7 @@
 
 #' @description Consider socio-economic aspects in the results
 #' @param output \code{List} produced by \code{healthiar::attribute()} or \code{healthiar::compare()} as results
-#' @param deprivation_score \code{Vector} with numeric values showing the deprivation score (indicator of economic wealth) of the fine geographical area (it should match with those used in \code{attribute} or \code{compare})
+#' @param social_indicator \code{Vector} with numeric values showing the deprivation score (indicator of economic wealth) of the fine geographical area (it should match with those used in \code{attribute} or \code{compare})
 #' @param n_quantile code{Numeric value} referring the number of groups in the quantile
 #' @param approach code{String} referring the approach to include the social aspects. To choose between "quantile" and ?
 #' @inheritParams attribute
@@ -14,7 +14,7 @@
 #' @export
 include_social <- function(output,
                            geo_id_raw,
-                           deprivation_score,
+                           social_indicator,
                            n_quantile = 10, # by default: decile
                            approach = "quantile") {
 
@@ -26,7 +26,7 @@ include_social <- function(output,
     dplyr::left_join(
       x = _,
       y = dplyr::tibble(geo_id_raw = geo_id_raw,
-                        deprivation_score = deprivation_score),
+                        social_indicator = social_indicator),
       by = "geo_id_raw")
 
 
@@ -38,11 +38,11 @@ include_social <- function(output,
     output_social <-
       output_social |>
       # Remove NAs
-      filter(!is.na(deprivation_score)) |>
+      filter(!is.na(social_indicator)) |>
       # Add ranking of deprivation score and quantiles
       dplyr::mutate(
-        ranking = min_rank(desc(deprivation_score)),
-        quantile = dplyr::ntile(desc(deprivation_score), n = n_quantile))
+        ranking = min_rank(desc(social_indicator)),
+        quantile = dplyr::ntile(desc(social_indicator), n = n_quantile))
 
     # Basic statistic to be used below
     # Mean exposure in all geographical units (without stratification by quantile)
@@ -129,8 +129,7 @@ include_social <- function(output,
       # Remove rows that are not relevant in the output
       dplyr::filter(parameter %in%
                       c("exp_mean", "bhd_rate",
-                        # Deactivated (not sure if interpretable)
-                        # "pop_fraction_mean",
+                        "pop_fraction_mean",
                         "impact_rate")) |>
     # Long instead of wide layout
       tidyr::pivot_longer(
@@ -144,8 +143,7 @@ include_social <- function(output,
           dplyr::case_when(
             grepl("exp_", parameter) ~ "exposure",
             grepl("bhd_", parameter) ~ "baseline health data",
-            # Deactivated (not sure if interpretable)
-            #grepl("pop_fraction_", parameter) ~ "population attributable fraction",
+            grepl("pop_fraction_", parameter) ~ "population attributable fraction",
             grepl("impact_", parameter) ~ "impact"),
         # Replace "quantile" with "bottom_quantile"
         difference_compared_with =
