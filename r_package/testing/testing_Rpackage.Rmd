@@ -307,7 +307,7 @@ bestcost_pm_death <-
 bestcost_pm_death_social_decile <- 
   healthiar::include_social(output = bestcost_pm_death,
                             geo_id_raw = social_data$CS01012020,
-                            deprivation_score = social_data$score,
+                            social_indicator = social_data$score,
                             n_quantile = 10,
                             approach = "quantile")
 
@@ -944,8 +944,8 @@ bestcost_noise_ha_ar_with_erf_eq <-
     prop_pop_exp = niph_noise_ha_input$population_exposed_total/sum(niph_noise_ha_input$population_exposed_total),
     population = sum(niph_noise_ha_input$population_exposed_total),
     erf_eq_central = "78.9270-3.1162*c+0.0342*c^2",
-    erf_eq_lower = "78.9270-3.1162*c+0.034*c^2",
-    erf_eq_upper = "78.9270-3.1162*c+0.04*c^2",
+    # erf_eq_lower = "78.9270-3.1162*c+0.034*c^2",
+    # erf_eq_upper = "78.9270-3.1162*c+0.04*c^2",
     info = data.frame(pollutant = "road_noise", outcome = "highly_annoyance"),
     )
 # View(bestcost_noise_ha_ar_with_erf_eq)
@@ -960,7 +960,7 @@ bestcost_noise_ha_ar_with_erf_eq_mc <-
 print("Main estimates: ") ; bestcost_noise_ha_ar_with_erf_eq[["health_main"]][["impact_rounded"]]
 print("Summary uncertainty estimates (external function): ")
 round(as.numeric(bestcost_noise_ha_ar_with_erf_eq_mc[["uncertainty_main"]]), digits = 0)
-# Main result seems too low (it is only around half of the attribute result). 
+# Summary uncertainty result seems too low (it is only around half of the attribute result). 
 # However, I'm not sure if we can expect the results to be exactly the same with the methodology implemented... 
 
 ```
@@ -1011,7 +1011,8 @@ bestcost_noise_ha_ar_iteration_with_erf_eq_mc <-
 print("Main estimates: ") ; bestcost_noise_ha_ar_iteration_with_erf_eq[["health_main"]][["impact_rounded"]]
 print("Summary uncertainty estimates (external function): ")
 round(as.numeric(bestcost_noise_ha_ar_iteration_with_erf_eq_mc[["uncertainty_main"]]), digits = 0)
-# Results seem plausible
+# Summary uncertainty  result seems too low (it is only around half of the attribute result). 
+# However, I'm not sure if we can expect the results to be exactly the same with the methodology implemented... 
 
 ```
 
