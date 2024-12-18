@@ -174,7 +174,7 @@ get_impact <-
         )|>
         dplyr::mutate(exposure_type = input$exposure_type |> dplyr::first())
 
-      # * Multiple geo units####################################################
+      # * Multiple geo units ###################################################
 
     } else if ( ( unique(impact_raw$approach_risk) == "relative_risk" ) &
                 ( unique(impact_raw$exposure_type) == "exposure_distribution" ) &

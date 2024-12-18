@@ -40,7 +40,7 @@ get_risk <-
 
 # browser()
 
-    if(is.null(erf_eq)){
+    if ( is.null(erf_eq) ) {
 
 
       if ( erf_shape == "linear" ) {
@@ -48,6 +48,8 @@ get_risk <-
           function(c){
             1+( (rr-1) * (c-cutoff)/erf_increment )
           }
+        rr_c <- erf(exp)
+        return(rr_c)
       }
 
 
@@ -56,6 +58,8 @@ get_risk <-
           function(c){
             exp(log(rr) *(c-cutoff)/erf_increment)
           }
+        rr_c <- erf(exp)
+        return(rr_c)
       }
 
 
@@ -64,6 +68,8 @@ get_risk <-
           function(c){
             1+( (rr-1) * (log(c)-log(cutoff))/log(erf_increment) )
           }
+        rr_c <- erf(exp)
+        return(rr_c)
       }
 
       if ( erf_shape == "log_log" ) {
@@ -71,6 +77,8 @@ get_risk <-
           function(c){
             exp( log(rr) *(log(c)-log(cutoff))/log(erf_increment) )
           }
+        rr_c <- erf(exp)
+        return(rr_c)
       }
 
     }
@@ -93,8 +101,11 @@ get_risk <-
         mapply(function(eq, val) {
           base::eval(base::parse(text = eq), list(c = val))
         }, erf_eq, c)
+
       }
 
+      rr_c <- erf(c = exp, erf_eq = erf_eq)
+      return(rr_c)
       # erf_alt <- function(c){
       #
       #   base::eval(base::parse(text = erf_eq[3]))
@@ -118,19 +129,11 @@ get_risk <-
        if (exp < 0){
          exp <- 0 # Avoid negative exposures
        }
+       rr_c <- erf(exp)
+       return(rr_c)
      }
 
 
     }
-
-    ## Original call
-    ## rr for the specific concentration
-    # rr_c <-
-    #   erf(exp)
-
-    ## New call
-    rr_c <- erf(c = exp, erf_eq = erf_eq)
-
-    return(rr_c)
 
   }
