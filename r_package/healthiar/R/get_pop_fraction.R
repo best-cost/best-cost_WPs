@@ -15,8 +15,17 @@
 
 get_pop_fraction <-
   function(rr_conc_1, rr_conc_2, prop_pop_exp_1, prop_pop_exp_2){
-    # Source:
-    # https://www.ncbi.nlm.nih.gov/pmc/articles/PMC156894/
+
+    ## Check that sum of prop_pop_exp = 1 (100% of population)!
+
+    ## Source:
+    ## https://www.ncbi.nlm.nih.gov/pmc/articles/PMC156894/
+
+    ## pop_fraction = ( sum of the pairwise products of vector containing the proportion of
+    ## the population exposed per exposure band and the corresponding vector
+    ## containing the risk at each exposure band ) minus
+    ## ( sum of the pairwise products of same proportion vector and risk at reference level (i.e. 1) ) divided by
+    ## sum of the first products
     pop_fraction <- (sum(prop_pop_exp_1 * rr_conc_1) - sum(prop_pop_exp_2 * rr_conc_2)) / (sum(prop_pop_exp_1 * rr_conc_1))
 
     return(pop_fraction)
