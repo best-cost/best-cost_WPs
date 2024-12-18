@@ -38,8 +38,6 @@ get_risk <-
     # the shape of the function (erf_shape) and
     # the relative risk from the literature
 
-# browser()
-
     if ( is.null(erf_eq) ) {
 
 

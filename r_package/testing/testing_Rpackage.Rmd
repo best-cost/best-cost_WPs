@@ -714,16 +714,11 @@ round(as.numeric(bestcost_noise_ihd_expDist_extern_uncertainty[["uncertainty_mai
 
 
 ```{r Summary uncertainty rr exposure distribution iteration}
+
 # Data prep
 niph_noise_ihd_input <- 
   niph_noise_ihd_excel |>
   dplyr::filter(!is.na(niph_noise_ihd_excel$exposure_mean))
-niph_noise_ihd_result <- 
-  niph_noise_ihd_excel |>
-        dplyr::filter(exposure_category %in% "Total exposed")|>
-        dplyr::select(daly)|>
-        dplyr::pull() |>
-  round()
 
 # Obtain attributable cases using the bestcost package and input data from niph
 bestcost_noise_ihd_expDist_iteration <- 
@@ -738,8 +733,8 @@ bestcost_noise_ihd_expDist_iteration <-
                      niph_noise_ihd_input$exposure_mean + 5 + 2,
                      niph_noise_ihd_input$exposure_mean + 10 + 2),
     prop_pop_exp = list(niph_noise_ihd_input$prop_exposed,
-                        niph_noise_ihd_input$prop_exposed + 0.1,
-                        niph_noise_ihd_input$prop_exposed + 0.2),
+                        niph_noise_ihd_input$prop_exposed,
+                        niph_noise_ihd_input$prop_exposed),
     cutoff_central = min(niph_noise_ihd_input$exposure_mean), 
     bhd_central = list(niph_noise_ihd_input$gbd_daly[1], 
                        niph_noise_ihd_input$gbd_daly[1] + 5000,
@@ -758,25 +753,25 @@ bestcost_noise_ihd_expDist_iteration_uncertainty <- include_summary_uncertainty(
   bestcost_noise_ihd_expDist_iteration,
     n_sim = 100)
 # View(bestcost_noise_ihd_expDist_iteration_uncertainty)
-# Results are higher due to difference in PAF of categories 2 & 3
 
-# Check impacts per geo unit
-## Central estimates from attribte()
+
+## Check impacts per geo unit
+### Central estimates from attribte()
 round(as.numeric(bestcost_noise_ihd_expDist_iteration[["health_detailed"]][["raw"]] |> filter(erf_ci == "central") |> filter(exp_ci == "central") |> pull(impact_rounded)), digits = 0) 
-## Summary uncertainty estimates from include_summary_uncertainty()
+### Summary uncertainty estimates from include_summary_uncertainty()
 round(as.numeric(bestcost_noise_ihd_expDist_iteration_uncertainty[["uncertainty_detailed"]][["geo_specific"]]$impact_central), digits = 0)
-# Results are higher due to difference in PAF of geo units 2 & 3
+### Results seem plausible
 
 ## Check PAFs  of geo units
 print("Main (PAF's of 1st/2nd/3rd geo unit)")
 bestcost_noise_ihd_expDist_iteration[["health_detailed"]][["raw"]] |> filter(erf_ci == "central") |> filter(exp_ci == "central") |> pull(pop_fraction)
-## The PAF from the attribute call of geo unit 2 (0.0800) doesn't match with the one obtained in the example_road_noise_niph_test.xlsx, while the PAF for geo unit 2 of the include_summary_uncertainty call does
+## The PAFs from the attribute call of the different geo units match with the one obtained in the example_road_noise_niph_test.xlsx
 
-# Check aggregated impact
+## Check aggregated impact
 print("Main estimate: ") ; bestcost_noise_ihd_expDist_iteration[["health_main"]][["impact_rounded"]]
 print("Summary uncertainty estimates (extern uncertainty function): ")
 round(as.numeric(bestcost_noise_ihd_expDist_iteration_uncertainty[["uncertainty_main"]] |> pull(central_estimate)), digits = 0)
-# Aggregated results are higher due to difference in PAF of geo units 2 & 3
+## Results seem plausible
 ```
 
 
