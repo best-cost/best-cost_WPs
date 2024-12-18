@@ -137,13 +137,11 @@ get_impact <-
 
       if ( unique(input$health_metric) == "yld" ) {
 
-        impact_raw_main <-
-          impact_raw_main |>
+        impact_raw <-
+          impact_raw |>
           dplyr::mutate(impact = impact * dw * duration)
 
       }
-
-      impact_raw <- list(health_main = impact_raw_main)
 
     }
 
