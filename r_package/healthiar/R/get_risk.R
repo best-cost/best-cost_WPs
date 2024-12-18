@@ -38,39 +38,47 @@ get_risk <-
     # the shape of the function (erf_shape) and
     # the relative risk from the literature
 
+# browser()
+
+    if ( is.null(erf_eq) ) {
 
 
-    if(is.null(erf_eq)){
-
-
-      if(erf_shape == "linear"){
+      if ( erf_shape == "linear" ) {
         erf <-
           function(c){
             1+( (rr-1) * (c-cutoff)/erf_increment )
           }
+        rr_c <- erf(exp)
+        return(rr_c)
       }
 
 
-      if(erf_shape == "log_linear"){
+      if ( erf_shape == "log_linear" ) {
         erf <-
           function(c){
             exp(log(rr) *(c-cutoff)/erf_increment)
           }
+        rr_c <- erf(exp)
+        return(rr_c)
       }
 
 
-      if(erf_shape == "linear_log"){
+      if ( erf_shape == "linear_log" ) {
         erf <-
           function(c){
             1+( (rr-1) * (log(c)-log(cutoff))/log(erf_increment) )
           }
+        rr_c <- erf(exp)
+        return(rr_c)
       }
 
-      if(erf_shape == "log_log"){
+      if ( erf_shape == "log_log" ) {
         erf <-
           function(c){
             exp( log(rr) *(log(c)-log(cutoff))/log(erf_increment) )
           }
+        rr_c <- erf(exp)
+        return(rr_c)
       }
 
     }
@@ -79,14 +87,30 @@ get_risk <-
     # A second option is to define the erf using
     # an own defined option
 
-    if(!is.null(erf_eq) & is.character(erf_eq)){
+    if ( !is.null(erf_eq) & is.character(erf_eq) ) {
 
+      ## Original function
+      # erf <- function(c){
+      #   # eval() and parse() convert the string into a function
+      #   base::eval(base::parse(text = erf_eq))
+      #
+      # }
 
-      erf <- function(c){
-        # eval() and parse() convert the string into a function
-        eval(parse(text = erf_eq))
+      ## New function
+      erf <- function(c, erf_eq) {
+        mapply(function(eq, val) {
+          base::eval(base::parse(text = eq), list(c = val))
+        }, erf_eq, c)
 
       }
+
+      rr_c <- erf(c = exp, erf_eq = erf_eq)
+      return(rr_c)
+      # erf_alt <- function(c){
+      #
+      #   base::eval(base::parse(text = erf_eq[3]))
+      #
+      # }
 
     }
 
@@ -94,7 +118,7 @@ get_risk <-
     # a set of points (x = exposure, y = relative risk)
     # It will be assumed that
 
-    if(!is.null(erf_eq) & is.function(erf_eq)){
+    if ( !is.null(erf_eq) & is.function(erf_eq) ){
 
 
      erf <- erf_eq
@@ -105,15 +129,11 @@ get_risk <-
        if (exp < 0){
          exp <- 0 # Avoid negative exposures
        }
+       rr_c <- erf(exp)
+       return(rr_c)
      }
 
 
     }
-
-    # rr for the specific concentration
-    rr_c <-
-      erf(exp)
-
-    return(rr_c)
 
   }

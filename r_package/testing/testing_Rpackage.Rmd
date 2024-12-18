@@ -946,8 +946,8 @@ bestcost_noise_ha_ar_with_erf_eq <-
     prop_pop_exp = niph_noise_ha_input$population_exposed_total/sum(niph_noise_ha_input$population_exposed_total),
     population = sum(niph_noise_ha_input$population_exposed_total),
     erf_eq_central = "78.9270-3.1162*c+0.0342*c^2",
-    # erf_eq_lower = "78.9270-3.1162*c+0.034*c^2",
-    # erf_eq_upper = "78.9270-3.1162*c+0.04*c^2",
+    erf_eq_lower = "78.9270-3.1162*c+0.034*c^2",
+    erf_eq_upper = "78.9270-3.1162*c+0.04*c^2",
     info = data.frame(pollutant = "road_noise", outcome = "highly_annoyance"),
     )
 # View(bestcost_noise_ha_ar_with_erf_eq)

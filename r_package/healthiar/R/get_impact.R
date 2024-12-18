@@ -124,6 +124,8 @@ get_impact <-
       ( unique(input$health_metric) == "same_input_output" | unique(input$health_metric) == "yld" )
       ) {
 
+      # browser()
+
       # Calculate absolute risk for each exposure category
       impact_raw <-
         input |>
@@ -133,17 +135,17 @@ get_impact <-
           impact = absolute_risk_as_percent/100 * pop_exp) |>
         dplyr::mutate(impact_rounded = round(impact, 0))
 
+      # browser()
+
       # * YLD ##################################################################
 
       if ( unique(input$health_metric) == "yld" ) {
 
-        impact_raw_main <-
-          impact_raw_main |>
+        impact_raw <-
+          impact_raw |>
           dplyr::mutate(impact = impact * dw * duration)
 
       }
-
-      impact_raw <- list(health_main = impact_raw_main)
 
     }
 
@@ -172,7 +174,7 @@ get_impact <-
         )|>
         dplyr::mutate(exposure_type = input$exposure_type |> dplyr::first())
 
-      # * Multiple geo units####################################################
+      # * Multiple geo units ###################################################
 
     } else if ( ( unique(impact_raw$approach_risk) == "relative_risk" ) &
                 ( unique(impact_raw$exposure_type) == "exposure_distribution" ) &
