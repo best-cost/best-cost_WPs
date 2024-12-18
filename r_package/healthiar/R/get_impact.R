@@ -124,6 +124,8 @@ get_impact <-
       ( unique(input$health_metric) == "same_input_output" | unique(input$health_metric) == "yld" )
       ) {
 
+      # browser()
+
       # Calculate absolute risk for each exposure category
       impact_raw <-
         input |>
@@ -132,6 +134,8 @@ get_impact <-
           pop_exp = population * prop_pop_exp,
           impact = absolute_risk_as_percent/100 * pop_exp) |>
         dplyr::mutate(impact_rounded = round(impact, 0))
+
+      # browser()
 
       # * YLD ##################################################################
 
