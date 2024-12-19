@@ -50,10 +50,7 @@ compile_input <-
            time_horizon = NULL,
            first_age_pop = NULL, last_age_pop = NULL,
            population_midyear_male = NULL, population_midyear_female = NULL,
-           deaths_male = NULL, deaths_female = NULL,
-           # Discounting
-           corrected_discount_rate = NULL,
-           discount_shape = NULL){
+           deaths_male = NULL, deaths_female = NULL){
 
     # Check input data
     # stopifnot(exprs = {
@@ -111,15 +108,17 @@ compile_input <-
         erf_data <- # 1 x 3 tibble
           dplyr::tibble(
             exposure_name = names(erf_eq_central),
-            erf_eq_central = list(erf_eq_central))}
+            ## Functions can't be saved raw in column -> save as list
+            erf_eq_central = list(erf_eq_central))
+        }
 
     # If a confidence interval for the erf is provided, add the erf columns
-    ## NOTE: commented out on 2024-12-16
-    # if (!is.null(erf_eq_lower) & !is.null(erf_eq_upper)){
-    #
-    #     dplyr::mutate(
-    #       erf_eq_lower = list(erf_eq_lower),
-    #       erf_eq_upper = list(erf_eq_upper))}
+    if (!is.null(erf_eq_lower) & !is.null(erf_eq_upper) & is.function(erf_eq_central)){
+      erf_data <-
+        erf_data |>
+         dplyr::mutate(
+           erf_eq_lower = list(erf_eq_lower),
+           erf_eq_upper = list(erf_eq_upper))}
 
     # If there exist no column with name "exposure_name" because the vectors were not named,
     # then the column has to be added as NA
@@ -192,8 +191,6 @@ compile_input <-
         dw_central = dw_central,
         dw_lower = dw_lower,
         dw_upper = dw_upper,
-        corrected_discount_rate = corrected_discount_rate,
-        discount_shape = discount_shape,
 
         ## Finally, those variables that are multi-dimensional (exposure distribution)
         exp_central = unlist(exp_central),
@@ -391,7 +388,6 @@ compile_input <-
       # If no lifetable, only use input_wo_lifetable
       input <- input_wo_lifetable}
 
-    # browser()
-    return(input)
+  return(input)
 
   }

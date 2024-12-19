@@ -7,7 +7,7 @@
 include_social(
   output,
   geo_id_raw,
-  deprivation_score,
+  social_indicator,
   n_quantile = 10,
   approach = "quantile"
 )
@@ -17,14 +17,14 @@ include_social(
 
 \item{geo_id_raw}{\code{Vector} showing the id code of the each geographic area considered in the assessment. If a vector is entered here, the data for each geographical area have to be provided as list in the corresponding arguments.}
 
-\item{deprivation_score}{\code{Vector} with numeric values showing the deprivation score (indicator of economic wealth) of the fine geographical area (it should match with those used in \code{attribute} or \code{compare})}
+\item{social_indicator}{\code{Vector} with numeric values showing the deprivation score (indicator of economic wealth) of the fine geographical area (it should match with those used in \code{attribute} or \code{compare})}
 
 \item{n_quantile}{code{Numeric value} referring the number of groups in the quantile}
 
 \item{approach}{code{String} referring the approach to include the social aspects. To choose between "quantile" and ?}
 }
 \value{
-Description of the return value.
+Returns the impact (absolute and relative) theoretically attributable to the difference in the social indicator (e.g. degree of deprivation) between the quantiles.
 }
 \description{
 Consider socio-economic aspects in the results

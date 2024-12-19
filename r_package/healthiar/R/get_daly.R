@@ -19,7 +19,6 @@ get_daly <-
   function(
     pop_impact,
     input_with_risk_and_pop_fraction,
-    corrected_discount_rate = NULL
     ) {
 
     ## Create list to iterate
@@ -30,7 +29,6 @@ get_daly <-
       impact_yll_yld_raw[[o]] <-
         healthiar:::get_deaths_yll_yld(
           pop_impact = pop_impact,
-          corrected_discount_rate = corrected_discount_rate,
           input_with_risk_and_pop_fraction = input_with_risk_and_pop_fraction |> mutate(health_metric = paste0(o, "_from_lifetable")))
     }
 

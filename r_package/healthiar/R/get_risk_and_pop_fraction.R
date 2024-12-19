@@ -61,25 +61,27 @@ get_risk_and_pop_fraction <-
     input_with_risk_and_pop_fraction <-
       input |>
       ## Add pop fraction type
-      dplyr::mutate(pop_fraction_type = pop_fraction_type) |>
-      ## For the calculations below rowwise approach is needed
-      ## Specifically when more than one exposure type is considered
-      dplyr::rowwise()
+      dplyr::mutate(pop_fraction_type = pop_fraction_type)
 
       ## If PAF
     if ( {{pop_fraction_type}} == "paf" ) {
+
       input_with_risk_and_pop_fraction <- input_with_risk_and_pop_fraction |>
         ## Obtain the relative risk for the relevant concentration
+        rowwise() |>
         dplyr::mutate(rr_conc =
                         healthiar::get_risk(rr = rr,
                                            exp = exp,
                                            cutoff = cutoff,
                                            erf_increment = erf_increment,
                                            erf_shape = erf_shape,
-                                           erf_eq = erf_eq))
+                                           erf_eq = erf_eq)) |>
+        dplyr::ungroup()
+
       ## If PIF
     } else {
       input_with_risk_and_pop_fraction <- input_with_risk_and_pop_fraction |>
+        dplyr::rowwise() |>
         dplyr::mutate(rr_conc_1 =
                         healthiar::get_risk(rr = rr,
                                            exp = exp_1,
@@ -93,10 +95,9 @@ get_risk_and_pop_fraction <-
                                            cutoff = cutoff,
                                            erf_increment = erf_increment,
                                            erf_shape = erf_shape,
-                                           erf_eq = erf_eq))}
-    ## Deactivate rowwise(.)+
-    input_with_risk_and_pop_fraction <- input_with_risk_and_pop_fraction |>
-      dplyr::ungroup()
+                                           erf_eq = erf_eq)) |>
+        dplyr::ungroup()
+      }
 
     # * Correction for multiexposure  ###############################################
     if ( "approach_multiexposure" %in% names(input) ) {

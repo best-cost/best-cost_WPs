@@ -24,8 +24,6 @@
 #' @param bhd_central,bhd_lower,bhd_upper \code{Numeric value} showing the central estimate and (optionally) the lower bound and the upper bound of the confidence interval of the baseline health data (e.g. incidence of the health outcome in the population).
 #' @param dw_central,dw_lower,dw_upper \code{Numeric value} showing the disability weights (central estimate, lower and upper 95\% confidence intervals) associated with the morbidity health outcome
 #' @param duration_central,duration_lower,duration_upper \code{Numeric value} showing the central estimate of the disease duration and (optionally) the lower and upper bounds of the 95\% confidence interval.
-#' @param corrected_discount_rate \code{Numeric value} showing the discount rate for future years including correction from inflation rate
-#' @param discount_shape \code{String} referring to the assumed equation for the discount factor. Per default: "exponential". Otherwise: "hyperbolic_harvey_1986" or "hyperbolic_mazur_1987".
 #' @param population code{Vector} with numeric values referring to the population in the geographical unit
 #' @param geo_id_raw \code{Vector} showing the id code of the each geographic area considered in the assessment. If a vector is entered here, the data for each geographical area have to be provided as list in the corresponding arguments.
 #' @param geo_id_aggregated \code{Vector} showing the id code of the geographic area for which raw geo ids have to be aggregated. The vector has to have the same length as geo_id_raw. Therefore, geo_id_aggregated should have duplicated values for those geo_id_r
@@ -72,10 +70,7 @@ attribute <-
            population = NULL,
            health_metric = "same_input_output",
            approach_multiexposure = NULL,
-           info = NULL,
-           # Discounting
-           corrected_discount_rate = NULL,
-           discount_shape = NULL){
+           info = NULL){
 
     # Check input data
     #stopifnot(exprs = {
@@ -115,16 +110,11 @@ attribute <-
         population_midyear_male = population_midyear_male,
         population_midyear_female =  population_midyear_female,
         deaths_male = deaths_male,
-        deaths_female = deaths_female,
-        # Discounting
-        corrected_discount_rate = corrected_discount_rate,
-        discount_shape = discount_shape)
+        deaths_female = deaths_female)
 
     # Calculate the health impacts for each case (uncertainty, category, geo area...)
     impact_raw <-
       healthiar:::get_impact(input = input,
-                             corrected_discount_rate = corrected_discount_rate,
-                             discount_shape = discount_shape,
                              pop_fraction_type = "paf")
 
     # Get the main and detailed output by aggregating and/or filtering cases (rows)

@@ -21,12 +21,11 @@
 #' @keywords internal
 get_impact <-
   function(input,
-           corrected_discount_rate = NULL,
-           discount_shape = NULL,
            pop_fraction_type,
            population = NULL){
 
     # Relative risk ############################################################
+
     if(unique(input$approach_risk) == "relative_risk"){
       # Get pop_fraction and add to the input data frame
       input_with_risk_and_pop_fraction <-
@@ -78,8 +77,6 @@ get_impact <-
           impact_raw <-
             healthiar:::get_deaths_yll_yld(
               pop_impact = pop_impact,
-              corrected_discount_rate = corrected_discount_rate,
-              discount_shape = discount_shape,
               input_with_risk_and_pop_fraction = input_with_risk_and_pop_fraction)
 
     } else if (unique(input$health_metric) %in% "daly_from_lifetable"){
@@ -94,8 +91,8 @@ get_impact <-
       impact_raw <-
         healthiar:::get_daly(
           pop_impact = pop_impact,
-          corrected_discount_rate = corrected_discount_rate,
-          input_with_risk_and_pop_fraction = input_with_risk_and_pop_fraction)
+          input_with_risk_and_pop_fraction = input_with_risk_and_pop_fraction
+        )
     }
 
 
@@ -109,11 +106,13 @@ get_impact <-
       # Calculate absolute risk for each exposure category
       impact_raw <-
         input |>
+        dplyr::rowwise() |>
         dplyr::mutate(
           absolute_risk_as_percent = healthiar::get_risk(exp = exp, erf_eq = erf_eq),
           pop_exp = population * prop_pop_exp,
-          impact = absolute_risk_as_percent/100 * pop_exp) |>
-        dplyr::mutate(impact_rounded = round(impact, 0))
+          impact = absolute_risk_as_percent/100 * pop_exp,
+          impact_rounded = round(impact, 0)) |>
+          ungroup()
 
       # * YLD ##################################################################
 

@@ -91,8 +91,6 @@ compare_deaths_from_lifetable <-
         min_age = min_age, max_age = max_age,
         dw_central = NULL, dw_lower = NULL, dw_upper = NULL,
         duration_central = NULL,
-        corrected_discount_rate = NULL,
-        discount_shape = NULL,
         geo_id_raw = geo_id_raw,
         geo_id_aggregated = geo_id_aggregated,
         info_1 = info_1 , info_2 = info_2)

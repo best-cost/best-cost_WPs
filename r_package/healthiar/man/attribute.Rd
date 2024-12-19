@@ -47,9 +47,7 @@ attribute(
   population = NULL,
   health_metric = "same_input_output",
   approach_multiexposure = NULL,
-  info = NULL,
-  corrected_discount_rate = NULL,
-  discount_shape = NULL
+  info = NULL
 )
 }
 \arguments{
@@ -104,10 +102,6 @@ attribute(
 \item{approach_multiexposure}{\code{String} showing the approach that has to be used in assessments with multiple exposures. To choose among: "additive", "multiplicative" or "combined".}
 
 \item{info}{\code{String} or {data frame} showing additional information or id. The suffix "info" will be added to the column name. Default value = NULL.}
-
-\item{corrected_discount_rate}{\code{Numeric value} showing the discount rate for future years including correction from inflation rate}
-
-\item{discount_shape}{\code{String} referring to the assumed equation for the discount factor. Per default: "exponential". Otherwise: "hyperbolic_harvey_1986" or "hyperbolic_mazur_1987".}
 }
 \value{
 TBD. E.g. This function returns a \code{data.frame} with one row for each value of the

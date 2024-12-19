@@ -11,8 +11,7 @@ get_daly(
   time_horizon,
   min_age = NULL,
   max_age = NULL,
-  input_with_risk_and_pop_fraction,
-  corrected_discount_rate = NULL
+  input_with_risk_and_pop_fraction
 )
 }
 \arguments{
@@ -25,8 +24,6 @@ get_daly(
 \item{min_age}{\code{Numberic value} of the minimal age to be considered for adults (by default 30, i.e. 30+).}
 
 \item{max_age}{\code{Numberic value} of the maximal age to be considered for infants/children (by default 0, i.e. below 1 year old).}
-
-\item{corrected_discount_rate}{\code{Numeric value} showing the discount rate for future years including correction from inflation rate}
 }
 \value{
 This function returns a \code{List}
