@@ -17,21 +17,14 @@
 #'
 #'
 get_deaths_yll_yld <-
-  function(# outcome_metric,
+  function(
            pop_impact,
-           # year_of_analysis,
-           # min_age = NULL,
-           # max_age = NULL,
            input_with_risk_and_pop_fraction,
            corrected_discount_rate = NULL,
            discount_shape = NULL){
 
-    # browser()
-
-    ## Define variables
+    ## Define outcome_metric variable
     outcome_metric <- sub("_.*", "", unique(input_with_risk_and_pop_fraction$health_metric))
-    # outcome_metric <- {{outcome_metric}}
-    # year_of_analysis <- unique(input_with_risk_and_pop_fraction$year_of_analysis)
 
     # Determine default time horizon for YLL/YLD if not specified ##############
     if ( outcome_metric %in% c("yll", "yld")  &
@@ -89,14 +82,10 @@ get_deaths_yll_yld <-
 
               # Filter for relevant ages #########################################
               # use {{}} to refer to the argument and avoid warnings
-              # browser()
 
-              # if ( !is.null( {{max_age}} ) ) {
               if ( !is.null( max_age) ) {
 
-                # browser()
                 .x <-
-                  # dplyr::filter(.x, age <= {{max_age}})
                   dplyr::filter(.x, age <= max_age)
               }
 
@@ -202,8 +191,6 @@ get_deaths_yll_yld <-
     #         } else
     #           .x<-.x}), .before = 1)
 
-# browser()
-
     # YLD ######################################################################
 
     ## Determine year- and age specific YLD
@@ -282,18 +269,7 @@ get_deaths_yll_yld <-
             list(.x = lifeyears_nest, .y = last_year + 1, outcome_metric = unique(outcome_metric)),
             function(.x, .y, outcome_metric){
 
-            ## IF EVERYTHING RUNS SMOOTHLY, DELETE THIS CODE BLOCK ####
-            ## If deaths
-            # if(outcome_metric == "deaths"){
-            #
-            #   .x <- .x |>
-            #     dplyr::select(.data = _, all_of(paste0("deaths_", year_of_analysis))) |>
-            #     sum(na.rm = TRUE)
-            #   return(.x)
-            #
-            #   }
-
-            # If yll or yld
+            ## If yll or yld
             if( outcome_metric %in% c("yld", "yll")){
 
               .x <-
@@ -421,11 +397,6 @@ get_deaths_yll_yld <-
 
     }
 
-
-
-# browser()
-
     return(impact_detailed)
-
 
   }

@@ -120,14 +120,9 @@ attribute <-
         corrected_discount_rate = corrected_discount_rate,
         discount_shape = discount_shape)
 
-# browser()
     # Calculate the health impacts for each case (uncertainty, category, geo area...)
     impact_raw <-
       healthiar:::get_impact(input = input,
-                             # year_of_analysis = year_of_analysis,
-                             # time_horizon = time_horizon,
-                             # min_age = min_age,
-                             # max_age = max_age,
                              corrected_discount_rate = corrected_discount_rate,
                              discount_shape = discount_shape,
                              pop_fraction_type = "paf")

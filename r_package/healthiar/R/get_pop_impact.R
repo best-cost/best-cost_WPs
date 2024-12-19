@@ -25,10 +25,9 @@
 
 get_pop_impact <-
   function(input_with_risk_and_pop_fraction,
-           outcome_metric#,
-           # min_age
+           outcome_metric
            ){
-# browser()
+
     user_options <- options()
     options(digits = 15)
 
