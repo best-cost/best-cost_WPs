@@ -88,27 +88,21 @@ get_risk <-
     if ( !is.null(erf_eq) & is.character(erf_eq) ) {
 
       ## Original function
-      # erf <- function(c){
-      #   # eval() and parse() convert the string into a function
-      #   base::eval(base::parse(text = erf_eq))
-      #
-      # }
-
-      ## New function
-      erf <- function(c, erf_eq) {
-        mapply(function(eq, val) {
-          base::eval(base::parse(text = eq), list(c = val))
-        }, erf_eq, c)
-
+      erf <- function(c){
+        # eval() and parse() convert the string into a function
+        base::eval(base::parse(text = erf_eq))
       }
-
-      rr_c <- erf(c = exp, erf_eq = erf_eq)
-      return(rr_c)
-      # erf_alt <- function(c){
-      #
-      #   base::eval(base::parse(text = erf_eq[3]))
-      #
+      rr_c <- erf(exp)
+        return(rr_c)
+      ## Option using mapply (runs correctly without rowwise(), see #377 )
+      # erf <- function(c, erf_eq) {
+      #   mapply(function(eq, val) {
+      #     base::eval(base::parse(text = eq), list(c = val))
+      #   }, erf_eq, c)
       # }
+      # rr_c <- erf(c = exp, erf_eq = erf_eq)
+      # return(rr_c)
+
 
     }
 

@@ -471,6 +471,7 @@ pop_data <- readRDS(file = "../testing/input/pop_data.RDS")
 
 bestcost_pm_stroke_mr_brt <-
   healthiar::attribute_health(
+    approach_risk = "relative_risk",
     exp_central = pop_data$Concentration,
     prop_pop_exp = pop_data$Viken,
     cutoff_central = 5,
@@ -480,10 +481,18 @@ bestcost_pm_stroke_mr_brt <-
       stats::splinefun(
         x = MRBRT_stroke$exposure,
         y = MRBRT_stroke$mean,
-        method = "natural"))
+        method = "natural"),
+    erf_eq_lower = stats::splinefun(
+        x = MRBRT_stroke$exposure,
+        y = MRBRT_stroke$mean - 0.01,
+        method = "natural"),
+    erf_eq_upper = stats::splinefun(
+        x = MRBRT_stroke$exposure,
+        y = MRBRT_stroke$mean + 0.01,
+        method = "natural")
+    )
 
 # View(bestcost_pm_stroke_niph)
-# print(bestcost_pm_stroke_niph$main[, c("pop_fraction", "impact_rounded")])
 
 # View(bestcost_pm_stroke_mr_brt)
 
