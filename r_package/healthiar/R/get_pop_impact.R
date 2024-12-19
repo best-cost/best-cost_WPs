@@ -25,8 +25,9 @@
 
 get_pop_impact <-
   function(input_with_risk_and_pop_fraction,
-           outcome_metric,
-           min_age){
+           outcome_metric#,
+           # min_age
+           ){
 # browser()
     user_options <- options()
     options(digits = 15)
@@ -120,7 +121,7 @@ get_pop_impact <-
               # Calculate modified hazard rate = modification factor * hazard rate = mod factor * (deaths / mid-year pop)
               dplyr::mutate(
                 hazard_rate_mod =
-                  dplyr::if_else(age_end > c(rep_len(min_age, length.out = length(age_end))), # This makes sure comparators are of same length
+                  dplyr::if_else(age_end > c(rep_len(input_with_risk_and_pop_fraction |>  pull(min_age) |> first(), length.out = length(age_end))), # This makes sure comparators are of same length
                                  modification_factor * hazard_rate,
                                  hazard_rate),
                 .after = deaths) |>
@@ -129,14 +130,14 @@ get_pop_impact <-
               # ( 2 - modified hazard rate ) / ( 2 + modified hazard rate )
               dplyr::mutate(
                 prob_survival_mod =
-                  dplyr::if_else(age_end > c(rep_len(min_age, length.out = length(age_end))), # This makes sure comparators are of same length
+                  dplyr::if_else(age_end > c(rep_len(input_with_risk_and_pop_fraction |>  pull(min_age) |> first(), length.out = length(age_end))), # This makes sure comparators are of same length
                                  (2 - hazard_rate_mod) / (2 + hazard_rate_mod),
                                  prob_survival),
                 .after = deaths) |>
 
               dplyr::mutate(
                 prob_survival_until_mid_year_mod =
-                  dplyr::if_else(age_end > c(rep_len(min_age, length.out = length(age_end))), # This makes sure comparators are of same length
+                  dplyr::if_else(age_end > c(rep_len(input_with_risk_and_pop_fraction |>  pull(min_age) |> first(), length.out = length(age_end))), # This makes sure comparators are of same length
                                  1 - ((1 - prob_survival_mod) / 2),
                                  prob_survival_until_mid_year),
                 .after = deaths)

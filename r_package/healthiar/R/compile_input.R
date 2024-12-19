@@ -14,9 +14,7 @@
 #' }
 #' @import dplyr
 #' @import purrr
-#' @importFrom tidyr pivot_longer
-#' @importFrom tidyr crossing
-#' @importFrom tidyr nest
+#' @importFrom tidyr pivot_longer crossing nest
 #' @examples
 #' TBD
 #' @author Alberto Castro
@@ -160,18 +158,34 @@ compile_input <-
         # min_age = rep(min_age, each = length_exp_dist),
         # max_age = rep(max_age, each = length_exp_dist),
         approach_multiexposure = rep(approach_multiexposure, each = length_exp_dist),
-        approach_exposure = rep(approach_exposure, each = length_exp_dist),
-        approach_newborns = rep(approach_newborns, each = length_exp_dist),
+        # approach_exposure = rep(approach_exposure, each = length_exp_dist),
+        # approach_newborns = rep(approach_newborns, each = length_exp_dist),
         population = rep(unlist(population), each = length_exp_dist),
 
         ## Second those variables with length = 1 (non-problematic)
         cutoff_central = cutoff_central,
         cutoff_lower = cutoff_lower,
         cutoff_upper = cutoff_upper,
+        approach_exposure = approach_exposure,
+        approach_newborns = approach_newborns,
         year_of_analysis = year_of_analysis,
         time_horizon = time_horizon,
-        min_age = min_age,
-        max_age = max_age,
+        min_age = ifelse(
+          test = !is.null( min_age ),
+          yes = min_age,
+          no = ifelse(
+            test = ( is.null ( min_age ) & grepl("lifetable", health_metric) ),
+            yes = first_age_pop,
+            no = NULL)
+          ),
+        max_age = ifelse(
+          test = !is.null( max_age ),
+          yes = max_age,
+          no = ifelse(
+            test = ( is.null ( max_age ) & grepl("lifetable", health_metric) ),
+            yes = last_age_pop,
+            no = NULL)
+        ),
         duration_central = duration_central,
         duration_lower = duration_lower,
         duration_upper = duration_upper,
@@ -194,13 +208,6 @@ compile_input <-
       healthiar:::add_info(info = info) |>
       # Information derived from input data
       dplyr::mutate(
-        # Add age_max and age_min (not needed without life table)
-        age_range = ifelse(
-          !is.null( max_age ) & is.null( min_age ),
-          paste0("below", max_age + 1),
-          ifelse( !is.null(min_age) & is.null(max_age),
-                  paste0("from", min_age),
-                                  NA)),
         approach_risk = approach_risk, # RR or AR
         health_metric = health_metric,
         exposure_dimension =
@@ -227,8 +234,6 @@ compile_input <-
                           names_to = "exp_ci",
                           names_prefix = "exp_",
                           values_to = "exp")
-
-    browser()
 
     if (is.null(erf_eq_central)) {
       ## Exposure response function
@@ -287,7 +292,7 @@ compile_input <-
 
     # CREATE LIFETABLES ##########################################################
     # As nested tibble
-    if(grepl("lifetable", health_metric)){
+    if ( grepl("lifetable", health_metric) ) {
 
       # Build the data set for lifetable-related data
       # The life table has to be provided (by sex)
@@ -386,7 +391,7 @@ compile_input <-
       # If no lifetable, only use input_wo_lifetable
       input <- input_wo_lifetable}
 
-
-
+    # browser()
+    return(input)
 
   }
