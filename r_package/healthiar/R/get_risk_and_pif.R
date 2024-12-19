@@ -25,6 +25,7 @@ get_risk_and_pif <-
     # Calculate health impact attributable to exposure ####
     input_and_risk <-
       input |>
+      dplyr::rowwise() |>
       dplyr::mutate(
         rr_conc_1 =
           healthiar::get_risk(rr = rr,
@@ -39,7 +40,8 @@ get_risk_and_pif <-
                              cutoff_central = cutoff_central,
                              erf_increment = erf_increment,
                              erf_shape = unique(erf_shape)
-          ))
+          )) |>
+      dplyr::ungroup()
 
     # Calculate population impact fraction (PIF) ####
     input_risk_pif <-

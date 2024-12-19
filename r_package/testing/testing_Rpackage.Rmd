@@ -471,6 +471,7 @@ pop_data <- readRDS(file = "../testing/input/pop_data.RDS")
 
 bestcost_pm_stroke_mr_brt <-
   healthiar::attribute_health(
+    approach_risk = "relative_risk",
     exp_central = pop_data$Concentration,
     prop_pop_exp = pop_data$Viken,
     cutoff_central = 5,
@@ -480,17 +481,27 @@ bestcost_pm_stroke_mr_brt <-
       stats::splinefun(
         x = MRBRT_stroke$exposure,
         y = MRBRT_stroke$mean,
-        method = "natural"))
+        method = "natural"),
+    erf_eq_lower = stats::splinefun(
+        x = MRBRT_stroke$exposure,
+        y = MRBRT_stroke$mean,
+        method = "natural"),
+    erf_eq_upper = stats::splinefun(
+        x = MRBRT_stroke$exposure,
+        y = MRBRT_stroke$mean + 0.01,
+        method = "natural")
+    )
 
 # View(bestcost_pm_stroke_niph)
-# print(bestcost_pm_stroke_niph$main[, c("pop_fraction", "impact_rounded")])
 
 # View(bestcost_pm_stroke_mr_brt)
 
 # check_bestcost(result_list_bestcost = bestcost_pm_stroke_mr_brt,
 #                result_vector_alternative = c(249)) # Results on 17 October 2024 (with cutoff = 0)
 check_bestcost(result_list_bestcost = bestcost_pm_stroke_mr_brt,
-               result_vector_alternative = c(32)) # Results on 17 October 2024 (with cutoff = 5 = airqplus_pm_copd$cut_off_value)
+               # result_vector_alternative = c(32)) # Results on 17 October 2024 (with cutoff = 5 = airqplus_pm_copd$cut_off_value),
+               result_vector_alternative = c(32,32,76)) # Results on 19 December 2024 (with cutoff = 5 = airqplus_pm_copd$cut_off_value) & erf_eq uncertainty
+
 ```
 
 

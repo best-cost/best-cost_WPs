@@ -31,6 +31,7 @@ get_impact <-
            population = NULL){
 
     # Relative risk ############################################################
+
     if(unique(input$approach_risk) == "relative_risk"){
       # Get pop_fraction and add to the input data frame
       input_with_risk_and_pop_fraction <-
@@ -129,11 +130,13 @@ get_impact <-
       # Calculate absolute risk for each exposure category
       impact_raw <-
         input |>
+        dplyr::rowwise() |>
         dplyr::mutate(
           absolute_risk_as_percent = healthiar::get_risk(exp = exp, erf_eq = erf_eq),
           pop_exp = population * prop_pop_exp,
-          impact = absolute_risk_as_percent/100 * pop_exp) |>
-        dplyr::mutate(impact_rounded = round(impact, 0))
+          impact = absolute_risk_as_percent/100 * pop_exp,
+          impact_rounded = round(impact, 0)) |>
+          ungroup()
 
       # browser()
 

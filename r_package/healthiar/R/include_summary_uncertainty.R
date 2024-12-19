@@ -1267,11 +1267,14 @@ include_summary_uncertainty <- function(
 
     ## Calculate risk for each noise band
     dat <- dat |>
+      ## NOTE: not using rowwise & ungroup because results not altered but running time much longer
+      # dplyr::rowwise() |>
       dplyr::mutate(
         dplyr::across(.cols = dplyr::starts_with("exp_"),
                       .fns = ~ healthiar::get_risk(exp = .x, erf_eq = results[["health_detailed"]][["raw"]]$erf_eq |> dplyr::first(x = _)) / 100,
                       .names = "risk_{str_remove(.col, 'exp_')}")
-      )
+      ) # |>
+      # dplyr::ungroup()
 
     # * * * erf_eq CI's & multiple geo unit case ###############################
     } else if ( length(grep("lower", results[["health_detailed"]][["raw"]][["erf_ci"]])) > 0 ){
@@ -1281,7 +1284,10 @@ include_summary_uncertainty <- function(
 
       ## Calculate risk estimates for each exposure band
       dat <- dat |>
+        ## NOTE: not using rowwise & ungroup because results not altered but running time much longer
+
         ### Central risk estimates
+        # dplyr::rowwise() |>
         dplyr::mutate(
           dplyr::across(.cols = dplyr::starts_with("exp_"),
                         .fns = ~ healthiar::get_risk(exp = .x, erf_eq = results[["health_detailed"]][["raw"]] |> filter(erf_ci == "central") |> pull(erf_eq) |> first()) / 100,
@@ -1298,7 +1304,8 @@ include_summary_uncertainty <- function(
           dplyr::across(.cols = dplyr::starts_with("exp_"),
                         .fns = ~ healthiar::get_risk(exp = .x, erf_eq = results[["health_detailed"]][["raw"]] |> filter(erf_ci == "upper") |> pull(erf_eq) |> first()) / 100,
                         .names = "ri_upper_{str_remove(.col, 'exp_')}")
-        )
+        ) # |>
+        # dplyr::ungroup()
 
       ## For each noise band for each row fit a normal distribution using the risk_..._... columns and simulate 1 value (for that specific row)
       ## Corresponding ri_central_..., ri_lower_... and ri_upper_... columns are used

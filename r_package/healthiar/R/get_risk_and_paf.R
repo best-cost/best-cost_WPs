@@ -33,7 +33,8 @@ get_risk_and_paf <-
                              exp = exp,
                              cutoff_central = cutoff_central,
                              erf_increment = erf_increment,
-                             erf_shape = erf_shape))
+                             erf_shape = erf_shape)) |>
+      dplyr::ungroup()
 
     # Calculate population attributable fraction (PAF) ####
     input_risk_paf <-
