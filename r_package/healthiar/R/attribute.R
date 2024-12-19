@@ -70,10 +70,7 @@ attribute <-
            population = NULL,
            health_metric = "same_input_output",
            approach_multiexposure = NULL,
-           info = NULL,
-           # Discounting
-           corrected_discount_rate = NULL,
-           discount_shape = NULL){
+           info = NULL){
 
     # Check input data
     #stopifnot(exprs = {
@@ -109,10 +106,7 @@ attribute <-
         population_midyear_male = population_midyear_male,
         population_midyear_female =  population_midyear_female,
         deaths_male = deaths_male,
-        deaths_female = deaths_female,
-        # Discounting
-        corrected_discount_rate = corrected_discount_rate,
-        discount_shape = discount_shape)
+        deaths_female = deaths_female)
 
 
     # Calculate the health impacts for each case (uncertainty, category, geo area...)
@@ -122,8 +116,6 @@ attribute <-
                              time_horizon = time_horizon,
                              min_age = min_age,
                              max_age = max_age,
-                             corrected_discount_rate = corrected_discount_rate,
-                             discount_shape = discount_shape,
                              pop_fraction_type = "paf")
 
     # Get the main and detailed output by aggregating and/or filtering cases (rows)

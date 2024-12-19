@@ -84,8 +84,6 @@ compare <-
            min_age = NULL, max_age = NULL,
            dw_central = NULL, dw_lower = NULL, dw_upper = NULL,
            duration_central = NULL, duration_lower = NULL, duration_upper = NULL,
-           corrected_discount_rate = NULL,
-           discount_shape = NULL,
            # Iteration
            geo_id_raw = NULL,
            geo_id_aggregated = NULL,
@@ -117,8 +115,6 @@ compare <-
         year_of_analysis = year_of_analysis_1,
         min_age = min_age,
         max_age = max_age,
-        corrected_discount_rate = corrected_discount_rate,
-        discount_shape = discount_shape ,
         dw_central = dw_central, dw_lower = dw_lower, dw_upper = dw_upper,
         geo_id_raw = geo_id_raw,
         geo_id_aggregated = geo_id_aggregated,
@@ -151,8 +147,6 @@ compare <-
         year_of_analysis = year_of_analysis_2,
         min_age = min_age,
         max_age = max_age,
-        corrected_discount_rate = corrected_discount_rate,
-        discount_shape = discount_shape ,
         dw_central = dw_central, dw_lower = dw_lower, dw_upper = dw_upper,
         duration_central = duration_central, duration_lower = duration_lower, duration_upper = duration_upper,
         geo_id_raw = geo_id_raw,
@@ -249,10 +243,7 @@ compare <-
           deaths_male = deaths_male_1,
           deaths_female = deaths_female_1,
           population_midyear_male = population_midyear_male_1,
-          population_midyear_female =  population_midyear_female_1,
-          # Discount
-          corrected_discount_rate = corrected_discount_rate,
-          discount_shape = discount_shape)
+          population_midyear_female =  population_midyear_female_1)
 
       # Compile input data of scenario 2
       input_2 <-
@@ -286,10 +277,7 @@ compare <-
           deaths_male = deaths_male_2,
           deaths_female = deaths_female_2,
           population_midyear_male = population_midyear_male_2,
-          population_midyear_female =  population_midyear_female_2,
-          # Discount
-          corrected_discount_rate = corrected_discount_rate,
-          discount_shape = discount_shape)
+          population_midyear_female =  population_midyear_female_2)
 
       # Identify the arguments scenario specific arguments excluding bhd
       # This will be used for the exceptions in the joining columns
@@ -325,8 +313,6 @@ compare <-
           year_of_analysis = year_of_analysis,
           min_age = min_age,
           max_age = max_age,
-          corrected_discount_rate = corrected_discount_rate,
-          discount_shape = discount_shape,
           pop_fraction_type = "pif")
       }
 

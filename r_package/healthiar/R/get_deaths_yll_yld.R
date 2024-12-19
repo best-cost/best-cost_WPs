@@ -24,9 +24,7 @@ get_deaths_yll_yld <-
            time_horizon,
            min_age = NULL,
            max_age = NULL,
-           input_with_risk_and_pop_fraction,
-           corrected_discount_rate = NULL,
-           discount_shape = NULL){
+           input_with_risk_and_pop_fraction){
 
     # browser()
 
@@ -169,7 +167,7 @@ get_deaths_yll_yld <-
 
     }
 
-    # Store total, not discounted YLL/YLD in YOA in column impact_nest #########
+    # Store total, YLL/YLD in YOA in column impact_nest #########
     ## Single number
 
     if ( {{outcome_metric}} %in% c("yll", "yld")){
@@ -212,8 +210,7 @@ get_deaths_yll_yld <-
                 dplyr::filter(.data = _, year < .y) |>
 
                 ## Sum impact
-                dplyr::summarise(impact = sum(impact, na.rm = TRUE))|>
-                dplyr::mutate(discounted = FALSE)
+                dplyr::summarise(impact = sum(impact, na.rm = TRUE))
 
               return(.x)
             }
@@ -252,86 +249,6 @@ get_deaths_yll_yld <-
       dplyr::mutate(across(contains("_nest"),
                            ~set_names(.x,
                                       id)))
-
-
-
-    # Discount #################################################################
-
-    if ( !is.null(corrected_discount_rate) ) {
-    # if(corrected_discount_rate != 0) { # If everything runs without this line, delete ####
-
-      discount_factor <- corrected_discount_rate + 1
-
-      impact_detailed <-
-        impact_detailed |>
-
-        ## Calculate total, discounted life years (single value) per sex & ci
-        dplyr::mutate(
-          impact_with_discount_nest = purrr::pmap(
-            list(.x = lifeyears_nest, .y = last_year + 1, .z = impact_for_discounting_nest),
-            function(.x, .y, .z){
-
-              ## Calculate total, discounted life years (single value) per sex & ci ####
-              lifeyear_nest_with_discount <-
-                .x |>
-                # Convert year to numeric
-                dplyr::mutate(year = as.numeric(year),
-                              time_period = year - {{year_of_analysis}},
-                              corrected_discount_rate = {{corrected_discount_rate}},
-                              discount_shape = {{discount_shape}}) |>
-
-                # Calculate discount rate for each year
-                dplyr::mutate(
-                  discount_factor =
-                    healthiar::get_discount_factor(
-                      corrected_discount_rate = corrected_discount_rate,
-                      time_period = time_period,
-                      discount_shape = discount_shape))|>
-                # Calculate life years discounted
-
-                dplyr::mutate(
-                  impact_after_discount = impact * discount_factor)
-
-
-              ## If yll or yld
-              if({{outcome_metric}} %in% c("yll", "yld")){
-
-                lifeyear_nest_with_discount <-
-                  ## Filter for the relevant years
-                  dplyr::filter(.data = lifeyear_nest_with_discount,
-                                year < .y) |>
-                  ## Sum among years to obtain the total impact (single value)
-                  dplyr::summarise(impact = sum(impact_after_discount), .groups = "drop")
-              }
-
-
-              ## Add a column to indicate that the impact is discounted
-              lifeyear_nest_with_discount <-
-                lifeyear_nest_with_discount |>
-                dplyr::mutate(discounted = TRUE)
-
-              ## Bind rows to have both discounted and not discounted
-              lifeyear_nest_with_and_without_discount <-
-                dplyr::bind_rows(.z,
-                                 lifeyear_nest_with_discount)
-
-              return(lifeyear_nest_with_and_without_discount)
-
-            }
-          )
-        )|>
-        # Remove column impact to avoid duplication
-        dplyr::select(-any_of(c("impact", "discounted"))) |>
-        ## Unnest the obtained impacts to integrate them the main tibble
-        ## Impact saved in column impact
-        tidyr::unnest(impact_with_discount_nest)
-
-
-
-    }
-
-
-
 
 
     return(impact_detailed)

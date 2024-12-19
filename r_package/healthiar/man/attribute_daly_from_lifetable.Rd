@@ -30,8 +30,6 @@ attribute_daly_from_lifetable(
   population_midyear_male,
   population_midyear_female,
   year_of_analysis,
-  corrected_discount_rate = NULL,
-  discount_shape = NULL,
   min_age = NULL,
   max_age = NULL,
   dw_central,
@@ -70,10 +68,6 @@ attribute_daly_from_lifetable(
 \item{population_midyear_male, population_midyear_female}{\code{Numeric vector} containing the mid-year male population for the year of analysis for male and female respectively.}
 
 \item{year_of_analysis}{\code{Numeric value} of the year of analysis, which corresponds to the first year of the life table.}
-
-\item{corrected_discount_rate}{\code{Numeric value} showing the discount rate for future years including correction from inflation rate}
-
-\item{discount_shape}{\code{String} referring to the assumed equation for the discount factor. Per default: "exponential". Otherwise: "hyperbolic_harvey_1986" or "hyperbolic_mazur_1987".}
 
 \item{min_age}{\code{Numberic value} of the minimal age to be considered for adults (by default 30, i.e. 30+).}
 

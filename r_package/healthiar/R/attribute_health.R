@@ -59,8 +59,6 @@ attribute_health <-
         population_midyear_male = NULL, population_midyear_female = NULL,
         year_of_analysis = NULL,
         min_age = NULL, max_age = NULL,
-        corrected_discount_rate = NULL,
-        discount_shape = NULL,
         dw_central = NULL, dw_lower = NULL, dw_upper = NULL,
         duration_central = NULL,
         geo_id_raw = geo_id_raw , geo_id_aggregated = geo_id_aggregated,

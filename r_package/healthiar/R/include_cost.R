@@ -10,7 +10,6 @@
 #' @param discount_shape \code{String} referring to the assumed equation for the discount factor. Per default: "exponential". Otherwise: "hyperbolic_harvey_1986" or "hyperbolic_mazur_1987".
 #' @param time_period \code{Numeric value} referring to the period of time to be considered in the discounting.
 #' @param valuation \code{Numeric value} showing the value of statistical life which will be used in the health impact monetization
-#' @inheritParams attribute
 #'
 #' @return Description of the return value.
 #' @examples
@@ -106,7 +105,7 @@ include_cost <- function(approach_discount = "direct",
         )|>
 
         # Remove column impact to avoid duplication
-        dplyr::select(-impact, -discounted) |>
+        dplyr::select(-impact) |>
         ## Unnest the obtained impacts to integrate them the main tibble
         ## Impact saved in column impact
         tidyr::unnest(impact_with_discount_nest) |>
