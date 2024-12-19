@@ -16,12 +16,13 @@
 #'
 #'
 get_daly <-
-  function(outcome_metric,
+  function(
+    # outcome_metric,
            pop_impact,
-           year_of_analysis,
-           time_horizon,
+           # year_of_analysis,
+           # time_horizon,
            # min_age = NULL,
-           max_age = NULL,
+           # max_age = NULL,
            input_with_risk_and_pop_fraction,
            corrected_discount_rate = NULL){
 
@@ -32,20 +33,20 @@ get_daly <-
     # Create list to iterate
     impact_yll_yld_raw <- list()
 
-
     for(o in c("yll", "yld" )){
+
       impact_yll_yld_raw[[o]] <-
         healthiar:::get_deaths_yll_yld(
-          outcome_metric = "yll",
+          # outcome_metric = "yll",
           pop_impact = pop_impact,
-          year_of_analysis = year_of_analysis,
+          # year_of_analysis = year_of_analysis,
           # min_age = min_age,
-          max_age = max_age,
-          time_horizon = time_horizon,
+          # max_age = max_age,
+          # time_horizon = time_horizon,
           corrected_discount_rate = corrected_discount_rate,
-          input_with_risk_and_pop_fraction = input_with_risk_and_pop_fraction)
+          input_with_risk_and_pop_fraction = input_with_risk_and_pop_fraction |> mutate(health_metric = paste0(o, "_from_lifetable")))
     }
-
+# browser()
     # Identify the common and identical columns (joining columns)
     # Remove impact (it can never be a joining column)
     joining_columns_yll_yld <-

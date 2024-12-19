@@ -1228,7 +1228,7 @@ bestcost_pm_yll_lifetable_airqplus <-
     deaths_male = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_male,
     deaths_female = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_female,
     year_of_analysis =  airqplus_pm_deaths_yll[["input"]]$start_year, 
-    time_horizon = 100,
+    # time_horizon = 100,
     min_age = airqplus_pm_deaths_yll[["input"]]$apply_rr_from_age#,
     #max_age = 99
     )
@@ -1374,7 +1374,7 @@ bestcost_pm_yld_lifetable_geluft  <-
     min_age = input_data_mortality$min_age[2], # min_age = 20,
     duration_central = 100, 
     duration_lower = 50, duration_upper = 100, 
-    corrected_discount_rate = 0,
+    # corrected_discount_rate = 0,
     dw_central = 1 #, dw_lower = 0.1, dw_upper = 10
 )
 

@@ -2,7 +2,6 @@
 #'
 #' @description Get attributable deaths, years of life lost or years lived with disability from lifetable
 #' @inheritParams attribute
-#' @param outcome_metric \code{String} with the metric of the health outcome to be assessed. Options: "deaths", "yll" or "yld".
 #' @return
 #' This function returns a \code{List}
 #' @import dplyr
@@ -18,20 +17,25 @@
 #'
 #'
 get_deaths_yll_yld <-
-  function(outcome_metric,
+  function(# outcome_metric,
            pop_impact,
-           year_of_analysis,
+           # year_of_analysis,
            # min_age = NULL,
-           max_age = NULL,
+           # max_age = NULL,
            input_with_risk_and_pop_fraction,
            corrected_discount_rate = NULL,
            discount_shape = NULL){
 
     # browser()
 
+    ## Define variables
+    outcome_metric <- sub("_.*", "", unique(input_with_risk_and_pop_fraction$health_metric))
+    # outcome_metric <- {{outcome_metric}}
+    # year_of_analysis <- unique(input_with_risk_and_pop_fraction$year_of_analysis)
+
     # Determine default time horizon for YLL/YLD if not specified ##############
-    if ( {{outcome_metric}} %in% c("yll", "yld")  &
-         is.null(input_with_risk_and_pop_fraction |>  pull(time_horizon) |> first()) ) {
+    if ( outcome_metric %in% c("yll", "yld")  &
+         !"time_horizon" %in% names(input_with_risk_and_pop_fraction ) ) {
 
         time_horizon <- input_with_risk_and_pop_fraction %>%
           slice(1) %>%                      # Select the first row
@@ -43,38 +47,41 @@ get_deaths_yll_yld <-
         input_with_risk_and_pop_fraction <- input_with_risk_and_pop_fraction |>
           mutate(time_horizon = time_horizon)
 
-      }
+    }
 
-# browser()
+    # browser()
 
     ## ALTERNATIVE CODE
-    Filter for relevant ages
+    ## Filter for relevant ages
     impact_detailed <- pop_impact |>
       dplyr::mutate(
-        outcome_metric = {{outcome_metric}},
+        outcome_metric = outcome_metric,
         lifeyears_nest =
           purrr::pmap(
-            list(pop_impact_nest = pop_impact_nest, max_age = max_age),
-            function(pop_impact_nest, max_age){
+            list(.x =  pop_impact_nest,
+                 max_age = unique(max_age),
+                 min_age = unique(min_age),
+                 outcome_metric = unique(outcome_metric)),
+            function(.x, max_age, min_age, outcome_metric){
 
               # Set values in upper triangle to NA ###############################
               ## NOTE: also removes newborns values
 
-              if({{outcome_metric}} == "deaths" ) {
+              if ( outcome_metric == "deaths" ) {
 
-                pop_impact_nest <- pop_impact_nest |>
+                .x <- .x |>
                   dplyr::mutate(
                     across(contains("deaths"), ~ {
-                      mat <- as.matrix(pop_impact_nest)
+                      mat <- as.matrix(.x)
                       mat[upper.tri(mat, diag = FALSE)] <- NA
                       return(mat)}))
 
               } else {
 
-                pop_impact_nest <- pop_impact_nest |>
+                .x <- .x |>
                   dplyr::mutate(
                     across(contains("population"),
-                           ~ {mat <- as.matrix(pop_impact_nest)
+                           ~ {mat <- as.matrix(.x)
                            mat[upper.tri(mat, diag = FALSE)] <- NA
                            return(mat)}))
               }
@@ -85,24 +92,24 @@ get_deaths_yll_yld <-
               # browser()
 
               # if ( !is.null( {{max_age}} ) ) {
-              if ( !is.null( max_age |>  first() ) ) {
+              if ( !is.null( max_age) ) {
 
                 # browser()
-                pop_impact_nest <-
-                  # dplyr::filter(pop_impact_nest, age <= {{max_age}})
-                  dplyr::filter(pop_impact_nest, age <= max_age |>  first() )
+                .x <-
+                  # dplyr::filter(.x, age <= {{max_age}})
+                  dplyr::filter(.x, age <= max_age)
               }
 
-              if ( !is.null( input_with_risk_and_pop_fraction |>  pull(min_age) |> first() ) ) {
-                pop_impact_nest <-
-                  dplyr::filter(pop_impact_nest, age >= input_with_risk_and_pop_fraction |>  pull(min_age) |> first())
+              if ( !is.null( min_age ) ) {
+                .x <-
+                  dplyr::filter(.x, age >= min_age)
               }
 
               # Calculate YLL/YLD impact per year ################################
 
-              if ({{outcome_metric}} %in% c("yll", "yld") ) {
+              if ( outcome_metric %in% c("yll", "yld") ) {
 
-                pop_impact_nest <- pop_impact_nest |>
+                .x <- .x |>
                   dplyr::select(contains("population_")) |>
 
                   ## Sum over ages (i.e. vertically)
@@ -119,88 +126,88 @@ get_deaths_yll_yld <-
                   ## Convert year to numeric
                   dplyr::mutate(year = as.numeric(year))
               } else
-                pop_impact_nest<-pop_impact_nest}), .before = 1)
+                .x<-.x}), .before = 1)
 
     ## ORIGINAL CODE
-    # Filter for relevant ages
-    impact_detailed <- pop_impact |>
-      dplyr::mutate(
-        outcome_metric = {{outcome_metric}},
-        lifeyears_nest =
-          purrr::pmap(
-            list(.x =  pop_impact_nest, .y = max_age),
-            function(.x, .y){
-
-            # Set values in upper triangle to NA ###############################
-            ## NOTE: also removes newborns values
-
-            if({{outcome_metric}} == "deaths" ) {
-
-              .x <- .x |>
-              dplyr::mutate(
-                across(contains("deaths"), ~ {
-                  mat <- as.matrix(.x)
-                  mat[upper.tri(mat, diag = FALSE)] <- NA
-                  return(mat)}))
-
-            } else {
-
-              .x <- .x |>
-              dplyr::mutate(
-                across(contains("population"),
-                       ~ {mat <- as.matrix(.x)
-                       mat[upper.tri(mat, diag = FALSE)] <- NA
-                       return(mat)}))
-            }
-
-
-            # Filter for relevant ages #########################################
-            # use {{}} to refer to the argument and avoid warnings
-            # browser()
-
-              # if ( !is.null( {{max_age}} ) ) {
-              if ( !is.null( .y |>  first() ) ) {
-
-                # browser()
-                  .x <-
-                    # dplyr::filter(.x, age <= {{max_age}})
-                    dplyr::filter(.x, age <= .y |>  first() )
-              }
-
-            if ( !is.null( input_with_risk_and_pop_fraction |>  pull(min_age) |> first() ) ) {
-              .x <-
-                dplyr::filter(.x, age >= input_with_risk_and_pop_fraction |>  pull(min_age) |> first())
-            }
-
-            # Calculate YLL/YLD impact per year ################################
-
-            if ({{outcome_metric}} %in% c("yll", "yld") ) {
-
-              .x <- .x |>
-                dplyr::select(contains("population_")) |>
-
-            ## Sum over ages (i.e. vertically)
-            ## only ages between "max_age" and "input_with_risk_and_pop_fraction |>  pull(min_age) |> first()" filtered for above
-            dplyr::summarize_all(sum, na.rm = TRUE) |>
-
-            ## Reshape to long format
-            ## (output is data frame with 2 columns "year" & "impact")
-            tidyr::pivot_longer(cols = starts_with("population_"),
-                                names_to = "year",
-                                values_to = "impact",
-                                names_prefix = "population_") |>
-
-            ## Convert year to numeric
-            dplyr::mutate(year = as.numeric(year))
-            } else
-              .x<-.x}), .before = 1)
+    ## Filter for relevant ages
+    # impact_detailed <- pop_impact |>
+    #   dplyr::mutate(
+    #     outcome_metric = {{outcome_metric}},
+    #     lifeyears_nest =
+    #       purrr::pmap(
+    #         list(.x =  pop_impact_nest, .y = max_age),
+    #         function(.x, .y){
+    #
+    #         # Set values in upper triangle to NA ###############################
+    #         ## NOTE: also removes newborns values
+    #
+    #         if({{outcome_metric}} == "deaths" ) {
+    #
+    #           .x <- .x |>
+    #           dplyr::mutate(
+    #             across(contains("deaths"), ~ {
+    #               mat <- as.matrix(.x)
+    #               mat[upper.tri(mat, diag = FALSE)] <- NA
+    #               return(mat)}))
+    #
+    #         } else {
+    #
+    #           .x <- .x |>
+    #           dplyr::mutate(
+    #             across(contains("population"),
+    #                    ~ {mat <- as.matrix(.x)
+    #                    mat[upper.tri(mat, diag = FALSE)] <- NA
+    #                    return(mat)}))
+    #         }
+    #
+    #
+    #         # Filter for relevant ages #########################################
+    #         # use {{}} to refer to the argument and avoid warnings
+    #         # browser()
+    #
+    #           # if ( !is.null( {{max_age}} ) ) {
+    #           if ( !is.null( .y |>  first() ) ) {
+    #
+    #             # browser()
+    #               .x <-
+    #                 # dplyr::filter(.x, age <= {{max_age}})
+    #                 dplyr::filter(.x, age <= .y |>  first() )
+    #           }
+    #
+    #         if ( !is.null( input_with_risk_and_pop_fraction |>  pull(min_age) |> first() ) ) {
+    #           .x <-
+    #             dplyr::filter(.x, age >= input_with_risk_and_pop_fraction |>  pull(min_age) |> first())
+    #         }
+    #
+    #         # Calculate YLL/YLD impact per year ################################
+    #
+    #         if ({{outcome_metric}} %in% c("yll", "yld") ) {
+    #
+    #           .x <- .x |>
+    #             dplyr::select(contains("population_")) |>
+    #
+    #         ## Sum over ages (i.e. vertically)
+    #         ## only ages between "max_age" and "input_with_risk_and_pop_fraction |>  pull(min_age) |> first()" filtered for above
+    #         dplyr::summarize_all(sum, na.rm = TRUE) |>
+    #
+    #         ## Reshape to long format
+    #         ## (output is data frame with 2 columns "year" & "impact")
+    #         tidyr::pivot_longer(cols = starts_with("population_"),
+    #                             names_to = "year",
+    #                             values_to = "impact",
+    #                             names_prefix = "population_") |>
+    #
+    #         ## Convert year to numeric
+    #         dplyr::mutate(year = as.numeric(year))
+    #         } else
+    #           .x<-.x}), .before = 1)
 
 # browser()
 
     # YLD ######################################################################
 
     ## Determine year- and age specific YLD
-    if ({{outcome_metric}} %in% "yld" ) {
+    if ( outcome_metric %in% "yld" ) {
 
       impact_detailed <- impact_detailed |>
         dplyr::mutate(yll_nest =
@@ -256,7 +263,7 @@ get_deaths_yll_yld <-
     # Store total, not discounted YLL/YLD in YOA in column impact_nest #########
     ## Single number
 
-    if ( {{outcome_metric}} %in% c("yll", "yld")){
+    if ( outcome_metric %in% c("yll", "yld")){
 
       impact_detailed <- impact_detailed |>
 
@@ -272,8 +279,8 @@ get_deaths_yll_yld <-
 
         dplyr::mutate(
           impact_nest = purrr::pmap(
-            list(.x = lifeyears_nest, .y = last_year + 1),
-            function(.x, .y){
+            list(.x = lifeyears_nest, .y = last_year + 1, outcome_metric = unique(outcome_metric)),
+            function(.x, .y, outcome_metric){
 
             ## IF EVERYTHING RUNS SMOOTHLY, DELETE THIS CODE BLOCK ####
             ## If deaths
@@ -287,7 +294,7 @@ get_deaths_yll_yld <-
             #   }
 
             # If yll or yld
-            if({{outcome_metric}} %in% c("yld", "yll")){
+            if( outcome_metric %in% c("yld", "yll")){
 
               .x <-
                 .x |>
@@ -360,7 +367,7 @@ get_deaths_yll_yld <-
                 .x |>
                 # Convert year to numeric
                 dplyr::mutate(year = as.numeric(year),
-                              time_period = year - {{year_of_analysis}},
+                              time_period = year - year_of_analysis,
                               corrected_discount_rate = {{corrected_discount_rate}},
                               discount_shape = {{discount_shape}}) |>
 
@@ -378,7 +385,7 @@ get_deaths_yll_yld <-
 
 
               ## If yll or yld
-              if({{outcome_metric}} %in% c("yll", "yld")){
+              if( outcome_metric %in% c("yll", "yld")){
 
                 lifeyear_nest_with_discount <-
                   ## Filter for the relevant years
@@ -416,7 +423,7 @@ get_deaths_yll_yld <-
 
 
 
-
+# browser()
 
     return(impact_detailed)
 
