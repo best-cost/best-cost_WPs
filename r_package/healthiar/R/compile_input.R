@@ -111,7 +111,11 @@ compile_input <-
         erf_data <- # 1 x 3 tibble
           dplyr::tibble(
             exposure_name = names(erf_eq_central),
-            erf_eq_central = list(erf_eq_central))}
+            ## Functions can't be saved raw in column -> save as list
+            erf_eq_central = list(erf_eq_central),
+            erf_eq_lower = list(erf_eq_lower),
+            erf_eq_upper = list(erf_eq_upper))
+        }
 
     # If a confidence interval for the erf is provided, add the erf columns
     ## NOTE: commented out on 2024-12-16
