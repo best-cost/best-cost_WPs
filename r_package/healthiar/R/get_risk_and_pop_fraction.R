@@ -66,8 +66,6 @@ get_risk_and_pop_fraction <-
       ## If PAF
     if ( {{pop_fraction_type}} == "paf" ) {
 
-      # browser()
-
       input_with_risk_and_pop_fraction <- input_with_risk_and_pop_fraction |>
         ## Obtain the relative risk for the relevant concentration
         rowwise() |>

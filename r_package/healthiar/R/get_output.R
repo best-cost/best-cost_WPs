@@ -35,12 +35,6 @@ get_output <-
       if ("duration_ci" %in% names(impact_main)){impact_main <- impact_main |> dplyr::filter(duration_ci %in% "central")}
       if ("dw_ci" %in% names(impact_main)){impact_main <- impact_main |> dplyr::filter(dw_ci %in% "central")}
 
-      # Only needed for attribute with discount
-      #TODO To be deleted as soon as we remove attribute with discount
-      if ("corrected_discount_rate" %in% names(impact_raw)) {
-        impact_main <- impact_main |>
-          dplyr::filter(discounted %in% TRUE)
-      }
 
       ## Classify results in main and detailed
       output <-

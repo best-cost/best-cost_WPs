@@ -49,8 +49,6 @@ compare_yld_from_lifetable <-
            min_age = NULL, max_age = NULL,
            dw_central, dw_lower = NULL, dw_upper = NULL,
            duration_central, duration_lower = NULL, duration_upper = NULL,
-           corrected_discount_rate = NULL,
-           discount_shape = NULL,
            geo_id_raw = NULL,
            geo_id_aggregated = NULL,
            info_1 = NULL, info_2 = NULL){
@@ -91,8 +89,6 @@ compare_yld_from_lifetable <-
         min_age = min_age, max_age = max_age,
         dw_central = dw_central, dw_lower = dw_lower, dw_upper = dw_upper,
         duration_central = duration_central, duration_lower = duration_lower, duration_upper = duration_upper,
-        corrected_discount_rate = corrected_discount_rate,
-        discount_shape = discount_shape,
         geo_id_raw = geo_id_raw,
         geo_id_aggregated = geo_id_aggregated,
         info_1 = info_1 , info_2 = info_2)

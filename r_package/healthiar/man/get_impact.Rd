@@ -10,8 +10,6 @@ get_impact(
   time_horizon = NULL,
   min_age = NULL,
   max_age = NULL,
-  corrected_discount_rate = NULL,
-  discount_shape = NULL,
   pop_fraction_type,
   population = NULL
 )
@@ -26,10 +24,6 @@ get_impact(
 \item{min_age}{\code{Numberic value} of the minimal age to be considered for adults (by default 30, i.e. 30+).}
 
 \item{max_age}{\code{Numberic value} of the maximal age to be considered for infants/children (by default 0, i.e. below 1 year old).}
-
-\item{corrected_discount_rate}{\code{Numeric value} showing the discount rate for future years including correction from inflation rate}
-
-\item{discount_shape}{\code{String} referring to the assumed equation for the discount factor. Per default: "exponential". Otherwise: "hyperbolic_harvey_1986" or "hyperbolic_mazur_1987".}
 
 \item{population}{code{Vector} with numeric values referring to the population in the geographical unit}
 }

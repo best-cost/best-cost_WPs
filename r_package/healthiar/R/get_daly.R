@@ -22,8 +22,7 @@ get_daly <-
            time_horizon,
            min_age = NULL,
            max_age = NULL,
-           input_with_risk_and_pop_fraction,
-           corrected_discount_rate = NULL){
+           input_with_risk_and_pop_fraction){
 
 
 
@@ -42,7 +41,6 @@ get_daly <-
           min_age = min_age,
           max_age = max_age,
           time_horizon = time_horizon,
-          corrected_discount_rate = corrected_discount_rate,
           input_with_risk_and_pop_fraction = input_with_risk_and_pop_fraction)
     }
 
