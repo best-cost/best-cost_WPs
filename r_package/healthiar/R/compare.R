@@ -238,6 +238,7 @@ compare <-
           # Lifetable data
           approach_exposure = approach_exposure_1,
           approach_newborns = approach_newborns_1,
+          year_of_analysis =  year_of_analysis_1,
           first_age_pop =  first_age_pop_1,
           last_age_pop = last_age_pop_1,
           deaths_male = deaths_male_1,
@@ -272,6 +273,7 @@ compare <-
           # Lifetable data
           approach_exposure = approach_exposure_2,
           approach_newborns = approach_newborns_2,
+          year_of_analysis = year_of_analysis_2,
           first_age_pop =  first_age_pop_2,
           last_age_pop = last_age_pop_2,
           deaths_male = deaths_male_2,
@@ -295,7 +297,9 @@ compare <-
         healthiar:::find_joining_columns(
           df1 = input_1,
           df2 = input_2,
-          except =  scenario_specific_arguments_excluding_bhd)
+          except =  c(scenario_specific_arguments_excluding_bhd,
+                      ## Keep year_of_analysis in the table so it can be accessed in the get_impact script
+                      "year_of_analysis"))
 
       # Merge the input tables by common columns
       input <-
@@ -305,14 +309,11 @@ compare <-
           by = joining_columns_input,
           suffix = c("_1", "_2"))
 
-
+# browser()
       # Calculate the health impacts for each case (uncertainty, category, geo area...)
       impact_raw <-
         healthiar:::get_impact(
-          input = input,
-          year_of_analysis = year_of_analysis,
-          min_age = min_age,
-          max_age = max_age,
+          input = input |> rename(year_of_analysis = year_of_analysis_1),
           pop_fraction_type = "pif")
       }
 

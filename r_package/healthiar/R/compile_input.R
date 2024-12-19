@@ -143,7 +143,7 @@ compile_input <-
       ifelse(is.list(exp_central),
              length(exp_central),      # If exposure distribution
              1)                        # If single exposure
-
+# browser()
     input_wo_lifetable <-
       # Tibble converts NULL into NA: if variable is NULL, column not initiated
       dplyr::tibble(
@@ -175,16 +175,18 @@ compile_input <-
           no = ifelse(
             test = ( is.null ( min_age ) & grepl("lifetable", health_metric) ),
             yes = first_age_pop,
-            no = NULL)
-          ),
+            # no = NULL)
+          no = NA)
+      ),
         max_age = ifelse(
           test = !is.null( max_age ),
           yes = max_age,
           no = ifelse(
             test = ( is.null ( max_age ) & grepl("lifetable", health_metric) ),
             yes = last_age_pop,
-            no = NULL)
-        ),
+            # no = NULL)
+          no = NA)
+      ),
         duration_central = duration_central,
         duration_lower = duration_lower,
         duration_upper = duration_upper,
@@ -196,7 +198,10 @@ compile_input <-
         exp_central = unlist(exp_central),
         exp_lower = unlist(exp_lower),
         exp_upper = unlist(exp_upper),
-        prop_pop_exp = unlist(prop_pop_exp))
+        prop_pop_exp = unlist(prop_pop_exp)) |>
+
+      ## Remove min_age & max_age columns if they are NA
+      select(-where(~ all(is.na(x = .))))
 
       # Add erf data
     input_wo_lifetable <-

@@ -18,7 +18,7 @@
 get_daly <-
   function(
     pop_impact,
-    input_with_risk_and_pop_fraction,
+    input_with_risk_and_pop_fraction
     ) {
 
     ## Create list to iterate
