@@ -1212,7 +1212,10 @@ bestcost_pm_yll_lifetable_airqplus <-
     deaths_male = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_male,
     deaths_female = airqplus_pm_deaths_yll[["pop"]]$number_of_deaths_female,
     year_of_analysis =  airqplus_pm_deaths_yll[["input"]]$start_year, 
-    min_age = airqplus_pm_deaths_yll[["input"]]$apply_rr_from_age)
+    # time_horizon = 100,
+    min_age = airqplus_pm_deaths_yll[["input"]]$apply_rr_from_age#,
+    #max_age = 99
+    )
 
 # View(bestcost_pm_yll_lifetable_airqplus)
 

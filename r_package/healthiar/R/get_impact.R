@@ -21,10 +21,6 @@
 #' @keywords internal
 get_impact <-
   function(input,
-           year_of_analysis = NULL,
-           time_horizon = NULL,
-           min_age = NULL,
-           max_age = NULL,
            pop_fraction_type,
            population = NULL){
 
@@ -73,43 +69,30 @@ get_impact <-
 
           pop_impact <-
             healthiar:::get_pop_impact(
-              year_of_analysis = year_of_analysis,
-              time_horizon = time_horizon,
               input_with_risk_and_pop_fraction = input_with_risk_and_pop_fraction,
-              outcome_metric = outcome_metric,
-              min_age = min_age)
+              outcome_metric = outcome_metric
+              )
 
 
           impact_raw <-
             healthiar:::get_deaths_yll_yld(
-              outcome_metric = outcome_metric,
               pop_impact = pop_impact,
-              year_of_analysis = year_of_analysis,
-              time_horizon = time_horizon,
-              min_age = min_age,
-              max_age = max_age,
               input_with_risk_and_pop_fraction = input_with_risk_and_pop_fraction)
 
     } else if (unique(input$health_metric) %in% "daly_from_lifetable"){
 
       pop_impact <-
         healthiar:::get_pop_impact(
-          year_of_analysis = year_of_analysis,
-          time_horizon = time_horizon,
           input_with_risk_and_pop_fraction = input_with_risk_and_pop_fraction,
-          outcome_metric = "daly",
-          min_age = min_age)
+          outcome_metric = "daly"
+          )
 
 
       impact_raw <-
         healthiar:::get_daly(
-          outcome_metric = outcome_metric,
           pop_impact = pop_impact,
-          year_of_analysis = year_of_analysis,
-          time_horizon = time_horizon,
-          min_age = min_age,
-          max_age = max_age,
-          input_with_risk_and_pop_fraction = input_with_risk_and_pop_fraction)
+          input_with_risk_and_pop_fraction = input_with_risk_and_pop_fraction
+        )
     }
 
 
@@ -119,8 +102,6 @@ get_impact <-
       unique(input$approach_risk) == "absolute_risk" &
       ( unique(input$health_metric) == "same_input_output" | unique(input$health_metric) == "yld" )
       ) {
-
-      # browser()
 
       # Calculate absolute risk for each exposure category
       impact_raw <-
@@ -132,8 +113,6 @@ get_impact <-
           impact = absolute_risk_as_percent/100 * pop_exp,
           impact_rounded = round(impact, 0)) |>
           ungroup()
-
-      # browser()
 
       # * YLD ##################################################################
 
@@ -150,7 +129,8 @@ get_impact <-
 
     # Store results ############################################################
 
-    # Note: column is called prop_pop_exp (rr case) or pop_exp (ar case)
+    ## Note: column is called prop_pop_exp (rr case) or pop_exp (ar case)
+
     # * Single geo unit ########################################################
     if ( ( unique(impact_raw$approach_risk) == "relative_risk" ) &
          ( unique(impact_raw$exposure_type) == "exposure_distribution" ) &
@@ -201,7 +181,7 @@ get_impact <-
         dplyr::mutate(impact_rounded = round(impact, 0))
     }
 
-    # Calculate impact per 100K inhab.
+    # * Calculate impact per 100K inhabitants ##################################
 
     if("population" %in% colnames(impact_raw)){
       impact_raw <-

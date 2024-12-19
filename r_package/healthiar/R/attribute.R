@@ -101,6 +101,10 @@ attribute <-
         # Lifetable arguments if needed
         approach_exposure = approach_exposure,
         approach_newborns = approach_newborns,
+        year_of_analysis = year_of_analysis,
+        time_horizon = time_horizon,
+        min_age = min_age,
+        max_age = max_age,
         first_age_pop =  first_age_pop,
         last_age_pop = last_age_pop,
         population_midyear_male = population_midyear_male,
@@ -108,14 +112,9 @@ attribute <-
         deaths_male = deaths_male,
         deaths_female = deaths_female)
 
-
     # Calculate the health impacts for each case (uncertainty, category, geo area...)
     impact_raw <-
       healthiar:::get_impact(input = input,
-                             year_of_analysis = year_of_analysis,
-                             time_horizon = time_horizon,
-                             min_age = min_age,
-                             max_age = max_age,
                              pop_fraction_type = "paf")
 
     # Get the main and detailed output by aggregating and/or filtering cases (rows)
