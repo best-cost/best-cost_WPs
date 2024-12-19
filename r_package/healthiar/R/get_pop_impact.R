@@ -57,7 +57,7 @@ get_pop_impact <-
                         }
                       )
       )
-
+# browser()
     # Store variables for population_year
     # Year Of Analysis (YOA)
     population_yoa <- paste0("population_", input_with_risk_and_pop_fraction |>  pull(year_of_analysis) |> first())

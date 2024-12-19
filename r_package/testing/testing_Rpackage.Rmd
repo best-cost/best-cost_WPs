@@ -1578,6 +1578,11 @@ comparison_singlebhd_rr_geo <-
     info_2 = "PM2.5_mortality_2020")
 
 # View(comparison_singlebhd_rr_geo)
+
+# No study to compare bestcost results
+# Check only if results stay the same overtime despite developments
+check_bestcost(result_list_bestcost = comparison_singlebhd_rr_geo,
+               result_vector_alternative = c(211111, 84203, 319618)) # Result on 19 December 2024
 ```
 
 
