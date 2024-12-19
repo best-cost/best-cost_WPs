@@ -106,6 +106,10 @@ attribute <-
         # Lifetable arguments if needed
         approach_exposure = approach_exposure,
         approach_newborns = approach_newborns,
+        year_of_analysis = year_of_analysis,
+        time_horizon = time_horizon,
+        min_age = min_age,
+        max_age = max_age,
         first_age_pop =  first_age_pop,
         last_age_pop = last_age_pop,
         population_midyear_male = population_midyear_male,
@@ -116,12 +120,12 @@ attribute <-
         corrected_discount_rate = corrected_discount_rate,
         discount_shape = discount_shape)
 
-
+# browser()
     # Calculate the health impacts for each case (uncertainty, category, geo area...)
     impact_raw <-
       healthiar:::get_impact(input = input,
-                             year_of_analysis = year_of_analysis,
-                             time_horizon = time_horizon,
+                             # year_of_analysis = year_of_analysis,
+                             # time_horizon = time_horizon,
                              min_age = min_age,
                              max_age = max_age,
                              corrected_discount_rate = corrected_discount_rate,

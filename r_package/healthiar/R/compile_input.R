@@ -48,6 +48,8 @@ compile_input <-
            # Lifetable data
            approach_exposure = NULL,
            approach_newborns = NULL,
+           year_of_analysis = NULL,
+           time_horizon = NULL,
            first_age_pop = NULL, last_age_pop = NULL,
            population_midyear_male = NULL, population_midyear_female = NULL,
            deaths_male = NULL, deaths_female = NULL,
@@ -132,7 +134,7 @@ compile_input <-
 
 
 
-    # (NON-LIFETABLE) ARGUMENTS #################################################
+    # ARGUMENTS ################################################################
 
     # Store the length of the exposure argument (to be used below)
     length_exp_dist <-
@@ -148,23 +150,28 @@ compile_input <-
     input_wo_lifetable <-
       # Tibble converts NULL into NA: if variable is NULL, column not initiated
       dplyr::tibble(
-        # First compile input data that are geo-dependent
-        # Use rep() to ensure that there is dimension match
+        ## First compile input data that are geo-dependent
+        ## Use rep() match dimensions
         geo_id_raw = rep(geo_id_raw, each = length_exp_dist),
         geo_id_aggregated = rep(geo_id_aggregated, each = length_exp_dist),
         bhd_central = rep(unlist(bhd_central), each = length_exp_dist),
         bhd_lower = rep(unlist(bhd_lower), each = length_exp_dist),
         bhd_upper = rep(unlist(bhd_upper), each = length_exp_dist),
-        min_age = rep(min_age, each = length_exp_dist),
-        max_age = rep(max_age, each = length_exp_dist),
+        # min_age = rep(min_age, each = length_exp_dist),
+        # max_age = rep(max_age, each = length_exp_dist),
         approach_multiexposure = rep(approach_multiexposure, each = length_exp_dist),
         approach_exposure = rep(approach_exposure, each = length_exp_dist),
         approach_newborns = rep(approach_newborns, each = length_exp_dist),
         population = rep(unlist(population), each = length_exp_dist),
-        # Second those variables with length = 1 (non-problematic)
+
+        ## Second those variables with length = 1 (non-problematic)
         cutoff_central = cutoff_central,
         cutoff_lower = cutoff_lower,
         cutoff_upper = cutoff_upper,
+        year_of_analysis = year_of_analysis,
+        time_horizon = time_horizon,
+        min_age = min_age,
+        max_age = max_age,
         duration_central = duration_central,
         duration_lower = duration_lower,
         duration_upper = duration_upper,
@@ -174,7 +181,7 @@ compile_input <-
         corrected_discount_rate = corrected_discount_rate,
         discount_shape = discount_shape,
 
-        # Finally, those variables that are multi-dimensional (exposure distribution)
+        ## Finally, those variables that are multi-dimensional (exposure distribution)
         exp_central = unlist(exp_central),
         exp_lower = unlist(exp_lower),
         exp_upper = unlist(exp_upper),
@@ -188,8 +195,11 @@ compile_input <-
       # Information derived from input data
       dplyr::mutate(
         # Add age_max and age_min (not needed without life table)
-        age_range = ifelse(!is.null(max_age) & is.null(min_age), paste0("below", max_age + 1),
-                           ifelse(!is.null(min_age) & is.null(max_age), paste0("from", min_age),
+        age_range = ifelse(
+          !is.null( max_age ) & is.null( min_age ),
+          paste0("below", max_age + 1),
+          ifelse( !is.null(min_age) & is.null(max_age),
+                  paste0("from", min_age),
                                   NA)),
         approach_risk = approach_risk, # RR or AR
         health_metric = health_metric,
@@ -218,6 +228,7 @@ compile_input <-
                           names_prefix = "exp_",
                           values_to = "exp")
 
+    browser()
 
     if (is.null(erf_eq_central)) {
       ## Exposure response function

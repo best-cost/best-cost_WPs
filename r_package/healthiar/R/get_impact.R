@@ -74,8 +74,8 @@ get_impact <-
 
           pop_impact <-
             healthiar:::get_pop_impact(
-              year_of_analysis = year_of_analysis,
-              time_horizon = time_horizon,
+              # year_of_analysis = year_of_analysis,
+              # time_horizon = time_horizon,
               input_with_risk_and_pop_fraction = input_with_risk_and_pop_fraction,
               outcome_metric = outcome_metric,
               min_age = min_age)
@@ -85,8 +85,8 @@ get_impact <-
             healthiar:::get_deaths_yll_yld(
               outcome_metric = outcome_metric,
               pop_impact = pop_impact,
-              year_of_analysis = year_of_analysis,
-              time_horizon = time_horizon,
+              # year_of_analysis = year_of_analysis,
+              # time_horizon = time_horizon,
               min_age = min_age,
               max_age = max_age,
               corrected_discount_rate = corrected_discount_rate,
@@ -97,7 +97,7 @@ get_impact <-
 
       pop_impact <-
         healthiar:::get_pop_impact(
-          year_of_analysis = year_of_analysis,
+          # year_of_analysis = year_of_analysis,
           time_horizon = time_horizon,
           input_with_risk_and_pop_fraction = input_with_risk_and_pop_fraction,
           outcome_metric = "daly",

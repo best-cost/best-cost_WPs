@@ -21,7 +21,6 @@ get_deaths_yll_yld <-
   function(outcome_metric,
            pop_impact,
            year_of_analysis,
-           time_horizon,
            min_age = NULL,
            max_age = NULL,
            input_with_risk_and_pop_fraction,
@@ -32,13 +31,17 @@ get_deaths_yll_yld <-
 
     # Determine default time horizon for YLL/YLD if not specified ##############
     if ( {{outcome_metric}} %in% c("yll", "yld")  &
-         is.null(time_horizon) ) {
+         is.null(input_with_risk_and_pop_fraction |>  pull(time_horizon) |> first()) ) {
 
         time_horizon <- input_with_risk_and_pop_fraction %>%
           slice(1) %>%                      # Select the first row
           pull(lifetable_with_pop_nest) %>% # Extract the nested tibble column
           pluck(1) %>%                      # Get the tibble stored in the first element
           nrow()
+
+        ## Add time_horizon to tibble
+        input_with_risk_and_pop_fraction <- input_with_risk_and_pop_fraction |>
+          mutate(time_horizon = time_horizon)
 
       }
 
@@ -179,7 +182,7 @@ get_deaths_yll_yld <-
         ## Add column for year of analysis
         dplyr::mutate(year_of_analysis = year_of_analysis) |>
         ## Add column for time horizon
-        dplyr::mutate(time_horizon = time_horizon) |>
+        dplyr::mutate(time_horizon = input_with_risk_and_pop_fraction |>  pull(time_horizon) |> first()) |>
         ## Add column for last year of analysis
         dplyr::mutate(last_year = year_of_analysis + time_horizon - 1)
 
